@@ -30,16 +30,26 @@ const SetAccount: FC<SetAccountProps> = ({ isOpen, close, account }) => {
     e.preventDefault();
 
     if (account) {
-      store.account.editAccount(account.id, name, +startBalance, false);
+      store.account.editAccount({
+        ...account,
+        name,
+        start_balance: +startBalance,
+      });
     } else {
-      store.account.createAccount(name, +startBalance, false);
+      store.account.createAccount({
+        name,
+        disabled: false,
+        start_balance: +startBalance,
+      });
     }
     close();
   };
 
   return (
     <Modal isOpen={isOpen} close={close}>
-      <ModalHeader close={close}>Edit Account</ModalHeader>
+      <ModalHeader close={close}>
+        {account ? "Edit Account" : "Create Account"}
+      </ModalHeader>
       <form onSubmit={onSubmit}>
         <ModalContent>
           <FormField

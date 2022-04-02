@@ -12,27 +12,26 @@ class AccountStore {
     this.rootStore = rootStore;
   }
 
-  createAccount(name: string, startBalance: number, disabled: boolean) {
+  createAccount(account: Omit<TAccount, "id" | "balance">) {
     this.accounts.push({
       id: uuid(),
-      name,
-      start_balance: startBalance,
-      balance: startBalance,
-      disabled,
+      ...account,
+      balance: account.start_balance,
     });
   }
 
-  editAccount(
-    id: string,
-    name: string,
-    startBalance: number,
-    disabled: boolean
-  ) {
-    const foundAccount = this.accounts.find((account) => account.id === id);
-    if (foundAccount) {
-      foundAccount.name = name;
-      foundAccount.start_balance = startBalance;
-      foundAccount.disabled = disabled;
+  editAccount(updatedAccount: Omit<TAccount, "balance">) {
+    const index = this.accounts.findIndex(
+      (account) => account.id === updatedAccount.id
+    );
+    if (index !== -1) {
+      this.accounts[index] = {
+        ...updatedAccount,
+        balance:
+          this.accounts[index].balance +
+          updatedAccount.start_balance -
+          this.accounts[index].start_balance,
+      };
     }
   }
 
