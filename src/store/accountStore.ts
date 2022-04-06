@@ -1,7 +1,8 @@
 import { makeAutoObservable } from "mobx";
 import { RootStore } from ".";
-import { TAccount } from "../types/account";
+import { TAccount } from "../types/accountType";
 import { v4 as uuid } from "uuid";
+import { makePersistable } from "mobx-persist-store";
 
 class AccountStore {
   rootStore: RootStore;
@@ -9,7 +10,16 @@ class AccountStore {
 
   constructor(rootStore: RootStore) {
     makeAutoObservable(this);
+    makePersistable(this, {
+      name: "accounts",
+      properties: ["accounts"],
+      storage: window.localStorage,
+    });
     this.rootStore = rootStore;
+  }
+
+  setAccounts(accounts: TAccount[]) {
+    this.accounts = accounts;
   }
 
   createAccount(account: Omit<TAccount, "id" | "balance">) {
@@ -37,6 +47,18 @@ class AccountStore {
 
   deleteAccount(id: string) {
     this.accounts = this.accounts.filter((account) => account.id !== id);
+  }
+
+  moveFunds(id: string, sum: number) {
+    if (this.accountDict[id]) this.accountDict[id].balance += sum;
+  }
+
+  get accountDict() {
+    const dict: { [id: string]: TAccount } = {};
+    this.accounts.forEach((account) => {
+      dict[account.id] = account;
+    });
+    return dict;
   }
 }
 

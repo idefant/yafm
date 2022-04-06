@@ -4,4 +4,5 @@ export type TAccount = {
   balance: number;
   start_balance: number;
   disabled: boolean;
+  currency_code: string;
 };

@@ -1,7 +1,7 @@
 import { makeAutoObservable } from "mobx";
 import { RootStore } from ".";
-import { TAlertType } from "../types/alert";
-import { TButtonColor } from "../types/button";
+import { TAlertType } from "../types/alertType";
+import { TButtonColor } from "../types/buttonType";
 
 class AppStore {
   rootStore: RootStore;

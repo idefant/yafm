@@ -3,24 +3,44 @@ import { FC, useState } from "react";
 import { PencilIcon, TrashIcon } from "../assets/svg";
 import Button from "../Generic/Button";
 import Table, { TBody, TD, TDIcon, TH, THead, TR } from "../Generic/Table";
+import { getCurrencyValue } from "../helper/currencies";
 import store from "../store";
 import SetTransaction from "../Transaction/SetTransaction";
-import { TTransaction } from "../types/transaction";
+import { TTransaction, TTransactionType } from "../types/transactionType";
 
 const Transactions: FC = observer(() => {
   const transactions = store.transaction.transactions;
   const [isOpen, setIsOpen] = useState(false);
+  const [transactionType, setTransactionType] = useState<TTransactionType>();
 
   return (
     <>
       <h1 className="text-3xl font-bold underline">Transactions!!!</h1>
-      <Button color="red" onClick={() => setIsOpen(true)}>
+      <Button
+        color="red"
+        onClick={() => {
+          setTransactionType("outcome");
+          setIsOpen(true);
+        }}
+      >
         Outcome
       </Button>
-      <Button color="green" onClick={() => setIsOpen(true)}>
+      <Button
+        color="green"
+        onClick={() => {
+          setTransactionType("income");
+          setIsOpen(true);
+        }}
+      >
         Income
       </Button>
-      <Button color="gray" onClick={() => setIsOpen(true)}>
+      <Button
+        color="gray"
+        onClick={() => {
+          setTransactionType("exchange");
+          setIsOpen(true);
+        }}
+      >
         Exchange
       </Button>
 
@@ -37,7 +57,7 @@ const Transactions: FC = observer(() => {
           </THead>
           <TBody>
             {transactions.map((transaction) => (
-              <TransactionItem transaction={transaction} />
+              <TransactionItem transaction={transaction} key={transaction.id} />
             ))}
           </TBody>
         </Table>
@@ -45,7 +65,11 @@ const Transactions: FC = observer(() => {
         <div className="font-sans text-3xl">¯\_(ツ)_/¯</div>
       )}
 
-      <SetTransaction isOpen={isOpen} close={() => setIsOpen(false)} />
+      <SetTransaction
+        isOpen={isOpen}
+        close={() => setIsOpen(false)}
+        startTransactionType={transactionType}
+      />
     </>
   );
 });
@@ -56,6 +80,22 @@ interface TransactionItemProps {
 
 const TransactionItem: FC<TransactionItemProps> = observer(
   ({ transaction }) => {
+    const {
+      currency: { currencyDict },
+      account: { accountDict },
+    } = store;
+    const incomeAccount = transaction.income?.account_id
+      ? accountDict[transaction.income?.account_id]
+      : undefined;
+    const outcomeAccount = transaction.outcome?.account_id
+      ? accountDict[transaction.outcome?.account_id]
+      : undefined;
+
+    const incomeCurrency =
+      incomeAccount && currencyDict[incomeAccount.currency_code];
+    const outcomeCurrency =
+      outcomeAccount && currencyDict[outcomeAccount.currency_code];
+
     const [isOpen, setIsOpen] = useState(false);
 
     const deleteTransaction = () => {
@@ -77,8 +117,16 @@ const TransactionItem: FC<TransactionItemProps> = observer(
     return (
       <TR>
         <TD>{transaction.name}</TD>
-        <TD>{transaction.outcome_sum}</TD>
-        <TD>{transaction.income_sum}</TD>
+        <TD>
+          {transaction.outcome?.sum !== undefined
+            ? getCurrencyValue(transaction.outcome?.sum, outcomeCurrency)
+            : ""}
+        </TD>
+        <TD>
+          {transaction.income?.sum !== undefined
+            ? getCurrencyValue(transaction.income?.sum, incomeCurrency)
+            : ""}
+        </TD>
         <TDIcon>
           <button className="p-2" onClick={() => setIsOpen(true)}>
             <PencilIcon className="w-7 h-7" />

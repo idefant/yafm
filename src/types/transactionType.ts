@@ -4,10 +4,13 @@ export type TTransaction = {
   description?: string;
   datetime: number;
   type: TTransactionType;
-  income_account_id?: string;
-  income_sum?: number;
-  outcome_account_id?: string;
-  outcome_sum?: number;
+  income?: TTransactionTransfer;
+  outcome?: TTransactionTransfer;
+};
+
+export type TTransactionTransfer = {
+  account_id: string;
+  sum: number;
 };
 
 export type TTransactionType = "income" | "outcome" | "exchange";

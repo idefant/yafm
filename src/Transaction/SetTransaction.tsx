@@ -8,27 +8,36 @@ import Modal, {
   ModalFooter,
   ModalHeader,
 } from "../Generic/Modal";
-import { TTransaction, TTransactionType } from "../types/transaction";
+import { TTransaction, TTransactionType } from "../types/transactionType";
 import "react-datepicker/dist/react-datepicker.css";
 import DatePicker from "../Generic/Form/DatePicker";
 import TimePicker from "../Generic/Form/TimePicker";
 import { observer } from "mobx-react-lite";
 import store from "../store";
 import CalendarButton from "../Generic/Form/CalendarButton";
+import { TCurrency } from "../types/currencyType";
+import { getCurrencyValue } from "../helper/currencies";
 
 interface SetTransactionProps {
   transaction?: TTransaction;
   isOpen: boolean;
   close: () => void;
+  startTransactionType?: TTransactionType;
 }
 
 const SetTransaction: FC<SetTransactionProps> = observer(
-  ({ isOpen, close, transaction }) => {
-    const accounts = store.account.accounts;
+  ({ isOpen, close, transaction, startTransactionType }) => {
+    const {
+      account: { accounts, accountDict },
+      currency: { currencyDict },
+    } = store;
     const accountOptions = accounts.map((account) => ({
       value: account.id,
       text: account.name,
     }));
+
+    const [incomeCurrency, setIncomeCurrency] = useState<TCurrency>();
+    const [outcomeCurrency, setOutcomeCurrency] = useState<TCurrency>();
 
     const [transactionType, setTransactionType] =
       useState<TTransactionType>("outcome");
@@ -37,31 +46,66 @@ const SetTransaction: FC<SetTransactionProps> = observer(
     const [date, setDate] = useState(new Date());
 
     const [incomeAccountId, setIncomeAccountId] = useState<string>();
-    const [income, setIncome] = useState("");
+    const [incomeSum, setIncomeSum] = useState("");
 
     const [outcomeAccountId, setOutcomeAccountId] = useState<string>();
-    const [outcome, setOutcome] = useState("");
+    const [outcomeSum, setOutcomeSum] = useState("");
 
     useEffect(() => {
       if (isOpen) {
         setName(transaction?.name || "");
         setDescription(transaction?.description || "");
-        setIncomeAccountId(transaction?.income_account_id);
-        setIncome(transaction?.income_sum?.toString() || "");
-        setOutcomeAccountId(transaction?.outcome_account_id);
-        setOutcome(transaction?.outcome_sum?.toString() || "");
+
+        const outcomeAccountId = transaction?.outcome?.account_id;
+        setOutcomeAccountId(outcomeAccountId);
+        const outcomeAccount = outcomeAccountId
+          ? accountDict[outcomeAccountId]
+          : undefined;
+        const outcomeCurrency =
+          outcomeAccount && currencyDict[outcomeAccount.currency_code];
+
+        setOutcomeCurrency(outcomeCurrency);
+        setOutcomeSum(
+          transaction?.outcome?.sum
+            ? getCurrencyValue(transaction.outcome.sum, outcomeCurrency)
+            : ""
+        );
+
+        const incomeAccountId = transaction?.income?.account_id;
+        setIncomeAccountId(incomeAccountId);
+        const incomeAccount = incomeAccountId
+          ? accountDict[incomeAccountId]
+          : undefined;
+        const incomeCurrency =
+          incomeAccount && currencyDict[incomeAccount.currency_code];
+        setIncomeCurrency(incomeCurrency);
+        setIncomeSum(
+          transaction?.income?.sum
+            ? getCurrencyValue(transaction.income.sum, incomeCurrency)
+            : ""
+        );
+
         setDate(
           transaction?.datetime ? new Date(transaction.datetime) : new Date()
         );
-        setTransactionType(transaction?.type || "outcome");
+        setTransactionType(
+          transaction?.type || startTransactionType || "outcome"
+        );
       }
-    }, [isOpen, transaction]);
+    }, [isOpen, transaction, accountDict, currencyDict, startTransactionType]);
 
     const onSubmit = (e?: FormEvent<HTMLFormElement>) => {
       e?.preventDefault();
-      if (transactionType !== "outcome" && !incomeAccountId && +income <= 0)
+      if (
+        transactionType !== "outcome" &&
+        (!incomeAccountId || +incomeSum <= 0 || !incomeCurrency)
+      )
         return;
-      if (transactionType !== "income" && !outcomeAccountId && +outcome <= 0)
+
+      if (
+        transactionType !== "income" &&
+        (!outcomeAccountId || +outcomeSum <= 0 || !outcomeCurrency)
+      )
         return;
 
       const transactionData = {
@@ -69,12 +113,26 @@ const SetTransaction: FC<SetTransactionProps> = observer(
         name,
         description,
         type: transactionType,
-        income_account_id:
-          transactionType !== "outcome" ? incomeAccountId : undefined,
-        income_sum: transactionType !== "outcome" ? +income : undefined,
-        outcome_account_id:
-          transactionType !== "income" ? outcomeAccountId : undefined,
-        outcome_sum: transactionType !== "income" ? +outcome : undefined,
+        income:
+          transactionType !== "outcome" && incomeAccountId
+            ? {
+                account_id: incomeAccountId,
+                sum: +(
+                  parseFloat(incomeSum) *
+                  10 ** (incomeCurrency?.decimal_places_number || 0)
+                ),
+              }
+            : undefined,
+        outcome:
+          transactionType !== "income" && outcomeAccountId
+            ? {
+                account_id: outcomeAccountId,
+                sum: +(
+                  parseFloat(outcomeSum) *
+                  10 ** (outcomeCurrency?.decimal_places_number || 0)
+                ),
+              }
+            : undefined,
       };
 
       if (transaction) {
@@ -86,6 +144,17 @@ const SetTransaction: FC<SetTransactionProps> = observer(
         store.transaction.createTransaction(transactionData);
       }
       close();
+    };
+
+    const onChangeAccount = (
+      e: ChangeEvent<HTMLSelectElement>,
+      setAccountId: (data: string) => void,
+      setCurrency: (data?: TCurrency) => void
+    ) => {
+      setAccountId(e.target.value);
+      const accountId = e.target.value;
+      const account = accountId ? accountDict[accountId] : undefined;
+      setCurrency(account && currencyDict[account.currency_code]);
     };
 
     return (
@@ -122,51 +191,31 @@ const SetTransaction: FC<SetTransactionProps> = observer(
             />
 
             {transactionType !== "income" && (
-              <>
-                <div className="text-xl pl-2 font-bold">Outcome</div>
-                <div className="flex items-center my-2 gap-3">
-                  <Select
-                    selectedValue={outcomeAccountId}
-                    options={accountOptions}
-                    onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-                      setOutcomeAccountId(e.target.value)
-                    }
-                    className="w-1/3"
-                  />
-                  <input
-                    type="text"
-                    className="w-2/3 bg-gray-200 rounded-md px-3 py-1.5 focus:outline-none focus:bg-gray-100 border focus:border-gray-600"
-                    value={outcome}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                      setOutcome(e.target.value)
-                    }
-                  />
-                </div>
-              </>
+              <AccountGroupField
+                title="Outcome"
+                accountId={outcomeAccountId}
+                accountOptions={accountOptions}
+                sum={outcomeSum}
+                currency={outcomeCurrency}
+                setSum={setOutcomeSum}
+                onChangeAccount={(e: ChangeEvent<HTMLSelectElement>) =>
+                  onChangeAccount(e, setOutcomeAccountId, setOutcomeCurrency)
+                }
+              />
             )}
 
             {transactionType !== "outcome" && (
-              <>
-                <div className="text-xl pl-2 font-bold">Income</div>
-                <div className="flex items-center my-2 gap-3">
-                  <Select
-                    selectedValue={incomeAccountId}
-                    options={accountOptions}
-                    onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-                      setIncomeAccountId(e.target.value)
-                    }
-                    className="w-1/3"
-                  />
-                  <input
-                    type="text"
-                    className="w-2/3 bg-gray-200 rounded-md px-3 py-1.5 focus:outline-none focus:bg-gray-100 border focus:border-gray-600"
-                    value={income}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                      setIncome(e.target.value)
-                    }
-                  />
-                </div>
-              </>
+              <AccountGroupField
+                title="Income"
+                accountId={incomeAccountId}
+                accountOptions={accountOptions}
+                sum={incomeSum}
+                currency={incomeCurrency}
+                setSum={setIncomeSum}
+                onChangeAccount={(e: ChangeEvent<HTMLSelectElement>) =>
+                  onChangeAccount(e, setIncomeAccountId, setIncomeCurrency)
+                }
+              />
             )}
 
             <Textarea
@@ -193,6 +242,56 @@ const SetTransaction: FC<SetTransactionProps> = observer(
           </Button>
         </ModalFooter>
       </Modal>
+    );
+  }
+);
+
+interface AccountGroupFieldProps {
+  accountId?: string;
+  accountOptions: {
+    value: string;
+    text: string;
+  }[];
+  sum: string;
+  setSum: (data: string) => void;
+  currency?: TCurrency;
+  title: string;
+  onChangeAccount: (e: ChangeEvent<HTMLSelectElement>) => void;
+}
+
+const AccountGroupField: FC<AccountGroupFieldProps> = observer(
+  ({
+    accountId,
+    accountOptions,
+    sum,
+    setSum,
+    currency,
+    title,
+    onChangeAccount,
+  }) => {
+    return (
+      <>
+        <div className="text-xl pl-2 font-bold">{title}</div>
+        <div className="flex items-center my-2 gap-3">
+          <Select
+            selectedValue={accountId}
+            options={accountOptions}
+            onChange={onChangeAccount}
+            className="w-1/3"
+          />
+          <div className="w-2/3 flex gap-4 items-center">
+            <input
+              type="text"
+              className="flex-1 bg-gray-200 rounded-md px-3 py-1.5 focus:outline-none focus:bg-gray-100 border focus:border-gray-600"
+              value={sum}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                setSum(e.target.value)
+              }
+            />
+            {currency && <div>{currency.code}</div>}
+          </div>
+        </div>
+      </>
     );
   }
 );

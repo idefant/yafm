@@ -4,8 +4,9 @@ import SetAccount from "../Account/SetAccount";
 import { PencilIcon, TrashIcon } from "../assets/svg";
 import Button from "../Generic/Button";
 import Table, { TBody, TD, TDIcon, TH, THead, TR } from "../Generic/Table";
+import { getCurrencyValue } from "../helper/currencies";
 import store from "../store";
-import { TAccount } from "../types/account";
+import { TAccount } from "../types/accountType";
 
 const Accounts: FC = observer(() => {
   const accounts = store.account.accounts;
@@ -24,13 +25,14 @@ const Accounts: FC = observer(() => {
             <TR>
               <TH>Name</TH>
               <TH>Balance</TH>
+              <TH>Currency</TH>
               <TH></TH>
               <TH></TH>
             </TR>
           </THead>
           <TBody>
             {accounts.map((account) => (
-              <AccountItem account={account} />
+              <AccountItem account={account} key={account.id} />
             ))}
           </TBody>
         </Table>
@@ -48,6 +50,8 @@ interface AccountItemProps {
 }
 
 const AccountItem: FC<AccountItemProps> = observer(({ account }) => {
+  const currencyDict = store.currency.currencyDict;
+  const accountCurrency = currencyDict[account.currency_code];
   const [isOpen, setIsOpen] = useState(false);
 
   const deleteAccount = () => {
@@ -69,7 +73,11 @@ const AccountItem: FC<AccountItemProps> = observer(({ account }) => {
   return (
     <TR>
       <TD>{account.name}</TD>
-      <TD>{account.balance}р</TD>
+      <TD>
+        {getCurrencyValue(account.balance, accountCurrency)}{" "}
+        {accountCurrency?.symbol || accountCurrency?.code || ""}
+      </TD>
+      <TD>{accountCurrency.code}</TD>
       <TDIcon>
         <button className="p-2" onClick={() => setIsOpen(true)}>
           <PencilIcon className="w-7 h-7" />
