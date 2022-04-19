@@ -8,10 +8,10 @@ import Modal, {
   ModalFooter,
   ModalHeader,
 } from "../Generic/Modal";
-import { getCurrencyValue } from "../helper/currencies";
-import store from "../store";
-import { TAccount } from "../types/accountType";
-import { TCurrency } from "../types/currencyType";
+import { getCurrencyValue } from "../../helper/currencies";
+import store from "../../store";
+import { TAccount } from "../../types/accountType";
+import { TCurrency } from "../../types/currencyType";
 
 interface SetAccountProps {
   account?: TAccount;

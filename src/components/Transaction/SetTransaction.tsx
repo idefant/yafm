@@ -8,15 +8,15 @@ import Modal, {
   ModalFooter,
   ModalHeader,
 } from "../Generic/Modal";
-import { TTransaction, TTransactionType } from "../types/transactionType";
+import { TTransaction, TTransactionType } from "../../types/transactionType";
 import "react-datepicker/dist/react-datepicker.css";
 import DatePicker from "../Generic/Form/DatePicker";
 import TimePicker from "../Generic/Form/TimePicker";
 import { observer } from "mobx-react-lite";
-import store from "../store";
+import store from "../../store";
 import CalendarButton from "../Generic/Form/CalendarButton";
-import { TCurrency } from "../types/currencyType";
-import { getCurrencyValue } from "../helper/currencies";
+import { TCurrency } from "../../types/currencyType";
+import { getCurrencyValue } from "../../helper/currencies";
 
 interface SetTransactionProps {
   transaction?: TTransaction;

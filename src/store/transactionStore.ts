@@ -2,7 +2,6 @@ import { makeAutoObservable } from "mobx";
 import { RootStore } from ".";
 import { TTransaction } from "../types/transactionType";
 import { v4 as uuid } from "uuid";
-import { makePersistable } from "mobx-persist-store";
 
 class TransactionStore {
   rootStore: RootStore;
@@ -10,11 +9,6 @@ class TransactionStore {
 
   constructor(rootStore: RootStore) {
     makeAutoObservable(this);
-    makePersistable(this, {
-      name: "transactions",
-      properties: ["transactions"],
-      storage: window.localStorage,
-    });
     this.rootStore = rootStore;
   }
 

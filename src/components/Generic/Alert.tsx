@@ -2,8 +2,8 @@ import { observer } from "mobx-react-lite";
 import { FC } from "react";
 import { createPortal } from "react-dom";
 import { CSSTransition } from "react-transition-group";
-import { CrossCircleIcon, CrossIcon } from "../assets/svg";
-import store from "../store";
+import { CrossCircleIcon, CrossIcon } from "../../assets/svg";
+import store from "../../store";
 import Button from "./Button";
 
 const Alert: FC = observer(() => {

@@ -6,6 +6,7 @@ interface FormFieldProps {
   onChange?: any;
   units?: string;
   type?: HTMLInputTypeAttribute;
+  name?: string;
 }
 
 const FormField: FC<FormFieldProps> = ({
@@ -14,6 +15,7 @@ const FormField: FC<FormFieldProps> = ({
   onChange,
   units,
   type = "text",
+  name,
 }) => {
   return (
     <div className="flex items-center my-2 gap-3">
@@ -24,6 +26,7 @@ const FormField: FC<FormFieldProps> = ({
           className="flex-1 bg-gray-200 rounded-md px-3 py-1.5 focus:outline-none focus:bg-gray-100 border focus:border-gray-600"
           value={value}
           onChange={onChange}
+          name={name}
         />
         {units && <div>{units}</div>}
       </div>

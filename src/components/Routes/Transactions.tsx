@@ -1,12 +1,12 @@
 import { observer } from "mobx-react-lite";
 import { FC, useState } from "react";
-import { PencilIcon, TrashIcon } from "../assets/svg";
+import { PencilIcon, TrashIcon } from "../../assets/svg";
 import Button from "../Generic/Button";
 import Table, { TBody, TD, TDIcon, TH, THead, TR } from "../Generic/Table";
-import { getCurrencyValue } from "../helper/currencies";
-import store from "../store";
+import { getCurrencyValue } from "../../helper/currencies";
+import store from "../../store";
 import SetTransaction from "../Transaction/SetTransaction";
-import { TTransaction, TTransactionType } from "../types/transactionType";
+import { TTransaction, TTransactionType } from "../../types/transactionType";
 
 const Transactions: FC = observer(() => {
   const transactions = store.transaction.transactions;
