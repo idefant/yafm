@@ -1,11 +1,12 @@
 export type TTransaction = {
   id: string;
   name: string;
-  description?: string;
+  description: string;
   datetime: number;
   type: TTransactionType;
   income?: TTransactionTransfer;
   outcome?: TTransactionTransfer;
+  category_id?: string;
 };
 
 export type TTransactionTransfer = {

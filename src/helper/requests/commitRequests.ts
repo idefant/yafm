@@ -1,6 +1,8 @@
 import axios from "axios";
+import { getErrorMessage } from ".";
 import { TApi } from "../../types/userType";
 import { refreshToken } from "../jwt";
+import { errorAlert } from "../sweetalert";
 
 export const createCommitRequest = (
   iv: string,
@@ -16,6 +18,8 @@ export const createCommitRequest = (
     url: "/commit",
     data: { iv, hmac, cipher },
     headers: { Authorization: `Bearer ${accessToken}` },
+  }).catch((error) => {
+    errorAlert({ title: getErrorMessage(error) });
   });
 };
 
@@ -26,5 +30,7 @@ export const getLastCommitRequest = (accessToken: string, api: TApi) => {
     baseURL: api.url,
     url: "/commits/last",
     headers: { Authorization: `Bearer ${accessToken}` },
+  }).catch((error) => {
+    errorAlert({ title: getErrorMessage(error) });
   });
 };

@@ -3,6 +3,7 @@ import { FC, FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { aesDecrypt } from "../../helper/crypto";
 import { getLastCommitRequest } from "../../helper/requests/commitRequests";
+import { errorAlert } from "../../helper/sweetalert";
 import useForm from "../../hooks/useForm";
 import store from "../../store";
 import { EncryptedYAFM } from "../../types/cipher";
@@ -18,6 +19,7 @@ const Decrypt: FC = observer(() => {
   });
 
   const [cipherData, setCipherData] = useState<EncryptedYAFM>();
+  const [isNew, setIsNew] = useState<boolean>();
 
   useEffect(() => {
     if (!api) {
@@ -32,13 +34,28 @@ const Decrypt: FC = observer(() => {
       (async () => {
         const serverResponse = await getLastCommitRequest(accessToken, api);
         if (!serverResponse) return;
-        setCipherData(serverResponse.data.data);
+        if (serverResponse.data.is_new) {
+          setIsNew(true);
+        } else {
+          setIsNew(false);
+          setCipherData(serverResponse.data.data);
+        }
       })();
     }
   }, [api, navigate, aesPass, accessToken]);
 
   const submitForm = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!form.aes_key) {
+      errorAlert({ title: "You need write AES Key" });
+      return;
+    }
+
+    if (isNew) {
+      store.user.setAesPass(form.aes_key);
+      return;
+    }
+
     if (cipherData) {
       const plaintext = aesDecrypt(
         cipherData.cipher,
@@ -52,10 +69,11 @@ const Decrypt: FC = observer(() => {
 
         store.account.setAccounts(data.accounts);
         store.transaction.setTransactions(data.transactions);
+        store.category.setCategories(data.categories);
 
         navigate("/");
       } else {
-        alert("Wrong password");
+        errorAlert({ title: "Wrong password" });
       }
     }
   };
@@ -65,10 +83,12 @@ const Decrypt: FC = observer(() => {
     navigate("/login");
   };
 
-  return (
+  return isNew === undefined ? (
+    <>Loading...</>
+  ) : (
     <>
       <h1 className="text-3xl font-bold underline text-center mb-7">
-        Decrypt YAFM
+        {isNew ? "Create Base" : "Decrypt Base"}
       </h1>
       <form onSubmit={submitForm}>
         <div className="flex gap-3 mb-3">
@@ -80,7 +100,7 @@ const Decrypt: FC = observer(() => {
           <div className="w-2/3">{api?.username}</div>
         </div>
         <FormField
-          label="AES Key"
+          label="New AES Key"
           value={form.aes_key}
           name="aes_key"
           onChange={setForm}
@@ -88,7 +108,7 @@ const Decrypt: FC = observer(() => {
         />
         <div className="mx-auto mt-8 flex justify-center gap-6">
           <Button type="submit" color="green" className="block">
-            Decrypt
+            {isNew ? "Create new Base" : "Decrypt"}
           </Button>
           <Button type="button" color="red" className="block" onClick={logout}>
             Logout

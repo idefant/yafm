@@ -16,6 +16,10 @@ class AccountStore {
     this.accounts = accounts;
   }
 
+  clearAccounts() {
+    this.accounts = [];
+  }
+
   createAccount(account: Omit<TAccount, "id" | "balance">) {
     this.accounts.push({
       id: uuid(),

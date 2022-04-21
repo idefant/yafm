@@ -32,6 +32,7 @@ class UserStore {
   logout() {
     this.api = undefined;
     this.accessToken = undefined;
+    this.aesPass = undefined;
   }
 
   updateTokens(refreshToken: string, accessToken: string) {

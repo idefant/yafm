@@ -6,9 +6,23 @@ import { CrossIcon } from "../../assets/svg";
 interface ModalProps {
   isOpen: boolean;
   close?: () => void;
+  onExited?: () => void;
+  onEnter?: () => void;
+  contentTag?: string;
+  onSubmit?: () => void;
 }
 
-const Modal: FC<ModalProps> = ({ children, isOpen, close }) => {
+const Modal: FC<ModalProps> = ({
+  children,
+  isOpen,
+  close,
+  onExited,
+  onEnter,
+  contentTag,
+  onSubmit,
+}) => {
+  const Tag = (contentTag || "div") as keyof JSX.IntrinsicElements;
+
   return createPortal(
     <CSSTransition
       in={isOpen}
@@ -20,18 +34,21 @@ const Modal: FC<ModalProps> = ({ children, isOpen, close }) => {
         enterActive: "opacity-100",
         exitActive: "opacity-0",
       }}
+      onExited={onExited}
+      onEnter={onEnter}
     >
       <div
         className="fixed inset-0 bg-gray-800/60 transition ease-in-out duration-300"
         onClick={close}
       >
         <div className="h-[calc(100%-3.5rem)] max-w-md mx-auto my-7">
-          <div
+          <Tag
             className="bg-white flex flex-col overflow-hidden max-h-full rounded-lg"
             onClick={(e) => e.stopPropagation()}
+            onSubmit={onSubmit}
           >
             {children}
-          </div>
+          </Tag>
         </div>
       </div>
     </CSSTransition>,

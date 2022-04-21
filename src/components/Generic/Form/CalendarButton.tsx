@@ -19,7 +19,7 @@ const CalendarButton: FC<CalendarButtonProps> = ({ date, setDate }) => {
       showTimeSelect
       timeIntervals={30}
       customInput={
-        <button className="p-1">
+        <button className="p-1" type="button">
           <CalendarIcon />
         </button>
       }

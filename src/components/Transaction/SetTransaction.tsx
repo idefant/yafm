@@ -1,4 +1,4 @@
-import { ChangeEvent, FC, FormEvent, useEffect, useState } from "react";
+import { ChangeEvent, FC, FormEvent, useMemo, useState } from "react";
 import Button from "../Generic/Button";
 import FormField from "../Generic/Form/FormField";
 import Select from "../Generic/Form/Select";
@@ -17,6 +17,7 @@ import store from "../../store";
 import CalendarButton from "../Generic/Form/CalendarButton";
 import { TCurrency } from "../../types/currencyType";
 import { getCurrencyValue } from "../../helper/currencies";
+import useForm from "../../hooks/useForm";
 
 interface SetTransactionProps {
   transaction?: TTransaction;
@@ -30,105 +31,82 @@ const SetTransaction: FC<SetTransactionProps> = observer(
     const {
       account: { accounts, accountDict },
       currency: { currencyDict },
+      category: { transactions: categories },
     } = store;
+
+    const [form, setForm, updateForm] = useForm({
+      name: "",
+      description: "",
+      outcome_account_id: "",
+      outcome_sum: "",
+      income_account_id: "",
+      income_sum: "",
+      category_id: "",
+    });
+
     const accountOptions = accounts.map((account) => ({
       value: account.id,
       text: account.name,
     }));
 
-    const [incomeCurrency, setIncomeCurrency] = useState<TCurrency>();
-    const [outcomeCurrency, setOutcomeCurrency] = useState<TCurrency>();
+    const categoryOptions = categories
+      .filter((category) => !category.is_archive)
+      .map((category) => ({ value: category.id, text: category.name }));
+
+    const outcomeCurrency = useMemo(() => {
+      const outcomeAccount = accountDict[form.outcome_account_id];
+      return outcomeAccount
+        ? currencyDict[outcomeAccount.currency_code]
+        : undefined;
+    }, [accountDict, currencyDict, form.outcome_account_id]);
+
+    const incomeCurrency = useMemo(() => {
+      const incomeAccount = accountDict[form.income_account_id];
+      return incomeAccount
+        ? currencyDict[incomeAccount.currency_code]
+        : undefined;
+    }, [accountDict, currencyDict, form.income_account_id]);
 
     const [transactionType, setTransactionType] =
       useState<TTransactionType>("outcome");
-    const [name, setName] = useState("");
-    const [description, setDescription] = useState("");
     const [date, setDate] = useState(new Date());
-
-    const [incomeAccountId, setIncomeAccountId] = useState<string>();
-    const [incomeSum, setIncomeSum] = useState("");
-
-    const [outcomeAccountId, setOutcomeAccountId] = useState<string>();
-    const [outcomeSum, setOutcomeSum] = useState("");
-
-    useEffect(() => {
-      if (isOpen) {
-        setName(transaction?.name || "");
-        setDescription(transaction?.description || "");
-
-        const outcomeAccountId = transaction?.outcome?.account_id;
-        setOutcomeAccountId(outcomeAccountId);
-        const outcomeAccount = outcomeAccountId
-          ? accountDict[outcomeAccountId]
-          : undefined;
-        const outcomeCurrency =
-          outcomeAccount && currencyDict[outcomeAccount.currency_code];
-
-        setOutcomeCurrency(outcomeCurrency);
-        setOutcomeSum(
-          transaction?.outcome?.sum
-            ? getCurrencyValue(transaction.outcome.sum, outcomeCurrency)
-            : ""
-        );
-
-        const incomeAccountId = transaction?.income?.account_id;
-        setIncomeAccountId(incomeAccountId);
-        const incomeAccount = incomeAccountId
-          ? accountDict[incomeAccountId]
-          : undefined;
-        const incomeCurrency =
-          incomeAccount && currencyDict[incomeAccount.currency_code];
-        setIncomeCurrency(incomeCurrency);
-        setIncomeSum(
-          transaction?.income?.sum
-            ? getCurrencyValue(transaction.income.sum, incomeCurrency)
-            : ""
-        );
-
-        setDate(
-          transaction?.datetime ? new Date(transaction.datetime) : new Date()
-        );
-        setTransactionType(
-          transaction?.type || startTransactionType || "outcome"
-        );
-      }
-    }, [isOpen, transaction, accountDict, currencyDict, startTransactionType]);
 
     const onSubmit = (e?: FormEvent<HTMLFormElement>) => {
       e?.preventDefault();
       if (
         transactionType !== "outcome" &&
-        (!incomeAccountId || +incomeSum <= 0 || !incomeCurrency)
+        (!form.income_account_id || +form.income_sum <= 0 || !incomeCurrency)
       )
         return;
 
       if (
         transactionType !== "income" &&
-        (!outcomeAccountId || +outcomeSum <= 0 || !outcomeCurrency)
+        (!form.outcome_account_id || +form.outcome_sum <= 0 || !outcomeCurrency)
       )
         return;
 
       const transactionData = {
         datetime: +date,
-        name,
-        description,
+        name: form.name,
+        description: form.description,
         type: transactionType,
+        category_id: form.category_id || undefined,
         income:
-          transactionType !== "outcome" && incomeAccountId
+          transactionType !== "outcome" && form.income_account_id
             ? {
-                account_id: incomeAccountId,
+                account_id: form.income_account_id,
                 sum: +(
-                  parseFloat(incomeSum) *
+                  parseFloat(form.income_sum) *
                   10 ** (incomeCurrency?.decimal_places_number || 0)
                 ),
               }
             : undefined,
         outcome:
-          transactionType !== "income" && outcomeAccountId
+          transactionType !== "income" && form.outcome_account_id
             ? {
-                account_id: outcomeAccountId,
+                account_id: form.outcome_account_id,
                 sum: +(
-                  parseFloat(outcomeSum) *
+                  parseFloat(form.outcome_sum) *
                   10 ** (outcomeCurrency?.decimal_places_number || 0)
                 ),
               }
@@ -146,95 +124,132 @@ const SetTransaction: FC<SetTransactionProps> = observer(
       close();
     };
 
-    const onChangeAccount = (
-      e: ChangeEvent<HTMLSelectElement>,
-      setAccountId: (data: string) => void,
-      setCurrency: (data?: TCurrency) => void
-    ) => {
-      setAccountId(e.target.value);
-      const accountId = e.target.value;
-      const account = accountId ? accountDict[accountId] : undefined;
-      setCurrency(account && currencyDict[account.currency_code]);
+    const onEnter = () => {
+      const outcomeAccountId = transaction?.outcome?.account_id;
+      const outcomeAccount = outcomeAccountId
+        ? accountDict[outcomeAccountId]
+        : undefined;
+      const outcomeCurrency =
+        outcomeAccount && currencyDict[outcomeAccount.currency_code];
+
+      const incomeAccountId = transaction?.income?.account_id;
+      const incomeAccount = incomeAccountId
+        ? accountDict[incomeAccountId]
+        : undefined;
+      const incomeCurrency =
+        incomeAccount && currencyDict[incomeAccount.currency_code];
+
+      updateForm({
+        name: transaction?.name || "",
+        description: transaction?.description || "",
+        outcome_account_id: transaction?.outcome?.account_id || "",
+        outcome_sum: transaction?.outcome?.sum
+          ? getCurrencyValue(transaction.outcome.sum, outcomeCurrency)
+          : "",
+        income_account_id: transaction?.income?.account_id || "",
+        income_sum: transaction?.income?.sum
+          ? getCurrencyValue(transaction.income.sum, incomeCurrency)
+          : "",
+        category_id: transaction?.category_id || "",
+      });
+
+      setDate(
+        transaction?.datetime ? new Date(transaction.datetime) : new Date()
+      );
+      setTransactionType(
+        transaction?.type || startTransactionType || "outcome"
+      );
     };
 
     return (
-      <Modal isOpen={isOpen} close={close}>
+      <Modal
+        isOpen={isOpen}
+        close={close}
+        onEnter={onEnter}
+        contentTag="form"
+        onSubmit={onSubmit}
+      >
         <ModalHeader close={close}>
           {transaction ? "Edit Transaction" : "Create Transaction"}
         </ModalHeader>
         <ModalContent>
-          <form onSubmit={onSubmit}>
-            <div className="flex justify-evenly">
-              <Button color="red" onClick={() => setTransactionType("outcome")}>
-                Outcome
-              </Button>
-              <Button
-                color="green"
-                onClick={() => setTransactionType("income")}
-              >
-                Income
-              </Button>
-              <Button
-                color="gray"
-                onClick={() => setTransactionType("exchange")}
-              >
-                Exchange
-              </Button>
-            </div>
+          <div className="flex justify-evenly">
+            <Button color="red" onClick={() => setTransactionType("outcome")}>
+              Outcome
+            </Button>
+            <Button color="green" onClick={() => setTransactionType("income")}>
+              Income
+            </Button>
+            <Button color="gray" onClick={() => setTransactionType("exchange")}>
+              Exchange
+            </Button>
+          </div>
 
-            <FormField
-              label="Name"
-              value={name}
-              onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                setName(e.target.value)
-              }
+          <FormField
+            label="Name"
+            name="name"
+            value={form.name}
+            onChange={setForm}
+          />
+
+          <div className="flex items-center my-2 gap-3">
+            <label className="block w-1/3">Category</label>
+            <Select
+              selectedValue={form.category_id}
+              name="category_id"
+              options={categoryOptions}
+              onChange={setForm}
+              className="w-2/3"
+              useEmpty
+              defaultText="Choose a category"
             />
+          </div>
 
-            {transactionType !== "income" && (
-              <AccountGroupField
-                title="Outcome"
-                accountId={outcomeAccountId}
-                accountOptions={accountOptions}
-                sum={outcomeSum}
-                currency={outcomeCurrency}
-                setSum={setOutcomeSum}
-                onChangeAccount={(e: ChangeEvent<HTMLSelectElement>) =>
-                  onChangeAccount(e, setOutcomeAccountId, setOutcomeCurrency)
-                }
-              />
-            )}
-
-            {transactionType !== "outcome" && (
-              <AccountGroupField
-                title="Income"
-                accountId={incomeAccountId}
-                accountOptions={accountOptions}
-                sum={incomeSum}
-                currency={incomeCurrency}
-                setSum={setIncomeSum}
-                onChangeAccount={(e: ChangeEvent<HTMLSelectElement>) =>
-                  onChangeAccount(e, setIncomeAccountId, setIncomeCurrency)
-                }
-              />
-            )}
-
-            <Textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Description ..."
+          {transactionType !== "income" && (
+            <AccountGroupField
+              title="Outcome"
+              nameSelect="outcome_account_id"
+              nameInput="outcome_sum"
+              accountId={form.outcome_account_id}
+              accountOptions={accountOptions}
+              sum={form.outcome_sum}
+              currency={outcomeCurrency}
+              setSum={setForm}
+              onChangeAccount={setForm}
             />
+          )}
 
-            <div className="flex gap-2 mt-2 items-center">
-              <DatePicker date={date} setDate={(date: Date) => setDate(date)} />
-              <TimePicker date={date} setDate={(date: Date) => setDate(date)} />
-              <CalendarButton date={date} setDate={setDate} />
-            </div>
+          {transactionType !== "outcome" && (
+            <AccountGroupField
+              title="Income"
+              nameSelect="income_account_id"
+              nameInput="income_sum"
+              accountId={form.income_account_id}
+              accountOptions={accountOptions}
+              sum={form.income_sum}
+              currency={incomeCurrency}
+              setSum={setForm}
+              onChangeAccount={setForm}
+            />
+          )}
 
-            <button type="submit" className="hidden"></button>
-          </form>
+          <Textarea
+            value={form.description}
+            name="description"
+            onChange={setForm}
+            placeholder="Description ..."
+          />
+
+          <div className="flex gap-2 mt-2 items-center">
+            <DatePicker date={date} setDate={setDate} />
+            <TimePicker date={date} setDate={setDate} />
+            <CalendarButton date={date} setDate={setDate} />
+          </div>
+
+          <button type="submit" className="hidden"></button>
         </ModalContent>
         <ModalFooter>
-          <Button color="green" type="submit" onClick={() => onSubmit()}>
+          <Button color="green" type="submit">
             Save
           </Button>
           <Button color="gray" onClick={close}>
@@ -253,10 +268,12 @@ interface AccountGroupFieldProps {
     text: string;
   }[];
   sum: string;
-  setSum: (data: string) => void;
+  setSum: (event: ChangeEvent<HTMLInputElement>) => void;
   currency?: TCurrency;
   title: string;
   onChangeAccount: (e: ChangeEvent<HTMLSelectElement>) => void;
+  nameSelect?: string;
+  nameInput?: string;
 }
 
 const AccountGroupField: FC<AccountGroupFieldProps> = observer(
@@ -268,6 +285,8 @@ const AccountGroupField: FC<AccountGroupFieldProps> = observer(
     currency,
     title,
     onChangeAccount,
+    nameSelect,
+    nameInput,
   }) => {
     return (
       <>
@@ -278,15 +297,16 @@ const AccountGroupField: FC<AccountGroupFieldProps> = observer(
             options={accountOptions}
             onChange={onChangeAccount}
             className="w-1/3"
+            name={nameSelect}
+            defaultText="Choose"
           />
           <div className="w-2/3 flex gap-4 items-center">
             <input
               type="text"
+              name={nameInput}
               className="flex-1 bg-gray-200 rounded-md px-3 py-1.5 focus:outline-none focus:bg-gray-100 border focus:border-gray-600"
               value={sum}
-              onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                setSum(e.target.value)
-              }
+              onChange={setSum}
             />
             {currency && <div>{currency.code}</div>}
           </div>

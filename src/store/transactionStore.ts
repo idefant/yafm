@@ -16,6 +16,10 @@ class TransactionStore {
     this.transactions = transactions;
   }
 
+  clearTransactions() {
+    this.transactions = [];
+  }
+
   createTransaction(transaction: Omit<TTransaction, "id">) {
     if (transaction.income)
       this.rootStore.account.moveFunds(

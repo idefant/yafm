@@ -1,9 +1,9 @@
-import { FC, HTMLInputTypeAttribute } from "react";
+import { ChangeEvent, FC, HTMLInputTypeAttribute } from "react";
 
 interface FormFieldProps {
   label: string;
   value: string;
-  onChange?: any;
+  onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
   units?: string;
   type?: HTMLInputTypeAttribute;
   name?: string;

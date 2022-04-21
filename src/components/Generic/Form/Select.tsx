@@ -1,4 +1,6 @@
+import classNames from "classnames";
 import { FC } from "react";
+import style from "./Select.module.css";
 
 interface SelectProps {
   optgroups?: {
@@ -18,6 +20,8 @@ interface SelectProps {
   onChange?: React.ChangeEventHandler<HTMLSelectElement>;
   className?: string;
   defaultText?: string;
+  useEmpty?: boolean;
+  name?: string;
 }
 
 const Select: FC<SelectProps> = ({
@@ -27,12 +31,19 @@ const Select: FC<SelectProps> = ({
   onChange,
   className,
   defaultText = "Choose here",
+  useEmpty,
+  name,
 }) => {
   return (
     <select
-      defaultValue={selectedValue || ""}
-      className={className}
+      value={selectedValue || ""}
+      className={classNames(
+        "bg-gray-200 rounded-md px-2 py-1.5 focus:outline-none focus:bg-gray-100 border focus:border-gray-600 appearance-none bg-clip-padding bg-no-repeat",
+        className,
+        style.select
+      )}
       onChange={onChange}
+      name={name}
     >
       {optgroups?.map((optgroup) => (
         <optgroup label={optgroup.label} key={optgroup.label}>
@@ -47,8 +58,8 @@ const Select: FC<SelectProps> = ({
           ))}
         </optgroup>
       ))}
-      {!selectedValue && (
-        <option disabled hidden value="">
+      {(!selectedValue || useEmpty) && (
+        <option disabled={!useEmpty} hidden={!useEmpty} value="">
           {defaultText}
         </option>
       )}

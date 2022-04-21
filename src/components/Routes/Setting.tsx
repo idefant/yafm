@@ -3,20 +3,21 @@ import { ChangeEvent, FC } from "react";
 import store from "../../store";
 import { exportFile, readFileContent } from "../../helper/file";
 import { aesDecrypt, aesEncrypt } from "../../helper/crypto";
+import FormField from "../Generic/Form/FormField";
+import useForm from "../../hooks/useForm";
+import Button from "../Generic/Button";
+import Swal from "sweetalert2";
+import { getSyncData } from "../../helper/sync";
 
 const Setting: FC = observer(() => {
   const { aesPass } = store.user;
 
   const downloadBackup = (useCipher: boolean) => {
-    if (!aesPass) return;
-    const data = {
-      accounts: store.account.accounts,
-      transactions: store.transaction.transactions,
-    };
-    const content = JSON.stringify(data);
+    const data = getSyncData();
 
     if (useCipher) {
-      const aesData = aesEncrypt(content, aesPass);
+      if (!aesPass) return;
+      const aesData = aesEncrypt(data, aesPass);
       exportFile(
         JSON.stringify({
           cipher: aesData.cipher,
@@ -26,7 +27,7 @@ const Setting: FC = observer(() => {
         "backup-enc.yafm"
       );
     } else {
-      exportFile(content, "backup-decr.yafm");
+      exportFile(data, "backup-decr.yafm");
     }
   };
 
@@ -63,6 +64,7 @@ const Setting: FC = observer(() => {
 
             store.account.setAccounts(data.accounts);
             store.transaction.setTransactions(data.transactions);
+            store.category.setCategories(data.categories);
           } else {
             alert("Wrong Format");
           }
@@ -74,9 +76,58 @@ const Setting: FC = observer(() => {
     }
   };
 
+  const [form, setForm] = useForm({
+    old_pass: "",
+    new_pass: "",
+    repeat_pass: "",
+  });
+
+  const changePassword = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (form.old_pass !== aesPass) {
+      Swal.fire({ title: "Wrong password", icon: "error" });
+      return;
+    }
+    if (form.new_pass !== form.repeat_pass) {
+      Swal.fire({ title: "Passwords don't match", icon: "error" });
+      return;
+    }
+
+    store.user.setAesPass(form.new_pass);
+    Swal.fire({ title: "Password changed successfully", icon: "success" });
+  };
+
   return (
     <>
-      <h1 className="text-3xl font-bold underline">Setting!!!</h1>
+      <h1 className="text-3xl font-bold underline pb-4">Setting!!!</h1>
+
+      <h2 className="text-2xl font-bold underline pb-3">Change Password</h2>
+
+      <form className="w-2/3" onSubmit={changePassword}>
+        <FormField
+          label="Old password"
+          value={form.old_pass}
+          onChange={setForm}
+          name="old_pass"
+          type="password"
+        />
+        <FormField
+          label="New password"
+          value={form.new_pass}
+          onChange={setForm}
+          name="new_pass"
+          type="password"
+        />
+        <FormField
+          label="Repeat password"
+          value={form.repeat_pass}
+          onChange={setForm}
+          name="repeat_pass"
+          type="password"
+        />
+        <Button type="submit">Change Password</Button>
+      </form>
 
       <hr className="my-5" />
 

@@ -1,16 +1,33 @@
 import { observer } from "mobx-react-lite";
-import { FC, useState } from "react";
+import { FC, Fragment, useState } from "react";
 import SetAccount from "../Account/SetAccount";
-import { PencilIcon, TrashIcon } from "../../assets/svg";
+import { ArchiveIcon, LockIcon, PencilIcon, TrashIcon } from "../../assets/svg";
 import Button from "../Generic/Button";
 import Table, { TBody, TD, TDIcon, TH, THead, TR } from "../Generic/Table";
 import { getCurrencyValue } from "../../helper/currencies";
 import store from "../../store";
 import { TAccount } from "../../types/accountType";
+import Swal from "sweetalert2";
 
 const Accounts: FC = observer(() => {
-  const accounts = store.account.accounts;
+  const {
+    account: { accounts },
+    category: { accounts: categories },
+  } = store;
   const [isOpen, setIsOpen] = useState(false);
+
+  const accountDict = accounts.reduce(
+    (dict: { [key: string]: TAccount[] }, curr) => {
+      const categoryId = curr.category_id || "";
+      if (categoryId in dict) {
+        dict[categoryId].push(curr);
+      } else {
+        dict[categoryId] = [curr];
+      }
+      return dict;
+    },
+    {}
+  );
 
   return (
     <>
@@ -25,15 +42,36 @@ const Accounts: FC = observer(() => {
             <TR>
               <TH>Name</TH>
               <TH>Balance</TH>
-              <TH>Currency</TH>
+              <TH></TH>
+              <TH></TH>
               <TH></TH>
               <TH></TH>
             </TR>
           </THead>
           <TBody>
-            {accounts.map((account) => (
-              <AccountItem account={account} key={account.id} />
-            ))}
+            {accounts
+              .filter((category) => !category.category_id)
+              .map((account) => (
+                <AccountItem account={account} key={account.id} />
+              ))}
+            {categories.map(
+              (category) =>
+                accountDict[category.id] && (
+                  <Fragment key={category.id}>
+                    <TR>
+                      <TH colSpan={6} className="!bg-orange-200 !py-1">
+                        {category.name}
+                      </TH>
+                    </TR>
+                    {accountDict[category.id]
+                      ?.slice()
+                      .sort((a, b) => +a.is_archive - +b.is_archive)
+                      .map((account) => (
+                        <AccountItem account={account} key={account.id} />
+                      ))}
+                  </Fragment>
+                )
+            )}
           </TBody>
         </Table>
       ) : (
@@ -50,41 +88,61 @@ interface AccountItemProps {
 }
 
 const AccountItem: FC<AccountItemProps> = observer(({ account }) => {
-  const currencyDict = store.currency.currencyDict;
+  const {
+    currency: { currencyDict },
+    transaction: { transactions },
+  } = store;
   const accountCurrency = currencyDict[account.currency_code];
   const [isOpen, setIsOpen] = useState(false);
 
-  const deleteAccount = () => {
-    store.app.closeAlert();
-    store.account.deleteAccount(account.id);
+  const checkAccountIsUsed = () => {
+    for (const transaction of transactions) {
+      if (
+        transaction.income?.account_id === account.id ||
+        transaction.outcome?.account_id === account.id
+      )
+        return true;
+    }
+    return false;
   };
 
-  const showDeleteModal = () => {
-    store.app.openAlert({
-      title: "Delete Account",
-      type: "error",
-      buttons: [
-        { text: "Confirm", color: "red", onClick: deleteAccount },
-        { text: "Cancel", onClick: () => store.app.closeAlert() },
-      ],
-    });
+  const confirmDelete = () => {
+    checkAccountIsUsed()
+      ? Swal.fire({
+          title: "Unable to delete account",
+          text: "There are transactions using this account",
+          icon: "error",
+        })
+      : Swal.fire({
+          title: "Delete account",
+          icon: "error",
+          text: account.name,
+          showCancelButton: true,
+          cancelButtonText: "Cancel",
+          confirmButtonText: "Delete",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            store.account.deleteAccount(account.id);
+          }
+        });
   };
 
   return (
-    <TR>
+    <TR hide={account.is_archive}>
       <TD>{account.name}</TD>
-      <TD>
-        {getCurrencyValue(account.balance, accountCurrency)}{" "}
-        {accountCurrency?.symbol || accountCurrency?.code || ""}
+      <TD className="text-right">
+        {getCurrencyValue(account.balance, accountCurrency)}
+        <span className="pl-3">{accountCurrency.code}</span>
       </TD>
-      <TD>{accountCurrency.code}</TD>
+      <TD>{account.is_hide && <LockIcon />}</TD>
+      <TD>{account.is_archive && <ArchiveIcon />}</TD>
       <TDIcon>
         <button className="p-2" onClick={() => setIsOpen(true)}>
           <PencilIcon className="w-7 h-7" />
         </button>
       </TDIcon>
       <TDIcon>
-        <button className="p-2" onClick={showDeleteModal}>
+        <button className="p-2" onClick={confirmDelete}>
           <TrashIcon className="w-7 h-7" />
         </button>
       </TDIcon>

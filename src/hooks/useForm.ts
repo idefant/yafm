@@ -4,17 +4,25 @@ type TFields = {
   [key: string]: string;
 };
 
+type ChangeEvent = React.ChangeEvent<
+  HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+>;
+
 const useForm = (
   initialFields: TFields
-): [TFields, (event: React.ChangeEvent<HTMLInputElement>) => void] => {
+): [TFields, (e: ChangeEvent) => void, (fields: TFields) => void] => {
   const [fields, setField] = useState(initialFields);
 
-  const setValue = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const setValue = (e: ChangeEvent) => {
     if (e.target.name in fields) {
       setField({ ...fields, [e.target.name]: e.target.value });
     }
   };
-  return [fields, setValue];
+
+  const updateValue = (updatedFields: TFields) =>
+    setField({ ...fields, ...updatedFields });
+
+  return [fields, setValue, updateValue];
 };
 
 export default useForm;

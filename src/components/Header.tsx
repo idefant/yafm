@@ -1,9 +1,11 @@
 import { observer } from "mobx-react-lite";
 import { FC } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 import { LockIcon } from "../assets/svg";
 import { aesEncrypt } from "../helper/crypto";
 import { createCommitRequest } from "../helper/requests/commitRequests";
+import { getSyncData } from "../helper/sync";
 import store from "../store";
 
 const Header: FC = observer(() => {
@@ -12,40 +14,26 @@ const Header: FC = observer(() => {
     user: { api, aesPass, accessToken },
   } = store;
 
-  const prepareData = () => {
-    if (!aesPass) return;
-
-    const data = {
-      accounts: store.account.accounts,
-      transactions: store.transaction.transactions,
-    };
-    const content = JSON.stringify(data);
-    const aesData = aesEncrypt(content, aesPass);
-    return {
-      cipher: aesData.cipher,
-      iv: aesData.iv,
-      hmac: aesData.hmac,
-    };
-  };
-
   const sync = async () => {
     if (api) {
-      const data = prepareData();
-      if (!data || !accessToken) return;
+      if (!aesPass || !accessToken) return;
 
-      const serverResponse = await createCommitRequest(
+      const data = aesEncrypt(getSyncData(), aesPass);
+      await createCommitRequest(
         data.iv,
         data.hmac,
         data.cipher,
         accessToken,
         api
       );
-      if (!serverResponse) return;
     }
   };
 
   const lock = () => {
     store.user.clearAesPass();
+    store.account.clearAccounts();
+    store.category.clearCategories();
+    store.transaction.clearTransactions();
     navigate("/decrypt");
   };
 
@@ -57,6 +45,7 @@ const Header: FC = observer(() => {
         <HeaderItem href="/transactions">Transactions</HeaderItem>
         <HeaderItem href="/accounts">Accounts</HeaderItem>
         <HeaderItem href="/setting">Setting</HeaderItem>
+        <HeaderItem href="/categories">Categories</HeaderItem>
       </div>
       <div className="flex gap-3">
         <button

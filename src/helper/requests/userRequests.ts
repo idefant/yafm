@@ -1,4 +1,6 @@
 import axios from "axios";
+import { getErrorMessage } from ".";
+import { errorAlert } from "../sweetalert";
 
 export const loginRequest = (
   serverUrl: string,
@@ -17,6 +19,8 @@ export const loginRequest = (
     data: {
       useragent,
     },
+  }).catch((error) => {
+    errorAlert({ title: getErrorMessage(error) });
   });
 };
 
@@ -35,5 +39,7 @@ export const refreshTokenRequest = (
       username: username,
       useragent,
     },
+  }).catch((error) => {
+    errorAlert({ title: getErrorMessage(error) });
   });
 };
