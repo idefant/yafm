@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite";
 import { FC, FormEvent, useMemo } from "react";
-import Button from "../Generic/Button";
+import Button from "../Generic/Button/Button";
 import FormField from "../Generic/Form/FormField";
 import Select from "../Generic/Form/Select";
 import Modal, {
@@ -129,80 +129,83 @@ const SetAccount: FC<SetAccountProps> = observer(
     };
 
     return (
-      <Modal isOpen={isOpen} close={close} onEnter={onEnter}>
+      <Modal
+        isOpen={isOpen}
+        close={close}
+        onEnter={onEnter}
+        onSubmit={onSubmit}
+      >
         <ModalHeader close={close}>
           {account ? "Edit Account" : "Create Account"}
         </ModalHeader>
-        <form onSubmit={onSubmit}>
-          <ModalContent>
-            <FormField
-              label="Name"
-              name="name"
-              value={form.name}
-              onChange={setForm}
-            />
-            {!account && (
-              <div className="flex items-center my-2 gap-3">
-                <label className="block w-1/3">Currency</label>
-                <Select
-                  name="currency_code"
-                  selectedValue={form.currency_code}
-                  optgroups={optgroups}
-                  options={currencyOptions.options}
-                  onChange={setForm}
-                  className="w-2/3"
-                />
-              </div>
-            )}
-            <FormField
-              label="Start Balance"
-              name="start_balance"
-              value={form.start_balance}
-              onChange={setForm}
-              units={accountCurrency?.code}
-            />
-
+        <ModalContent>
+          <FormField
+            label="Name"
+            name="name"
+            value={form.name}
+            onChange={setForm}
+          />
+          {!account && (
             <div className="flex items-center my-2 gap-3">
-              <label className="block w-1/3">Category</label>
+              <label className="block w-1/3">Currency</label>
               <Select
-                name="category_id"
-                selectedValue={form.category_id}
-                options={categoryOptions}
+                name="currency_code"
+                selectedValue={form.currency_code}
+                optgroups={optgroups}
+                options={currencyOptions.options}
                 onChange={setForm}
                 className="w-2/3"
-                useEmpty
-                defaultText="Choose a category"
               />
             </div>
+          )}
+          <FormField
+            label="Start Balance"
+            name="start_balance"
+            value={form.start_balance}
+            onChange={setForm}
+            units={accountCurrency?.code}
+          />
 
-            {account && (
-              <>
-                <Checkbox
-                  checked={checkForm.is_hide}
-                  onChange={setCheckForm}
-                  name="is_hide"
-                >
-                  Hide
-                </Checkbox>
-                <Checkbox
-                  checked={checkForm.is_archive}
-                  onChange={setCheckForm}
-                  name="is_archive"
-                >
-                  Archive
-                </Checkbox>
-              </>
-            )}
-          </ModalContent>
-          <ModalFooter>
-            <Button color="green" type="submit">
-              Save
-            </Button>
-            <Button color="gray" onClick={close}>
-              Cancel
-            </Button>
-          </ModalFooter>
-        </form>
+          <div className="flex items-center my-2 gap-3">
+            <label className="block w-1/3">Category</label>
+            <Select
+              name="category_id"
+              selectedValue={form.category_id}
+              options={categoryOptions}
+              onChange={setForm}
+              className="w-2/3"
+              useEmpty
+              defaultText="Choose a category"
+            />
+          </div>
+
+          {account && (
+            <>
+              <Checkbox
+                checked={checkForm.is_hide}
+                onChange={setCheckForm}
+                name="is_hide"
+              >
+                Hide
+              </Checkbox>
+              <Checkbox
+                checked={checkForm.is_archive}
+                onChange={setCheckForm}
+                name="is_archive"
+              >
+                Archive
+              </Checkbox>
+            </>
+          )}
+        </ModalContent>
+        <ModalFooter>
+          <Button color="green" type="submit">
+            Save
+          </Button>
+          <Button color="gray" onClick={close}>
+            Cancel
+          </Button>
+        </ModalFooter>
       </Modal>
     );
   }

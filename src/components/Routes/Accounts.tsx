@@ -2,12 +2,13 @@ import { observer } from "mobx-react-lite";
 import { FC, Fragment, useState } from "react";
 import SetAccount from "../Account/SetAccount";
 import { ArchiveIcon, LockIcon, PencilIcon, TrashIcon } from "../../assets/svg";
-import Button from "../Generic/Button";
+import Button from "../Generic/Button/Button";
 import Table, { TBody, TD, TDIcon, TH, THead, TR } from "../Generic/Table";
 import { getCurrencyValue } from "../../helper/currencies";
 import store from "../../store";
 import { TAccount } from "../../types/accountType";
 import Swal from "sweetalert2";
+import ButtonLink from "../Generic/Button/ButtonLink";
 
 const Accounts: FC = observer(() => {
   const {
@@ -29,12 +30,23 @@ const Accounts: FC = observer(() => {
     {}
   );
 
+  const [openedAccount, setOpenedAccount] = useState<TAccount>();
+
+  const openAccount = (account?: TAccount) => {
+    setOpenedAccount(account);
+    setIsOpen(true);
+  };
+
   return (
     <>
       <h1 className="text-3xl font-bold underline">Accounts!!!</h1>
-      <Button color="green" onClick={() => setIsOpen(true)}>
+      <Button color="green" onClick={() => openAccount()}>
         Create Account
       </Button>
+
+      <ButtonLink to="categories" color="gray">
+        Categories
+      </ButtonLink>
 
       {accounts.length ? (
         <Table>
@@ -52,7 +64,11 @@ const Accounts: FC = observer(() => {
             {accounts
               .filter((category) => !category.category_id)
               .map((account) => (
-                <AccountItem account={account} key={account.id} />
+                <AccountItem
+                  account={account}
+                  openModal={() => openAccount(account)}
+                  key={account.id}
+                />
               ))}
             {categories.map(
               (category) =>
@@ -67,7 +83,11 @@ const Accounts: FC = observer(() => {
                       ?.slice()
                       .sort((a, b) => +a.is_archive - +b.is_archive)
                       .map((account) => (
-                        <AccountItem account={account} key={account.id} />
+                        <AccountItem
+                          account={account}
+                          openModal={() => openAccount(account)}
+                          key={account.id}
+                        />
                       ))}
                   </Fragment>
                 )
@@ -78,22 +98,26 @@ const Accounts: FC = observer(() => {
         <div className="font-sans text-3xl">¯\_(ツ)_/¯</div>
       )}
 
-      <SetAccount isOpen={isOpen} close={() => setIsOpen(false)} />
+      <SetAccount
+        isOpen={isOpen}
+        close={() => setIsOpen(false)}
+        account={openedAccount}
+      />
     </>
   );
 });
 
 interface AccountItemProps {
   account: TAccount;
+  openModal: () => void;
 }
 
-const AccountItem: FC<AccountItemProps> = observer(({ account }) => {
+const AccountItem: FC<AccountItemProps> = observer(({ account, openModal }) => {
   const {
     currency: { currencyDict },
     transaction: { transactions },
   } = store;
   const accountCurrency = currencyDict[account.currency_code];
-  const [isOpen, setIsOpen] = useState(false);
 
   const checkAccountIsUsed = () => {
     for (const transaction of transactions) {
@@ -137,7 +161,7 @@ const AccountItem: FC<AccountItemProps> = observer(({ account }) => {
       <TD>{account.is_hide && <LockIcon />}</TD>
       <TD>{account.is_archive && <ArchiveIcon />}</TD>
       <TDIcon>
-        <button className="p-2" onClick={() => setIsOpen(true)}>
+        <button className="p-2" onClick={openModal}>
           <PencilIcon className="w-7 h-7" />
         </button>
       </TDIcon>
@@ -146,12 +170,6 @@ const AccountItem: FC<AccountItemProps> = observer(({ account }) => {
           <TrashIcon className="w-7 h-7" />
         </button>
       </TDIcon>
-
-      <SetAccount
-        isOpen={isOpen}
-        close={() => setIsOpen(false)}
-        account={account}
-      />
     </TR>
   );
 });

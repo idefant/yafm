@@ -1,7 +1,6 @@
 import { observer } from "mobx-react-lite";
 import { FC } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Swal from "sweetalert2";
 import { LockIcon } from "../assets/svg";
 import { aesEncrypt } from "../helper/crypto";
 import { createCommitRequest } from "../helper/requests/commitRequests";
@@ -45,7 +44,6 @@ const Header: FC = observer(() => {
         <HeaderItem href="/transactions">Transactions</HeaderItem>
         <HeaderItem href="/accounts">Accounts</HeaderItem>
         <HeaderItem href="/setting">Setting</HeaderItem>
-        <HeaderItem href="/categories">Categories</HeaderItem>
       </div>
       <div className="flex gap-3">
         <button

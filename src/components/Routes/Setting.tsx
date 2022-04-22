@@ -5,7 +5,7 @@ import { exportFile, readFileContent } from "../../helper/file";
 import { aesDecrypt, aesEncrypt } from "../../helper/crypto";
 import FormField from "../Generic/Form/FormField";
 import useForm from "../../hooks/useForm";
-import Button from "../Generic/Button";
+import Button from "../Generic/Button/Button";
 import Swal from "sweetalert2";
 import { getSyncData } from "../../helper/sync";
 

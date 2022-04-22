@@ -1,7 +1,13 @@
 import { observer } from "mobx-react-lite";
 import { FC, useState } from "react";
-import { InfoIcon, PencilIcon, TrashIcon } from "../../assets/svg";
-import Button from "../Generic/Button";
+import {
+  InfoIcon,
+  MinusIcon,
+  PencilIcon,
+  PlusIcon,
+  RepeatIcon,
+  TrashIcon,
+} from "../../assets/svg";
 import Table, { TBody, TD, TDIcon, TH, THead, TR } from "../Generic/Table";
 import { getCurrencyValue } from "../../helper/currencies";
 import store from "../../store";
@@ -10,42 +16,52 @@ import { TTransaction, TTransactionType } from "../../types/transactionType";
 import Swal from "sweetalert2";
 import { getDateText, getTimeText } from "../../helper/datetime";
 import ReactTooltip from "react-tooltip";
+import ActionButton from "../Generic/Button/ActionButton";
+import ButtonLink from "../Generic/Button/ButtonLink";
 
 const Transactions: FC = observer(() => {
   const transactions = store.transaction.transactions;
   const [isOpen, setIsOpen] = useState(false);
   const [transactionType, setTransactionType] = useState<TTransactionType>();
+  const [openedTransaction, setOpenedTransaction] = useState<TTransaction>();
+
+  const openTransaction = (
+    type: TTransactionType,
+    transaction?: TTransaction
+  ) => {
+    setOpenedTransaction(transaction);
+    setTransactionType(type);
+    setIsOpen(true);
+  };
 
   return (
     <>
       <h1 className="text-3xl font-bold underline">Transactions!!!</h1>
-      <Button
-        color="red"
-        onClick={() => {
-          setTransactionType("outcome");
-          setIsOpen(true);
-        }}
-      >
-        Outcome
-      </Button>
-      <Button
-        color="green"
-        onClick={() => {
-          setTransactionType("income");
-          setIsOpen(true);
-        }}
-      >
-        Income
-      </Button>
-      <Button
-        color="gray"
-        onClick={() => {
-          setTransactionType("exchange");
-          setIsOpen(true);
-        }}
-      >
-        Exchange
-      </Button>
+      <div className="flex gap-2">
+        <ActionButton
+          onClick={() => openTransaction("outcome")}
+          color="red"
+          active
+        >
+          <MinusIcon className="w-8 h-8" />
+        </ActionButton>
+
+        <ActionButton
+          onClick={() => openTransaction("income")}
+          color="green"
+          active
+        >
+          <PlusIcon className="w-8 h-8" />
+        </ActionButton>
+
+        <ActionButton onClick={() => openTransaction("exchange")} active>
+          <RepeatIcon className="w-8 h-8" />
+        </ActionButton>
+      </div>
+
+      <ButtonLink to="categories" color="gray">
+        Categories
+      </ButtonLink>
 
       {transactions.length ? (
         <Table>
@@ -63,7 +79,11 @@ const Transactions: FC = observer(() => {
           </THead>
           <TBody>
             {transactions.map((transaction) => (
-              <TransactionItem transaction={transaction} key={transaction.id} />
+              <TransactionItem
+                transaction={transaction}
+                openModal={() => openTransaction(transaction.type, transaction)}
+                key={transaction.id}
+              />
             ))}
           </TBody>
         </Table>
@@ -75,6 +95,7 @@ const Transactions: FC = observer(() => {
         isOpen={isOpen}
         close={() => setIsOpen(false)}
         startTransactionType={transactionType}
+        transaction={openedTransaction}
       />
     </>
   );
@@ -82,10 +103,11 @@ const Transactions: FC = observer(() => {
 
 interface TransactionItemProps {
   transaction: TTransaction;
+  openModal: () => void;
 }
 
 const TransactionItem: FC<TransactionItemProps> = observer(
-  ({ transaction }) => {
+  ({ transaction, openModal }) => {
     const {
       currency: { currencyDict },
       account: { accountDict },
@@ -106,8 +128,6 @@ const TransactionItem: FC<TransactionItemProps> = observer(
     const categoryName = transaction.category_id
       ? categoryDict[transaction.category_id].name
       : "-";
-
-    const [isOpen, setIsOpen] = useState(false);
 
     const confirmDelete = () => {
       Swal.fire({
@@ -133,28 +153,28 @@ const TransactionItem: FC<TransactionItemProps> = observer(
         </TD>
         <TD className="text-center">{categoryName}</TD>
 
-        {transaction.outcome && outcomeCurrency ? (
+        {transaction.outcome && outcomeCurrency && outcomeAccount ? (
           <TD className="text-right">
             <div className="text-red-700">
               {getCurrencyValue(transaction.outcome.sum, outcomeCurrency)}
               <span className="pl-2.5">{outcomeCurrency.code || ""}</span>
             </div>
             <div className="text-sm text-gray-600">
-              {outcomeAccount?.name || ""}
+              {outcomeAccount.name || ""}
             </div>
           </TD>
         ) : (
           <TD className="text-center">-</TD>
         )}
 
-        {transaction.income && incomeCurrency ? (
+        {transaction.income && incomeCurrency && incomeAccount ? (
           <TD className="text-right">
             <div className="text-green-700">
               {getCurrencyValue(transaction.income.sum, incomeCurrency)}
               <span className="pl-2.5">{incomeCurrency.code || ""}</span>
             </div>
             <div className="text-sm text-gray-600">
-              {incomeAccount?.name || ""}
+              {incomeAccount.name || ""}
             </div>
           </TD>
         ) : (
@@ -179,7 +199,7 @@ const TransactionItem: FC<TransactionItemProps> = observer(
         </TDIcon>
 
         <TDIcon>
-          <button className="p-2" onClick={() => setIsOpen(true)}>
+          <button className="p-2" onClick={openModal}>
             <PencilIcon className="w-7 h-7" />
           </button>
         </TDIcon>
@@ -188,12 +208,6 @@ const TransactionItem: FC<TransactionItemProps> = observer(
             <TrashIcon className="w-7 h-7" />
           </button>
         </TDIcon>
-
-        <SetTransaction
-          isOpen={isOpen}
-          close={() => setIsOpen(false)}
-          transaction={transaction}
-        />
       </TR>
     );
   }

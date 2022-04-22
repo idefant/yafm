@@ -1,5 +1,5 @@
 import { ChangeEvent, FC, FormEvent, useMemo, useState } from "react";
-import Button from "../Generic/Button";
+import Button from "../Generic/Button/Button";
 import FormField from "../Generic/Form/FormField";
 import Select from "../Generic/Form/Select";
 import Textarea from "../Generic/Form/Textarea";
@@ -18,6 +18,8 @@ import CalendarButton from "../Generic/Form/CalendarButton";
 import { TCurrency } from "../../types/currencyType";
 import { getCurrencyValue } from "../../helper/currencies";
 import useForm from "../../hooks/useForm";
+import ActionButton from "../Generic/Button/ActionButton";
+import { MinusIcon, PlusIcon, RepeatIcon } from "../../assets/svg";
 
 interface SetTransactionProps {
   transaction?: TTransaction;
@@ -71,8 +73,8 @@ const SetTransaction: FC<SetTransactionProps> = observer(
       useState<TTransactionType>("outcome");
     const [date, setDate] = useState(new Date());
 
-    const onSubmit = (e?: FormEvent<HTMLFormElement>) => {
-      e?.preventDefault();
+    const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
       if (
         transactionType !== "outcome" &&
         (!form.income_account_id || +form.income_sum <= 0 || !incomeCurrency)
@@ -156,9 +158,7 @@ const SetTransaction: FC<SetTransactionProps> = observer(
       setDate(
         transaction?.datetime ? new Date(transaction.datetime) : new Date()
       );
-      setTransactionType(
-        transaction?.type || startTransactionType || "outcome"
-      );
+      setTransactionType(startTransactionType || "outcome");
     };
 
     return (
@@ -166,23 +166,38 @@ const SetTransaction: FC<SetTransactionProps> = observer(
         isOpen={isOpen}
         close={close}
         onEnter={onEnter}
-        contentTag="form"
         onSubmit={onSubmit}
       >
         <ModalHeader close={close}>
           {transaction ? "Edit Transaction" : "Create Transaction"}
         </ModalHeader>
         <ModalContent>
-          <div className="flex justify-evenly">
-            <Button color="red" onClick={() => setTransactionType("outcome")}>
-              Outcome
-            </Button>
-            <Button color="green" onClick={() => setTransactionType("income")}>
-              Income
-            </Button>
-            <Button color="gray" onClick={() => setTransactionType("exchange")}>
-              Exchange
-            </Button>
+          <div className="flex justify-center gap-6">
+            <ActionButton
+              onClick={() => setTransactionType("outcome")}
+              color="red"
+              active={transactionType === "outcome"}
+              shadow={transactionType === "outcome"}
+            >
+              <MinusIcon className="w-7 h-7" />
+            </ActionButton>
+
+            <ActionButton
+              onClick={() => setTransactionType("income")}
+              color="green"
+              active={transactionType === "income"}
+              shadow={transactionType === "income"}
+            >
+              <PlusIcon className="w-7 h-7" />
+            </ActionButton>
+
+            <ActionButton
+              onClick={() => setTransactionType("exchange")}
+              active={transactionType === "exchange"}
+              shadow={transactionType === "exchange"}
+            >
+              <RepeatIcon className="w-7 h-7" />
+            </ActionButton>
           </div>
 
           <FormField
@@ -245,8 +260,6 @@ const SetTransaction: FC<SetTransactionProps> = observer(
             <TimePicker date={date} setDate={setDate} />
             <CalendarButton date={date} setDate={setDate} />
           </div>
-
-          <button type="submit" className="hidden"></button>
         </ModalContent>
         <ModalFooter>
           <Button color="green" type="submit">

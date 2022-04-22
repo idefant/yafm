@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite";
 import { FC, FormEvent } from "react";
-import Button from "../Generic/Button";
+import Button from "../Generic/Button/Button";
 import FormField from "../Generic/Form/FormField";
 import Modal, {
   ModalContent,
@@ -62,47 +62,50 @@ const SetCategory: FC<SetCategoryProps> = observer(
     };
 
     return (
-      <Modal isOpen={isOpen} close={close} onEnter={onEnter}>
+      <Modal
+        isOpen={isOpen}
+        close={close}
+        onEnter={onEnter}
+        onSubmit={onSubmit}
+      >
         <ModalHeader close={close}>
           {category ? "Edit Category" : "Create Category"}
         </ModalHeader>
-        <form onSubmit={onSubmit}>
-          <ModalContent>
-            <FormField
-              label="Name"
-              name="name"
-              value={form.name}
-              onChange={setForm}
-            />
+        <ModalContent>
+          <FormField
+            label="Name"
+            name="name"
+            value={form.name}
+            onChange={setForm}
+          />
 
-            {category && (
-              <>
-                <Checkbox
-                  checked={checkForm.is_hide}
-                  onChange={setCheckForm}
-                  name="is_hide"
-                >
-                  Hide
-                </Checkbox>
-                <Checkbox
-                  checked={checkForm.is_archive}
-                  onChange={setCheckForm}
-                  name="is_archive"
-                >
-                  Archive
-                </Checkbox>
-              </>
-            )}
-          </ModalContent>
-          <ModalFooter>
-            <Button color="green" type="submit">
-              Save
-            </Button>
-            <Button color="gray" onClick={close}>
-              Cancel
-            </Button>
-          </ModalFooter>
-        </form>
+          {category && (
+            <>
+              <Checkbox
+                checked={checkForm.is_hide}
+                onChange={setCheckForm}
+                name="is_hide"
+              >
+                Hide
+              </Checkbox>
+              <Checkbox
+                checked={checkForm.is_archive}
+                onChange={setCheckForm}
+                name="is_archive"
+              >
+                Archive
+              </Checkbox>
+            </>
+          )}
+        </ModalContent>
+        <ModalFooter>
+          <Button color="green" type="submit">
+            Save
+          </Button>
+          <Button color="gray" onClick={close}>
+            Cancel
+          </Button>
+        </ModalFooter>
       </Modal>
     );
   }

@@ -7,7 +7,7 @@ import { errorAlert } from "../../helper/sweetalert";
 import useForm from "../../hooks/useForm";
 import store from "../../store";
 import { EncryptedYAFM } from "../../types/cipher";
-import Button from "../Generic/Button";
+import Button from "../Generic/Button/Button";
 import FormField from "../Generic/Form/FormField";
 
 const Decrypt: FC = observer(() => {

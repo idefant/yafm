@@ -5,7 +5,7 @@ import { refreshToken } from "../../helper/jwt";
 import { loginRequest } from "../../helper/requests/userRequests";
 import useForm from "../../hooks/useForm";
 import store from "../../store";
-import Button from "../Generic/Button";
+import Button from "../Generic/Button/Button";
 import FormField from "../Generic/Form/FormField";
 
 const Login: FC = observer(() => {

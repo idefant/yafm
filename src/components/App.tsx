@@ -1,11 +1,10 @@
 import { observer } from "mobx-react-lite";
 import { FC } from "react";
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import CabinetTemplate from "./Container/CabinetTemplate";
 import PreLoginTemplate from "./Container/PreLoginTemplate";
 import Accounts from "./Routes/Accounts";
-import CategoriesOverview from "./Routes/Categories/CategoriesOverview";
-import Categories from "./Routes/Categories/Categories";
+import Categories from "./Routes/Categories";
 import Decrypt from "./Routes/Decrypt";
 import Login from "./Routes/Login";
 import Main from "./Routes/Main";
@@ -25,15 +24,15 @@ const App: FC = observer(() => {
         <Route path="/transactions" element={<Transactions />} />
         <Route path="/accounts" element={<Accounts />} />
         <Route path="/setting" element={<Setting />} />
-        <Route path="/categories" element={<CategoriesOverview />} />
         <Route
-          path="/categories/account"
+          path="/accounts/categories"
           element={<Categories categoryType="accounts" />}
         />
         <Route
-          path="/categories/transaction"
+          path="/transactions/categories"
           element={<Categories categoryType="transactions" />}
         />
+        <Route path="*" element={<Navigate to="/" />} />
       </Route>
     </Routes>
   );

@@ -1,6 +1,6 @@
 import classNames from "classnames";
 import { FC } from "react";
-import { TButtonColor } from "../../types/buttonType";
+import { TButtonColor } from "../../../types/buttonType";
 
 interface ButtonProps {
   color?: TButtonColor;
@@ -27,6 +27,7 @@ const Button: FC<ButtonProps> = ({
       )}
       onClick={onClick}
       type={type}
+      aria-describedby="animated-dialog-heading"
     >
       {children}
     </button>

@@ -1,3 +1,4 @@
+import FocusTrap from "focus-trap-react";
 import { FC } from "react";
 import { createPortal } from "react-dom";
 import { CSSTransition } from "react-transition-group";
@@ -8,8 +9,7 @@ interface ModalProps {
   close?: () => void;
   onExited?: () => void;
   onEnter?: () => void;
-  contentTag?: string;
-  onSubmit?: () => void;
+  onSubmit?: any;
 }
 
 const Modal: FC<ModalProps> = ({
@@ -18,10 +18,9 @@ const Modal: FC<ModalProps> = ({
   close,
   onExited,
   onEnter,
-  contentTag,
   onSubmit,
 }) => {
-  const Tag = (contentTag || "div") as keyof JSX.IntrinsicElements;
+  const Tag = (onSubmit ? "form" : "div") as keyof JSX.IntrinsicElements;
 
   return createPortal(
     <CSSTransition
@@ -37,20 +36,22 @@ const Modal: FC<ModalProps> = ({
       onExited={onExited}
       onEnter={onEnter}
     >
-      <div
-        className="fixed inset-0 bg-gray-800/60 transition ease-in-out duration-300"
-        onClick={close}
-      >
-        <div className="h-[calc(100%-3.5rem)] max-w-md mx-auto my-7">
-          <Tag
-            className="bg-white flex flex-col overflow-hidden max-h-full rounded-lg"
-            onClick={(e) => e.stopPropagation()}
-            onSubmit={onSubmit}
-          >
-            {children}
-          </Tag>
+      <FocusTrap focusTrapOptions={{ onDeactivate: close }}>
+        <div
+          className="fixed inset-0 bg-gray-800/60 transition ease-in-out duration-300"
+          onClick={close}
+        >
+          <div className="h-[calc(100%-3.5rem)] max-w-md mx-auto my-7">
+            <Tag
+              className="bg-white flex flex-col overflow-hidden max-h-full rounded-lg"
+              onClick={(e) => e.stopPropagation()}
+              onSubmit={onSubmit}
+            >
+              {children}
+            </Tag>
+          </div>
         </div>
-      </div>
+      </FocusTrap>
     </CSSTransition>,
     document.body
   );
@@ -65,7 +66,7 @@ export const ModalHeader: FC<ModalHeaderProps> = ({ children, close }) => {
     <div className="flex justify-between p-5 border-b border-gray-600">
       <h2 className="text-xl font-bold">{children}</h2>
       {close && (
-        <button onClick={close}>
+        <button onClick={close} type="button">
           <CrossIcon />
         </button>
       )}

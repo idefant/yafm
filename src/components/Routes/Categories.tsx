@@ -1,16 +1,11 @@
 import { observer } from "mobx-react-lite";
 import { FC, useState } from "react";
-import {
-  ArchiveIcon,
-  LockIcon,
-  PencilIcon,
-  TrashIcon,
-} from "../../../assets/svg";
-import Button from "../../Generic/Button";
-import Table, { TBody, TD, TDIcon, TH, THead, TR } from "../../Generic/Table";
-import store from "../../../store";
-import SetCategory from "../../Caterory/SetCategory";
-import { TCategory, TCategoryType } from "../../../types/categoryType";
+import { ArchiveIcon, LockIcon, PencilIcon, TrashIcon } from "../../assets/svg";
+import Button from "../Generic/Button/Button";
+import Table, { TBody, TD, TDIcon, TH, THead, TR } from "../Generic/Table";
+import store from "../../store";
+import SetCategory from "../Caterory/SetCategory";
+import { TCategory, TCategoryType } from "../../types/categoryType";
 import Swal from "sweetalert2";
 
 interface CategoriesProps {
@@ -20,11 +15,19 @@ interface CategoriesProps {
 const Categories: FC<CategoriesProps> = observer(({ categoryType }) => {
   const categories = store.category[categoryType];
   const [isOpen, setIsOpen] = useState(false);
+  const [openedCategory, setOpenedCategory] = useState<TCategory>();
+
+  const openCategory = (category?: TCategory) => {
+    setOpenedCategory(category);
+    setIsOpen(true);
+  };
 
   return (
     <>
-      <h1 className="text-3xl font-bold underline">Account Categories!!!</h1>
-      <Button color="green" onClick={() => setIsOpen(true)}>
+      <h1 className="text-3xl font-bold underline">
+        {categoryType === "accounts" ? "Account" : "Transaction"} Categories!!!
+      </h1>
+      <Button color="green" onClick={() => openCategory()}>
         Create Category
       </Button>
 
@@ -48,6 +51,7 @@ const Categories: FC<CategoriesProps> = observer(({ categoryType }) => {
                   category={category}
                   key={category.id}
                   categoryType={categoryType}
+                  openModal={() => openCategory(category)}
                 />
               ))}
           </TBody>
@@ -60,6 +64,7 @@ const Categories: FC<CategoriesProps> = observer(({ categoryType }) => {
         isOpen={isOpen}
         close={() => setIsOpen(false)}
         categoryType={categoryType}
+        category={openedCategory}
       />
     </>
   );
@@ -68,16 +73,15 @@ const Categories: FC<CategoriesProps> = observer(({ categoryType }) => {
 interface CategoryItemProps {
   category: TCategory;
   categoryType: TCategoryType;
+  openModal: () => void;
 }
 
 const CategoryItem: FC<CategoryItemProps> = observer(
-  ({ category, categoryType }) => {
+  ({ category, categoryType, openModal }) => {
     const {
       transaction: { transactions },
       account: { accounts },
     } = store;
-
-    const [isOpen, setIsOpen] = useState(false);
 
     const checkCategoryIsUsed = () => {
       const items =
@@ -121,7 +125,7 @@ const CategoryItem: FC<CategoryItemProps> = observer(
         <TD>{category.is_hide && <LockIcon />}</TD>
         <TD>{category.is_archive && <ArchiveIcon />}</TD>
         <TDIcon>
-          <button className="p-2" onClick={() => setIsOpen(true)}>
+          <button className="p-2" onClick={openModal}>
             <PencilIcon className="w-7 h-7" />
           </button>
         </TDIcon>
@@ -130,13 +134,6 @@ const CategoryItem: FC<CategoryItemProps> = observer(
             <TrashIcon className="w-7 h-7" />
           </button>
         </TDIcon>
-
-        <SetCategory
-          isOpen={isOpen}
-          close={() => setIsOpen(false)}
-          category={category}
-          categoryType={categoryType}
-        />
       </TR>
     );
   }
