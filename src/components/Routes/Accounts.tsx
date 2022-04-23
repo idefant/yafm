@@ -115,7 +115,7 @@ interface AccountItemProps {
 const AccountItem: FC<AccountItemProps> = observer(({ account, openModal }) => {
   const {
     currency: { currencyDict },
-    transaction: { transactions },
+    transaction: { transactions, templates },
   } = store;
   const accountCurrency = currencyDict[account.currency_code];
 
@@ -127,6 +127,13 @@ const AccountItem: FC<AccountItemProps> = observer(({ account, openModal }) => {
       )
         return true;
     }
+    for (const template of templates) {
+      if (
+        template.income?.account_id === account.id ||
+        template.outcome?.account_id === account.id
+      )
+        return true;
+    }
     return false;
   };
 
@@ -134,7 +141,7 @@ const AccountItem: FC<AccountItemProps> = observer(({ account, openModal }) => {
     checkAccountIsUsed()
       ? Swal.fire({
           title: "Unable to delete account",
-          text: "There are transactions using this account",
+          text: "There are transactions or templates using this account",
           icon: "error",
         })
       : Swal.fire({

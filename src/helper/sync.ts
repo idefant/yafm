@@ -8,6 +8,7 @@ export const getSyncData = () => {
       accounts: store.category.accounts,
       transactions: store.category.transactions,
     },
+    templates: store.transaction.templates,
   };
   return JSON.stringify(data);
 };

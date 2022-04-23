@@ -1,3 +1,4 @@
+import classNames from "classnames";
 import FocusTrap from "focus-trap-react";
 import { FC } from "react";
 import { createPortal } from "react-dom";
@@ -10,6 +11,7 @@ interface ModalProps {
   onExited?: () => void;
   onEnter?: () => void;
   onSubmit?: any;
+  width?: "middle" | "big";
 }
 
 const Modal: FC<ModalProps> = ({
@@ -19,6 +21,7 @@ const Modal: FC<ModalProps> = ({
   onExited,
   onEnter,
   onSubmit,
+  width = "middle",
 }) => {
   const Tag = (onSubmit ? "form" : "div") as keyof JSX.IntrinsicElements;
 
@@ -41,7 +44,13 @@ const Modal: FC<ModalProps> = ({
           className="fixed inset-0 bg-gray-800/60 transition ease-in-out duration-300"
           onClick={close}
         >
-          <div className="h-[calc(100%-3.5rem)] max-w-md mx-auto my-7">
+          <div
+            className={classNames(
+              "h-[calc(100%-3.5rem)] mx-auto my-7",
+              width === "middle" && "max-w-md",
+              width === "big" && "max-w-xl"
+            )}
+          >
             <Tag
               className="bg-white flex flex-col overflow-hidden max-h-full rounded-lg"
               onClick={(e) => e.stopPropagation()}

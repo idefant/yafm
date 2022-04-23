@@ -9,6 +9,7 @@ import Decrypt from "./Routes/Decrypt";
 import Login from "./Routes/Login";
 import Main from "./Routes/Main";
 import Setting from "./Routes/Setting";
+import Templates from "./Routes/Templates";
 import Transactions from "./Routes/Transactions";
 
 const App: FC = observer(() => {
@@ -24,6 +25,7 @@ const App: FC = observer(() => {
         <Route path="/transactions" element={<Transactions />} />
         <Route path="/accounts" element={<Accounts />} />
         <Route path="/setting" element={<Setting />} />
+        <Route path="/templates" element={<Templates />} />
         <Route
           path="/accounts/categories"
           element={<Categories categoryType="accounts" />}

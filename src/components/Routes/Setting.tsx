@@ -63,7 +63,7 @@ const Setting: FC = observer(() => {
             }
 
             store.account.setAccounts(data.accounts);
-            store.transaction.setTransactions(data.transactions);
+            store.transaction.setData(data.transactions, data.templates);
             store.category.setCategories(data.categories);
           } else {
             alert("Wrong Format");

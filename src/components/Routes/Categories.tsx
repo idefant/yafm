@@ -79,21 +79,24 @@ interface CategoryItemProps {
 const CategoryItem: FC<CategoryItemProps> = observer(
   ({ category, categoryType, openModal }) => {
     const {
-      transaction: { transactions },
+      transaction: { transactions, templates },
       account: { accounts },
     } = store;
 
     const checkCategoryIsUsed = () => {
-      const items =
-        categoryType === "transactions"
-          ? transactions
-          : categoryType === "accounts"
-          ? accounts
-          : undefined;
-      if (!items) return true;
+      if (categoryType === "transactions") {
+        for (const transaction of transactions) {
+          if (transaction.category_id === category.id) return true;
+        }
+        for (const template of templates) {
+          if (template.category_id === category.id) return true;
+        }
+      }
 
-      for (const item of items) {
-        if (item.category_id === category.id) return true;
+      if (categoryType === "accounts") {
+        for (const account of accounts) {
+          if (account.category_id === category.id) return true;
+        }
       }
       return false;
     };
@@ -102,7 +105,7 @@ const CategoryItem: FC<CategoryItemProps> = observer(
       checkCategoryIsUsed()
         ? Swal.fire({
             title: "Unable to delete category",
-            text: `There are ${categoryType} using this category`,
+            text: `There are ${categoryType} or templates using this category`,
             icon: "error",
           })
         : Swal.fire({

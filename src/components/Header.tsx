@@ -32,7 +32,7 @@ const Header: FC = observer(() => {
     store.user.clearAesPass();
     store.account.clearAccounts();
     store.category.clearCategories();
-    store.transaction.clearTransactions();
+    store.transaction.clearData();
     navigate("/decrypt");
   };
 
@@ -44,6 +44,7 @@ const Header: FC = observer(() => {
         <HeaderItem href="/transactions">Transactions</HeaderItem>
         <HeaderItem href="/accounts">Accounts</HeaderItem>
         <HeaderItem href="/setting">Setting</HeaderItem>
+        <HeaderItem href="/templates">Templates</HeaderItem>
       </div>
       <div className="flex gap-3">
         <button

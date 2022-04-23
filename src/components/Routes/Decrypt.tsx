@@ -68,7 +68,7 @@ const Decrypt: FC = observer(() => {
         const data = JSON.parse(plaintext);
 
         store.account.setAccounts(data.accounts);
-        store.transaction.setTransactions(data.transactions);
+        store.transaction.setData(data.transactions, data.templates);
         store.category.setCategories(data.categories);
 
         navigate("/");

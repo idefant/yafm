@@ -9,6 +9,8 @@ export type TTransaction = {
   category_id?: string;
 };
 
+export type TTemplate = Omit<TTransaction, "datetime">;
+
 export type TTransactionTransfer = {
   account_id: string;
   sum: number;

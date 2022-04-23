@@ -8,7 +8,11 @@ import Modal, {
   ModalFooter,
   ModalHeader,
 } from "../Generic/Modal";
-import { TTransaction, TTransactionType } from "../../types/transactionType";
+import {
+  TTemplate,
+  TTransaction,
+  TTransactionType,
+} from "../../types/transactionType";
 import "react-datepicker/dist/react-datepicker.css";
 import DatePicker from "../Generic/Form/DatePicker";
 import TimePicker from "../Generic/Form/TimePicker";
@@ -19,7 +23,8 @@ import { TCurrency } from "../../types/currencyType";
 import { getCurrencyValue } from "../../helper/currencies";
 import useForm from "../../hooks/useForm";
 import ActionButton from "../Generic/Button/ActionButton";
-import { MinusIcon, PlusIcon, RepeatIcon } from "../../assets/svg";
+import { MinusIcon, PlusIcon, RepeatIcon, StarIcon } from "../../assets/svg";
+import ChooseTemplate from "../Template/ChooseTemplate";
 
 interface SetTransactionProps {
   transaction?: TTransaction;
@@ -72,6 +77,7 @@ const SetTransaction: FC<SetTransactionProps> = observer(
     const [transactionType, setTransactionType] =
       useState<TTransactionType>("outcome");
     const [date, setDate] = useState(new Date());
+    const [isOpenTemplateModal, setIsOpenTemplateModal] = useState(false);
 
     const onSubmit = (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault();
@@ -126,20 +132,18 @@ const SetTransaction: FC<SetTransactionProps> = observer(
       close();
     };
 
-    const onEnter = () => {
-      const outcomeAccountId = transaction?.outcome?.account_id;
-      const outcomeAccount = outcomeAccountId
-        ? accountDict[outcomeAccountId]
-        : undefined;
-      const outcomeCurrency =
-        outcomeAccount && currencyDict[outcomeAccount.currency_code];
+    const getCurrencyByAccountId = (accountId?: string) => {
+      const incomeAccount = accountId ? accountDict[accountId] : undefined;
+      return incomeAccount && currencyDict[incomeAccount.currency_code];
+    };
 
-      const incomeAccountId = transaction?.income?.account_id;
-      const incomeAccount = incomeAccountId
-        ? accountDict[incomeAccountId]
-        : undefined;
-      const incomeCurrency =
-        incomeAccount && currencyDict[incomeAccount.currency_code];
+    const onEnter = () => {
+      const outcomeCurrency = getCurrencyByAccountId(
+        transaction?.outcome?.account_id
+      );
+      const incomeCurrency = getCurrencyByAccountId(
+        transaction?.income?.account_id
+      );
 
       updateForm({
         name: transaction?.name || "",
@@ -161,115 +165,162 @@ const SetTransaction: FC<SetTransactionProps> = observer(
       setTransactionType(startTransactionType || "outcome");
     };
 
+    const setTransactionUsingTemplate = (
+      template: TTemplate,
+      transactionType: TTransactionType
+    ) => {
+      const outcomeCurrency = getCurrencyByAccountId(
+        template.outcome?.account_id
+      );
+      const incomeCurrency = getCurrencyByAccountId(
+        template.income?.account_id
+      );
+
+      updateForm({
+        name: template.name || form.name,
+        description: template.description || form.description,
+        outcome_account_id:
+          template.outcome?.account_id || form.outcome_account_id,
+        outcome_sum: template.outcome?.sum
+          ? getCurrencyValue(template.outcome.sum, outcomeCurrency)
+          : "" || form.outcome_sum,
+        income_account_id:
+          template.income?.account_id || form.income_account_id,
+        income_sum: template.income?.sum
+          ? getCurrencyValue(template.income.sum, incomeCurrency)
+          : "" || form.income_sum,
+        category_id: template.category_id || form.category_id,
+      });
+      setTransactionType(transactionType);
+    };
+
     return (
-      <Modal
-        isOpen={isOpen}
-        close={close}
-        onEnter={onEnter}
-        onSubmit={onSubmit}
-      >
-        <ModalHeader close={close}>
-          {transaction ? "Edit Transaction" : "Create Transaction"}
-        </ModalHeader>
-        <ModalContent>
-          <div className="flex justify-center gap-6">
-            <ActionButton
-              onClick={() => setTransactionType("outcome")}
-              color="red"
-              active={transactionType === "outcome"}
-              shadow={transactionType === "outcome"}
-            >
-              <MinusIcon className="w-7 h-7" />
-            </ActionButton>
+      <>
+        <Modal
+          isOpen={isOpen}
+          close={close}
+          onEnter={onEnter}
+          onSubmit={onSubmit}
+        >
+          <ModalHeader close={close}>
+            {transaction ? "Edit Transaction" : "Create Transaction"}
+          </ModalHeader>
+          <ModalContent>
+            <div className="flex justify-center gap-3">
+              <div className="flex justify-center gap-6 border-r-2 border-gray-400 pr-3">
+                <ActionButton
+                  onClick={() => setTransactionType("outcome")}
+                  color="red"
+                  active={transactionType === "outcome"}
+                  shadow={transactionType === "outcome"}
+                >
+                  <MinusIcon className="w-7 h-7" />
+                </ActionButton>
 
-            <ActionButton
-              onClick={() => setTransactionType("income")}
-              color="green"
-              active={transactionType === "income"}
-              shadow={transactionType === "income"}
-            >
-              <PlusIcon className="w-7 h-7" />
-            </ActionButton>
+                <ActionButton
+                  onClick={() => setTransactionType("income")}
+                  color="green"
+                  active={transactionType === "income"}
+                  shadow={transactionType === "income"}
+                >
+                  <PlusIcon className="w-7 h-7" />
+                </ActionButton>
 
-            <ActionButton
-              onClick={() => setTransactionType("exchange")}
-              active={transactionType === "exchange"}
-              shadow={transactionType === "exchange"}
-            >
-              <RepeatIcon className="w-7 h-7" />
-            </ActionButton>
-          </div>
+                <ActionButton
+                  onClick={() => setTransactionType("exchange")}
+                  active={transactionType === "exchange"}
+                  shadow={transactionType === "exchange"}
+                >
+                  <RepeatIcon className="w-7 h-7" />
+                </ActionButton>
+              </div>
 
-          <FormField
-            label="Name"
-            name="name"
-            value={form.name}
-            onChange={setForm}
-          />
+              <ActionButton
+                onClick={() => setIsOpenTemplateModal(true)}
+                color="yellow"
+                active
+              >
+                <StarIcon className="w-7 h-7" />
+              </ActionButton>
+            </div>
 
-          <div className="flex items-center my-2 gap-3">
-            <label className="block w-1/3">Category</label>
-            <Select
-              selectedValue={form.category_id}
-              name="category_id"
-              options={categoryOptions}
+            <FormField
+              label="Name"
+              name="name"
+              value={form.name}
               onChange={setForm}
-              className="w-2/3"
-              useEmpty
-              defaultText="Choose a category"
             />
-          </div>
 
-          {transactionType !== "income" && (
-            <AccountGroupField
-              title="Outcome"
-              nameSelect="outcome_account_id"
-              nameInput="outcome_sum"
-              accountId={form.outcome_account_id}
-              accountOptions={accountOptions}
-              sum={form.outcome_sum}
-              currency={outcomeCurrency}
-              setSum={setForm}
-              onChangeAccount={setForm}
+            <div className="flex items-center my-2 gap-3">
+              <label className="block w-1/3">Category</label>
+              <Select
+                selectedValue={form.category_id}
+                name="category_id"
+                options={categoryOptions}
+                onChange={setForm}
+                className="w-2/3"
+                useEmpty
+                defaultText="Choose a category"
+              />
+            </div>
+
+            {transactionType !== "income" && (
+              <AccountGroupField
+                title="Outcome"
+                nameSelect="outcome_account_id"
+                nameInput="outcome_sum"
+                accountId={form.outcome_account_id}
+                accountOptions={accountOptions}
+                sum={form.outcome_sum}
+                currency={outcomeCurrency}
+                setSum={setForm}
+                onChangeAccount={setForm}
+              />
+            )}
+
+            {transactionType !== "outcome" && (
+              <AccountGroupField
+                title="Income"
+                nameSelect="income_account_id"
+                nameInput="income_sum"
+                accountId={form.income_account_id}
+                accountOptions={accountOptions}
+                sum={form.income_sum}
+                currency={incomeCurrency}
+                setSum={setForm}
+                onChangeAccount={setForm}
+              />
+            )}
+
+            <Textarea
+              value={form.description}
+              name="description"
+              onChange={setForm}
+              placeholder="Description ..."
             />
-          )}
 
-          {transactionType !== "outcome" && (
-            <AccountGroupField
-              title="Income"
-              nameSelect="income_account_id"
-              nameInput="income_sum"
-              accountId={form.income_account_id}
-              accountOptions={accountOptions}
-              sum={form.income_sum}
-              currency={incomeCurrency}
-              setSum={setForm}
-              onChangeAccount={setForm}
-            />
-          )}
-
-          <Textarea
-            value={form.description}
-            name="description"
-            onChange={setForm}
-            placeholder="Description ..."
-          />
-
-          <div className="flex gap-2 mt-2 items-center">
-            <DatePicker date={date} setDate={setDate} />
-            <TimePicker date={date} setDate={setDate} />
-            <CalendarButton date={date} setDate={setDate} />
-          </div>
-        </ModalContent>
-        <ModalFooter>
-          <Button color="green" type="submit">
-            Save
-          </Button>
-          <Button color="gray" onClick={close}>
-            Cancel
-          </Button>
-        </ModalFooter>
-      </Modal>
+            <div className="flex gap-2 mt-2 items-center">
+              <DatePicker date={date} setDate={setDate} />
+              <TimePicker date={date} setDate={setDate} />
+              <CalendarButton date={date} setDate={setDate} />
+            </div>
+          </ModalContent>
+          <ModalFooter>
+            <Button color="green" type="submit">
+              Save
+            </Button>
+            <Button color="gray" onClick={close}>
+              Cancel
+            </Button>
+          </ModalFooter>
+        </Modal>
+        <ChooseTemplate
+          isOpen={isOpenTemplateModal}
+          close={() => setIsOpenTemplateModal(false)}
+          setTransaction={setTransactionUsingTemplate}
+          transactionType={transactionType}
+        />
+      </>
     );
   }
 );

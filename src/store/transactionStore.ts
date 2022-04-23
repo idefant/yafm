@@ -1,23 +1,26 @@
 import { makeAutoObservable } from "mobx";
 import { RootStore } from ".";
-import { TTransaction } from "../types/transactionType";
+import { TTemplate, TTransaction } from "../types/transactionType";
 import { v4 as uuid } from "uuid";
 
 class TransactionStore {
   rootStore: RootStore;
   transactions: TTransaction[] = [];
+  templates: TTemplate[] = [];
 
   constructor(rootStore: RootStore) {
     makeAutoObservable(this);
     this.rootStore = rootStore;
   }
 
-  setTransactions(transactions: TTransaction[]) {
+  setData(transactions: TTransaction[], templates: TTemplate[]) {
     this.transactions = transactions;
+    this.templates = templates;
   }
 
-  clearTransactions() {
+  clearData() {
     this.transactions = [];
+    this.templates = [];
   }
 
   createTransaction(transaction: Omit<TTransaction, "id">) {
@@ -79,6 +82,23 @@ class TransactionStore {
 
       return !isFound;
     });
+  }
+
+  createTemplate(template: Omit<TTemplate, "id">) {
+    this.templates.unshift({ id: uuid(), ...template });
+  }
+
+  editTemplate(updatedTemplate: TTemplate) {
+    const index = this.templates.findIndex(
+      (template) => template.id === updatedTemplate.id
+    );
+    if (index !== -1) {
+      this.templates[index] = updatedTemplate;
+    }
+  }
+
+  deleteTemplate(id: string) {
+    this.templates = this.templates.filter((template) => template.id !== id);
   }
 }
 
