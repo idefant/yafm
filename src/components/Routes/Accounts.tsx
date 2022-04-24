@@ -81,7 +81,10 @@ const Accounts: FC = observer(() => {
                     </TR>
                     {accountDict[category.id]
                       ?.slice()
-                      .sort((a, b) => +a.is_archive - +b.is_archive)
+                      .sort(
+                        (a, b) =>
+                          +(a.is_archive || false) - +(b.is_archive || false)
+                      )
                       .map((account) => (
                         <AccountItem
                           account={account}

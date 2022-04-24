@@ -8,12 +8,13 @@ import useForm from "../../hooks/useForm";
 import Button from "../Generic/Button/Button";
 import Swal from "sweetalert2";
 import { getSyncData } from "../../helper/sync";
+import { decompress } from "compress-json";
 
 const Setting: FC = observer(() => {
   const { aesPass } = store.user;
 
   const downloadBackup = (useCipher: boolean) => {
-    const data = getSyncData();
+    const data = getSyncData(useCipher);
 
     if (useCipher) {
       if (!aesPass) return;
@@ -57,7 +58,7 @@ const Setting: FC = observer(() => {
                 alert("Wrong password");
                 return;
               }
-              data = JSON.parse(plaintext);
+              data = decompress(JSON.parse(plaintext));
             } else {
               data = JSON.parse(content);
             }

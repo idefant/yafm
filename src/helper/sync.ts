@@ -1,6 +1,7 @@
+import { compress } from "compress-json";
 import store from "../store";
 
-export const getSyncData = () => {
+export const getSyncData = (isCompress?: boolean) => {
   const data = {
     accounts: store.account.accounts,
     transactions: store.transaction.transactions,
@@ -10,5 +11,9 @@ export const getSyncData = () => {
     },
     templates: store.transaction.templates,
   };
+
+  if (isCompress) {
+    return JSON.stringify(compress(JSON.parse(JSON.stringify(data))));
+  }
   return JSON.stringify(data);
 };

@@ -8,7 +8,7 @@ import Modal, {
   ModalFooter,
   ModalHeader,
 } from "../Generic/Modal";
-import { getCurrencyValue } from "../../helper/currencies";
+import { displayToSysValue, getCurrencyValue } from "../../helper/currencies";
 import store from "../../store";
 import { TAccount } from "../../types/accountType";
 import { TCurrency } from "../../types/currencyType";
@@ -88,15 +88,10 @@ const SetAccount: FC<SetAccountProps> = observer(
 
       const accountData = {
         name: form.name,
-        disabled: false,
-        start_balance:
-          +(
-            parseFloat(form.start_balance) *
-            10 ** accountCurrency.decimal_places_number
-          ) || 0,
+        start_balance: displayToSysValue(form.start_balance, accountCurrency),
         category_id: form.category_id || undefined,
-        is_hide: checkForm.is_hide,
-        is_archive: checkForm.is_archive,
+        is_hide: checkForm.is_hide || undefined,
+        is_archive: checkForm.is_archive || undefined,
       };
 
       if (account) {

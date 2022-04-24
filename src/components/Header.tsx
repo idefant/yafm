@@ -17,7 +17,8 @@ const Header: FC = observer(() => {
     if (api) {
       if (!aesPass || !accessToken) return;
 
-      const data = aesEncrypt(getSyncData(), aesPass);
+      const data = aesEncrypt(getSyncData(true), aesPass);
+
       await createCommitRequest(
         data.iv,
         data.hmac,

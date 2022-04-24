@@ -5,6 +5,6 @@ export type TAccount = {
   start_balance: number;
   currency_code: string;
   category_id?: string;
-  is_hide: boolean;
-  is_archive: boolean;
+  is_hide?: boolean;
+  is_archive?: boolean;
 };

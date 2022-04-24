@@ -20,7 +20,7 @@ import { observer } from "mobx-react-lite";
 import store from "../../store";
 import CalendarButton from "../Generic/Form/CalendarButton";
 import { TCurrency } from "../../types/currencyType";
-import { getCurrencyValue } from "../../helper/currencies";
+import { displayToSysValue, getCurrencyValue } from "../../helper/currencies";
 import useForm from "../../hooks/useForm";
 import ActionButton from "../Generic/Button/ActionButton";
 import { MinusIcon, PlusIcon, RepeatIcon, StarIcon } from "../../assets/svg";
@@ -101,23 +101,21 @@ const SetTransaction: FC<SetTransactionProps> = observer(
         type: transactionType,
         category_id: form.category_id || undefined,
         income:
-          transactionType !== "outcome" && form.income_account_id
+          transactionType !== "outcome" &&
+          form.income_account_id &&
+          incomeCurrency
             ? {
                 account_id: form.income_account_id,
-                sum: +(
-                  parseFloat(form.income_sum) *
-                  10 ** (incomeCurrency?.decimal_places_number || 0)
-                ),
+                sum: displayToSysValue(form.income_sum, incomeCurrency),
               }
             : undefined,
         outcome:
-          transactionType !== "income" && form.outcome_account_id
+          transactionType !== "income" &&
+          form.outcome_account_id &&
+          outcomeCurrency
             ? {
                 account_id: form.outcome_account_id,
-                sum: +(
-                  parseFloat(form.outcome_sum) *
-                  10 ** (outcomeCurrency?.decimal_places_number || 0)
-                ),
+                sum: displayToSysValue(form.outcome_sum, outcomeCurrency),
               }
             : undefined,
       };

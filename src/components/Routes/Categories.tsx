@@ -45,7 +45,9 @@ const Categories: FC<CategoriesProps> = observer(({ categoryType }) => {
           <TBody>
             {categories
               .slice()
-              .sort((a, b) => +a.is_archive - +b.is_archive)
+              .sort(
+                (a, b) => +(a.is_archive || false) - +(b.is_archive || false)
+              )
               .map((category) => (
                 <CategoryItem
                   category={category}

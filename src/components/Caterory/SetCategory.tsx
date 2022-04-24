@@ -37,8 +37,8 @@ const SetCategory: FC<SetCategoryProps> = observer(
 
       const categoryData = {
         name: form.name,
-        is_hide: checkForm.is_hide,
-        is_archive: checkForm.is_archive,
+        is_hide: checkForm.is_hide || undefined,
+        is_archive: checkForm.is_archive || undefined,
       };
 
       if (!category) {

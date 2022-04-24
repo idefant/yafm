@@ -1,3 +1,4 @@
+import { decompress } from "compress-json";
 import { observer } from "mobx-react-lite";
 import { FC, FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -65,7 +66,7 @@ const Decrypt: FC = observer(() => {
       );
       if (plaintext) {
         store.user.setAesPass(form.aes_key);
-        const data = JSON.parse(plaintext);
+        const data = decompress(JSON.parse(plaintext));
 
         store.account.setAccounts(data.accounts);
         store.transaction.setData(data.transactions, data.templates);
