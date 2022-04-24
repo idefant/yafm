@@ -1,7 +1,7 @@
 import { makeAutoObservable } from "mobx";
 import { RootStore } from ".";
 import { TAccount } from "../types/accountType";
-import { v4 as uuid } from "uuid";
+import { genId } from "../helper/random";
 
 class AccountStore {
   rootStore: RootStore;
@@ -22,7 +22,7 @@ class AccountStore {
 
   createAccount(account: Omit<TAccount, "id" | "balance">) {
     this.accounts.push({
-      id: uuid(),
+      id: genId(),
       ...account,
       balance: account.start_balance,
     });

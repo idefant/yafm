@@ -1,6 +1,6 @@
 import { makeAutoObservable } from "mobx";
-import { v4 as uuid } from "uuid";
 import { RootStore } from ".";
+import { genId } from "../helper/random";
 import { TCategory, TCategoryType } from "../types/categoryType";
 
 class CategoryStore {
@@ -30,7 +30,7 @@ class CategoryStore {
   }
 
   createCategory(category: Omit<TCategory, "id">, categoryType: TCategoryType) {
-    this[categoryType].push({ id: uuid(), ...category });
+    this[categoryType].push({ id: genId(), ...category });
   }
 
   editCategory(updatedCategory: TCategory, categoryType: TCategoryType) {

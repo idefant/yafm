@@ -84,8 +84,8 @@ const SetTemplate: FC<SetTemplateProps> = observer(
         return;
 
       const templateData = {
-        name: form.name,
-        description: form.description,
+        name: form.name || undefined,
+        description: form.description || undefined,
         type: transactionType,
         category_id: form.category_id || undefined,
         income:

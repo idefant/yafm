@@ -31,10 +31,11 @@ interface SetTransactionProps {
   isOpen: boolean;
   close: () => void;
   startTransactionType?: TTransactionType;
+  copiedTransaction?: TTransaction;
 }
 
 const SetTransaction: FC<SetTransactionProps> = observer(
-  ({ isOpen, close, transaction, startTransactionType }) => {
+  ({ isOpen, close, transaction, startTransactionType, copiedTransaction }) => {
     const {
       account: { accounts, accountDict },
       currency: { currencyDict },
@@ -95,8 +96,8 @@ const SetTransaction: FC<SetTransactionProps> = observer(
 
       const transactionData = {
         datetime: +date,
-        name: form.name,
-        description: form.description,
+        name: form.name || undefined,
+        description: form.description || undefined,
         type: transactionType,
         category_id: form.category_id || undefined,
         income:
@@ -138,25 +139,24 @@ const SetTransaction: FC<SetTransactionProps> = observer(
     };
 
     const onEnter = () => {
+      const trans = transaction || copiedTransaction;
       const outcomeCurrency = getCurrencyByAccountId(
-        transaction?.outcome?.account_id
+        trans?.outcome?.account_id
       );
-      const incomeCurrency = getCurrencyByAccountId(
-        transaction?.income?.account_id
-      );
+      const incomeCurrency = getCurrencyByAccountId(trans?.income?.account_id);
 
       updateForm({
-        name: transaction?.name || "",
-        description: transaction?.description || "",
-        outcome_account_id: transaction?.outcome?.account_id || "",
-        outcome_sum: transaction?.outcome?.sum
-          ? getCurrencyValue(transaction.outcome.sum, outcomeCurrency)
+        name: trans?.name || "",
+        description: trans?.description || "",
+        outcome_account_id: trans?.outcome?.account_id || "",
+        outcome_sum: trans?.outcome?.sum
+          ? getCurrencyValue(trans.outcome.sum, outcomeCurrency)
           : "",
-        income_account_id: transaction?.income?.account_id || "",
-        income_sum: transaction?.income?.sum
-          ? getCurrencyValue(transaction.income.sum, incomeCurrency)
+        income_account_id: trans?.income?.account_id || "",
+        income_sum: trans?.income?.sum
+          ? getCurrencyValue(trans.income.sum, incomeCurrency)
           : "",
-        category_id: transaction?.category_id || "",
+        category_id: trans?.category_id || "",
       });
 
       setDate(

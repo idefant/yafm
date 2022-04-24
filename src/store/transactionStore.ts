@@ -1,7 +1,7 @@
 import { makeAutoObservable } from "mobx";
 import { RootStore } from ".";
+import { genId } from "../helper/random";
 import { TTemplate, TTransaction } from "../types/transactionType";
-import { v4 as uuid } from "uuid";
 
 class TransactionStore {
   rootStore: RootStore;
@@ -35,7 +35,7 @@ class TransactionStore {
         -transaction.outcome.sum
       );
     this.transactions.unshift({
-      id: uuid(),
+      id: genId(),
       ...transaction,
     });
   }
@@ -85,7 +85,7 @@ class TransactionStore {
   }
 
   createTemplate(template: Omit<TTemplate, "id">) {
-    this.templates.unshift({ id: uuid(), ...template });
+    this.templates.unshift({ id: genId(), ...template });
   }
 
   editTemplate(updatedTemplate: TTemplate) {

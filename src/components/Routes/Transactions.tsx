@@ -1,6 +1,7 @@
 import { observer } from "mobx-react-lite";
 import { FC, useState } from "react";
 import {
+  CopyIcon,
   InfoIcon,
   MinusIcon,
   PencilIcon,
@@ -24,13 +25,22 @@ const Transactions: FC = observer(() => {
   const [isOpen, setIsOpen] = useState(false);
   const [transactionType, setTransactionType] = useState<TTransactionType>();
   const [openedTransaction, setOpenedTransaction] = useState<TTransaction>();
+  const [copiedTransaction, setCopiedTransaction] = useState<TTransaction>();
 
   const openTransaction = (
     type: TTransactionType,
     transaction?: TTransaction
   ) => {
     setOpenedTransaction(transaction);
+    setCopiedTransaction(undefined);
     setTransactionType(type);
+    setIsOpen(true);
+  };
+
+  const copyTransaction = (transaction: TTransaction) => {
+    setOpenedTransaction(undefined);
+    setCopiedTransaction(transaction);
+    setTransactionType(transaction.type);
     setIsOpen(true);
   };
 
@@ -75,6 +85,7 @@ const Transactions: FC = observer(() => {
               <TH></TH>
               <TH></TH>
               <TH></TH>
+              <TH></TH>
             </TR>
           </THead>
           <TBody>
@@ -83,6 +94,7 @@ const Transactions: FC = observer(() => {
                 transaction={transaction}
                 openModal={() => openTransaction(transaction.type, transaction)}
                 key={transaction.id}
+                copyTransaction={() => copyTransaction(transaction)}
               />
             ))}
           </TBody>
@@ -96,6 +108,7 @@ const Transactions: FC = observer(() => {
         close={() => setIsOpen(false)}
         startTransactionType={transactionType}
         transaction={openedTransaction}
+        copiedTransaction={copiedTransaction}
       />
     </>
   );
@@ -104,10 +117,11 @@ const Transactions: FC = observer(() => {
 interface TransactionItemProps {
   transaction: TTransaction;
   openModal: () => void;
+  copyTransaction: () => void;
 }
 
 const TransactionItem: FC<TransactionItemProps> = observer(
-  ({ transaction, openModal }) => {
+  ({ transaction, openModal, copyTransaction }) => {
     const {
       currency: { currencyDict },
       account: { accountDict },
@@ -198,6 +212,11 @@ const TransactionItem: FC<TransactionItemProps> = observer(
           )}
         </TDIcon>
 
+        <TDIcon>
+          <button className="p-2" onClick={copyTransaction}>
+            <CopyIcon className="w-7 h-7" />
+          </button>
+        </TDIcon>
         <TDIcon>
           <button className="p-2" onClick={openModal}>
             <PencilIcon className="w-7 h-7" />
