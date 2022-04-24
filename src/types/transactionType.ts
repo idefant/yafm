@@ -17,3 +17,4 @@ export type TTransactionTransfer = {
 };
 
 export type TTransactionType = "income" | "outcome" | "exchange";
+export const transactionTypes = ["income", "outcome", "exchange"];

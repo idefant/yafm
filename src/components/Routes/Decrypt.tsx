@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { aesDecrypt } from "../../helper/crypto";
 import { getLastCommitRequest } from "../../helper/requests/commitRequests";
 import { errorAlert } from "../../helper/sweetalert";
+import { checkBaseIntegrity } from "../../helper/sync";
 import useForm from "../../hooks/useForm";
 import store from "../../store";
 import { EncryptedYAFM } from "../../types/cipher";
@@ -65,9 +66,15 @@ const Decrypt: FC = observer(() => {
         cipherData.hmac
       );
       if (plaintext) {
-        store.user.setAesPass(form.aes_key);
         const data = decompress(JSON.parse(plaintext));
 
+        const validatedStatus = await checkBaseIntegrity(data);
+        if (validatedStatus) {
+          errorAlert({ title: "Validate Error", text: validatedStatus.error });
+          return;
+        }
+
+        store.user.setAesPass(form.aes_key);
         store.account.setAccounts(data.accounts);
         store.transaction.setData(data.transactions, data.templates);
         store.category.setCategories(data.categories);
