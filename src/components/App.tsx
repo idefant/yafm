@@ -25,7 +25,7 @@ const App: FC = observer(() => {
         <Route path="/transactions" element={<Transactions />} />
         <Route path="/accounts" element={<Accounts />} />
         <Route path="/setting" element={<Setting />} />
-        <Route path="/templates" element={<Templates />} />
+        <Route path="transactions/templates" element={<Templates />} />
         <Route
           path="/accounts/categories"
           element={<Categories categoryType="accounts" />}

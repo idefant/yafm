@@ -1,18 +1,23 @@
+import classNames from "classnames";
+import FocusTrap from "focus-trap-react";
 import { observer } from "mobx-react-lite";
-import { FC } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { FC, useState } from "react";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { LockIcon } from "../assets/svg";
 import { aesEncrypt } from "../helper/crypto";
 import { createCommitRequest } from "../helper/requests/commitRequests";
 import { getSyncData } from "../helper/sync";
 import store from "../store";
+import Hamburger from "./Hamburger";
 
 const Header: FC = observer(() => {
   const navigate = useNavigate();
   const {
     user: { api, aesPass, accessToken },
   } = store;
+  const [isOpen, setIsOpen] = useState(false);
+  const toggle = () => setIsOpen(!isOpen);
 
   const sync = async () => {
     if (api) {
@@ -43,43 +48,159 @@ const Header: FC = observer(() => {
   };
 
   return (
-    <nav className="flex items-center justify-between flex-wrap bg-amber-600 px-6 py-4 gap-10">
-      <div className="text-white text-xl font-bold">YAFM</div>
-      <div className="flex-grow flex items-center w-auto gap-4">
-        <HeaderItem href="/">Main</HeaderItem>
-        <HeaderItem href="/transactions">Transactions</HeaderItem>
-        <HeaderItem href="/accounts">Accounts</HeaderItem>
-        <HeaderItem href="/setting">Setting</HeaderItem>
-        <HeaderItem href="/templates">Templates</HeaderItem>
-      </div>
-      <div className="flex gap-3">
-        <button
-          className="block text-sm px-4 py-2 leading-none border rounded text-white border-white"
-          onClick={sync}
-        >
-          Sync
-        </button>
+    <FocusTrap active={isOpen}>
+      <nav className="">
+        <div className="relative z-10 flex items-center justify-between flex-wrap bg-gray-800 px-6 py-4 gap-10">
+          <div className="text-white text-xl font-bold">YAFM</div>
+          <div className="flex-grow items-center w-auto gap-4 hidden sm:flex">
+            <HeaderItem href="/" title="Main" />
+            <HeaderItem
+              href="/transactions"
+              title="Transactions"
+              items={[
+                { title: "Categories", href: "/transactions/categories" },
+                { title: "Templates", href: "/transactions/templates" },
+              ]}
+            />
+            <HeaderItem
+              href="/accounts"
+              title="Accounts"
+              items={[{ title: "Categories", href: "/accounts/categories" }]}
+            />
+            <HeaderItem href="/setting" title="Setting" />
+          </div>
+          <div className="flex gap-3 items-center">
+            <button
+              className="block text-sm px-4 py-2 leading-none border rounded text-white border-white"
+              onClick={sync}
+            >
+              Sync
+            </button>
 
-        <button className="p-1" onClick={lock}>
-          <LockIcon />
-        </button>
-      </div>
-    </nav>
+            <button className="p-1" onClick={lock}>
+              <LockIcon className="text-white" />
+            </button>
+            <Hamburger
+              isOpen={isOpen}
+              toggle={toggle}
+              className="block sm:hidden"
+            />
+          </div>
+        </div>
+
+        <div
+          className={classNames(
+            "bg-slate-800/95 fixed inset-0 mt-[64px] px-8 py-5 overflow-y-auto",
+            isOpen ? "block sm:hidden" : "hidden"
+          )}
+        >
+          <ul>
+            <MobileHeaderItem href="/" title="Main" toggle={toggle} />
+            <MobileHeaderItem
+              href="/transactions"
+              title="Transactions"
+              items={[
+                { title: "Categories", href: "/transactions/categories" },
+                { title: "Templates", href: "/transactions/templates" },
+              ]}
+              toggle={toggle}
+            />
+            <MobileHeaderItem
+              href="/accounts"
+              title="Accounts"
+              items={[{ title: "Categories", href: "/accounts/categories" }]}
+              toggle={toggle}
+            />
+            <MobileHeaderItem href="/setting" title="Setting" toggle={toggle} />
+          </ul>
+        </div>
+      </nav>
+    </FocusTrap>
   );
 });
 
 interface HeaderItemProps {
+  title: string;
   href: string;
+  items?: {
+    title: string;
+    href: string;
+  }[];
+  toggle?: () => void;
 }
 
-const HeaderItem: FC<HeaderItemProps> = ({ children, href }) => {
+const MobileHeaderItem: FC<HeaderItemProps> = ({
+  title,
+  href,
+  items,
+  toggle,
+}) => {
   return (
-    <Link
-      to={href}
-      className="block lg:inline-block text-teal-lighter hover:text-white"
-    >
-      {children}
-    </Link>
+    <li>
+      <NavLink
+        to={href}
+        className={({ isActive }) =>
+          [
+            "block lg:inline-block py-2 text-xl",
+            isActive ? "text-white" : "text-gray-400 hover:text-white",
+          ].join(" ")
+        }
+        onClick={toggle}
+      >
+        {title}
+      </NavLink>
+      {items && items.length !== 0 && (
+        <ul className="px-5 py-2 text-lg pt-0 pl-8">
+          {items.map((item) => (
+            <li className="py-1.5">
+              <NavLink
+                to={item.href}
+                className={({ isActive }) =>
+                  isActive ? "text-white" : "text-gray-400 hover:text-white"
+                }
+                onClick={toggle}
+              >
+                {item.title}
+              </NavLink>
+            </li>
+          ))}
+        </ul>
+      )}
+    </li>
+  );
+};
+
+const HeaderItem: FC<HeaderItemProps> = ({ title, href, items }) => {
+  return (
+    <div className="group relative">
+      <NavLink
+        to={href}
+        className={({ isActive }) =>
+          [
+            "block lg:inline-block py-2",
+            isActive ? "text-white" : "text-gray-400 hover:text-white",
+          ].join(" ")
+        }
+      >
+        {title}
+      </NavLink>
+      {items && items.length !== 0 && (
+        <ul className="hidden absolute bg-gray-700 px-5 py-2 rounded-md group-hover:block border-gray-900 border-2">
+          {items.map((item) => (
+            <li className="py-1.5">
+              <NavLink
+                to={item.href}
+                className={({ isActive }) =>
+                  isActive ? "text-white" : "text-gray-300 hover:text-white"
+                }
+              >
+                {item.title}
+              </NavLink>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 };
 
