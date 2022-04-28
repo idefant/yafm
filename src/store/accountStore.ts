@@ -51,6 +51,31 @@ class AccountStore {
     if (this.accountDict[id]) this.accountDict[id].balance += sum;
   }
 
+  recalculateBalances() {
+    const accountBalances: { [accountId: string]: number } = {};
+    this.accounts.forEach(
+      (account) => (accountBalances[account.id] = account.start_balance)
+    );
+
+    this.rootStore.transaction.transactions.forEach((transaction) => {
+      const income = transaction.income;
+      const outcome = transaction.outcome;
+
+      income && (accountBalances[income.account_id] += income.sum);
+      outcome && (accountBalances[outcome.account_id] -= outcome.sum);
+    });
+
+    let isChanged = false;
+    this.accounts.forEach((account) => {
+      if (account.balance !== accountBalances[account.id]) {
+        account.balance = accountBalances[account.id];
+        isChanged = true;
+      }
+    });
+
+    return isChanged;
+  }
+
   get accountDict() {
     const dict: { [id: string]: TAccount } = {};
     this.accounts.forEach((account) => {

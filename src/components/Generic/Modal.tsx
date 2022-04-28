@@ -11,7 +11,7 @@ interface ModalProps {
   onExited?: () => void;
   onEnter?: () => void;
   onSubmit?: any;
-  width?: "middle" | "big";
+  width?: "middle" | "big" | "biggest";
 }
 
 const Modal: FC<ModalProps> = ({
@@ -48,7 +48,8 @@ const Modal: FC<ModalProps> = ({
             className={classNames(
               "h-[calc(100%-3.5rem)] mx-auto my-7",
               width === "middle" && "max-w-md",
-              width === "big" && "max-w-xl"
+              width === "big" && "max-w-xl",
+              width === "biggest" && "max-w-3xl"
             )}
           >
             <Tag

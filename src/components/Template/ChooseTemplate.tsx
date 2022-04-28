@@ -46,7 +46,7 @@ const ChooseTemplate: FC<ChooseTemplateProps> = observer(
     };
 
     return (
-      <Modal isOpen={isOpen} close={close} width="big" onEnter={onEnter}>
+      <Modal isOpen={isOpen} close={close} width="biggest" onEnter={onEnter}>
         <ModalHeader close={close}>Choose Template</ModalHeader>
         <ModalContent>
           <div className="flex justify-center gap-6">

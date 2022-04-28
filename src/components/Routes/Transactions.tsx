@@ -1,5 +1,5 @@
 import { observer } from "mobx-react-lite";
-import { FC, useState } from "react";
+import React, { FC, useState } from "react";
 import {
   CopyIcon,
   InfoIcon,
@@ -43,6 +43,15 @@ const Transactions: FC = observer(() => {
     setTransactionType(transaction.type);
     setIsOpen(true);
   };
+
+  const transactionGroups = transactions
+    .slice()
+    .sort((a, b) => b.datetime - a.datetime)
+    .reduce(function (groups: { [date: string]: TTransaction[] }, transaction) {
+      (groups[getDateText(transaction.datetime)] =
+        groups[getDateText(transaction.datetime)] || []).push(transaction);
+      return groups;
+    }, {});
 
   return (
     <>
@@ -89,13 +98,24 @@ const Transactions: FC = observer(() => {
             </TR>
           </THead>
           <TBody>
-            {transactions.map((transaction) => (
-              <TransactionItem
-                transaction={transaction}
-                openModal={() => openTransaction(transaction.type, transaction)}
-                key={transaction.id}
-                copyTransaction={() => copyTransaction(transaction)}
-              />
+            {Object.entries(transactionGroups).map((group) => (
+              <React.Fragment key={group[0]}>
+                <TR>
+                  <TH colSpan={9} className="!bg-stone-300 !py-0">
+                    {group[0]}
+                  </TH>
+                </TR>
+                {group[1].map((transaction) => (
+                  <TransactionItem
+                    transaction={transaction}
+                    openModal={() =>
+                      openTransaction(transaction.type, transaction)
+                    }
+                    key={transaction.id}
+                    copyTransaction={() => copyTransaction(transaction)}
+                  />
+                ))}
+              </React.Fragment>
             ))}
           </TBody>
         </Table>

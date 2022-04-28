@@ -73,13 +73,13 @@ const SetTemplate: FC<SetTemplateProps> = observer(
       e.preventDefault();
       if (
         transactionType !== "outcome" &&
-        (!form.income_account_id || +form.income_sum <= 0 || !incomeCurrency)
+        (!form.income_account_id || +form.income_sum < 0 || !incomeCurrency)
       )
         return;
 
       if (
         transactionType !== "income" &&
-        (!form.outcome_account_id || +form.outcome_sum <= 0 || !outcomeCurrency)
+        (!form.outcome_account_id || +form.outcome_sum < 0 || !outcomeCurrency)
       )
         return;
 

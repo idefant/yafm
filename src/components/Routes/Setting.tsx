@@ -99,6 +99,16 @@ const Setting: FC = observer(() => {
     Swal.fire({ title: "Password changed successfully", icon: "success" });
   };
 
+  const recalculateBalances = () => {
+    const isChanged = store.account.recalculateBalances();
+    Swal.fire({
+      title: isChanged
+        ? "Balances have been successfully recalculated"
+        : "No errors found",
+      icon: "success",
+    });
+  };
+
   return (
     <>
       <h1 className="text-3xl font-bold underline pb-4">Setting!!!</h1>
@@ -170,6 +180,8 @@ const Setting: FC = observer(() => {
       >
         Upload Decrypted
       </label>
+
+      <Button onClick={recalculateBalances}>Recalculate</Button>
     </>
   );
 });

@@ -8,6 +8,7 @@ export const getCurrencyValue = (value: number, currency?: TCurrency) => {
 
 export const displayToSysValue = (text: string, currency: TCurrency) => {
   return Math.round(
-    parseFloat(text) * 10 ** currency.decimal_places_number || 0
+    parseFloat(text.replace(",", ".")) * 10 ** currency.decimal_places_number ||
+      0
   );
 };

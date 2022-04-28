@@ -4,14 +4,14 @@ import { TApi } from "../../types/userType";
 import { refreshToken } from "../jwt";
 import { errorAlert } from "../sweetalert";
 
-export const createCommitRequest = (
+export const createCommitRequest = async (
   iv: string,
   hmac: string,
   cipher: string,
   accessToken: string,
   api: TApi
 ) => {
-  refreshToken(api, accessToken);
+  await refreshToken(api, accessToken);
   return axios({
     method: "POST",
     baseURL: api.url,
@@ -23,8 +23,8 @@ export const createCommitRequest = (
   });
 };
 
-export const getLastCommitRequest = (accessToken: string, api: TApi) => {
-  refreshToken(api, accessToken);
+export const getLastCommitRequest = async (accessToken: string, api: TApi) => {
+  await refreshToken(api, accessToken);
   return axios({
     method: "GET",
     baseURL: api.url,
