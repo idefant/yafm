@@ -2,7 +2,7 @@ import classNames from "classnames";
 import FocusTrap from "focus-trap-react";
 import { observer } from "mobx-react-lite";
 import { FC, useState } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { useNavigate, NavLink } from "react-router-dom";
 import Swal from "sweetalert2";
 import { LockIcon } from "../assets/svg";
 import { aesEncrypt } from "../helper/crypto";
@@ -50,7 +50,7 @@ const Header: FC = observer(() => {
   return (
     <FocusTrap active={isOpen}>
       <nav className="">
-        <div className="relative z-10 flex items-center justify-between flex-wrap bg-gray-800 px-6 py-4 gap-10">
+        <div className="relative flex items-center justify-between flex-wrap bg-gray-800 px-6 py-4 gap-10">
           <div className="text-white text-xl font-bold">YAFM</div>
           <div className="flex-grow items-center w-auto gap-4 hidden sm:flex">
             <HeaderItem href="/" title="Main" />

@@ -1,5 +1,5 @@
 import { observer } from "mobx-react-lite";
-import { FC, Fragment, useState } from "react";
+import { FC, Fragment, useMemo, useState } from "react";
 import SetAccount from "../Account/SetAccount";
 import { ArchiveIcon, LockIcon, PencilIcon, TrashIcon } from "../../assets/svg";
 import Button from "../Generic/Button/Button";
@@ -8,12 +8,14 @@ import { getCurrencyValue } from "../../helper/currencies";
 import store from "../../store";
 import { TAccount } from "../../types/accountType";
 import Swal from "sweetalert2";
-import ButtonLink from "../Generic/Button/ButtonLink";
+import { TCurrency } from "../../types/currencyType";
+import { computed } from "mobx";
 
 const Accounts: FC = observer(() => {
   const {
     account: { accounts },
     category: { accounts: categories },
+    currency: { currencies },
   } = store;
   const [isOpen, setIsOpen] = useState(false);
 
@@ -37,69 +39,122 @@ const Accounts: FC = observer(() => {
     setIsOpen(true);
   };
 
+  const currencyBalancesSum = useMemo(() => {
+    return computed(() => {
+      const currencySum = accounts.reduce(
+        (currencySum: { [key: string]: number }, account: TAccount) => {
+          if (account.balance !== 0) {
+            currencySum[account.currency_code] =
+              (account.currency_code in currencySum
+                ? currencySum[account.currency_code]
+                : 0) + account.balance;
+          }
+          return currencySum;
+        },
+        {}
+      );
+
+      return currencies.reduce(
+        (acc: (TCurrency & { balance: number })[], currency: TCurrency) => {
+          if (currency.code in currencySum)
+            acc.push({ ...currency, balance: currencySum[currency.code] });
+          return acc;
+        },
+        []
+      );
+    });
+  }, [accounts, currencies]).get();
+
+  const accountsWithoutCategory = accounts.filter(
+    (category) => !category.category_id
+  );
+
+  const accountWithCategory = categories.map(
+    (category) =>
+      accountDict[category.id] && {
+        id: category.id,
+        name: category.name,
+        accounts: accountDict[category.id]
+          .slice()
+          .sort((a, b) => +(a.is_archive || false) - +(b.is_archive || false)),
+      }
+  );
+
   return (
     <>
       <h1 className="text-3xl font-bold underline">Accounts!!!</h1>
-      <Button color="green" onClick={() => openAccount()}>
+      <Button color="green" onClick={() => openAccount()} className="mb-4">
         Create Account
       </Button>
 
-      <ButtonLink to="categories" color="gray">
-        Categories
-      </ButtonLink>
+      <div className="flex items-start gap-20">
+        {currencyBalancesSum.length && (
+          <Table>
+            <THead>
+              <TR>
+                <TH>Currency</TH>
+                <TH>Balance</TH>
+              </TR>
+            </THead>
+            <TBody>
+              {currencyBalancesSum.map((currency) => (
+                <TR key={currency.code}>
+                  <TD>{currency.name}</TD>
+                  <TD>
+                    <div className="text-right">
+                      {getCurrencyValue(currency.balance, currency)}
+                      <span className="pl-3">{currency.code}</span>
+                    </div>
+                  </TD>
+                </TR>
+              ))}
+            </TBody>
+          </Table>
+        )}
 
-      {accounts.length ? (
-        <Table>
-          <THead>
-            <TR>
-              <TH>Name</TH>
-              <TH>Balance</TH>
-              <TH></TH>
-              <TH></TH>
-              <TH></TH>
-              <TH></TH>
-            </TR>
-          </THead>
-          <TBody>
-            {accounts
-              .filter((category) => !category.category_id)
-              .map((account) => (
+        {accounts.length ? (
+          <Table>
+            <THead>
+              <TR>
+                <TH>Name</TH>
+                <TH>Balance</TH>
+                <TH></TH>
+                <TH></TH>
+                <TH></TH>
+                <TH></TH>
+              </TR>
+            </THead>
+            <TBody>
+              {accountsWithoutCategory.map((account) => (
                 <AccountItem
                   account={account}
                   openModal={() => openAccount(account)}
                   key={account.id}
                 />
               ))}
-            {categories.map(
-              (category) =>
-                accountDict[category.id] && (
-                  <Fragment key={category.id}>
-                    <TR>
-                      <TH colSpan={6} className="!bg-orange-200 !py-1">
-                        {category.name}
-                      </TH>
-                    </TR>
-                    {accountDict[category.id]
-                      ?.slice()
-                      .sort(
-                        (a, b) =>
-                          +(a.is_archive || false) - +(b.is_archive || false)
-                      )
-                      .map((account) => (
-                        <AccountItem
-                          account={account}
-                          openModal={() => openAccount(account)}
-                          key={account.id}
-                        />
-                      ))}
-                  </Fragment>
-                )
-            )}
-          </TBody>
-        </Table>
-      ) : (
-        <div className="font-sans text-3xl">¯\_(ツ)_/¯</div>
-      )}
+
+              {accountWithCategory.map((category) => (
+                <Fragment key={category.id}>
+                  <TR>
+                    <TH colSpan={6} className="!bg-orange-200 !py-1">
+                      {category.name}
+                    </TH>
+                  </TR>
+                  {category.accounts.map((account) => (
+                    <AccountItem
+                      account={account}
+                      openModal={() => openAccount(account)}
+                      key={account.id}
+                    />
+                  ))}
+                </Fragment>
+              ))}
+            </TBody>
+          </Table>
+        ) : (
+          <div className="font-sans text-3xl">¯\_(ツ)_/¯</div>
+        )}
+      </div>
 
       <SetAccount
         isOpen={isOpen}

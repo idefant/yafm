@@ -18,7 +18,6 @@ import Swal from "sweetalert2";
 import { getDateText, getTimeText } from "../../helper/datetime";
 import ReactTooltip from "react-tooltip";
 import ActionButton from "../Generic/Button/ActionButton";
-import ButtonLink from "../Generic/Button/ButtonLink";
 
 const Transactions: FC = observer(() => {
   const transactions = store.transaction.transactions;
@@ -77,10 +76,6 @@ const Transactions: FC = observer(() => {
           <RepeatIcon className="w-8 h-8" />
         </ActionButton>
       </div>
-
-      <ButtonLink to="categories" color="gray">
-        Categories
-      </ButtonLink>
 
       {transactions.length ? (
         <Table>
