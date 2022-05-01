@@ -102,7 +102,10 @@ const Accounts: FC = observer(() => {
                   <TD>{currency.name}</TD>
                   <TD>
                     <div className="text-right">
-                      {getCurrencyValue(currency.balance, currency)}
+                      {getCurrencyValue(
+                        currency.balance,
+                        currency.decimal_places_number
+                      )}
                       <span className="pl-3">{currency.code}</span>
                     </div>
                   </TD>
@@ -220,7 +223,10 @@ const AccountItem: FC<AccountItemProps> = observer(({ account, openModal }) => {
     <TR hide={account.is_archive}>
       <TD>{account.name}</TD>
       <TD className="text-right">
-        {getCurrencyValue(account.balance, accountCurrency)}
+        {getCurrencyValue(
+          account.balance,
+          accountCurrency.decimal_places_number
+        )}
         <span className="pl-3">{accountCurrency.code}</span>
       </TD>
       <TD>{account.is_hide && <LockIcon />}</TD>

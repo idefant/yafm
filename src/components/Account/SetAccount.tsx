@@ -88,7 +88,10 @@ const SetAccount: FC<SetAccountProps> = observer(
 
       const accountData = {
         name: form.name,
-        start_balance: displayToSysValue(form.start_balance, accountCurrency),
+        start_balance: displayToSysValue(
+          form.start_balance,
+          accountCurrency.decimal_places_number
+        ),
         category_id: form.category_id || undefined,
         is_hide: checkForm.is_hide || undefined,
         is_archive: checkForm.is_archive || undefined,
@@ -110,9 +113,13 @@ const SetAccount: FC<SetAccountProps> = observer(
 
       updateForm({
         name: account?.name || "",
-        start_balance: account
-          ? getCurrencyValue(account.start_balance, currency)
-          : "",
+        start_balance:
+          account && currency
+            ? getCurrencyValue(
+                account.start_balance,
+                currency.decimal_places_number
+              )
+            : "",
         currency_code: account?.currency_code || "",
         category_id: account?.category_id || "",
       });

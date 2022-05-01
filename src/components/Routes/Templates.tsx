@@ -142,7 +142,10 @@ const TemplateItem: FC<TemplateItemProps> = observer(
         {template.outcome && outcomeCurrency && outcomeAccount ? (
           <TD className="text-right">
             <div className="text-red-700">
-              {getCurrencyValue(template.outcome.sum, outcomeCurrency)}
+              {getCurrencyValue(
+                template.outcome.sum,
+                outcomeCurrency.decimal_places_number
+              )}
               <span className="pl-2.5">{outcomeCurrency.code || ""}</span>
             </div>
             <div className="text-sm text-gray-600">
@@ -156,7 +159,10 @@ const TemplateItem: FC<TemplateItemProps> = observer(
         {template.income && incomeCurrency && incomeAccount ? (
           <TD className="text-right">
             <div className="text-green-700">
-              {getCurrencyValue(template.income.sum, incomeCurrency)}
+              {getCurrencyValue(
+                template.income.sum,
+                incomeCurrency.decimal_places_number
+              )}
               <span className="pl-2.5">{incomeCurrency.code || ""}</span>
             </div>
             <div className="text-sm text-gray-600">

@@ -106,7 +106,10 @@ const SetTransaction: FC<SetTransactionProps> = observer(
           incomeCurrency
             ? {
                 account_id: form.income_account_id,
-                sum: displayToSysValue(form.income_sum, incomeCurrency),
+                sum: displayToSysValue(
+                  form.income_sum,
+                  incomeCurrency.decimal_places_number
+                ),
               }
             : undefined,
         outcome:
@@ -115,7 +118,10 @@ const SetTransaction: FC<SetTransactionProps> = observer(
           outcomeCurrency
             ? {
                 account_id: form.outcome_account_id,
-                sum: displayToSysValue(form.outcome_sum, outcomeCurrency),
+                sum: displayToSysValue(
+                  form.outcome_sum,
+                  outcomeCurrency.decimal_places_number
+                ),
               }
             : undefined,
       };
@@ -147,13 +153,21 @@ const SetTransaction: FC<SetTransactionProps> = observer(
         name: trans?.name || "",
         description: trans?.description || "",
         outcome_account_id: trans?.outcome?.account_id || "",
-        outcome_sum: trans?.outcome?.sum
-          ? getCurrencyValue(trans.outcome.sum, outcomeCurrency)
-          : "",
+        outcome_sum:
+          trans?.outcome?.sum && outcomeCurrency
+            ? getCurrencyValue(
+                trans.outcome.sum,
+                outcomeCurrency.decimal_places_number
+              )
+            : "",
         income_account_id: trans?.income?.account_id || "",
-        income_sum: trans?.income?.sum
-          ? getCurrencyValue(trans.income.sum, incomeCurrency)
-          : "",
+        income_sum:
+          trans?.income?.sum && incomeCurrency
+            ? getCurrencyValue(
+                trans.income.sum,
+                incomeCurrency.decimal_places_number
+              )
+            : "",
         category_id: trans?.category_id || "",
       });
 
@@ -179,14 +193,22 @@ const SetTransaction: FC<SetTransactionProps> = observer(
         description: template.description || form.description,
         outcome_account_id:
           template.outcome?.account_id || form.outcome_account_id,
-        outcome_sum: template.outcome?.sum
-          ? getCurrencyValue(template.outcome.sum, outcomeCurrency)
-          : "" || form.outcome_sum,
+        outcome_sum:
+          template.outcome?.sum && outcomeCurrency
+            ? getCurrencyValue(
+                template.outcome.sum,
+                outcomeCurrency.decimal_places_number
+              )
+            : "" || form.outcome_sum,
         income_account_id:
           template.income?.account_id || form.income_account_id,
-        income_sum: template.income?.sum
-          ? getCurrencyValue(template.income.sum, incomeCurrency)
-          : "" || form.income_sum,
+        income_sum:
+          template.income?.sum && incomeCurrency
+            ? getCurrencyValue(
+                template.income.sum,
+                incomeCurrency.decimal_places_number
+              )
+            : "" || form.income_sum,
         category_id: template.category_id || form.category_id,
       });
       setTransactionType(transactionType);

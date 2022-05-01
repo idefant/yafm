@@ -185,7 +185,10 @@ const TransactionItem: FC<TransactionItemProps> = observer(
         {transaction.outcome && outcomeCurrency && outcomeAccount ? (
           <TD className="text-right">
             <div className="text-red-700">
-              {getCurrencyValue(transaction.outcome.sum, outcomeCurrency)}
+              {getCurrencyValue(
+                transaction.outcome.sum,
+                outcomeCurrency.decimal_places_number
+              )}
               <span className="pl-2.5">{outcomeCurrency.code || ""}</span>
             </div>
             <div className="text-sm text-gray-600">
@@ -199,7 +202,10 @@ const TransactionItem: FC<TransactionItemProps> = observer(
         {transaction.income && incomeCurrency && incomeAccount ? (
           <TD className="text-right">
             <div className="text-green-700">
-              {getCurrencyValue(transaction.income.sum, incomeCurrency)}
+              {getCurrencyValue(
+                transaction.income.sum,
+                incomeCurrency.decimal_places_number
+              )}
               <span className="pl-2.5">{incomeCurrency.code || ""}</span>
             </div>
             <div className="text-sm text-gray-600">

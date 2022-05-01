@@ -1,14 +1,11 @@
-import { TCurrency } from "../types/currencyType";
-
-export const getCurrencyValue = (value: number, currency?: TCurrency) => {
-  return (
-    value / (currency ? 10 ** currency?.decimal_places_number : 1)
-  ).toFixed(currency?.decimal_places_number || 0);
+export const getCurrencyValue = (value: number, decimalPlaces: number) => {
+  return (value / 10 ** decimalPlaces)
+    .toFixed(decimalPlaces || 0)
+    .replace(/\.?0*$/, "");
 };
 
-export const displayToSysValue = (text: string, currency: TCurrency) => {
+export const displayToSysValue = (text: string, decimalPlaces: number) => {
   return Math.round(
-    parseFloat(text.replace(",", ".")) * 10 ** currency.decimal_places_number ||
-      0
+    parseFloat(text.replace(",", ".")) * 10 ** decimalPlaces || 0
   );
 };
