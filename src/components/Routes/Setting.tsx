@@ -4,11 +4,12 @@ import store from "../../store";
 import { exportFile, readFileContent } from "../../helper/file";
 import { aesDecrypt, aesEncrypt } from "../../helper/crypto";
 import FormField from "../Generic/Form/FormField";
-import useForm from "../../hooks/useForm";
 import Button from "../Generic/Button/Button";
 import Swal from "sweetalert2";
 import { getSyncData } from "../../helper/sync";
 import { decompress } from "compress-json";
+import { useFormik } from "formik";
+import { object, string } from "yup";
 
 const Setting: FC = observer(() => {
   const { aesPass } = store.user;
@@ -77,27 +78,42 @@ const Setting: FC = observer(() => {
     }
   };
 
-  const [form, setForm] = useForm({
-    old_pass: "",
-    new_pass: "",
-    repeat_pass: "",
-  });
+  type TForm = {
+    oldPassword: string;
+    newPassword: string;
+    repeatPassword: string;
+  };
 
-  const changePassword = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    if (form.old_pass !== aesPass) {
+  const changePassword = (values: TForm) => {
+    if (values.oldPassword !== aesPass) {
       Swal.fire({ title: "Wrong password", icon: "error" });
       return;
     }
-    if (form.new_pass !== form.repeat_pass) {
+    if (values.newPassword !== values.repeatPassword) {
       Swal.fire({ title: "Passwords don't match", icon: "error" });
       return;
     }
 
-    store.user.setAesPass(form.new_pass);
+    store.user.setAesPass(values.newPassword);
     Swal.fire({ title: "Password changed successfully", icon: "success" });
+    formik.resetForm();
   };
+
+  const formik = useFormik({
+    initialValues: {
+      oldPassword: "",
+      newPassword: "",
+      repeatPassword: "",
+    },
+    onSubmit: changePassword,
+    validationSchema: object({
+      oldPassword: string().required(),
+      newPassword: string().required(),
+      repeatPassword: string().required(),
+    }),
+    validateOnChange: false,
+    validateOnBlur: true,
+  });
 
   const recalculateBalances = () => {
     const isChanged = store.account.recalculateBalances();
@@ -115,27 +131,33 @@ const Setting: FC = observer(() => {
 
       <h2 className="text-2xl font-bold underline pb-3">Change Password</h2>
 
-      <form className="w-2/3" onSubmit={changePassword}>
+      <form className="w-2/3" onSubmit={formik.handleSubmit}>
         <FormField
           label="Old password"
-          value={form.old_pass}
-          onChange={setForm}
-          name="old_pass"
+          value={formik.values.oldPassword}
+          onChange={formik.handleChange}
+          name="oldPassword"
           type="password"
+          onBlur={() => formik.validateField("oldPassword")}
+          withError={Boolean(formik.errors.oldPassword)}
         />
         <FormField
           label="New password"
-          value={form.new_pass}
-          onChange={setForm}
-          name="new_pass"
+          value={formik.values.newPassword}
+          onChange={formik.handleChange}
+          name="newPassword"
           type="password"
+          onBlur={() => formik.validateField("newPassword")}
+          withError={Boolean(formik.errors.newPassword)}
         />
         <FormField
           label="Repeat password"
-          value={form.repeat_pass}
-          onChange={setForm}
-          name="repeat_pass"
+          value={formik.values.repeatPassword}
+          onChange={formik.handleChange}
+          name="repeatPassword"
           type="password"
+          onBlur={() => formik.validateField("repeatPassword")}
+          withError={Boolean(formik.errors.repeatPassword)}
         />
         <Button type="submit">Change Password</Button>
       </form>

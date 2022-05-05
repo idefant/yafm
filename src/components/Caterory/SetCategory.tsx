@@ -1,5 +1,5 @@
 import { observer } from "mobx-react-lite";
-import { FC, FormEvent } from "react";
+import { FC } from "react";
 import Button from "../Generic/Button/Button";
 import FormField from "../Generic/Form/FormField";
 import Modal, {
@@ -10,8 +10,8 @@ import Modal, {
 import store from "../../store";
 import { TCategory, TCategoryType } from "../../types/categoryType";
 import Checkbox from "../Generic/Form/Checkbox";
-import useForm from "../../hooks/useForm";
-import useCheckForm from "../../hooks/useCheckForm";
+import { useFormik } from "formik";
+import { boolean, object, string } from "yup";
 
 interface SetCategoryProps {
   isOpen: boolean;
@@ -22,23 +22,13 @@ interface SetCategoryProps {
 
 const SetCategory: FC<SetCategoryProps> = observer(
   ({ isOpen, close, category, categoryType }) => {
-    const [form, setForm, updateForm] = useForm({
-      name: "",
-    });
-    const [checkForm, setCheckForm, updateCheckForm] = useCheckForm({
-      is_hide: false,
-      is_archive: false,
-    });
+    type TForm = { name: string; isHide: boolean; isArchive: boolean };
 
-    const onSubmit = (e: FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-
-      if (!form.name) return;
-
+    const onSubmit = (values: TForm) => {
       const categoryData = {
-        name: form.name,
-        is_hide: checkForm.is_hide || undefined,
-        is_archive: checkForm.is_archive || undefined,
+        name: values.name,
+        is_hide: values.isHide || undefined,
+        is_archive: values.isArchive || undefined,
       };
 
       if (!category) {
@@ -53,12 +43,32 @@ const SetCategory: FC<SetCategoryProps> = observer(
       close();
     };
 
+    const formik = useFormik({
+      initialValues: {
+        name: "",
+        isHide: false,
+        isArchive: false,
+      },
+      onSubmit,
+      validationSchema: object({
+        name: string().required(),
+        isHide: boolean(),
+        isArchive: boolean(),
+      }),
+      validateOnChange: false,
+      validateOnBlur: true,
+    });
+
     const onEnter = () => {
-      updateForm({ name: category?.name || "" });
-      updateCheckForm({
-        is_hide: category?.is_hide || false,
-        is_archive: category?.is_archive || false,
+      formik.setValues({
+        name: category?.name || "",
+        isArchive: category?.is_archive || false,
+        isHide: category?.is_hide || false,
       });
+    };
+
+    const onExited = () => {
+      formik.resetForm();
     };
 
     return (
@@ -66,7 +76,8 @@ const SetCategory: FC<SetCategoryProps> = observer(
         isOpen={isOpen}
         close={close}
         onEnter={onEnter}
-        onSubmit={onSubmit}
+        onExited={onExited}
+        onSubmit={formik.handleSubmit}
       >
         <ModalHeader close={close}>
           {category ? "Edit Category" : "Create Category"}
@@ -75,23 +86,25 @@ const SetCategory: FC<SetCategoryProps> = observer(
           <FormField
             label="Name"
             name="name"
-            value={form.name}
-            onChange={setForm}
+            value={formik.values.name}
+            onChange={formik.handleChange}
+            onBlur={() => formik.validateField("name")}
+            withError={Boolean(formik.errors.name)}
           />
 
           {category && (
             <>
               <Checkbox
-                checked={checkForm.is_hide}
-                onChange={setCheckForm}
-                name="is_hide"
+                checked={formik.values.isHide}
+                onChange={formik.handleChange}
+                name="isHide"
               >
                 Hide
               </Checkbox>
               <Checkbox
-                checked={checkForm.is_archive}
-                onChange={setCheckForm}
-                name="is_archive"
+                checked={formik.values.isArchive}
+                onChange={formik.handleChange}
+                name="isArchive"
               >
                 Archive
               </Checkbox>

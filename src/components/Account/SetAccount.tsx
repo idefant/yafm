@@ -1,5 +1,5 @@
 import { observer } from "mobx-react-lite";
-import { FC, FormEvent, useMemo } from "react";
+import { FC } from "react";
 import Button from "../Generic/Button/Button";
 import FormField from "../Generic/Form/FormField";
 import Select from "../Generic/Form/Select";
@@ -8,13 +8,12 @@ import Modal, {
   ModalFooter,
   ModalHeader,
 } from "../Generic/Modal";
-import { displayToSysValue, getCurrencyValue } from "../../helper/currencies";
 import store from "../../store";
 import { TAccount } from "../../types/accountType";
 import { TCurrency } from "../../types/currencyType";
-import useCheckForm from "../../hooks/useCheckForm";
 import Checkbox from "../Generic/Form/Checkbox";
-import useForm from "../../hooks/useForm";
+import { useFormik } from "formik";
+import { boolean, object, string } from "yup";
 
 interface SetAccountProps {
   account?: TAccount;
@@ -24,26 +23,57 @@ interface SetAccountProps {
 
 const SetAccount: FC<SetAccountProps> = observer(
   ({ isOpen, close, account }) => {
-    const [form, setForm, updateForm] = useForm({
-      name: "",
-      start_balance: "",
-      currency_code: "",
-      category_id: "",
-    });
+    type TForm = {
+      name: string;
+      currencyCode: string;
+      categoryId: string;
+      isHide: boolean;
+      isArchive: boolean;
+    };
 
-    const [checkForm, setCheckForm, updateCheckForm] = useCheckForm({
-      is_hide: false,
-      is_archive: false,
+    const onSubmit = (values: TForm) => {
+      const accountData = {
+        name: values.name,
+        category_id: values.categoryId || undefined,
+        is_hide: values.isHide || undefined,
+        is_archive: values.isArchive || undefined,
+      };
+
+      if (account) {
+        store.account.editAccount({ ...account, ...accountData });
+      } else {
+        store.account.createAccount({
+          ...accountData,
+          currency_code: values.currencyCode,
+        });
+      }
+      close();
+    };
+
+    const formik = useFormik({
+      initialValues: {
+        name: "",
+        currencyCode: "",
+        categoryId: "",
+        isHide: false,
+        isArchive: false,
+      },
+      onSubmit,
+      validationSchema: object({
+        name: string().required(),
+        currencyCode: string().required(),
+        categoryId: string(),
+        isHide: boolean(),
+        isArchive: boolean(),
+      }),
+      validateOnChange: false,
+      validateOnBlur: true,
     });
 
     const {
-      currency: { currencyDict, currencies },
+      currency: { currencies },
       category: { accounts: categories },
     } = store;
-    const accountCurrency = useMemo(
-      () => currencyDict[form.currency_code],
-      [currencyDict, form.currency_code]
-    );
 
     const currencyOptions = currencies.reduce(
       (
@@ -82,52 +112,18 @@ const SetAccount: FC<SetAccountProps> = observer(
       return optgroups;
     })();
 
-    const onSubmit = (e: FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      if (!form.name.length || !accountCurrency || !form.currency_code) return;
-
-      const accountData = {
-        name: form.name,
-        start_balance: displayToSysValue(
-          form.start_balance,
-          accountCurrency.decimal_places_number
-        ),
-        category_id: form.category_id || undefined,
-        is_hide: checkForm.is_hide || undefined,
-        is_archive: checkForm.is_archive || undefined,
-      };
-
-      if (account) {
-        store.account.editAccount({ ...account, ...accountData });
-      } else {
-        store.account.createAccount({
-          ...accountData,
-          currency_code: form.currency_code,
-        });
-      }
-      close();
+    const onEnter = () => {
+      formik.setValues({
+        name: account?.name || "",
+        currencyCode: account?.currency_code || "",
+        categoryId: account?.category_id || "",
+        isHide: account?.is_hide || false,
+        isArchive: account?.is_archive || false,
+      });
     };
 
-    const onEnter = () => {
-      const currency = account && currencyDict[account.currency_code];
-
-      updateForm({
-        name: account?.name || "",
-        start_balance:
-          account && currency
-            ? getCurrencyValue(
-                account.start_balance,
-                currency.decimal_places_number
-              )
-            : "",
-        currency_code: account?.currency_code || "",
-        category_id: account?.category_id || "",
-      });
-
-      updateCheckForm({
-        is_hide: account?.is_hide || false,
-        is_archive: account?.is_archive || false,
-      });
+    const onExited = () => {
+      formik.resetForm();
     };
 
     return (
@@ -135,7 +131,8 @@ const SetAccount: FC<SetAccountProps> = observer(
         isOpen={isOpen}
         close={close}
         onEnter={onEnter}
-        onSubmit={onSubmit}
+        onExited={onExited}
+        onSubmit={formik.handleSubmit}
       >
         <ModalHeader close={close}>
           {account ? "Edit Account" : "Create Account"}
@@ -144,37 +141,34 @@ const SetAccount: FC<SetAccountProps> = observer(
           <FormField
             label="Name"
             name="name"
-            value={form.name}
-            onChange={setForm}
+            value={formik.values.name}
+            onChange={formik.handleChange}
+            onBlur={() => formik.validateField("name")}
+            withError={Boolean(formik.errors.name)}
           />
           {!account && (
             <div className="flex items-center my-2 gap-3">
               <label className="block w-1/3">Currency</label>
               <Select
-                name="currency_code"
-                selectedValue={form.currency_code}
+                name="currencyCode"
+                selectedValue={formik.values.currencyCode}
                 optgroups={optgroups}
                 options={currencyOptions.options}
-                onChange={setForm}
+                onChange={formik.handleChange}
+                onBlur={() => formik.validateField("currencyCode")}
+                withError={Boolean(formik.errors.currencyCode)}
                 className="w-2/3"
               />
             </div>
           )}
-          <FormField
-            label="Start Balance"
-            name="start_balance"
-            value={form.start_balance}
-            onChange={setForm}
-            units={accountCurrency?.code}
-          />
 
           <div className="flex items-center my-2 gap-3">
             <label className="block w-1/3">Category</label>
             <Select
-              name="category_id"
-              selectedValue={form.category_id}
+              name="categoryId"
+              selectedValue={formik.values.categoryId}
               options={categoryOptions}
-              onChange={setForm}
+              onChange={formik.handleChange}
               className="w-2/3"
               useEmpty
               defaultText="Choose a category"
@@ -184,16 +178,16 @@ const SetAccount: FC<SetAccountProps> = observer(
           {account && (
             <>
               <Checkbox
-                checked={checkForm.is_hide}
-                onChange={setCheckForm}
-                name="is_hide"
+                checked={formik.values.isHide}
+                onChange={formik.handleChange}
+                name="isHide"
               >
                 Hide
               </Checkbox>
               <Checkbox
-                checked={checkForm.is_archive}
-                onChange={setCheckForm}
-                name="is_archive"
+                checked={formik.values.isArchive}
+                onChange={formik.handleChange}
+                name="isArchive"
               >
                 Archive
               </Checkbox>

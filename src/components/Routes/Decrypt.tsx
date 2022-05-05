@@ -1,12 +1,13 @@
 import { decompress } from "compress-json";
+import { useFormik } from "formik";
 import { observer } from "mobx-react-lite";
-import { FC, FormEvent, useEffect, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { object, string } from "yup";
 import { aesDecrypt } from "../../helper/crypto";
 import { getLastCommitRequest } from "../../helper/requests/commitRequests";
 import { errorAlert } from "../../helper/sweetalert";
 import { checkBaseIntegrity } from "../../helper/sync";
-import useForm from "../../hooks/useForm";
 import store from "../../store";
 import { EncryptedYAFM } from "../../types/cipher";
 import Button from "../Generic/Button/Button";
@@ -15,10 +16,6 @@ import FormField from "../Generic/Form/FormField";
 const Decrypt: FC = observer(() => {
   const { api, aesPass, accessToken } = store.user;
   const navigate = useNavigate();
-
-  const [form, setForm] = useForm({
-    aes_key: "",
-  });
 
   const [cipherData, setCipherData] = useState<EncryptedYAFM>();
   const [isNew, setIsNew] = useState<boolean>();
@@ -46,22 +43,18 @@ const Decrypt: FC = observer(() => {
     }
   }, [api, navigate, aesPass, accessToken]);
 
-  const submitForm = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!form.aes_key) {
-      errorAlert({ title: "You need write AES Key" });
-      return;
-    }
+  type TForm = { aesKey: string };
 
+  const submitForm = async (values: TForm) => {
     if (isNew) {
-      store.user.setAesPass(form.aes_key);
+      store.user.setAesPass(values.aesKey);
       return;
     }
 
     if (cipherData) {
       const plaintext = aesDecrypt(
         cipherData.cipher,
-        form.aes_key,
+        values.aesKey,
         cipherData.iv,
         cipherData.hmac
       );
@@ -74,7 +67,7 @@ const Decrypt: FC = observer(() => {
           return;
         }
 
-        store.user.setAesPass(form.aes_key);
+        store.user.setAesPass(values.aesKey);
         store.account.setAccounts(data.accounts);
         store.transaction.setData(data.transactions, data.templates);
         store.category.setCategories(data.categories);
@@ -85,6 +78,14 @@ const Decrypt: FC = observer(() => {
       }
     }
   };
+
+  const formik = useFormik({
+    initialValues: { aesKey: "" },
+    onSubmit: submitForm,
+    validationSchema: object({ aesKey: string().required() }),
+    validateOnChange: false,
+    validateOnBlur: true,
+  });
 
   const logout = () => {
     store.user.logout();
@@ -98,7 +99,7 @@ const Decrypt: FC = observer(() => {
       <h1 className="text-3xl font-bold underline text-center mb-7">
         {isNew ? "Create Base" : "Decrypt Base"}
       </h1>
-      <form onSubmit={submitForm}>
+      <form onSubmit={formik.handleSubmit}>
         <div className="flex gap-3 mb-3">
           <div className="w-1/3">Server URL: </div>
           <div className="w-2/3">{api?.url}</div>
@@ -109,10 +110,12 @@ const Decrypt: FC = observer(() => {
         </div>
         <FormField
           label="New AES Key"
-          value={form.aes_key}
-          name="aes_key"
-          onChange={setForm}
+          value={formik.values.aesKey}
+          name="aesKey"
+          onChange={formik.handleChange}
           type="password"
+          onBlur={() => formik.validateField("aesKey")}
+          withError={Boolean(formik.errors.aesKey)}
         />
         <div className="mx-auto mt-8 flex justify-center gap-6">
           <Button type="submit" color="green" className="block">

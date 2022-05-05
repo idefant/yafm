@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import { FC } from "react";
+import { FC, FocusEventHandler } from "react";
 import style from "./Select.module.css";
 
 interface SelectProps {
@@ -22,6 +22,8 @@ interface SelectProps {
   defaultText?: string;
   useEmpty?: boolean;
   name?: string;
+  withError?: boolean;
+  onBlur?: FocusEventHandler<HTMLSelectElement>;
 }
 
 const Select: FC<SelectProps> = ({
@@ -33,16 +35,20 @@ const Select: FC<SelectProps> = ({
   defaultText = "Choose here",
   useEmpty,
   name,
+  withError,
+  onBlur,
 }) => {
   return (
     <select
       value={selectedValue || ""}
       className={classNames(
-        "bg-gray-200 rounded-md px-2 py-1.5 focus:outline-none focus:bg-gray-100 border focus:border-gray-600 appearance-none bg-clip-padding bg-no-repeat",
+        "bg-gray-200 rounded-md px-2 py-1.5 focus:outline-none focus:bg-gray-100 border focus:border-gray-600 appearance-none bg-clip-padding bg-no-repeat focus:shadow-none transition-shadow",
         className,
-        style.select
+        style.select,
+        withError && "shadow-[0_0_0_3px_#DC2626a0]"
       )}
       onChange={onChange}
+      onBlur={onBlur}
       name={name}
     >
       {optgroups?.map((optgroup) => (

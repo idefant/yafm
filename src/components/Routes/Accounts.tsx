@@ -20,13 +20,14 @@ const Accounts: FC = observer(() => {
   const [isOpen, setIsOpen] = useState(false);
 
   const accountDict = accounts.reduce(
-    (dict: { [key: string]: TAccount[] }, curr) => {
-      const categoryId = curr.category_id || "";
-      if (categoryId in dict) {
-        dict[categoryId].push(curr);
-      } else {
-        dict[categoryId] = [curr];
+    (dict: { [key: string]: TAccount[] }, account) => {
+      const categoryId = account.category_id || "";
+
+      if (!(categoryId in dict)) {
+        dict[categoryId] = [];
       }
+      dict[categoryId].push(account);
+
       return dict;
     },
     {}
@@ -69,16 +70,15 @@ const Accounts: FC = observer(() => {
     (category) => !category.category_id
   );
 
-  const accountWithCategory = categories.map(
-    (category) =>
-      accountDict[category.id] && {
-        id: category.id,
-        name: category.name,
-        accounts: accountDict[category.id]
-          .slice()
-          .sort((a, b) => +(a.is_archive || false) - +(b.is_archive || false)),
-      }
-  );
+  const accountWithCategory = categories
+    .filter((category) => accountDict[category.id])
+    .map((category) => ({
+      id: category.id,
+      name: category.name,
+      accounts: accountDict[category.id]
+        .slice()
+        .sort((a, b) => +(a.is_archive || false) - +(b.is_archive || false)),
+    }));
 
   return (
     <>

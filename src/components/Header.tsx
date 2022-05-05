@@ -152,7 +152,7 @@ const MobileHeaderItem: FC<HeaderItemProps> = ({
       {items && items.length !== 0 && (
         <ul className="px-5 py-2 text-lg pt-0 pl-8">
           {items.map((item) => (
-            <li className="py-1.5">
+            <li className="py-1.5" key={item.href}>
               <NavLink
                 to={item.href}
                 className={({ isActive }) =>
@@ -187,7 +187,7 @@ const HeaderItem: FC<HeaderItemProps> = ({ title, href, items }) => {
       {items && items.length !== 0 && (
         <ul className="hidden absolute bg-gray-700 px-5 py-2 rounded-md group-hover:block border-gray-900 border-2">
           {items.map((item) => (
-            <li className="py-1.5">
+            <li className="py-1.5" key={item.href}>
               <NavLink
                 to={item.href}
                 className={({ isActive }) =>

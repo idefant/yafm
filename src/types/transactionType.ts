@@ -18,3 +18,9 @@ export type TTransactionTransfer = {
 
 export type TTransactionType = "income" | "outcome" | "exchange";
 export const transactionTypes = ["income", "outcome", "exchange"];
+
+export const checkNeedIncome = (transactionType: TTransactionType) =>
+  transactionType === "income" || transactionType === "exchange";
+
+export const checkNeedOutcome = (transactionType: TTransactionType) =>
+  transactionType === "outcome" || transactionType === "exchange";

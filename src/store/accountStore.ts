@@ -24,21 +24,18 @@ class AccountStore {
     this.accounts.push({
       id: genId(),
       ...account,
-      balance: account.start_balance,
+      balance: 0,
     });
   }
 
-  editAccount(updatedAccount: Omit<TAccount, "balance">) {
+  editAccount(updatedAccount: Omit<TAccount, "balance" | "currency_code">) {
     const index = this.accounts.findIndex(
       (account) => account.id === updatedAccount.id
     );
     if (index !== -1) {
       this.accounts[index] = {
+        ...this.accounts[index],
         ...updatedAccount,
-        balance:
-          this.accounts[index].balance +
-          updatedAccount.start_balance -
-          this.accounts[index].start_balance,
       };
     }
   }
@@ -53,9 +50,7 @@ class AccountStore {
 
   recalculateBalances() {
     const accountBalances: { [accountId: string]: number } = {};
-    this.accounts.forEach(
-      (account) => (accountBalances[account.id] = account.start_balance)
-    );
+    this.accounts.forEach((account) => (accountBalances[account.id] = 0));
 
     this.rootStore.transaction.transactions.forEach((transaction) => {
       const income = transaction.income;

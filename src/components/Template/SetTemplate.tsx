@@ -1,6 +1,6 @@
-import { ChangeEvent, FC, FormEvent, useMemo, useState } from "react";
+import { FC, useMemo, useRef, useState } from "react";
 import Button from "../Generic/Button/Button";
-import FormField from "../Generic/Form/FormField";
+import FormField, { FormFieldInput } from "../Generic/Form/FormField";
 import Select from "../Generic/Form/Select";
 import Textarea from "../Generic/Form/Textarea";
 import Modal, {
@@ -8,15 +8,21 @@ import Modal, {
   ModalFooter,
   ModalHeader,
 } from "../Generic/Modal";
-import { TTemplate, TTransactionType } from "../../types/transactionType";
+import {
+  checkNeedIncome,
+  checkNeedOutcome,
+  TTemplate,
+  TTransactionType,
+} from "../../types/transactionType";
 import "react-datepicker/dist/react-datepicker.css";
 import { observer } from "mobx-react-lite";
 import store from "../../store";
-import { TCurrency } from "../../types/currencyType";
 import { displayToSysValue, getCurrencyValue } from "../../helper/currencies";
-import useForm from "../../hooks/useForm";
 import ActionButton from "../Generic/Button/ActionButton";
 import { MinusIcon, PlusIcon, RepeatIcon } from "../../assets/svg";
+import { useFormik } from "formik";
+import { object, string } from "yup";
+import { numberWithDecimalPlacesSchema } from "../../schema";
 
 interface SetTemplateProps {
   template?: TTemplate;
@@ -33,16 +39,6 @@ const SetTemplate: FC<SetTemplateProps> = observer(
       category: { transactions: categories },
     } = store;
 
-    const [form, setForm, updateForm] = useForm({
-      name: "",
-      description: "",
-      outcome_account_id: "",
-      outcome_sum: "",
-      income_account_id: "",
-      income_sum: "",
-      category_id: "",
-    });
-
     const accountOptions = accounts.map((account) => ({
       value: account.id,
       text: account.name,
@@ -52,62 +48,45 @@ const SetTemplate: FC<SetTemplateProps> = observer(
       .filter((category) => !category.is_archive)
       .map((category) => ({ value: category.id, text: category.name }));
 
-    const outcomeCurrency = useMemo(() => {
-      const outcomeAccount = accountDict[form.outcome_account_id];
-      return outcomeAccount
-        ? currencyDict[outcomeAccount.currency_code]
-        : undefined;
-    }, [accountDict, currencyDict, form.outcome_account_id]);
-
-    const incomeCurrency = useMemo(() => {
-      const incomeAccount = accountDict[form.income_account_id];
-      return incomeAccount
-        ? currencyDict[incomeAccount.currency_code]
-        : undefined;
-    }, [accountDict, currencyDict, form.income_account_id]);
-
     const [transactionType, setTransactionType] =
       useState<TTransactionType>("outcome");
 
-    const onSubmit = (e: FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      if (
-        transactionType !== "outcome" &&
-        (!form.income_account_id || +form.income_sum < 0 || !incomeCurrency)
-      )
-        return;
+    type TForm = {
+      name: string;
+      description: string;
+      outcomeAccountId: string;
+      outcomeSum: string;
+      incomeAccountId: string;
+      incomeSum: string;
+      categoryId: string;
+    };
 
-      if (
-        transactionType !== "income" &&
-        (!form.outcome_account_id || +form.outcome_sum < 0 || !outcomeCurrency)
-      )
-        return;
-
+    const onSubmit = (values: TForm) => {
       const templateData = {
-        name: form.name || undefined,
-        description: form.description || undefined,
+        name: values.name || undefined,
+        description: values.description || undefined,
         type: transactionType,
-        category_id: form.category_id || undefined,
+        category_id: values.categoryId || undefined,
         income:
-          transactionType !== "outcome" &&
-          form.income_account_id &&
+          checkNeedIncome(transactionType) &&
+          values.incomeAccountId &&
           incomeCurrency
             ? {
-                account_id: form.income_account_id,
+                account_id: values.incomeAccountId,
                 sum: displayToSysValue(
-                  form.income_sum,
+                  values.incomeSum,
                   incomeCurrency.decimal_places_number
                 ),
               }
             : undefined,
         outcome:
-          transactionType !== "income" &&
-          form.outcome_account_id &&
+          checkNeedOutcome(transactionType) &&
+          values.outcomeAccountId &&
           outcomeCurrency
             ? {
-                account_id: form.outcome_account_id,
+                account_id: values.outcomeAccountId,
                 sum: displayToSysValue(
-                  form.outcome_sum,
+                  values.outcomeSum,
                   outcomeCurrency.decimal_places_number
                 ),
               }
@@ -121,6 +100,61 @@ const SetTemplate: FC<SetTemplateProps> = observer(
       }
       close();
     };
+
+    const outcomeDecimalPlaces = useRef(0);
+    const incomeDecimalPlaces = useRef(0);
+
+    const formik = useFormik({
+      initialValues: {
+        name: "",
+        description: "",
+        outcomeAccountId: "",
+        outcomeSum: "",
+        incomeAccountId: "",
+        incomeSum: "",
+        categoryId: "",
+      },
+      onSubmit,
+      validationSchema: object({
+        name: string(),
+        description: string(),
+        outcomeAccountId: checkNeedOutcome(transactionType)
+          ? string().required()
+          : string(),
+        outcomeSum: checkNeedOutcome(transactionType)
+          ? numberWithDecimalPlacesSchema(outcomeDecimalPlaces.current)
+          : string(),
+        incomeAccountId: checkNeedIncome(transactionType)
+          ? string().required()
+          : string(),
+        incomeSum: checkNeedIncome(transactionType)
+          ? numberWithDecimalPlacesSchema(incomeDecimalPlaces.current)
+          : string(),
+        categoryId: string(),
+      }),
+      validateOnChange: false,
+      validateOnBlur: true,
+    });
+
+    const outcomeCurrency = useMemo(() => {
+      const outcomeAccount = accountDict[formik.values.outcomeAccountId];
+      const currency = outcomeAccount
+        ? currencyDict[outcomeAccount.currency_code]
+        : undefined;
+
+      outcomeDecimalPlaces.current = currency?.decimal_places_number || 0;
+      return currency;
+    }, [accountDict, currencyDict, formik.values.outcomeAccountId]);
+
+    const incomeCurrency = useMemo(() => {
+      const incomeAccount = accountDict[formik.values.incomeAccountId];
+      const currency = incomeAccount
+        ? currencyDict[incomeAccount.currency_code]
+        : undefined;
+
+      incomeDecimalPlaces.current = currency?.decimal_places_number || 0;
+      return currency;
+    }, [accountDict, currencyDict, formik.values.incomeAccountId]);
 
     const onEnter = () => {
       const outcomeAccountId = template?.outcome?.account_id;
@@ -137,27 +171,28 @@ const SetTemplate: FC<SetTemplateProps> = observer(
       const incomeCurrency =
         incomeAccount && currencyDict[incomeAccount.currency_code];
 
-      updateForm({
+      formik.setValues({
         name: template?.name || "",
         description: template?.description || "",
-        outcome_account_id: outcomeAccountId || "",
-        outcome_sum:
+        outcomeAccountId: template?.outcome?.account_id || "",
+        outcomeSum:
           template?.outcome?.sum && outcomeCurrency
             ? getCurrencyValue(
                 template.outcome.sum,
                 outcomeCurrency.decimal_places_number
               )
             : "",
-        income_account_id: incomeAccountId || "",
-        income_sum:
+        incomeAccountId: template?.income?.account_id || "",
+        incomeSum:
           template?.income?.sum && incomeCurrency
             ? getCurrencyValue(
                 template.income.sum,
                 incomeCurrency.decimal_places_number
               )
             : "",
-        category_id: template?.category_id || "",
+        categoryId: template?.category_id || "",
       });
+
       setTransactionType(startTransactionType || "outcome");
     };
 
@@ -166,7 +201,7 @@ const SetTemplate: FC<SetTemplateProps> = observer(
         isOpen={isOpen}
         close={close}
         onEnter={onEnter}
-        onSubmit={onSubmit}
+        onSubmit={formik.handleSubmit}
       >
         <ModalHeader close={close}>
           {template ? "Edit Template" : "Create Template"}
@@ -174,7 +209,11 @@ const SetTemplate: FC<SetTemplateProps> = observer(
         <ModalContent>
           <div className="flex justify-center gap-6">
             <ActionButton
-              onClick={() => setTransactionType("outcome")}
+              onClick={() => {
+                setTransactionType("outcome");
+                formik.setFieldError("incomeSum", undefined);
+                formik.setFieldError("incomeAccountId", undefined);
+              }}
               color="red"
               active={transactionType === "outcome"}
               shadow={transactionType === "outcome"}
@@ -183,7 +222,11 @@ const SetTemplate: FC<SetTemplateProps> = observer(
             </ActionButton>
 
             <ActionButton
-              onClick={() => setTransactionType("income")}
+              onClick={() => {
+                setTransactionType("income");
+                formik.setFieldError("outcomeSum", undefined);
+                formik.setFieldError("outcomeAccountId", undefined);
+              }}
               color="green"
               active={transactionType === "income"}
               shadow={transactionType === "income"}
@@ -203,55 +246,93 @@ const SetTemplate: FC<SetTemplateProps> = observer(
           <FormField
             label="Name"
             name="name"
-            value={form.name}
-            onChange={setForm}
+            value={formik.values.name}
+            onChange={formik.handleChange}
           />
 
           <div className="flex items-center my-2 gap-3">
             <label className="block w-1/3">Category</label>
             <Select
-              selectedValue={form.category_id}
-              name="category_id"
+              selectedValue={formik.values.categoryId}
+              name="categoryId"
               options={categoryOptions}
-              onChange={setForm}
+              onChange={formik.handleChange}
               className="w-2/3"
               useEmpty
               defaultText="Choose a category"
             />
           </div>
 
-          {transactionType !== "income" && (
-            <AccountGroupField
-              title="Outcome"
-              nameSelect="outcome_account_id"
-              nameInput="outcome_sum"
-              accountId={form.outcome_account_id}
-              accountOptions={accountOptions}
-              sum={form.outcome_sum}
-              currency={outcomeCurrency}
-              setSum={setForm}
-              onChangeAccount={setForm}
-            />
+          {checkNeedOutcome(transactionType) && (
+            <>
+              <div className="text-xl pl-2 font-bold">Outcome</div>
+              <div className="flex items-center my-2 gap-3">
+                <Select
+                  selectedValue={formik.values.outcomeAccountId}
+                  options={accountOptions}
+                  onChange={formik.handleChange}
+                  className="w-1/3"
+                  name="outcomeAccountId"
+                  defaultText="Choose"
+                  onBlur={() => formik.validateField("outcomeAccountId")}
+                  withError={Boolean(formik.errors.outcomeAccountId)}
+                />
+                <div className="w-2/3 flex gap-4 items-center">
+                  <FormFieldInput
+                    name="outcomeSum"
+                    value={formik.values.outcomeSum}
+                    onChange={(e) => {
+                      const value = e.target.value
+                        .replace(/,/g, ".")
+                        .replace(/[^0-9. ]/g, "");
+                      formik.setFieldValue("outcomeSum", value);
+                    }}
+                    onBlur={() => formik.validateField("outcomeSum")}
+                    withError={Boolean(formik.errors.outcomeSum)}
+                  />
+                  {outcomeCurrency && <div>{outcomeCurrency.code}</div>}
+                </div>
+              </div>
+            </>
           )}
 
-          {transactionType !== "outcome" && (
-            <AccountGroupField
-              title="Income"
-              nameSelect="income_account_id"
-              nameInput="income_sum"
-              accountId={form.income_account_id}
-              accountOptions={accountOptions}
-              sum={form.income_sum}
-              currency={incomeCurrency}
-              setSum={setForm}
-              onChangeAccount={setForm}
-            />
+          {checkNeedIncome(transactionType) && (
+            <>
+              <div className="text-xl pl-2 font-bold">Income</div>
+              <div className="flex items-center my-2 gap-3">
+                <Select
+                  selectedValue={formik.values.incomeAccountId}
+                  options={accountOptions}
+                  onChange={formik.handleChange}
+                  className="w-1/3"
+                  name="incomeAccountId"
+                  defaultText="Choose"
+                  onBlur={() => formik.validateField("incomeAccountId")}
+                  withError={Boolean(formik.errors.incomeAccountId)}
+                />
+                <div className="w-2/3 flex gap-4 items-center">
+                  <FormFieldInput
+                    name="incomeSum"
+                    value={formik.values.incomeSum}
+                    onChange={(e) => {
+                      const value = e.target.value
+                        .replace(/,/g, ".")
+                        .replace(/[^0-9. ]/g, "");
+                      formik.setFieldValue("incomeSum", value);
+                    }}
+                    onBlur={() => formik.validateField("incomeSum")}
+                    withError={Boolean(formik.errors.incomeSum)}
+                  />
+                  {incomeCurrency && <div>{incomeCurrency.code}</div>}
+                </div>
+              </div>
+            </>
           )}
 
           <Textarea
-            value={form.description}
+            value={formik.values.description}
             name="description"
-            onChange={setForm}
+            onChange={formik.handleChange}
             placeholder="Description ..."
           />
         </ModalContent>
@@ -264,61 +345,6 @@ const SetTemplate: FC<SetTemplateProps> = observer(
           </Button>
         </ModalFooter>
       </Modal>
-    );
-  }
-);
-
-interface AccountGroupFieldProps {
-  accountId?: string;
-  accountOptions: {
-    value: string;
-    text: string;
-  }[];
-  sum: string;
-  setSum: (event: ChangeEvent<HTMLInputElement>) => void;
-  currency?: TCurrency;
-  title: string;
-  onChangeAccount: (e: ChangeEvent<HTMLSelectElement>) => void;
-  nameSelect?: string;
-  nameInput?: string;
-}
-
-const AccountGroupField: FC<AccountGroupFieldProps> = observer(
-  ({
-    accountId,
-    accountOptions,
-    sum,
-    setSum,
-    currency,
-    title,
-    onChangeAccount,
-    nameSelect,
-    nameInput,
-  }) => {
-    return (
-      <>
-        <div className="text-xl pl-2 font-bold">{title}</div>
-        <div className="flex items-center my-2 gap-3">
-          <Select
-            selectedValue={accountId}
-            options={accountOptions}
-            onChange={onChangeAccount}
-            className="w-1/3"
-            name={nameSelect}
-            defaultText="Choose"
-          />
-          <div className="w-2/3 flex gap-4 items-center">
-            <input
-              type="text"
-              name={nameInput}
-              className="flex-1 bg-gray-200 rounded-md px-3 py-1.5 focus:outline-none focus:bg-gray-100 border focus:border-gray-600"
-              value={sum}
-              onChange={setSum}
-            />
-            {currency && <div>{currency.code}</div>}
-          </div>
-        </div>
-      </>
     );
   }
 );
