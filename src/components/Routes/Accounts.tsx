@@ -13,13 +13,18 @@ import { computed } from "mobx";
 
 const Accounts: FC = observer(() => {
   const {
-    account: { accounts },
+    account: { accounts, hiddenAccountIds },
     category: { accounts: categories },
     currency: { currencies },
+    app: { safeMode },
   } = store;
   const [isOpen, setIsOpen] = useState(false);
 
-  const accountDict = accounts.reduce(
+  const filteredAccounts = accounts.filter(
+    (account) => !(safeMode && hiddenAccountIds.has(account.id))
+  );
+
+  const accountDict = filteredAccounts.reduce(
     (dict: { [key: string]: TAccount[] }, account) => {
       const categoryId = account.category_id || "";
 
@@ -42,7 +47,7 @@ const Accounts: FC = observer(() => {
 
   const currencyBalancesSum = useMemo(() => {
     return computed(() => {
-      const currencySum = accounts.reduce(
+      const currencySum = filteredAccounts.reduce(
         (currencySum: { [key: string]: number }, account: TAccount) => {
           if (account.balance !== 0) {
             currencySum[account.currency_code] =
@@ -64,20 +69,19 @@ const Accounts: FC = observer(() => {
         []
       );
     });
-  }, [accounts, currencies]).get();
+  }, [currencies, filteredAccounts]).get();
 
-  const accountsWithoutCategory = accounts.filter(
-    (category) => !category.category_id
+  const accountsWithoutCategory = filteredAccounts.filter(
+    (accounts) => !accounts.category_id
   );
 
   const accountWithCategory = categories
     .filter((category) => accountDict[category.id])
     .map((category) => ({
-      id: category.id,
-      name: category.name,
-      accounts: accountDict[category.id]
-        .slice()
-        .sort((a, b) => +(a.is_archive || false) - +(b.is_archive || false)),
+      ...category,
+      accounts: accountDict[category.id].sort(
+        (a, b) => +(a.is_archive || false) - +(b.is_archive || false)
+      ),
     }));
 
   return (
@@ -115,13 +119,13 @@ const Accounts: FC = observer(() => {
           </Table>
         )}
 
-        {accounts.length ? (
+        {accountsWithoutCategory.length || accountWithCategory.length ? (
           <Table>
             <THead>
               <TR>
                 <TH>Name</TH>
                 <TH>Balance</TH>
-                <TH></TH>
+                {!safeMode && <TH></TH>}
                 <TH></TH>
                 <TH></TH>
                 <TH></TH>
@@ -140,7 +144,12 @@ const Accounts: FC = observer(() => {
                 <Fragment key={category.id}>
                   <TR>
                     <TH colSpan={6} className="!bg-orange-200 !py-1">
-                      {category.name}
+                      <div className="flex justify-center gap-3 items-center">
+                        {category.is_hide && (
+                          <LockIcon className="w-[22px] h-[22px]" />
+                        )}
+                        {category.name}
+                      </div>
                     </TH>
                   </TR>
                   {category.accounts.map((account) => (
@@ -177,6 +186,7 @@ const AccountItem: FC<AccountItemProps> = observer(({ account, openModal }) => {
   const {
     currency: { currencyDict },
     transaction: { transactions, templates },
+    app: { safeMode },
   } = store;
   const accountCurrency = currencyDict[account.currency_code];
 
@@ -229,7 +239,7 @@ const AccountItem: FC<AccountItemProps> = observer(({ account, openModal }) => {
         )}
         <span className="pl-3">{accountCurrency.code}</span>
       </TD>
-      <TD>{account.is_hide && <LockIcon />}</TD>
+      {!safeMode && <TD>{account.is_hide && <LockIcon />}</TD>}
       <TD>{account.is_archive && <ArchiveIcon />}</TD>
       <TDIcon>
         <button className="p-2" onClick={openModal}>

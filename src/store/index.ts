@@ -1,4 +1,5 @@
 import AccountStore from "./accountStore";
+import AppStore from "./appStore";
 import CategoryStore from "./categoryStore";
 import CurrencyStore from "./currencyStore";
 import TransactionStore from "./transactionStore";
@@ -10,6 +11,7 @@ export class RootStore {
   currency = new CurrencyStore(this);
   user = new UserStore(this);
   category = new CategoryStore(this);
+  app = new AppStore(this);
 }
 
 export default new RootStore();

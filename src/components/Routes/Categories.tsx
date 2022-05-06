@@ -13,7 +13,10 @@ interface CategoriesProps {
 }
 
 const Categories: FC<CategoriesProps> = observer(({ categoryType }) => {
-  const categories = store.category[categoryType];
+  const {
+    category: { [categoryType]: categories },
+    app: { safeMode },
+  } = store;
   const [isOpen, setIsOpen] = useState(false);
   const [openedCategory, setOpenedCategory] = useState<TCategory>();
 
@@ -21,6 +24,11 @@ const Categories: FC<CategoriesProps> = observer(({ categoryType }) => {
     setOpenedCategory(category);
     setIsOpen(true);
   };
+
+  const sortedCategories = categories
+    .filter((category) => !(safeMode && category.is_hide))
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .sort((a, b) => +(a.is_archive || false) - +(b.is_archive || false));
 
   return (
     <>
@@ -36,26 +44,21 @@ const Categories: FC<CategoriesProps> = observer(({ categoryType }) => {
           <THead>
             <TR>
               <TH>Name</TH>
-              <TH>Hidden</TH>
+              {!safeMode && <TH>Hidden</TH>}
               <TH>Archived</TH>
               <TH></TH>
               <TH></TH>
             </TR>
           </THead>
           <TBody>
-            {categories
-              .slice()
-              .sort(
-                (a, b) => +(a.is_archive || false) - +(b.is_archive || false)
-              )
-              .map((category) => (
-                <CategoryItem
-                  category={category}
-                  key={category.id}
-                  categoryType={categoryType}
-                  openModal={() => openCategory(category)}
-                />
-              ))}
+            {sortedCategories.map((category) => (
+              <CategoryItem
+                category={category}
+                key={category.id}
+                categoryType={categoryType}
+                openModal={() => openCategory(category)}
+              />
+            ))}
           </TBody>
         </Table>
       ) : (
@@ -83,6 +86,7 @@ const CategoryItem: FC<CategoryItemProps> = observer(
     const {
       transaction: { transactions, templates },
       account: { accounts },
+      app: { safeMode },
     } = store;
 
     const checkCategoryIsUsed = () => {
@@ -127,7 +131,7 @@ const CategoryItem: FC<CategoryItemProps> = observer(
     return (
       <TR hide={category.is_archive}>
         <TD>{category.name}</TD>
-        <TD>{category.is_hide && <LockIcon />}</TD>
+        {!safeMode && <TD>{category.is_hide && <LockIcon />}</TD>}
         <TD>{category.is_archive && <ArchiveIcon />}</TD>
         <TDIcon>
           <button className="p-2" onClick={openModal}>

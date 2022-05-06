@@ -100,6 +100,28 @@ class TransactionStore {
   deleteTemplate(id: string) {
     this.templates = this.templates.filter((template) => template.id !== id);
   }
+
+  get hiddenTemplateIds() {
+    return new Set(
+      this.templates
+        .filter(
+          (template) =>
+            (template.category_id &&
+              this.rootStore.category.hiddenCategoryIds.transactions.has(
+                template.category_id
+              )) ||
+            (template.outcome &&
+              this.rootStore.account.hiddenAccountIds.has(
+                template.outcome.account_id
+              )) ||
+            (template.income &&
+              this.rootStore.account.hiddenAccountIds.has(
+                template.income.account_id
+              ))
+        )
+        .map((template) => template.id)
+    );
+  }
 }
 
 export default TransactionStore;

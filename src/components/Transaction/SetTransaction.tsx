@@ -40,18 +40,24 @@ interface SetTransactionProps {
 const SetTransaction: FC<SetTransactionProps> = observer(
   ({ isOpen, close, transaction, startTransactionType, copiedTransaction }) => {
     const {
-      account: { accounts, accountDict },
+      account: { accounts, accountDict, hiddenAccountIds },
       currency: { currencyDict },
       category: { transactions: categories },
+      app: { safeMode },
     } = store;
 
-    const accountOptions = accounts.map((account) => ({
-      value: account.id,
-      text: account.name,
-    }));
+    const accountOptions = accounts
+      .filter((account) => !(safeMode && hiddenAccountIds.has(account.id)))
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .map((account) => ({
+        value: account.id,
+        text: account.name,
+      }));
 
     const categoryOptions = categories
       .filter((category) => !category.is_archive)
+      .filter((category) => !(safeMode && category.is_hide))
+      .sort((a, b) => a.name.localeCompare(b.name))
       .map((category) => ({ value: category.id, text: category.name }));
 
     const [transactionType, setTransactionType] =

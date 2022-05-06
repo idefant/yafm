@@ -4,7 +4,7 @@ import { observer } from "mobx-react-lite";
 import { FC, useState } from "react";
 import { useNavigate, NavLink } from "react-router-dom";
 import Swal from "sweetalert2";
-import { LockIcon } from "../assets/svg";
+import { LockIcon, ShieldIcon, ShieldOffIcon, UploadIcon } from "../assets/svg";
 import { aesEncrypt } from "../helper/crypto";
 import { createCommitRequest } from "../helper/requests/commitRequests";
 import { getSyncData } from "../helper/sync";
@@ -15,6 +15,7 @@ const Header: FC = observer(() => {
   const navigate = useNavigate();
   const {
     user: { api, aesPass, accessToken },
+    app: { safeMode },
   } = store;
   const [isOpen, setIsOpen] = useState(false);
   const toggle = () => setIsOpen(!isOpen);
@@ -44,7 +45,31 @@ const Header: FC = observer(() => {
     store.account.clearAccounts();
     store.category.clearCategories();
     store.transaction.clearData();
+    store.app.setSafeMode(true);
     navigate("/decrypt");
+  };
+
+  const disableSafeMode = () => {
+    Swal.fire({
+      title: "Show hidden data?",
+      icon: "warning",
+      confirmButtonText: "Yes, I'm safe",
+      showCancelButton: true,
+      focusCancel: true,
+    }).then((res) => {
+      if (res.isConfirmed) {
+        store.app.setSafeMode(false);
+      }
+    });
+  };
+
+  const enableSafeMode = () => {
+    store.app.setSafeMode(true);
+    Swal.fire({
+      title: "Safe mode is enabled",
+      icon: "success",
+      timer: 1500,
+    });
   };
 
   return (
@@ -52,7 +77,7 @@ const Header: FC = observer(() => {
       <nav className="">
         <div className="relative flex items-center justify-between flex-wrap bg-gray-800 px-6 py-4 gap-10">
           <div className="text-white text-xl font-bold">YAFM</div>
-          <div className="flex-grow items-center w-auto gap-4 hidden sm:flex">
+          <div className="flex-grow items-center w-auto gap-4 hidden md:flex">
             <HeaderItem href="/" title="Main" />
             <HeaderItem
               href="/transactions"
@@ -69,21 +94,27 @@ const Header: FC = observer(() => {
             />
             <HeaderItem href="/setting" title="Setting" />
           </div>
-          <div className="flex gap-3 items-center">
-            <button
-              className="block text-sm px-4 py-2 leading-none border rounded text-white border-white"
-              onClick={sync}
-            >
-              Sync
-            </button>
+          <div className="flex gap-2 md:gap-6 items-center">
+            {safeMode ? (
+              <HeaderIconButton onClick={disableSafeMode}>
+                <ShieldIcon />
+              </HeaderIconButton>
+            ) : (
+              <HeaderIconButton onClick={enableSafeMode}>
+                <ShieldOffIcon />
+              </HeaderIconButton>
+            )}
+            <HeaderIconButton onClick={sync}>
+              <UploadIcon />
+            </HeaderIconButton>
 
-            <button className="p-1" onClick={lock}>
+            <HeaderIconButton onClick={lock}>
               <LockIcon className="text-white" />
-            </button>
+            </HeaderIconButton>
             <Hamburger
               isOpen={isOpen}
               toggle={toggle}
-              className="block sm:hidden"
+              className="block md:hidden ml-2"
             />
           </div>
         </div>
@@ -118,6 +149,18 @@ const Header: FC = observer(() => {
     </FocusTrap>
   );
 });
+
+interface HeaderIconButtonProps {
+  onClick: () => void;
+}
+
+const HeaderIconButton: FC<HeaderIconButtonProps> = ({ children, onClick }) => {
+  return (
+    <button className="block text-sm px-3 py-1.5 text-white" onClick={onClick}>
+      {children}
+    </button>
+  );
+};
 
 interface HeaderItemProps {
   title: string;

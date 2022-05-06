@@ -20,7 +20,14 @@ import ReactTooltip from "react-tooltip";
 import ActionButton from "../Generic/Button/ActionButton";
 
 const Transactions: FC = observer(() => {
-  const transactions = store.transaction.transactions;
+  const {
+    transaction: { transactions },
+    account: { hiddenAccountIds },
+    category: {
+      hiddenCategoryIds: { transactions: hiddenCategoryIds },
+    },
+    app: { safeMode },
+  } = store;
   const [isOpen, setIsOpen] = useState(false);
   const [transactionType, setTransactionType] = useState<TTransactionType>();
   const [openedTransaction, setOpenedTransaction] = useState<TTransaction>();
@@ -44,7 +51,18 @@ const Transactions: FC = observer(() => {
   };
 
   const transactionGroups = transactions
-    .slice()
+    .filter(
+      (transaction) =>
+        !safeMode ||
+        !(
+          (transaction.category_id &&
+            hiddenCategoryIds.has(transaction.category_id)) ||
+          (transaction.outcome &&
+            hiddenAccountIds.has(transaction.outcome.account_id)) ||
+          (transaction.income &&
+            hiddenAccountIds.has(transaction.income.account_id))
+        )
+    )
     .sort((a, b) => b.datetime - a.datetime)
     .reduce(function (groups: { [date: string]: TTransaction[] }, transaction) {
       (groups[getDateText(transaction.datetime)] =

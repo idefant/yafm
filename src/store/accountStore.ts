@@ -78,6 +78,21 @@ class AccountStore {
     });
     return dict;
   }
+
+  get hiddenAccountIds() {
+    return new Set(
+      this.accounts
+        .filter(
+          (account) =>
+            account.is_hide ||
+            (account.category_id &&
+              this.rootStore.category.hiddenCategoryIds.accounts.has(
+                account.category_id
+              ))
+        )
+        .map((account) => account.id)
+    );
+  }
 }
 
 export default AccountStore;

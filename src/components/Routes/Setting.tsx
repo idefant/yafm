@@ -10,6 +10,7 @@ import { getSyncData } from "../../helper/sync";
 import { decompress } from "compress-json";
 import { useFormik } from "formik";
 import { object, string } from "yup";
+import { errorAlert } from "../../helper/sweetalert";
 
 const Setting: FC = observer(() => {
   const { aesPass } = store.user;
@@ -56,7 +57,7 @@ const Setting: FC = observer(() => {
                 cipherData.hmac
               );
               if (!plaintext) {
-                alert("Wrong password");
+                errorAlert({ title: "Wrong password" });
                 return;
               }
               data = decompress(JSON.parse(plaintext));
@@ -68,11 +69,11 @@ const Setting: FC = observer(() => {
             store.transaction.setData(data.transactions, data.templates);
             store.category.setCategories(data.categories);
           } else {
-            alert("Wrong Format");
+            errorAlert({ title: "Wrong Format" });
           }
         })
         .catch((error) => {
-          alert("File Opening Error");
+          errorAlert({ title: "File Opening Error" });
           console.log(error);
         });
     }

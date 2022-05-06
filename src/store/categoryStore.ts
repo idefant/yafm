@@ -63,6 +63,19 @@ class CategoryStore {
     });
     return dict;
   }
+
+  get hiddenCategoryIds() {
+    const getHiddenSet = (categories: TCategory[]) =>
+      new Set(
+        categories
+          .filter((category) => category.is_hide)
+          .map((category) => category.id)
+      );
+    return {
+      transactions: getHiddenSet(this.transactions),
+      accounts: getHiddenSet(this.accounts),
+    };
+  }
 }
 
 export default CategoryStore;

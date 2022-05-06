@@ -18,7 +18,10 @@ import ActionButton from "../Generic/Button/ActionButton";
 import SetTemplate from "../Template/SetTemplate";
 
 const Templates: FC = observer(() => {
-  const templates = store.transaction.templates;
+  const {
+    transaction: { templates, hiddenTemplateIds },
+    app: { safeMode },
+  } = store;
   const [isOpen, setIsOpen] = useState(false);
   const [transactionType, setTransactionType] = useState<TTransactionType>();
   const [openedTemplate, setOpenedTemplate] = useState<TTemplate>();
@@ -28,6 +31,10 @@ const Templates: FC = observer(() => {
     setTransactionType(type);
     setIsOpen(true);
   };
+
+  const filteredTemplates = templates.filter(
+    (template) => !(safeMode && hiddenTemplateIds.has(template.id))
+  );
 
   return (
     <>
@@ -54,7 +61,7 @@ const Templates: FC = observer(() => {
         </ActionButton>
       </div>
 
-      {templates.length ? (
+      {filteredTemplates.length ? (
         <Table>
           <THead>
             <TR>
@@ -68,7 +75,7 @@ const Templates: FC = observer(() => {
             </TR>
           </THead>
           <TBody>
-            {templates.map((template) => (
+            {filteredTemplates.map((template) => (
               <TemplateItem
                 template={template}
                 openModal={() => openTemplate(template.type, template)}

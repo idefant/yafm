@@ -73,15 +73,15 @@ const SetAccount: FC<SetAccountProps> = observer(
     const {
       currency: { currencies },
       category: { accounts: categories },
+      app: { safeMode },
     } = store;
 
+    type TSelectOption = { value: string; text: string };
     const currencyOptions = currencies.reduce(
       (
         result: {
-          optgroups: {
-            [type: string]: { value: string; text: string }[];
-          };
-          options: { value: string; text: string }[];
+          optgroups: { [type: string]: TSelectOption[] };
+          options: TSelectOption[];
         },
         current: TCurrency
       ) => {
@@ -102,6 +102,8 @@ const SetAccount: FC<SetAccountProps> = observer(
 
     const categoryOptions = categories
       .filter((category) => !category.is_archive)
+      .filter((category) => !(safeMode && category.is_hide))
+      .sort((a, b) => a.name.localeCompare(b.name))
       .map((category) => ({ value: category.id, text: category.name }));
 
     const optgroups = (() => {
