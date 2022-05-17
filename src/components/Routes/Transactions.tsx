@@ -1,6 +1,8 @@
 import { observer } from "mobx-react-lite";
 import React, { FC, useState } from "react";
 import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
   CopyIcon,
   InfoIcon,
   MinusIcon,
@@ -18,6 +20,9 @@ import Swal from "sweetalert2";
 import { getDateText, getTimeText } from "../../helper/datetime";
 import ReactTooltip from "react-tooltip";
 import ActionButton from "../Generic/Button/ActionButton";
+import { DateTime } from "luxon";
+import Select from "../Generic/Form/Select";
+import { TPeriod } from "../../types/periodType";
 
 const Transactions: FC = observer(() => {
   const {
@@ -29,6 +34,9 @@ const Transactions: FC = observer(() => {
     app: { safeMode },
   } = store;
   const [isOpen, setIsOpen] = useState(false);
+  const [date, setDate] = useState(DateTime.now().setLocale("en"));
+  const [datePeriodType, setDatePeriodType] = useState<TPeriod>("month");
+
   const [transactionType, setTransactionType] = useState<TTransactionType>();
   const [openedTransaction, setOpenedTransaction] = useState<TTransaction>();
   const [copiedTransaction, setCopiedTransaction] = useState<TTransaction>();
@@ -51,6 +59,13 @@ const Transactions: FC = observer(() => {
   };
 
   const transactionGroups = transactions
+    .filter((transaction) => {
+      const datetime = DateTime.fromMillis(transaction.datetime);
+      return (
+        datetime > date.startOf(datePeriodType) &&
+        datetime < date.endOf(datePeriodType)
+      );
+    })
     .filter(
       (transaction) =>
         !safeMode ||
@@ -73,26 +88,58 @@ const Transactions: FC = observer(() => {
   return (
     <>
       <h1 className="text-3xl font-bold underline">Transactions!!!</h1>
-      <div className="flex gap-2">
-        <ActionButton
-          onClick={() => openTransaction("outcome")}
-          color="red"
-          active
-        >
-          <MinusIcon className="w-8 h-8" />
-        </ActionButton>
+      <div className="flex gap-20 items-center my-4">
+        <div className="flex gap-2">
+          <ActionButton
+            onClick={() => openTransaction("outcome")}
+            color="red"
+            active
+          >
+            <MinusIcon className="w-8 h-8" />
+          </ActionButton>
 
-        <ActionButton
-          onClick={() => openTransaction("income")}
-          color="green"
-          active
-        >
-          <PlusIcon className="w-8 h-8" />
-        </ActionButton>
+          <ActionButton
+            onClick={() => openTransaction("income")}
+            color="green"
+            active
+          >
+            <PlusIcon className="w-8 h-8" />
+          </ActionButton>
 
-        <ActionButton onClick={() => openTransaction("exchange")} active>
-          <RepeatIcon className="w-8 h-8" />
-        </ActionButton>
+          <ActionButton onClick={() => openTransaction("exchange")} active>
+            <RepeatIcon className="w-8 h-8" />
+          </ActionButton>
+        </div>
+
+        <div className="flex gap-3 items-center">
+          <Select
+            className="border-gray-600"
+            options={[
+              { value: "month", text: "Month" },
+              { value: "quarter", text: "Quarter" },
+              { value: "year", text: "Year" },
+            ]}
+            selectedValue={datePeriodType}
+            onChange={(e) => setDatePeriodType(e.target.value as TPeriod)}
+          />
+          <button
+            onClick={() => setDate(date.minus({ [datePeriodType]: 1 }))}
+            className="p-2 bg-gray-200 border border-gray-600 rounded-full"
+          >
+            <ChevronLeftIcon />
+          </button>
+          <div>
+            {datePeriodType === "month" && `${date.monthShort} ${date.year}`}
+            {datePeriodType === "quarter" && `Q${date.quarter} ${date.year}`}
+            {datePeriodType === "year" && date.year}
+          </div>
+          <button
+            onClick={() => setDate(date.plus({ [datePeriodType]: 1 }))}
+            className="p-2 bg-gray-200 border border-gray-600 rounded-full"
+          >
+            <ChevronRightIcon />
+          </button>
+        </div>
       </div>
 
       {transactions.length ? (

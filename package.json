@@ -17,6 +17,7 @@
     "focus-trap-react": "^8.9.2",
     "formik": "^2.2.9",
     "jwt-decode": "^3.1.2",
+    "luxon": "^2.4.0",
     "mobx": "^6.5.0",
     "mobx-persist-store": "^1.0.6",
     "mobx-react-lite": "^3.3.0",
@@ -59,6 +60,7 @@
   },
   "devDependencies": {
     "@types/crypto-js": "^4.1.1",
+    "@types/luxon": "^2.3.2",
     "@types/react-datepicker": "^4.3.4",
     "@types/react-transition-group": "^4.4.4",
     "@types/uuid": "^8.3.4",

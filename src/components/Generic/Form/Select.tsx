@@ -42,7 +42,7 @@ const Select: FC<SelectProps> = ({
     <select
       value={selectedValue || ""}
       className={classNames(
-        "bg-gray-200 rounded-md px-2 py-1.5 focus:outline-none focus:bg-gray-100 border focus:border-gray-600 appearance-none bg-clip-padding bg-no-repeat focus:shadow-none transition-shadow",
+        "bg-gray-200 rounded-md pl-2 pr-8 py-1.5 focus:outline-none focus:bg-gray-100 border focus:border-gray-600 appearance-none bg-clip-padding bg-no-repeat focus:shadow-none transition-shadow",
         className,
         style.select,
         withError && "shadow-[0_0_0_3px_#DC2626a0]"
