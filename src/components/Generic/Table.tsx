@@ -1,8 +1,18 @@
 import classNames from "classnames";
 import { FC } from "react";
 
-const Table: FC = ({ children }) => {
-  return <table className="border-2 border-gray-700">{children}</table>;
+const Table: FC<React.TableHTMLAttributes<HTMLTableElement>> = ({
+  children,
+  ...props
+}) => {
+  return (
+    <table
+      {...props}
+      className={classNames("border-2 border-gray-700", props.className)}
+    >
+      {children}
+    </table>
+  );
 };
 
 export const THead: FC = ({ children }) => {

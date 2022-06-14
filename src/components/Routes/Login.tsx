@@ -1,18 +1,13 @@
 import { useFormik } from "formik";
 import { observer } from "mobx-react-lite";
-import { FC, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { FC } from "react";
 import { object, string } from "yup";
-import { refreshToken } from "../../helper/jwt";
 import { loginRequest } from "../../helper/requests/userRequests";
 import store from "../../store";
 import Button from "../Generic/Button/Button";
 import FormField from "../Generic/Form/FormField";
 
 const Login: FC = observer(() => {
-  const { api, accessToken } = store.user;
-  const navigate = useNavigate();
-
   type TForm = {
     serverUrl: string;
     username: string;
@@ -51,17 +46,6 @@ const Login: FC = observer(() => {
     validateOnChange: false,
     validateOnBlur: true,
   });
-
-  useEffect(() => {
-    (async () => {
-      if (!api) return;
-
-      const status = await refreshToken(api, accessToken);
-      if (status) {
-        navigate("/decrypt");
-      }
-    })();
-  }, [api, navigate, accessToken]);
 
   return (
     <>

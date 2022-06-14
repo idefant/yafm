@@ -10,6 +10,14 @@ import { TAccount } from "../../types/accountType";
 import Swal from "sweetalert2";
 import { TCurrency } from "../../types/currencyType";
 import { computed } from "mobx";
+import {
+  Chart as ChartJS,
+  ArcElement,
+  Tooltip,
+  Legend,
+  ChartData,
+} from "chart.js";
+import { Pie } from "react-chartjs-2";
 
 const Accounts: FC = observer(() => {
   const {
@@ -19,6 +27,8 @@ const Accounts: FC = observer(() => {
     app: { safeMode },
   } = store;
   const [isOpen, setIsOpen] = useState(false);
+
+  const baseCurrencyCode = "btc";
 
   const filteredAccounts = accounts.filter(
     (account) => !(safeMode && hiddenAccountIds.has(account.id))
@@ -45,7 +55,7 @@ const Accounts: FC = observer(() => {
     setIsOpen(true);
   };
 
-  const currencyBalancesSum = useMemo(() => {
+  const currencyBalances = useMemo(() => {
     return computed(() => {
       const currencySum = filteredAccounts.reduce(
         (currencySum: { [key: string]: number }, account: TAccount) => {
@@ -61,15 +71,35 @@ const Accounts: FC = observer(() => {
       );
 
       return currencies.reduce(
-        (acc: (TCurrency & { balance: number })[], currency: TCurrency) => {
+        (
+          acc: (TCurrency & { balance: number; idealBalance: number })[],
+          currency: TCurrency
+        ) => {
           if (currency.code in currencySum)
-            acc.push({ ...currency, balance: currencySum[currency.code] });
+            acc.push({
+              ...currency,
+              balance: currencySum[currency.code],
+              idealBalance: store.currency.convertPrice(
+                currency.code.toLowerCase(),
+                baseCurrencyCode,
+                currencySum[currency.code]
+              ),
+            });
           return acc;
         },
         []
       );
     });
   }, [currencies, filteredAccounts]).get();
+
+  const currencyBalancesSum = useMemo(
+    () =>
+      currencyBalances.reduce(
+        (acc, currencyBalance) => acc + currencyBalance.idealBalance,
+        0
+      ),
+    [currencyBalances]
+  );
 
   const accountsWithoutCategory = filteredAccounts.filter(
     (accounts) => !accounts.category_id
@@ -84,6 +114,21 @@ const Accounts: FC = observer(() => {
       ),
     }));
 
+  ChartJS.register(ArcElement, Tooltip, Legend);
+
+  const data: ChartData<"pie", number[], string> = useMemo(
+    () => ({
+      labels: currencyBalances.map((currency) => currency.code),
+      datasets: [
+        {
+          data: currencyBalances.map((currency) => currency.idealBalance),
+          backgroundColor: currencyBalances.map((currency) => currency.color),
+        },
+      ],
+    }),
+    [currencyBalances]
+  );
+
   return (
     <>
       <h1 className="text-3xl font-bold underline">Accounts!!!</h1>
@@ -92,31 +137,74 @@ const Accounts: FC = observer(() => {
       </Button>
 
       <div className="flex items-start gap-20">
-        {currencyBalancesSum.length && (
-          <Table>
-            <THead>
-              <TR>
-                <TH>Currency</TH>
-                <TH>Balance</TH>
-              </TR>
-            </THead>
-            <TBody>
-              {currencyBalancesSum.map((currency) => (
-                <TR key={currency.code}>
-                  <TD>{currency.name}</TD>
-                  <TD>
-                    <div className="text-right">
-                      {getCurrencyValue(
-                        currency.balance,
-                        currency.decimal_places_number
-                      )}
-                      <span className="pl-3">{currency.code}</span>
-                    </div>
-                  </TD>
+        {currencyBalances.length && (
+          <div>
+            <Table>
+              <THead>
+                <TR>
+                  <TH>Currency</TH>
+                  <TH>Balance</TH>
+                  <TH>Percentage</TH>
                 </TR>
-              ))}
-            </TBody>
-          </Table>
+              </THead>
+              <TBody>
+                {currencyBalances.map((currency) => (
+                  <TR key={currency.code}>
+                    <TD>{currency.name}</TD>
+                    <TD>
+                      <div className="text-right">
+                        {getCurrencyValue(
+                          currency.balance,
+                          currency.decimal_places_number
+                        )}
+                        <span className="pl-3">{currency.code}</span>
+                      </div>
+                    </TD>
+                    <TD>
+                      {(
+                        (currency.idealBalance / currencyBalancesSum) *
+                        100
+                      ).toFixed(2)}
+                      %
+                    </TD>
+                  </TR>
+                ))}
+              </TBody>
+            </Table>
+
+            <div className="w-72 my-8 mx-auto">
+              <Pie data={data} options={{ animation: { duration: 600 } }} />
+            </div>
+
+            <Table className="w-full">
+              <THead>
+                <TR>
+                  <TH>Currency</TH>
+                  <TH>Result Sum</TH>
+                </TR>
+              </THead>
+              <TBody>
+                {currencies.map((currency) => (
+                  <TR key={currency.code}>
+                    <TD>{currency.name}</TD>
+                    <TD>
+                      <div className="text-right">
+                        {getCurrencyValue(
+                          store.currency.convertPrice(
+                            baseCurrencyCode,
+                            currency.code.toLowerCase(),
+                            currencyBalancesSum
+                          ),
+                          currency.decimal_places_number
+                        )}
+                        <span className="pl-3">{currency.code}</span>
+                      </div>
+                    </TD>
+                  </TR>
+                ))}
+              </TBody>
+            </Table>
+          </div>
         )}
 
         {accountsWithoutCategory.length || accountWithCategory.length ? (

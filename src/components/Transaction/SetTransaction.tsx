@@ -343,13 +343,13 @@ const SetTransaction: FC<SetTransactionProps> = observer(
                     selectedValue={formik.values.outcomeAccountId}
                     options={accountOptions}
                     onChange={formik.handleChange}
-                    className="w-1/3"
+                    className="w-1/2"
                     name="outcomeAccountId"
                     defaultText="Choose"
                     onBlur={() => formik.validateField("outcomeAccountId")}
                     withError={Boolean(formik.errors.outcomeAccountId)}
                   />
-                  <div className="w-2/3 flex gap-4 items-center">
+                  <div className="w-1/2 flex gap-4 items-center">
                     <FormFieldInput
                       name="outcomeSum"
                       value={formik.values.outcomeSum}
@@ -376,13 +376,13 @@ const SetTransaction: FC<SetTransactionProps> = observer(
                     selectedValue={formik.values.incomeAccountId}
                     options={accountOptions}
                     onChange={formik.handleChange}
-                    className="w-1/3"
+                    className="w-1/2"
                     name="incomeAccountId"
                     defaultText="Choose"
                     onBlur={() => formik.validateField("incomeAccountId")}
                     withError={Boolean(formik.errors.incomeAccountId)}
                   />
-                  <div className="w-2/3 flex gap-4 items-center">
+                  <div className="w-1/2 flex gap-4 items-center">
                     <FormFieldInput
                       name="incomeSum"
                       value={formik.values.incomeSum}

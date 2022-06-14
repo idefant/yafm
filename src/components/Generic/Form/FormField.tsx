@@ -66,7 +66,7 @@ export const FormFieldInput: FC<FormFieldInputProps> = ({
     <input
       type={type}
       className={classNames(
-        "flex-1 bg-gray-200 rounded-md px-3 py-1.5 focus:outline-none focus:bg-gray-100 border focus:border-gray-600 focus:shadow-none transition-shadow",
+        "w-full flex-1 bg-gray-200 rounded-md px-3 py-1.5 focus:outline-none focus:bg-gray-100 border focus:border-gray-600 focus:shadow-none transition-shadow",
         withError && "shadow-[0_0_0_3px_#DC2626a0]"
       )}
       value={value}

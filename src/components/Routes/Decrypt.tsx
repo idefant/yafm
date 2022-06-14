@@ -21,15 +21,7 @@ const Decrypt: FC = observer(() => {
   const [isNew, setIsNew] = useState<boolean>();
 
   useEffect(() => {
-    if (!api) {
-      navigate("/login");
-      return;
-    } else if (aesPass) {
-      navigate("/");
-      return;
-    }
-
-    if (accessToken) {
+    if (accessToken && api) {
       (async () => {
         const serverResponse = await getLastCommitRequest(accessToken, api);
         if (!serverResponse) return;

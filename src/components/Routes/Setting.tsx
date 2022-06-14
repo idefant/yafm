@@ -74,7 +74,6 @@ const Setting: FC = observer(() => {
         })
         .catch((error) => {
           errorAlert({ title: "File Opening Error" });
-          console.log(error);
         });
     }
   };
