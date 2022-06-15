@@ -23,6 +23,7 @@ import { MinusIcon, PlusIcon, RepeatIcon } from "../../assets/svg";
 import { useFormik } from "formik";
 import { object, string } from "yup";
 import { numberWithDecimalPlacesSchema } from "../../schema";
+import { compareObjByStr } from "../../helper/string";
 
 interface SetTemplateProps {
   template?: TTemplate;
@@ -34,24 +35,22 @@ interface SetTemplateProps {
 const SetTemplate: FC<SetTemplateProps> = observer(
   ({ isOpen, close, template, startTransactionType }) => {
     const {
-      account: { accounts, accountDict, hiddenAccountIds },
+      account: { accountDict, filteredAccounts: accounts },
       currency: { currencyDict },
-      category: { transactions: categories },
-      app: { safeMode },
+      category: {
+        filteredCategories: { transactions: categories },
+      },
     } = store;
 
     const accountOptions = accounts
-      .filter((account) => !(safeMode && hiddenAccountIds.has(account.id)))
-      .sort((a, b) => a.name.localeCompare(b.name))
+      .sort((a, b) => compareObjByStr(a, b, (e) => e.name))
       .map((account) => ({
         value: account.id,
         text: account.name,
       }));
 
     const categoryOptions = categories
-      .filter((category) => !category.is_archive)
-      .filter((category) => !(safeMode && category.is_hide))
-      .sort((a, b) => a.name.localeCompare(b.name))
+      .sort((a, b) => compareObjByStr(a, b, (e) => e.name))
       .map((category) => ({ value: category.id, text: category.name }));
 
     const [transactionType, setTransactionType] =
@@ -185,7 +184,8 @@ const SetTemplate: FC<SetTemplateProps> = observer(
           template?.outcome?.sum && outcomeCurrency
             ? getCurrencyValue(
                 template.outcome.sum,
-                outcomeCurrency.decimal_places_number
+                outcomeCurrency.decimal_places_number,
+                false
               )
             : "",
         incomeAccountId: template?.income?.account_id || "",
@@ -193,7 +193,8 @@ const SetTemplate: FC<SetTemplateProps> = observer(
           template?.income?.sum && incomeCurrency
             ? getCurrencyValue(
                 template.income.sum,
-                incomeCurrency.decimal_places_number
+                incomeCurrency.decimal_places_number,
+                false
               )
             : "",
         categoryId: template?.category_id || "",

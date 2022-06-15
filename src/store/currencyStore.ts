@@ -7,6 +7,7 @@ class CurrencyStore {
   rootStore: RootStore;
   currencies = defaultCurrencies;
   prices: { [code: string]: number } | undefined;
+  fng: { value: string; text: string } | undefined;
 
   constructor(rootStore: RootStore) {
     makeAutoObservable(this);
@@ -15,6 +16,18 @@ class CurrencyStore {
 
   setPrices(prices: { [code: string]: number }) {
     this.prices = prices;
+  }
+
+  clearPrices() {
+    this.prices = undefined;
+  }
+
+  setFnG(fng: { value: string; text: string }) {
+    this.fng = fng;
+  }
+
+  clearFnG() {
+    this.fng = undefined;
   }
 
   convertPrice(from: string, to: string, amount: number) {

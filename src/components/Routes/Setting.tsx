@@ -11,6 +11,7 @@ import { decompress } from "compress-json";
 import { useFormik } from "formik";
 import { object, string } from "yup";
 import { errorAlert } from "../../helper/sweetalert";
+import { Title } from "../Generic/Title";
 
 const Setting: FC = observer(() => {
   const { aesPass } = store.user;
@@ -127,7 +128,7 @@ const Setting: FC = observer(() => {
 
   return (
     <>
-      <h1 className="text-3xl font-bold underline pb-4">Setting!!!</h1>
+      <Title>Setting</Title>
 
       <h2 className="text-2xl font-bold underline pb-3">Change Password</h2>
 

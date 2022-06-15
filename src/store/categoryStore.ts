@@ -48,6 +48,22 @@ class CategoryStore {
     );
   }
 
+  get filteredCategories() {
+    const { safeMode, archiveMode } = this.rootStore.app;
+    return {
+      accounts: this.accounts.filter(
+        (category) =>
+          !(safeMode && category.is_hide) &&
+          !(!archiveMode && category.is_archive)
+      ),
+      transactions: this.transactions.filter(
+        (category) =>
+          !(safeMode && category.is_hide) &&
+          !(!archiveMode && category.is_archive)
+      ),
+    };
+  }
+
   get transactionDict() {
     const dict: { [id: string]: TCategory } = {};
     this.transactions.forEach((transaction) => {

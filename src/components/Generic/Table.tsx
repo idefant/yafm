@@ -2,16 +2,14 @@ import classNames from "classnames";
 import { FC } from "react";
 
 const Table: FC<React.TableHTMLAttributes<HTMLTableElement>> = ({
-  children,
+  className,
   ...props
 }) => {
   return (
     <table
+      className={classNames("border-2 border-gray-700", className)}
       {...props}
-      className={classNames("border-2 border-gray-700", props.className)}
-    >
-      {children}
-    </table>
+    ></table>
   );
 };
 

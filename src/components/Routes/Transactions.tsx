@@ -23,15 +23,13 @@ import ActionButton from "../Generic/Button/ActionButton";
 import { DateTime } from "luxon";
 import Select from "../Generic/Form/Select";
 import { TPeriod } from "../../types/periodType";
+import { Title } from "../Generic/Title";
 
 const Transactions: FC = observer(() => {
   const {
-    transaction: { transactions },
-    account: { hiddenAccountIds },
-    category: {
-      hiddenCategoryIds: { transactions: hiddenCategoryIds },
+    transaction: {
+      filtered: { transactions },
     },
-    app: { safeMode },
   } = store;
   const [isOpen, setIsOpen] = useState(false);
   const [date, setDate] = useState(DateTime.now().setLocale("en"));
@@ -66,18 +64,6 @@ const Transactions: FC = observer(() => {
         datetime < date.endOf(datePeriodType)
       );
     })
-    .filter(
-      (transaction) =>
-        !safeMode ||
-        !(
-          (transaction.category_id &&
-            hiddenCategoryIds.has(transaction.category_id)) ||
-          (transaction.outcome &&
-            hiddenAccountIds.has(transaction.outcome.account_id)) ||
-          (transaction.income &&
-            hiddenAccountIds.has(transaction.income.account_id))
-        )
-    )
     .sort((a, b) => b.datetime - a.datetime)
     .reduce(function (groups: { [date: string]: TTransaction[] }, transaction) {
       (groups[getDateText(transaction.datetime)] =
@@ -87,7 +73,7 @@ const Transactions: FC = observer(() => {
 
   return (
     <>
-      <h1 className="text-3xl font-bold underline">Transactions!!!</h1>
+      <Title>Transactions</Title>
       <div className="flex gap-20 items-center my-4">
         <div className="flex gap-2">
           <ActionButton
@@ -143,7 +129,7 @@ const Transactions: FC = observer(() => {
       </div>
 
       {transactions.length ? (
-        <Table>
+        <Table className="w-full">
           <THead>
             <TR>
               <TH>Name</TH>

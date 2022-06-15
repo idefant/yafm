@@ -13,7 +13,14 @@ export const defaultCurrencies: TCurrency[] = [
     name: "US Dollar",
     decimal_places_number: 2,
     type: "fiat",
-    color: "#438d00",
+    color: "#48a64c",
+  },
+  {
+    code: "EUR",
+    name: "Euro",
+    decimal_places_number: 2,
+    type: "fiat",
+    color: "#00349a",
   },
 
   {

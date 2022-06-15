@@ -101,6 +101,31 @@ class TransactionStore {
     this.templates = this.templates.filter((template) => template.id !== id);
   }
 
+  get filtered() {
+    const { safeMode } = this.rootStore.app;
+    const hiddenCategoryIds = this.rootStore.category.hiddenCategoryIds;
+    const hiddenAccountIds = this.rootStore.account.hiddenAccountIds;
+
+    const filterArr = (arr: (TTransaction | TTemplate)[]) =>
+      arr.filter(
+        (transaction) =>
+          !safeMode ||
+          !(
+            (transaction.category_id &&
+              hiddenCategoryIds.transactions.has(transaction.category_id)) ||
+            (transaction.outcome &&
+              hiddenAccountIds.has(transaction.outcome.account_id)) ||
+            (transaction.income &&
+              hiddenAccountIds.has(transaction.income.account_id))
+          )
+      );
+
+    return {
+      transactions: filterArr(this.transactions) as TTransaction[],
+      templates: filterArr(this.templates) as TTemplate[],
+    };
+  }
+
   get hiddenTemplateIds() {
     return new Set(
       this.templates

@@ -4,7 +4,7 @@ import { observer } from "mobx-react-lite";
 import { FC, useState } from "react";
 import { useNavigate, NavLink } from "react-router-dom";
 import Swal from "sweetalert2";
-import { LockIcon, ShieldIcon, ShieldOffIcon, UploadIcon } from "../assets/svg";
+import { ArchiveIcon, LockIcon, ShieldIcon, UploadIcon } from "../assets/svg";
 import { aesEncrypt } from "../helper/crypto";
 import { createCommitRequest } from "../helper/requests/commitRequests";
 import { getSyncData } from "../helper/sync";
@@ -15,7 +15,7 @@ const Header: FC = observer(() => {
   const navigate = useNavigate();
   const {
     user: { api, aesPass, accessToken },
-    app: { safeMode },
+    app: { safeMode, archiveMode },
   } = store;
   const [isOpen, setIsOpen] = useState(false);
   const toggle = () => setIsOpen(!isOpen);
@@ -45,7 +45,10 @@ const Header: FC = observer(() => {
     store.account.clearAccounts();
     store.category.clearCategories();
     store.transaction.clearData();
+    store.currency.clearFnG();
+    store.currency.clearPrices();
     store.app.setSafeMode(true);
+    store.app.setArchiveMode(false);
     navigate("/decrypt");
   };
 
@@ -95,15 +98,20 @@ const Header: FC = observer(() => {
             <HeaderItem href="/setting" title="Setting" />
           </div>
           <div className="flex gap-2 md:gap-6 items-center">
-            {safeMode ? (
-              <HeaderIconButton onClick={disableSafeMode}>
-                <ShieldIcon />
-              </HeaderIconButton>
-            ) : (
-              <HeaderIconButton onClick={enableSafeMode}>
-                <ShieldOffIcon />
-              </HeaderIconButton>
-            )}
+            <HeaderIconButton
+              onClick={safeMode ? disableSafeMode : enableSafeMode}
+              className={classNames(safeMode && "opacity-40")}
+            >
+              <ShieldIcon />
+            </HeaderIconButton>
+
+            <HeaderIconButton
+              onClick={() => store.app.setArchiveMode(!archiveMode)}
+              className={classNames(!archiveMode && "opacity-40")}
+            >
+              <ArchiveIcon />
+            </HeaderIconButton>
+
             <HeaderIconButton onClick={sync}>
               <UploadIcon />
             </HeaderIconButton>
@@ -150,15 +158,15 @@ const Header: FC = observer(() => {
   );
 });
 
-interface HeaderIconButtonProps {
-  onClick: () => void;
-}
-
-const HeaderIconButton: FC<HeaderIconButtonProps> = ({ children, onClick }) => {
+const HeaderIconButton: FC<React.ButtonHTMLAttributes<HTMLButtonElement>> = ({
+  className,
+  ...props
+}) => {
   return (
-    <button className="block text-sm px-3 py-1.5 text-white" onClick={onClick}>
-      {children}
-    </button>
+    <button
+      className={classNames("block text-sm px-3 py-1.5 text-white", className)}
+      {...props}
+    ></button>
   );
 };
 

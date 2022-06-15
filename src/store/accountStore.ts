@@ -71,6 +71,14 @@ class AccountStore {
     return isChanged;
   }
 
+  get filteredAccounts() {
+    const { safeMode, archiveMode } = this.rootStore.app;
+    return this.accounts.filter(
+      (account) =>
+        !(safeMode && account.is_hide) && !(!archiveMode && account.is_archive)
+    );
+  }
+
   get accountDict() {
     const dict: { [id: string]: TAccount } = {};
     this.accounts.forEach((account) => {

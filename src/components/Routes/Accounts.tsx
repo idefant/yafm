@@ -8,7 +8,6 @@ import { getCurrencyValue } from "../../helper/currencies";
 import store from "../../store";
 import { TAccount } from "../../types/accountType";
 import Swal from "sweetalert2";
-import { TCurrency } from "../../types/currencyType";
 import { computed } from "mobx";
 import {
   Chart as ChartJS,
@@ -18,10 +17,12 @@ import {
   ChartData,
 } from "chart.js";
 import { Pie } from "react-chartjs-2";
+import { groupSum, sum } from "../../helper/arrays";
+import { Title } from "../Generic/Title";
 
 const Accounts: FC = observer(() => {
   const {
-    account: { accounts, hiddenAccountIds },
+    account: { filteredAccounts },
     category: { accounts: categories },
     currency: { currencies },
     app: { safeMode },
@@ -29,10 +30,6 @@ const Accounts: FC = observer(() => {
   const [isOpen, setIsOpen] = useState(false);
 
   const baseCurrencyCode = "btc";
-
-  const filteredAccounts = accounts.filter(
-    (account) => !(safeMode && hiddenAccountIds.has(account.id))
-  );
 
   const accountDict = filteredAccounts.reduce(
     (dict: { [key: string]: TAccount[] }, account) => {
@@ -57,47 +54,27 @@ const Accounts: FC = observer(() => {
 
   const currencyBalances = useMemo(() => {
     return computed(() => {
-      const currencySum = filteredAccounts.reduce(
-        (currencySum: { [key: string]: number }, account: TAccount) => {
-          if (account.balance !== 0) {
-            currencySum[account.currency_code] =
-              (account.currency_code in currencySum
-                ? currencySum[account.currency_code]
-                : 0) + account.balance;
-          }
-          return currencySum;
-        },
-        {}
-      );
+      const currencySum = groupSum(filteredAccounts, (elem) => ({
+        key: elem.currency_code,
+        num: elem.balance,
+      }));
 
-      return currencies.reduce(
-        (
-          acc: (TCurrency & { balance: number; idealBalance: number })[],
-          currency: TCurrency
-        ) => {
-          if (currency.code in currencySum)
-            acc.push({
-              ...currency,
-              balance: currencySum[currency.code],
-              idealBalance: store.currency.convertPrice(
-                currency.code.toLowerCase(),
-                baseCurrencyCode,
-                currencySum[currency.code]
-              ),
-            });
-          return acc;
-        },
-        []
-      );
+      return currencies
+        .map((currency) => ({
+          ...currency,
+          balance: currencySum[currency.code],
+          idealBalance: store.currency.convertPrice(
+            currency.code.toLowerCase(),
+            baseCurrencyCode,
+            currencySum[currency.code]
+          ),
+        }))
+        .filter((account) => account.balance);
     });
   }, [currencies, filteredAccounts]).get();
 
   const currencyBalancesSum = useMemo(
-    () =>
-      currencyBalances.reduce(
-        (acc, currencyBalance) => acc + currencyBalance.idealBalance,
-        0
-      ),
+    () => sum(currencyBalances, (elem) => elem.idealBalance),
     [currencyBalances]
   );
 
@@ -131,7 +108,7 @@ const Accounts: FC = observer(() => {
 
   return (
     <>
-      <h1 className="text-3xl font-bold underline">Accounts!!!</h1>
+      <Title>Accounts</Title>
       <Button color="green" onClick={() => openAccount()} className="mb-4">
         Create Account
       </Button>

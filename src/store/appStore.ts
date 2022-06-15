@@ -4,6 +4,7 @@ import { RootStore } from ".";
 class AppStore {
   rootStore: RootStore;
   safeMode = true;
+  archiveMode = false;
 
   constructor(rootStore: RootStore) {
     makeAutoObservable(this);
@@ -12,6 +13,10 @@ class AppStore {
 
   setSafeMode(mode: boolean) {
     this.safeMode = mode;
+  }
+
+  setArchiveMode(mode: boolean) {
+    this.archiveMode = mode;
   }
 }
 

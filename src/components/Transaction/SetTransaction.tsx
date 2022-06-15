@@ -28,6 +28,7 @@ import ChooseTemplate from "../Template/ChooseTemplate";
 import { useFormik } from "formik";
 import { object, string } from "yup";
 import { numberWithDecimalPlacesSchema } from "../../schema";
+import { compareObjByStr } from "../../helper/string";
 
 interface SetTransactionProps {
   transaction?: TTransaction;
@@ -40,24 +41,22 @@ interface SetTransactionProps {
 const SetTransaction: FC<SetTransactionProps> = observer(
   ({ isOpen, close, transaction, startTransactionType, copiedTransaction }) => {
     const {
-      account: { accounts, accountDict, hiddenAccountIds },
+      account: { filteredAccounts: accounts, accountDict },
       currency: { currencyDict },
-      category: { transactions: categories },
-      app: { safeMode },
+      category: {
+        filteredCategories: { transactions: categories },
+      },
     } = store;
 
     const accountOptions = accounts
-      .filter((account) => !(safeMode && hiddenAccountIds.has(account.id)))
-      .sort((a, b) => a.name.localeCompare(b.name))
+      .sort((a, b) => compareObjByStr(a, b, (e) => e.name))
       .map((account) => ({
         value: account.id,
         text: account.name,
       }));
 
     const categoryOptions = categories
-      .filter((category) => !category.is_archive)
-      .filter((category) => !(safeMode && category.is_hide))
-      .sort((a, b) => a.name.localeCompare(b.name))
+      .sort((a, b) => compareObjByStr(a, b, (e) => e.name))
       .map((category) => ({ value: category.id, text: category.name }));
 
     const [transactionType, setTransactionType] =
@@ -194,7 +193,8 @@ const SetTransaction: FC<SetTransactionProps> = observer(
           trans?.outcome?.sum && outcomeCurrency
             ? getCurrencyValue(
                 trans.outcome.sum,
-                outcomeCurrency.decimal_places_number
+                outcomeCurrency.decimal_places_number,
+                false
               )
             : "",
         incomeAccountId: trans?.income?.account_id || "",
@@ -202,7 +202,8 @@ const SetTransaction: FC<SetTransactionProps> = observer(
           trans?.income?.sum && incomeCurrency
             ? getCurrencyValue(
                 trans.income.sum,
-                incomeCurrency.decimal_places_number
+                incomeCurrency.decimal_places_number,
+                false
               )
             : "",
         categoryId: trans?.category_id || "",
@@ -234,7 +235,8 @@ const SetTransaction: FC<SetTransactionProps> = observer(
           template.outcome?.sum && outcomeCurrency
             ? getCurrencyValue(
                 template.outcome.sum,
-                outcomeCurrency.decimal_places_number
+                outcomeCurrency.decimal_places_number,
+                false
               )
             : "" || formik.values.outcomeSum,
         incomeAccountId:
@@ -243,7 +245,8 @@ const SetTransaction: FC<SetTransactionProps> = observer(
           template.income?.sum && incomeCurrency
             ? getCurrencyValue(
                 template.income.sum,
-                incomeCurrency.decimal_places_number
+                incomeCurrency.decimal_places_number,
+                false
               )
             : "" || formik.values.incomeSum,
         categoryId: template.category_id || formik.values.categoryId,

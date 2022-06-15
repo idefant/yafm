@@ -14,6 +14,7 @@ import { TCurrency } from "../../types/currencyType";
 import Checkbox from "../Generic/Form/Checkbox";
 import { useFormik } from "formik";
 import { boolean, object, string } from "yup";
+import { compareObjByStr } from "../../helper/string";
 
 interface SetAccountProps {
   account?: TAccount;
@@ -72,8 +73,9 @@ const SetAccount: FC<SetAccountProps> = observer(
 
     const {
       currency: { currencies },
-      category: { accounts: categories },
-      app: { safeMode },
+      category: {
+        filteredCategories: { accounts: filteredCategories },
+      },
     } = store;
 
     type TSelectOption = { value: string; text: string };
@@ -100,10 +102,8 @@ const SetAccount: FC<SetAccountProps> = observer(
       { optgroups: {}, options: [] }
     );
 
-    const categoryOptions = categories
-      .filter((category) => !category.is_archive)
-      .filter((category) => !(safeMode && category.is_hide))
-      .sort((a, b) => a.name.localeCompare(b.name))
+    const categoryOptions = filteredCategories
+      .sort((a, b) => compareObjByStr(a, b, (e) => e.name))
       .map((category) => ({ value: category.id, text: category.name }));
 
     const optgroups = (() => {

@@ -16,11 +16,13 @@ import Swal from "sweetalert2";
 import ReactTooltip from "react-tooltip";
 import ActionButton from "../Generic/Button/ActionButton";
 import SetTemplate from "../Template/SetTemplate";
+import { Title } from "../Generic/Title";
 
 const Templates: FC = observer(() => {
   const {
-    transaction: { templates, hiddenTemplateIds },
-    app: { safeMode },
+    transaction: {
+      filtered: { templates },
+    },
   } = store;
   const [isOpen, setIsOpen] = useState(false);
   const [transactionType, setTransactionType] = useState<TTransactionType>();
@@ -32,13 +34,9 @@ const Templates: FC = observer(() => {
     setIsOpen(true);
   };
 
-  const filteredTemplates = templates.filter(
-    (template) => !(safeMode && hiddenTemplateIds.has(template.id))
-  );
-
   return (
     <>
-      <h1 className="text-3xl font-bold underline">Templates!!!</h1>
+      <Title>Templates</Title>
       <div className="flex gap-2">
         <ActionButton
           onClick={() => openTemplate("outcome")}
@@ -61,7 +59,7 @@ const Templates: FC = observer(() => {
         </ActionButton>
       </div>
 
-      {filteredTemplates.length ? (
+      {templates.length ? (
         <Table>
           <THead>
             <TR>
@@ -75,7 +73,7 @@ const Templates: FC = observer(() => {
             </TR>
           </THead>
           <TBody>
-            {filteredTemplates.map((template) => (
+            {templates.map((template) => (
               <TemplateItem
                 template={template}
                 openModal={() => openTemplate(template.type, template)}

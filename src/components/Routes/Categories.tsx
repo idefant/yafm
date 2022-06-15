@@ -7,6 +7,8 @@ import store from "../../store";
 import SetCategory from "../Caterory/SetCategory";
 import { TCategory, TCategoryType } from "../../types/categoryType";
 import Swal from "sweetalert2";
+import { compareObjByStr } from "../../helper/string";
+import { Title } from "../Generic/Title";
 
 interface CategoriesProps {
   categoryType: TCategoryType;
@@ -14,7 +16,9 @@ interface CategoriesProps {
 
 const Categories: FC<CategoriesProps> = observer(({ categoryType }) => {
   const {
-    category: { [categoryType]: categories },
+    category: {
+      filteredCategories: { [categoryType]: categories },
+    },
     app: { safeMode },
   } = store;
   const [isOpen, setIsOpen] = useState(false);
@@ -26,15 +30,14 @@ const Categories: FC<CategoriesProps> = observer(({ categoryType }) => {
   };
 
   const sortedCategories = categories
-    .filter((category) => !(safeMode && category.is_hide))
-    .sort((a, b) => a.name.localeCompare(b.name))
+    .sort((a, b) => compareObjByStr(a, b, (e) => e.name))
     .sort((a, b) => +(a.is_archive || false) - +(b.is_archive || false));
 
   return (
     <>
-      <h1 className="text-3xl font-bold underline">
+      <Title>
         {categoryType === "accounts" ? "Account" : "Transaction"} Categories!!!
-      </h1>
+      </Title>
       <Button color="green" onClick={() => openCategory()}>
         Create Category
       </Button>

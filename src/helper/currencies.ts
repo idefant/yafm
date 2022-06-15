@@ -1,8 +1,20 @@
-export const getCurrencyValue = (value: number, decimalPlaces: number) => {
-  return (value / 10 ** decimalPlaces)
-    .toFixed(decimalPlaces || 0)
-    .replace(/\.?0*$/, "");
+export const getCurrencyValue = (
+  value: number,
+  decimalPlaces: number,
+  useGrouping = true
+) => {
+  return numToString(value / 10 ** decimalPlaces, decimalPlaces, useGrouping);
 };
+
+export const numToString = (
+  num: number,
+  decimalPlaces: number,
+  useGrouping = true
+) =>
+  num.toLocaleString("en", {
+    maximumFractionDigits: decimalPlaces,
+    useGrouping,
+  });
 
 export const displayToSysValue = (text: string, decimalPlaces: number) => {
   return Math.round(

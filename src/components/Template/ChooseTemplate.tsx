@@ -33,16 +33,17 @@ const ChooseTemplate: FC<ChooseTemplateProps> = observer(
     transactionType: startTransactionType,
   }) => {
     const {
-      transaction: { templates, hiddenTemplateIds },
-      app: { safeMode },
+      transaction: {
+        filtered: { templates },
+      },
     } = store;
 
     const [transactionType, setTransactionType] =
       useState<TTransactionType>("outcome");
 
-    const displayedTemplates = templates
-      .filter((template) => template.type === transactionType)
-      .filter((template) => !(safeMode && hiddenTemplateIds.has(template.id)));
+    const displayedTemplates = templates.filter(
+      (template) => template.type === transactionType
+    );
 
     const onEnter = () => {
       setTransactionType(startTransactionType);
