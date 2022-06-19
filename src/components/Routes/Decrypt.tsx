@@ -101,7 +101,7 @@ const Decrypt: FC = observer(() => {
           <div className="w-2/3">{api?.username}</div>
         </div>
         <FormField
-          label="New AES Key"
+          label={isNew ? "New AES Key:" : "AES Key:"}
           value={formik.values.aesKey}
           name="aesKey"
           onChange={formik.handleChange}

@@ -15,29 +15,28 @@ const Header: FC = observer(() => {
   const navigate = useNavigate();
   const {
     user: { api, aesPass, accessToken },
-    app: { safeMode, archiveMode },
+    app: { safeMode, archiveMode, isUnsaved },
   } = store;
   const [isOpen, setIsOpen] = useState(false);
   const toggle = () => setIsOpen(!isOpen);
 
   const sync = async () => {
-    if (api) {
-      if (!aesPass || !accessToken) return;
+    if (!api || !aesPass || !accessToken) return;
 
-      const data = aesEncrypt(getSyncData(true), aesPass);
+    const data = aesEncrypt(getSyncData(true), aesPass);
 
-      const serverResponse = await createCommitRequest(
-        data.iv,
-        data.hmac,
-        data.cipher,
-        accessToken,
-        api
-      );
+    const serverResponse = await createCommitRequest(
+      data.iv,
+      data.hmac,
+      data.cipher,
+      accessToken,
+      api
+    );
 
-      if (!serverResponse) return;
+    if (!serverResponse) return;
 
-      Swal.fire({ title: "Synchronization is successful", icon: "success" });
-    }
+    store.app.setIsUnsaved(false);
+    Swal.fire({ title: "Synchronization is successful", icon: "success" });
   };
 
   const lock = () => {
@@ -49,6 +48,7 @@ const Header: FC = observer(() => {
     store.currency.clearPrices();
     store.app.setSafeMode(true);
     store.app.setArchiveMode(false);
+    store.app.setIsUnsaved(false);
     navigate("/decrypt");
   };
 
@@ -112,13 +112,17 @@ const Header: FC = observer(() => {
               <ArchiveIcon />
             </HeaderIconButton>
 
-            <HeaderIconButton onClick={sync}>
+            <HeaderIconButton
+              onClick={sync}
+              className={classNames(!isUnsaved && "opacity-40")}
+            >
               <UploadIcon />
             </HeaderIconButton>
 
             <HeaderIconButton onClick={lock}>
               <LockIcon className="text-white" />
             </HeaderIconButton>
+
             <Hamburger
               isOpen={isOpen}
               toggle={toggle}

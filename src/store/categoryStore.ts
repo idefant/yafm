@@ -31,6 +31,7 @@ class CategoryStore {
 
   createCategory(category: Omit<TCategory, "id">, categoryType: TCategoryType) {
     this[categoryType].push({ id: genId(), ...category });
+    this.rootStore.app.setIsUnsaved(true);
   }
 
   editCategory(updatedCategory: TCategory, categoryType: TCategoryType) {
@@ -40,12 +41,14 @@ class CategoryStore {
     if (index !== -1) {
       this[categoryType][index] = updatedCategory;
     }
+    this.rootStore.app.setIsUnsaved(true);
   }
 
   deleteCategory(id: string, categoryType: TCategoryType) {
     this[categoryType] = this[categoryType].filter(
       (account) => account.id !== id
     );
+    this.rootStore.app.setIsUnsaved(true);
   }
 
   get filteredCategories() {

@@ -26,6 +26,7 @@ class AccountStore {
       ...account,
       balance: 0,
     });
+    this.rootStore.app.setIsUnsaved(true);
   }
 
   editAccount(updatedAccount: Omit<TAccount, "balance" | "currency_code">) {
@@ -38,10 +39,12 @@ class AccountStore {
         ...updatedAccount,
       };
     }
+    this.rootStore.app.setIsUnsaved(true);
   }
 
   deleteAccount(id: string) {
     this.accounts = this.accounts.filter((account) => account.id !== id);
+    this.rootStore.app.setIsUnsaved(true);
   }
 
   moveFunds(id: string, sum: number) {

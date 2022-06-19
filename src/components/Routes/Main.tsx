@@ -46,8 +46,8 @@ const Main: FC = observer(() => {
         {prices && (
           <div className="border-4 border-gray-700 p-4">
             <h2 className="text-xl font-bold mb-3">Exchange Rates</h2>
-            {data.map((currency) => (
-              <div className="flex justify-between gap-4">
+            {data.map((currency, i) => (
+              <div className="flex justify-between gap-4" key={i}>
                 <div className="font-bold">{currency.code}:</div>
                 <div>
                   {currency.price} {baseCurrencyCode.toUpperCase()}

@@ -30,6 +30,12 @@ const App: FC = observer(() => {
     }
   }, [api, accessToken]);
 
+  useEffect(() => {
+    autorun(() => {
+      window.onbeforeunload = () => (store.app.isUnsaved ? false : undefined);
+    });
+  }, []);
+
   useEffect(
     () =>
       autorun(async () => {

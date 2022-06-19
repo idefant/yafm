@@ -5,6 +5,7 @@ class AppStore {
   rootStore: RootStore;
   safeMode = true;
   archiveMode = false;
+  isUnsaved = false;
 
   constructor(rootStore: RootStore) {
     makeAutoObservable(this);
@@ -17,6 +18,10 @@ class AppStore {
 
   setArchiveMode(mode: boolean) {
     this.archiveMode = mode;
+  }
+
+  setIsUnsaved(isUnsaved: boolean) {
+    this.isUnsaved = isUnsaved;
   }
 }
 

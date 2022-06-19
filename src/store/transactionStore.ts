@@ -38,6 +38,7 @@ class TransactionStore {
       id: genId(),
       ...transaction,
     });
+    this.rootStore.app.setIsUnsaved(true);
   }
 
   editTransaction(updatedTransaction: TTransaction) {
@@ -66,6 +67,7 @@ class TransactionStore {
 
       this.transactions[index] = updatedTransaction;
     }
+    this.rootStore.app.setIsUnsaved(true);
   }
 
   deleteTransaction(id: string) {
@@ -82,10 +84,12 @@ class TransactionStore {
 
       return !isFound;
     });
+    this.rootStore.app.setIsUnsaved(true);
   }
 
   createTemplate(template: Omit<TTemplate, "id">) {
     this.templates.unshift({ id: genId(), ...template });
+    this.rootStore.app.setIsUnsaved(true);
   }
 
   editTemplate(updatedTemplate: TTemplate) {
@@ -95,10 +99,12 @@ class TransactionStore {
     if (index !== -1) {
       this.templates[index] = updatedTemplate;
     }
+    this.rootStore.app.setIsUnsaved(true);
   }
 
   deleteTemplate(id: string) {
     this.templates = this.templates.filter((template) => template.id !== id);
+    this.rootStore.app.setIsUnsaved(true);
   }
 
   get filtered() {
