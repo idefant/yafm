@@ -18,6 +18,7 @@ import Main from "./Routes/Main";
 import Setting from "./Routes/Setting";
 import Templates from "./Routes/Templates";
 import Transactions from "./Routes/Transactions";
+import Versions from "./Routes/Versions";
 
 const App: FC = observer(() => {
   const {
@@ -68,9 +69,11 @@ const App: FC = observer(() => {
       ) : !aesPass ? (
         <>
           <Route element={<PreLoginTemplate />}>
-            <Route path="/decrypt" element={<Decrypt />} />
+            <Route path="/decrypt/last" element={<Decrypt />} />
+            <Route path="/decrypt/:versionId" element={<Decrypt />} />
+            <Route path="/versions" element={<Versions />} />
           </Route>
-          <Route path="*" element={<Navigate to="/decrypt" />} />
+          <Route path="*" element={<Navigate to="/decrypt/last" />} />
         </>
       ) : (
         <Route element={<CabinetTemplate />}>

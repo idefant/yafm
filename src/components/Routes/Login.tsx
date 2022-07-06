@@ -18,8 +18,7 @@ const Login: FC = observer(() => {
     const serverResponse = await loginRequest(
       values.serverUrl,
       values.username,
-      values.password,
-      window.navigator.userAgent
+      values.password
     );
     if (!serverResponse) return;
 

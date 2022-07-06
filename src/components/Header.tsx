@@ -6,7 +6,7 @@ import { useNavigate, NavLink } from "react-router-dom";
 import Swal from "sweetalert2";
 import { ArchiveIcon, LockIcon, ShieldIcon, UploadIcon } from "../assets/svg";
 import { aesEncrypt } from "../helper/crypto";
-import { createCommitRequest } from "../helper/requests/commitRequests";
+import { createVersionRequest } from "../helper/requests/versionRequests";
 import { getSyncData } from "../helper/sync";
 import store from "../store";
 import Hamburger from "./Hamburger";
@@ -25,7 +25,7 @@ const Header: FC = observer(() => {
 
     const data = aesEncrypt(getSyncData(true), aesPass);
 
-    const serverResponse = await createCommitRequest(
+    const serverResponse = await createVersionRequest(
       data.iv,
       data.hmac,
       data.cipher,

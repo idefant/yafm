@@ -5,20 +5,13 @@ import { errorAlert } from "../sweetalert";
 export const loginRequest = (
   serverUrl: string,
   username: string,
-  password: string,
-  useragent: string
+  password: string
 ) => {
   return axios({
     method: "POST",
     baseURL: serverUrl,
-    url: "/auth/login",
-    headers: {
-      "X-Username": username,
-      "X-Password": password,
-    },
-    data: {
-      useragent,
-    },
+    url: "/auth",
+    data: { username, password },
   }).catch((error) => {
     errorAlert({ title: getErrorMessage(error) });
   });
@@ -27,17 +20,15 @@ export const loginRequest = (
 export const refreshTokenRequest = (
   serverUrl: string,
   username: string,
-  refreshToken: string,
-  useragent: string
+  refreshToken: string
 ) => {
   return axios({
     method: "POST",
     baseURL: serverUrl,
-    url: "/auth/refreshToken",
+    url: "/me/refreshToken",
     data: {
       refresh_token: refreshToken,
-      username: username,
-      useragent,
+      username,
     },
   }).catch((error) => {
     errorAlert({ title: getErrorMessage(error) });

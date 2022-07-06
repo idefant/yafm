@@ -114,7 +114,7 @@ const Accounts: FC = observer(() => {
       </Button>
 
       <div className="flex items-start gap-20">
-        {currencyBalances.length && (
+        {currencyBalances.length > 0 && (
           <div>
             <Table>
               <THead>

@@ -14,8 +14,7 @@ export const refreshToken = async (api: TApi, token?: string) => {
   const serverResponse = await refreshTokenRequest(
     api.url,
     api.username,
-    api.refreshToken,
-    window.navigator.userAgent
+    api.refreshToken
   );
 
   if (!serverResponse) return false;
