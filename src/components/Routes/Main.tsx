@@ -1,12 +1,11 @@
-import { observer } from "mobx-react-lite";
 import { FC } from "react";
-import { numToString } from "../../helper/currencies";
-import store from "../../store";
+
+import { convertPrice, numToString } from "../../helper/currencies";
+import { useAppSelector } from "../../hooks/reduxHooks";
 import { Title } from "../Generic/Title";
 
-const Main: FC = observer(() => {
-  const { fng, prices, currencies } = store.currency;
-
+const Main: FC = () => {
+  const { fng, prices, currencies } = useAppSelector((state) => state.currency);
   const baseCurrencyCode = "rub";
 
   const data = currencies
@@ -14,11 +13,7 @@ const Main: FC = observer(() => {
     .map((currency) => ({
       code: currency.code,
       price: numToString(
-        store.currency.convertPrice(
-          currency.code.toLowerCase(),
-          baseCurrencyCode,
-          1
-        ) *
+        convertPrice(currency.code.toLowerCase(), baseCurrencyCode, 1) *
           10 ** (currency.decimal_places_number - 2),
         currency.decimal_places_number
       ),
@@ -59,6 +54,6 @@ const Main: FC = observer(() => {
       </div>
     </>
   );
-});
+};
 
 export default Main;

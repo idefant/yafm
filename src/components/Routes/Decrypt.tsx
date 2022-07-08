@@ -1,10 +1,10 @@
 import { decompress } from "compress-json";
 import { useFormik } from "formik";
 import { DateTime } from "luxon";
-import { observer } from "mobx-react-lite";
 import { FC, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { object, string } from "yup";
+
 import { aesDecrypt } from "../../helper/crypto";
 import {
   getLastVersionRequest,
@@ -12,13 +12,18 @@ import {
 } from "../../helper/requests/versionRequests";
 import { errorAlert } from "../../helper/sweetalert";
 import { checkBaseIntegrity } from "../../helper/sync";
-import store from "../../store";
+import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
+import { setCategories } from "../../store/reducers/categorySlice";
+import { setAccounts } from "../../store/reducers/accountSlice";
+import { setTransactions } from "../../store/reducers/transactionSlice";
+import { logoutUser, setAesPass } from "../../store/reducers/userSlice";
 import { EncryptedYAFM } from "../../types/cipher";
 import Button from "../Generic/Button/Button";
 import FormField from "../Generic/Form/FormField";
 
-const Decrypt: FC = observer(() => {
-  const { api, aesPass, accessToken } = store.user;
+const Decrypt: FC = () => {
+  const { api, aesPass } = useAppSelector((state) => state.user);
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   const [cipherData, setCipherData] = useState<EncryptedYAFM>();
@@ -26,28 +31,28 @@ const Decrypt: FC = observer(() => {
   const { versionId } = useParams();
 
   useEffect(() => {
-    if (accessToken && api) {
+    if (api) {
       (async () => {
-        const serverResponse = await (versionId
-          ? getVersionByIdRequest(versionId, accessToken, api)
-          : getLastVersionRequest(accessToken, api));
-        if (!serverResponse) return;
+        const response = await (versionId
+          ? getVersionByIdRequest(versionId, api)
+          : getLastVersionRequest(api));
+        if (!response) return;
 
-        if (!serverResponse.data) {
+        if (!response.data) {
           setIsNew(true);
         } else {
           setIsNew(false);
-          setCipherData(serverResponse.data);
+          setCipherData(response.data);
         }
       })();
     }
-  }, [api, navigate, aesPass, accessToken, versionId]);
+  }, [api, navigate, aesPass, versionId]);
 
   type TForm = { aesKey: string };
 
   const submitForm = async (values: TForm) => {
     if (isNew) {
-      store.user.setAesPass(values.aesKey);
+      dispatch(setAesPass(values.aesKey));
       return;
     }
 
@@ -68,10 +73,15 @@ const Decrypt: FC = observer(() => {
           return;
         }
 
-        store.user.setAesPass(values.aesKey);
-        store.account.setAccounts(data.accounts);
-        store.transaction.setData(data.transactions, data.templates);
-        store.category.setCategories(data.categories);
+        dispatch(setAesPass(values.aesKey));
+        dispatch(setAccounts(data.accounts));
+        dispatch(
+          setTransactions({
+            transactions: data.transactions,
+            templates: data.templates,
+          })
+        );
+        dispatch(setCategories(data.categories));
 
         navigate("/");
       } else {
@@ -89,7 +99,7 @@ const Decrypt: FC = observer(() => {
   });
 
   const logout = () => {
-    store.user.logout();
+    dispatch(logoutUser());
     navigate("/login");
   };
 
@@ -150,6 +160,6 @@ const Decrypt: FC = observer(() => {
       </form>
     </>
   );
-});
+};
 
 export default Decrypt;

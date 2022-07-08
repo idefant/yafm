@@ -1,13 +1,12 @@
-import { autorun } from "mobx";
-import { observer } from "mobx-react-lite";
 import { FC, useEffect } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
+
 import { refreshToken } from "../helper/jwt";
+import { useAppDispatch, useAppSelector } from "../hooks/reduxHooks";
 import {
-  getFnGIndexRequest,
-  getPricesRequest,
-} from "../helper/requests/currencyApiRequest";
-import store from "../store";
+  fetchFnG,
+  fetchPrices,
+} from "../store/actionCreators/currencyActionCreator";
 import CabinetTemplate from "./Container/CabinetTemplate";
 import PreLoginTemplate from "./Container/PreLoginTemplate";
 import Accounts from "./Routes/Accounts";
@@ -20,42 +19,30 @@ import Templates from "./Routes/Templates";
 import Transactions from "./Routes/Transactions";
 import Versions from "./Routes/Versions";
 
-const App: FC = observer(() => {
+const App: FC = () => {
   const {
-    user: { api, aesPass, accessToken },
-  } = store;
+    currency: { prices },
+    user: { api, aesPass },
+    app: { isUnsaved },
+  } = useAppSelector((state) => state);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (api) {
-      refreshToken(api, accessToken);
+      refreshToken(api);
     }
-  }, [api, accessToken]);
+  }, [api]);
 
   useEffect(() => {
-    autorun(() => {
-      window.onbeforeunload = () => (store.app.isUnsaved ? false : undefined);
-    });
-  }, []);
+    window.onbeforeunload = () => (isUnsaved ? false : undefined);
+  }, [isUnsaved]);
 
-  useEffect(
-    () =>
-      autorun(async () => {
-        if (store.user.aesPass && !store.currency.prices) {
-          const responseCoingecko = await getPricesRequest();
-          if (!responseCoingecko) return;
-          store.currency.setPrices(responseCoingecko.data.bitcoin);
-
-          const responseFnG = await getFnGIndexRequest();
-          if (!responseFnG) return;
-          const currentData = responseFnG.data.data[0];
-          store.currency.setFnG({
-            value: currentData.value,
-            text: currentData.value_classification,
-          });
-        }
-      }),
-    []
-  );
+  useEffect(() => {
+    if (aesPass && !prices) {
+      dispatch(fetchPrices());
+      dispatch(fetchFnG());
+    }
+  }, [aesPass, dispatch, prices]);
 
   return (
     <Routes>
@@ -95,6 +82,6 @@ const App: FC = observer(() => {
       )}
     </Routes>
   );
-});
+};
 
 export default App;

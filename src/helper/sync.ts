@@ -1,22 +1,29 @@
 import { compress } from "compress-json";
 import { array, object, ValidationError } from "yup";
+
+import { store } from "../store/store";
 import { accountSchema } from "../schema/accountSchema";
 import { categorySchema } from "../schema/categorySchema";
 import { templateSchema, transactionSchema } from "../schema/transactionSchema";
-import store from "../store";
 import { TAccount } from "../types/accountType";
 import { TCategory } from "../types/categoryType";
 import { TTemplate, TTransaction } from "../types/transactionType";
 
 export const getSyncData = (isCompress?: boolean) => {
+  const {
+    account: { accounts },
+    transaction: { transactions, templates },
+    category,
+  } = store.getState();
+
   const data = {
-    accounts: store.account.accounts,
-    transactions: store.transaction.transactions,
+    accounts,
+    transactions,
     categories: {
-      accounts: store.category.accounts,
-      transactions: store.category.transactions,
+      accounts: category.accounts,
+      transactions: category.transactions,
     },
-    templates: store.transaction.templates,
+    templates,
   };
 
   if (isCompress) {

@@ -1,6 +1,7 @@
 import classNames from "classnames";
 import { FC } from "react";
 import { Link } from "react-router-dom";
+
 import { TButtonColor } from "../../../types/buttonType";
 
 interface ButtonLinkProps {

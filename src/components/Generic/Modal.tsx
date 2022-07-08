@@ -3,6 +3,7 @@ import FocusTrap from "focus-trap-react";
 import { FC } from "react";
 import { createPortal } from "react-dom";
 import { CSSTransition } from "react-transition-group";
+
 import { CrossIcon } from "../../assets/svg";
 
 interface ModalProps {

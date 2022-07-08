@@ -1,5 +1,7 @@
 import jwt_decode from "jwt-decode";
-import store from "../store";
+
+import { updateTokens } from "../store/reducers/userSlice";
+import { store } from "../store/store";
 import { TApi } from "../types/userType";
 import { refreshTokenRequest } from "./requests/userRequests";
 
@@ -8,19 +10,21 @@ export const checkToken = (token: string) => {
   return Date.now() < (decodedToken.exp - 30) * 1000;
 };
 
-export const refreshToken = async (api: TApi, token?: string) => {
-  if (token && checkToken(token)) return true;
+export const refreshToken = async (api: TApi) => {
+  if (api.accessToken && checkToken(api.accessToken)) return true;
 
-  const serverResponse = await refreshTokenRequest(
+  const response = await refreshTokenRequest(
     api.url,
     api.username,
     api.refreshToken
   );
 
-  if (!serverResponse) return false;
-  store.user.updateTokens(
-    serverResponse.data.refresh_token,
-    serverResponse.data.access_token
+  if (!response) return false;
+  store.dispatch(
+    updateTokens({
+      refreshToken: response.data.refresh_token,
+      accessToken: response.data.access_token,
+    })
   );
   return true;
 };

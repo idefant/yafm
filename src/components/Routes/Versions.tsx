@@ -1,8 +1,8 @@
-import { DateTime } from "luxon";
-import { observer } from "mobx-react-lite";
 import { FC, useEffect, useState } from "react";
+import { DateTime } from "luxon";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
+
 import { DownloadIcon, TrashIcon, UnlockIcon } from "../../assets/svg";
 import { exportFile } from "../../helper/file";
 import {
@@ -10,20 +10,21 @@ import {
   getAllVersionsRequest,
   getVersionByIdRequest,
 } from "../../helper/requests/versionRequests";
-import store from "../../store";
+import { useAppSelector } from "../../hooks/reduxHooks";
 import Table, { THead, TR, TH, TBody, TD, TDIcon } from "../Generic/Table";
 
 type TVersion = { id: number; createdAt: string };
 
-const Versions: FC = observer(() => {
+const Versions: FC = () => {
   const [versions, setVersions] = useState<TVersion[]>([]);
-  const { accessToken, api } = store.user;
+
+  const api = useAppSelector((state) => state.user.api);
 
   useEffect(() => {
-    if (!accessToken || !api) return;
+    if (!api) return;
 
     (async () => {
-      const response = await getAllVersionsRequest(accessToken, api);
+      const response = await getAllVersionsRequest(api);
       if (!response) return;
 
       setVersions(
@@ -35,12 +36,12 @@ const Versions: FC = observer(() => {
         }))
       );
     })();
-  }, [accessToken, api]);
+  }, [api]);
 
   const downloadVersion = async (versionId: number) => {
-    if (!accessToken || !api) return;
+    if (!api) return;
 
-    const response = await getVersionByIdRequest(versionId, accessToken, api);
+    const response = await getVersionByIdRequest(versionId, api);
     if (!response) return;
 
     exportFile(
@@ -62,8 +63,9 @@ const Versions: FC = observer(() => {
       cancelButtonText: "Cancel",
       confirmButtonText: "Delete",
     }).then((result) => {
-      if (result.isConfirmed && accessToken && api) {
-        deleteVersionByIdRequest(deletedVersion.id, accessToken, api);
+      if (result.isConfirmed && api) {
+        const response = deleteVersionByIdRequest(deletedVersion.id, api);
+        if (!response) return;
         setVersions(
           versions.filter((version) => version.id !== deletedVersion.id)
         );
@@ -116,6 +118,6 @@ const Versions: FC = observer(() => {
       </Table>
     </div>
   );
-});
+};
 
 export default Versions;

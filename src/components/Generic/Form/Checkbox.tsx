@@ -1,5 +1,6 @@
 import classNames from "classnames";
 import { FC } from "react";
+
 import { genRanHex } from "../../../helper/random";
 import style from "./Checkbox.module.css";
 

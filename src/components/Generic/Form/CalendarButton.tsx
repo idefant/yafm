@@ -1,7 +1,8 @@
 import { FC } from "react";
 import ReactDatePicker, { registerLocale } from "react-datepicker";
-import { CalendarIcon } from "../../../assets/svg";
 import ru from "date-fns/locale/ru";
+
+import { CalendarIcon } from "../../../assets/svg";
 
 interface CalendarButtonProps {
   date: Date;

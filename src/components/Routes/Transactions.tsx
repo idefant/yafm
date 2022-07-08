@@ -1,5 +1,8 @@
-import { observer } from "mobx-react-lite";
 import React, { FC, useState } from "react";
+import Swal from "sweetalert2";
+import ReactTooltip from "react-tooltip";
+import { DateTime } from "luxon";
+
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -13,24 +16,26 @@ import {
 } from "../../assets/svg";
 import Table, { TBody, TD, TDIcon, TH, THead, TR } from "../Generic/Table";
 import { getCurrencyValue } from "../../helper/currencies";
-import store from "../../store";
 import SetTransaction from "../Transaction/SetTransaction";
 import { TTransaction, TTransactionType } from "../../types/transactionType";
-import Swal from "sweetalert2";
 import { getDateText, getTimeText } from "../../helper/datetime";
-import ReactTooltip from "react-tooltip";
 import ActionButton from "../Generic/Button/ActionButton";
-import { DateTime } from "luxon";
 import Select from "../Generic/Form/Select";
 import { TPeriod } from "../../types/periodType";
 import { Title } from "../Generic/Title";
+import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
+import {
+  selectAccountDict,
+  selectCurrencyDict,
+  selectFilteredTransactions,
+  selectTransactionCategoryDict,
+} from "../../store/selectors";
+import { deleteTransaction } from "../../store/reducers/transactionSlice";
+import { setIsUnsaved } from "../../store/reducers/appSlice";
 
-const Transactions: FC = observer(() => {
-  const {
-    transaction: {
-      filtered: { transactions },
-    },
-  } = store;
+const Transactions: FC = () => {
+  const transactions = useAppSelector(selectFilteredTransactions);
+
   const [isOpen, setIsOpen] = useState(false);
   const [date, setDate] = useState(DateTime.now().setLocale("en"));
   const [datePeriodType, setDatePeriodType] = useState<TPeriod>("month");
@@ -178,7 +183,7 @@ const Transactions: FC = observer(() => {
       />
     </>
   );
-});
+};
 
 interface TransactionItemProps {
   transaction: TTransaction;
@@ -186,122 +191,125 @@ interface TransactionItemProps {
   copyTransaction: () => void;
 }
 
-const TransactionItem: FC<TransactionItemProps> = observer(
-  ({ transaction, openModal, copyTransaction }) => {
-    const {
-      currency: { currencyDict },
-      account: { accountDict },
-      category: { transactionDict: categoryDict },
-    } = store;
-    const incomeAccount = transaction.income?.account_id
-      ? accountDict[transaction.income?.account_id]
-      : undefined;
-    const outcomeAccount = transaction.outcome?.account_id
-      ? accountDict[transaction.outcome?.account_id]
-      : undefined;
+const TransactionItem: FC<TransactionItemProps> = ({
+  transaction,
+  openModal,
+  copyTransaction,
+}) => {
+  const currencyDict = useAppSelector(selectCurrencyDict);
+  const accountDict = useAppSelector(selectAccountDict);
+  const categoryDict = useAppSelector(selectTransactionCategoryDict);
+  const dispatch = useAppDispatch();
 
-    const incomeCurrency =
-      incomeAccount && currencyDict[incomeAccount.currency_code];
-    const outcomeCurrency =
-      outcomeAccount && currencyDict[outcomeAccount.currency_code];
+  const incomeAccount = transaction.income?.account_id
+    ? accountDict[transaction.income?.account_id]
+    : undefined;
+  const outcomeAccount = transaction.outcome?.account_id
+    ? accountDict[transaction.outcome?.account_id]
+    : undefined;
 
-    const categoryName = transaction.category_id
-      ? categoryDict[transaction.category_id].name
-      : "-";
+  const incomeCurrency =
+    incomeAccount && currencyDict[incomeAccount.currency_code];
+  const outcomeCurrency =
+    outcomeAccount && currencyDict[outcomeAccount.currency_code];
 
-    const confirmDelete = () => {
-      Swal.fire({
-        title: "Delete transaction",
-        icon: "error",
-        text: transaction.name,
-        showCancelButton: true,
-        cancelButtonText: "Cancel",
-        confirmButtonText: "Delete",
-      }).then((result) => {
-        if (result.isConfirmed) {
-          store.transaction.deleteTransaction(transaction.id);
-        }
-      });
-    };
+  const categoryName = transaction.category_id
+    ? categoryDict[transaction.category_id].name
+    : "-";
 
-    return (
-      <TR>
-        <TD>{transaction.name}</TD>
-        <TD className="text-center">
-          <div>{getDateText(transaction.datetime)}</div>
-          <div className="text-sm">{getTimeText(transaction.datetime)}</div>
+  const confirmDelete = () => {
+    Swal.fire({
+      title: "Delete transaction",
+      icon: "error",
+      text: transaction.name,
+      showCancelButton: true,
+      cancelButtonText: "Cancel",
+      confirmButtonText: "Delete",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        dispatch(deleteTransaction(transaction.id));
+        dispatch(setIsUnsaved(true));
+      }
+    });
+  };
+
+  return (
+    <TR>
+      <TD>{transaction.name}</TD>
+      <TD className="text-center">
+        <div>{getDateText(transaction.datetime)}</div>
+        <div className="text-sm">{getTimeText(transaction.datetime)}</div>
+      </TD>
+      <TD className="text-center">{categoryName}</TD>
+
+      {transaction.outcome && outcomeCurrency && outcomeAccount ? (
+        <TD className="text-right">
+          <div className="text-red-700">
+            {getCurrencyValue(
+              transaction.outcome.sum,
+              outcomeCurrency.decimal_places_number
+            )}
+            <span className="pl-2.5">{outcomeCurrency.code || ""}</span>
+          </div>
+          <div className="text-sm text-gray-600">
+            {outcomeAccount.name || ""}
+          </div>
         </TD>
-        <TD className="text-center">{categoryName}</TD>
+      ) : (
+        <TD className="text-center">-</TD>
+      )}
 
-        {transaction.outcome && outcomeCurrency && outcomeAccount ? (
-          <TD className="text-right">
-            <div className="text-red-700">
-              {getCurrencyValue(
-                transaction.outcome.sum,
-                outcomeCurrency.decimal_places_number
-              )}
-              <span className="pl-2.5">{outcomeCurrency.code || ""}</span>
+      {transaction.income && incomeCurrency && incomeAccount ? (
+        <TD className="text-right">
+          <div className="text-green-700">
+            {getCurrencyValue(
+              transaction.income.sum,
+              incomeCurrency.decimal_places_number
+            )}
+            <span className="pl-2.5">{incomeCurrency.code || ""}</span>
+          </div>
+          <div className="text-sm text-gray-600">
+            {incomeAccount.name || ""}
+          </div>
+        </TD>
+      ) : (
+        <TD className="text-center">-</TD>
+      )}
+
+      <TDIcon>
+        {transaction.description && (
+          <>
+            <div data-tip data-for={`tr_${transaction.id}`} className="px-3">
+              <InfoIcon className="w-7 h-7" />
             </div>
-            <div className="text-sm text-gray-600">
-              {outcomeAccount.name || ""}
-            </div>
-          </TD>
-        ) : (
-          <TD className="text-center">-</TD>
+            <ReactTooltip
+              id={`tr_${transaction.id}`}
+              effect="solid"
+              className="max-w-sm"
+            >
+              {transaction.description}
+            </ReactTooltip>
+          </>
         )}
+      </TDIcon>
 
-        {transaction.income && incomeCurrency && incomeAccount ? (
-          <TD className="text-right">
-            <div className="text-green-700">
-              {getCurrencyValue(
-                transaction.income.sum,
-                incomeCurrency.decimal_places_number
-              )}
-              <span className="pl-2.5">{incomeCurrency.code || ""}</span>
-            </div>
-            <div className="text-sm text-gray-600">
-              {incomeAccount.name || ""}
-            </div>
-          </TD>
-        ) : (
-          <TD className="text-center">-</TD>
-        )}
-
-        <TDIcon>
-          {transaction.description && (
-            <>
-              <div data-tip data-for={`tr_${transaction.id}`} className="px-3">
-                <InfoIcon className="w-7 h-7" />
-              </div>
-              <ReactTooltip
-                id={`tr_${transaction.id}`}
-                effect="solid"
-                className="max-w-sm"
-              >
-                {transaction.description}
-              </ReactTooltip>
-            </>
-          )}
-        </TDIcon>
-
-        <TDIcon>
-          <button className="p-2" onClick={copyTransaction}>
-            <CopyIcon className="w-7 h-7" />
-          </button>
-        </TDIcon>
-        <TDIcon>
-          <button className="p-2" onClick={openModal}>
-            <PencilIcon className="w-7 h-7" />
-          </button>
-        </TDIcon>
-        <TDIcon>
-          <button className="p-2" onClick={confirmDelete}>
-            <TrashIcon className="w-7 h-7" />
-          </button>
-        </TDIcon>
-      </TR>
-    );
-  }
-);
+      <TDIcon>
+        <button className="p-2" onClick={copyTransaction}>
+          <CopyIcon className="w-7 h-7" />
+        </button>
+      </TDIcon>
+      <TDIcon>
+        <button className="p-2" onClick={openModal}>
+          <PencilIcon className="w-7 h-7" />
+        </button>
+      </TDIcon>
+      <TDIcon>
+        <button className="p-2" onClick={confirmDelete}>
+          <TrashIcon className="w-7 h-7" />
+        </button>
+      </TDIcon>
+    </TR>
+  );
+};
 
 export default Transactions;

@@ -1,5 +1,7 @@
-import { observer } from "mobx-react-lite";
 import { FC, useState } from "react";
+import Swal from "sweetalert2";
+import ReactTooltip from "react-tooltip";
+
 import {
   InfoIcon,
   MinusIcon,
@@ -10,20 +12,23 @@ import {
 } from "../../assets/svg";
 import Table, { TBody, TD, TDIcon, TH, THead, TR } from "../Generic/Table";
 import { getCurrencyValue } from "../../helper/currencies";
-import store from "../../store";
 import { TTemplate, TTransactionType } from "../../types/transactionType";
-import Swal from "sweetalert2";
-import ReactTooltip from "react-tooltip";
 import ActionButton from "../Generic/Button/ActionButton";
 import SetTemplate from "../Template/SetTemplate";
 import { Title } from "../Generic/Title";
+import {
+  selectAccountDict,
+  selectCurrencyDict,
+  selectFilteredTemplates,
+  selectTransactionCategoryDict,
+} from "../../store/selectors";
+import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
+import { deleteTemplate } from "../../store/reducers/transactionSlice";
+import { setIsUnsaved } from "../../store/reducers/appSlice";
 
-const Templates: FC = observer(() => {
-  const {
-    transaction: {
-      filtered: { templates },
-    },
-  } = store;
+const Templates: FC = () => {
+  const templates = useAppSelector(selectFilteredTemplates);
+
   const [isOpen, setIsOpen] = useState(false);
   const [transactionType, setTransactionType] = useState<TTransactionType>();
   const [openedTemplate, setOpenedTemplate] = useState<TTemplate>();
@@ -94,120 +99,119 @@ const Templates: FC = observer(() => {
       />
     </>
   );
-});
+};
 
 interface TemplateItemProps {
   template: TTemplate;
   openModal: () => void;
 }
 
-const TemplateItem: FC<TemplateItemProps> = observer(
-  ({ template, openModal }) => {
-    const {
-      currency: { currencyDict },
-      account: { accountDict },
-      category: { transactionDict: categoryDict },
-    } = store;
-    const incomeAccount = template.income?.account_id
-      ? accountDict[template.income?.account_id]
-      : undefined;
-    const outcomeAccount = template.outcome?.account_id
-      ? accountDict[template.outcome?.account_id]
-      : undefined;
+const TemplateItem: FC<TemplateItemProps> = ({ template, openModal }) => {
+  const currencyDict = useAppSelector(selectCurrencyDict);
+  const accountDict = useAppSelector(selectAccountDict);
+  const categoryDict = useAppSelector(selectTransactionCategoryDict);
+  const dispatch = useAppDispatch();
 
-    const incomeCurrency =
-      incomeAccount && currencyDict[incomeAccount.currency_code];
-    const outcomeCurrency =
-      outcomeAccount && currencyDict[outcomeAccount.currency_code];
+  const incomeAccount = template.income?.account_id
+    ? accountDict[template.income?.account_id]
+    : undefined;
+  const outcomeAccount = template.outcome?.account_id
+    ? accountDict[template.outcome?.account_id]
+    : undefined;
 
-    const categoryName = template.category_id
-      ? categoryDict[template.category_id].name
-      : "-";
+  const incomeCurrency =
+    incomeAccount && currencyDict[incomeAccount.currency_code];
+  const outcomeCurrency =
+    outcomeAccount && currencyDict[outcomeAccount.currency_code];
 
-    const confirmDelete = () => {
-      Swal.fire({
-        title: "Delete template",
-        icon: "error",
-        text: template.name,
-        showCancelButton: true,
-        cancelButtonText: "Cancel",
-        confirmButtonText: "Delete",
-      }).then((result) => {
-        if (result.isConfirmed) {
-          store.transaction.deleteTemplate(template.id);
-        }
-      });
-    };
+  const categoryName = template.category_id
+    ? categoryDict[template.category_id].name
+    : "-";
 
-    return (
-      <TR>
-        <TD>{template.name}</TD>
-        <TD className="text-center">{categoryName}</TD>
+  const confirmDelete = () => {
+    Swal.fire({
+      title: "Delete template",
+      icon: "error",
+      text: template.name,
+      showCancelButton: true,
+      cancelButtonText: "Cancel",
+      confirmButtonText: "Delete",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        dispatch(deleteTemplate(template.id));
+        dispatch(setIsUnsaved(true));
+      }
+    });
+  };
 
-        {template.outcome && outcomeCurrency && outcomeAccount ? (
-          <TD className="text-right">
-            <div className="text-red-700">
-              {getCurrencyValue(
-                template.outcome.sum,
-                outcomeCurrency.decimal_places_number
-              )}
-              <span className="pl-2.5">{outcomeCurrency.code || ""}</span>
+  return (
+    <TR>
+      <TD>{template.name}</TD>
+      <TD className="text-center">{categoryName}</TD>
+
+      {template.outcome && outcomeCurrency && outcomeAccount ? (
+        <TD className="text-right">
+          <div className="text-red-700">
+            {getCurrencyValue(
+              template.outcome.sum,
+              outcomeCurrency.decimal_places_number
+            )}
+            <span className="pl-2.5">{outcomeCurrency.code || ""}</span>
+          </div>
+          <div className="text-sm text-gray-600">
+            {outcomeAccount.name || ""}
+          </div>
+        </TD>
+      ) : (
+        <TD className="text-center">-</TD>
+      )}
+
+      {template.income && incomeCurrency && incomeAccount ? (
+        <TD className="text-right">
+          <div className="text-green-700">
+            {getCurrencyValue(
+              template.income.sum,
+              incomeCurrency.decimal_places_number
+            )}
+            <span className="pl-2.5">{incomeCurrency.code || ""}</span>
+          </div>
+          <div className="text-sm text-gray-600">
+            {incomeAccount.name || ""}
+          </div>
+        </TD>
+      ) : (
+        <TD className="text-center">-</TD>
+      )}
+
+      <TDIcon>
+        {template.description && (
+          <>
+            <div data-tip data-for={`tr_${template.id}`} className="px-3">
+              <InfoIcon className="w-7 h-7" />
             </div>
-            <div className="text-sm text-gray-600">
-              {outcomeAccount.name || ""}
-            </div>
-          </TD>
-        ) : (
-          <TD className="text-center">-</TD>
+            <ReactTooltip
+              id={`tr_${template.id}`}
+              effect="solid"
+              className="max-w-sm"
+            >
+              {template.description}
+            </ReactTooltip>
+          </>
         )}
+      </TDIcon>
 
-        {template.income && incomeCurrency && incomeAccount ? (
-          <TD className="text-right">
-            <div className="text-green-700">
-              {getCurrencyValue(
-                template.income.sum,
-                incomeCurrency.decimal_places_number
-              )}
-              <span className="pl-2.5">{incomeCurrency.code || ""}</span>
-            </div>
-            <div className="text-sm text-gray-600">
-              {incomeAccount.name || ""}
-            </div>
-          </TD>
-        ) : (
-          <TD className="text-center">-</TD>
-        )}
-
-        <TDIcon>
-          {template.description && (
-            <>
-              <div data-tip data-for={`tr_${template.id}`} className="px-3">
-                <InfoIcon className="w-7 h-7" />
-              </div>
-              <ReactTooltip
-                id={`tr_${template.id}`}
-                effect="solid"
-                className="max-w-sm"
-              >
-                {template.description}
-              </ReactTooltip>
-            </>
-          )}
-        </TDIcon>
-
-        <TDIcon>
-          <button className="p-2" onClick={openModal}>
-            <PencilIcon className="w-7 h-7" />
-          </button>
-        </TDIcon>
-        <TDIcon>
-          <button className="p-2" onClick={confirmDelete}>
-            <TrashIcon className="w-7 h-7" />
-          </button>
-        </TDIcon>
-      </TR>
-    );
-  }
-);
+      <TDIcon>
+        <button className="p-2" onClick={openModal}>
+          <PencilIcon className="w-7 h-7" />
+        </button>
+      </TDIcon>
+      <TDIcon>
+        <button className="p-2" onClick={confirmDelete}>
+          <TrashIcon className="w-7 h-7" />
+        </button>
+      </TDIcon>
+    </TR>
+  );
+};
 
 export default Templates;

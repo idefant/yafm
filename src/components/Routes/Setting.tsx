@@ -1,20 +1,25 @@
-import { observer } from "mobx-react-lite";
 import { ChangeEvent, FC } from "react";
-import store from "../../store";
+import Swal from "sweetalert2";
+import { useFormik } from "formik";
+import { object, string } from "yup";
+import { decompress } from "compress-json";
+
 import { exportFile, readFileContent } from "../../helper/file";
 import { aesDecrypt, aesEncrypt } from "../../helper/crypto";
 import FormField from "../Generic/Form/FormField";
 import Button from "../Generic/Button/Button";
-import Swal from "sweetalert2";
 import { getSyncData } from "../../helper/sync";
-import { decompress } from "compress-json";
-import { useFormik } from "formik";
-import { object, string } from "yup";
 import { errorAlert } from "../../helper/sweetalert";
 import { Title } from "../Generic/Title";
+import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
+import { setAesPass } from "../../store/reducers/userSlice";
+import { setAccounts } from "../../store/reducers/accountSlice";
+import { setCategories } from "../../store/reducers/categorySlice";
+import { setTransactions } from "../../store/reducers/transactionSlice";
 
-const Setting: FC = observer(() => {
-  const { aesPass } = store.user;
+const Setting: FC = () => {
+  const { aesPass } = useAppSelector((state) => state.user);
+  const dispatch = useAppDispatch();
 
   const downloadBackup = (useCipher: boolean) => {
     const data = getSyncData(useCipher);
@@ -66,9 +71,14 @@ const Setting: FC = observer(() => {
               data = JSON.parse(content);
             }
 
-            store.account.setAccounts(data.accounts);
-            store.transaction.setData(data.transactions, data.templates);
-            store.category.setCategories(data.categories);
+            dispatch(setAccounts(data.accounts));
+            dispatch(
+              setTransactions({
+                transactions: data.transactions,
+                templates: data.templates,
+              })
+            );
+            dispatch(setCategories(data.categories));
           } else {
             errorAlert({ title: "Wrong Format" });
           }
@@ -95,7 +105,7 @@ const Setting: FC = observer(() => {
       return;
     }
 
-    store.user.setAesPass(values.newPassword);
+    dispatch(setAesPass(values.newPassword));
     Swal.fire({ title: "Password changed successfully", icon: "success" });
     formik.resetForm();
   };
@@ -115,16 +125,6 @@ const Setting: FC = observer(() => {
     validateOnChange: false,
     validateOnBlur: true,
   });
-
-  const recalculateBalances = () => {
-    const isChanged = store.account.recalculateBalances();
-    Swal.fire({
-      title: isChanged
-        ? "Balances have been successfully recalculated"
-        : "No errors found",
-      icon: "success",
-    });
-  };
 
   return (
     <>
@@ -203,10 +203,8 @@ const Setting: FC = observer(() => {
       >
         Upload Decrypted
       </label>
-
-      <Button onClick={recalculateBalances}>Recalculate</Button>
     </>
   );
-});
+};
 
 export default Setting;

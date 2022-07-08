@@ -1,14 +1,5 @@
-import { observer } from "mobx-react-lite";
 import { FC, Fragment, useMemo, useState } from "react";
-import SetAccount from "../Account/SetAccount";
-import { ArchiveIcon, LockIcon, PencilIcon, TrashIcon } from "../../assets/svg";
-import Button from "../Generic/Button/Button";
-import Table, { TBody, TD, TDIcon, TH, THead, TR } from "../Generic/Table";
-import { getCurrencyValue } from "../../helper/currencies";
-import store from "../../store";
-import { TAccount } from "../../types/accountType";
 import Swal from "sweetalert2";
-import { computed } from "mobx";
 import {
   Chart as ChartJS,
   ArcElement,
@@ -17,22 +8,37 @@ import {
   ChartData,
 } from "chart.js";
 import { Pie } from "react-chartjs-2";
+
+import SetAccount from "../Account/SetAccount";
+import { ArchiveIcon, LockIcon, PencilIcon, TrashIcon } from "../../assets/svg";
+import Button from "../Generic/Button/Button";
+import Table, { TBody, TD, TDIcon, TH, THead, TR } from "../Generic/Table";
+import { convertPrice, getCurrencyValue } from "../../helper/currencies";
+import { TAccount, TCalculatedAccount } from "../../types/accountType";
 import { groupSum, sum } from "../../helper/arrays";
 import { Title } from "../Generic/Title";
+import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
+import {
+  selectCurrencyDict,
+  selectFilteredAccounts,
+} from "../../store/selectors";
+import { deleteAccount } from "../../store/reducers/accountSlice";
+import { setIsUnsaved } from "../../store/reducers/appSlice";
 
-const Accounts: FC = observer(() => {
-  const {
-    account: { filteredAccounts },
-    category: { accounts: categories },
-    currency: { currencies },
-    app: { safeMode },
-  } = store;
+const Accounts: FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+
+  const {
+    currency: { currencies },
+    category: { accounts: categories },
+    app: { safeMode },
+  } = useAppSelector((state) => state);
+  const accounts = useAppSelector(selectFilteredAccounts);
 
   const baseCurrencyCode = "btc";
 
-  const accountDict = filteredAccounts.reduce(
-    (dict: { [key: string]: TAccount[] }, account) => {
+  const accountDict = accounts.reduce(
+    (dict: { [key: string]: TCalculatedAccount[] }, account) => {
       const categoryId = account.category_id || "";
 
       if (!(categoryId in dict)) {
@@ -53,33 +59,31 @@ const Accounts: FC = observer(() => {
   };
 
   const currencyBalances = useMemo(() => {
-    return computed(() => {
-      const currencySum = groupSum(filteredAccounts, (elem) => ({
-        key: elem.currency_code,
-        num: elem.balance,
-      }));
+    const currencySum = groupSum(accounts, (elem) => ({
+      key: elem.currency_code,
+      num: elem.balance,
+    }));
 
-      return currencies
-        .map((currency) => ({
-          ...currency,
-          balance: currencySum[currency.code],
-          idealBalance: store.currency.convertPrice(
-            currency.code.toLowerCase(),
-            baseCurrencyCode,
-            currencySum[currency.code]
-          ),
-        }))
-        .filter((account) => account.balance);
-    });
-  }, [currencies, filteredAccounts]).get();
+    return currencies
+      .map((currency) => ({
+        ...currency,
+        balance: currencySum[currency.code],
+        idealBalance: convertPrice(
+          currency.code.toLowerCase(),
+          baseCurrencyCode,
+          currencySum[currency.code]
+        ),
+      }))
+      .filter((account) => account.balance);
+  }, [currencies, accounts]);
 
   const currencyBalancesSum = useMemo(
     () => sum(currencyBalances, (elem) => elem.idealBalance),
     [currencyBalances]
   );
 
-  const accountsWithoutCategory = filteredAccounts.filter(
-    (accounts) => !accounts.category_id
+  const accountsWithoutCategory = accounts.filter(
+    (account) => !account.category_id
   );
 
   const accountWithCategory = categories
@@ -167,7 +171,7 @@ const Accounts: FC = observer(() => {
                     <TD>
                       <div className="text-right">
                         {getCurrencyValue(
-                          store.currency.convertPrice(
+                          convertPrice(
                             baseCurrencyCode,
                             currency.code.toLowerCase(),
                             currencyBalancesSum
@@ -240,19 +244,21 @@ const Accounts: FC = observer(() => {
       />
     </>
   );
-});
+};
 
 interface AccountItemProps {
-  account: TAccount;
+  account: TCalculatedAccount;
   openModal: () => void;
 }
 
-const AccountItem: FC<AccountItemProps> = observer(({ account, openModal }) => {
+const AccountItem: FC<AccountItemProps> = ({ account, openModal }) => {
+  const currencyDict = useAppSelector(selectCurrencyDict);
   const {
-    currency: { currencyDict },
     transaction: { transactions, templates },
     app: { safeMode },
-  } = store;
+  } = useAppSelector((state) => state);
+  const dispatch = useAppDispatch();
+
   const accountCurrency = currencyDict[account.currency_code];
 
   const checkAccountIsUsed = () => {
@@ -289,7 +295,8 @@ const AccountItem: FC<AccountItemProps> = observer(({ account, openModal }) => {
           confirmButtonText: "Delete",
         }).then((result) => {
           if (result.isConfirmed) {
-            store.account.deleteAccount(account.id);
+            dispatch(deleteAccount(account.id));
+            dispatch(setIsUnsaved(true));
           }
         });
   };
@@ -318,6 +325,6 @@ const AccountItem: FC<AccountItemProps> = observer(({ account, openModal }) => {
       </TDIcon>
     </TR>
   );
-});
+};
 
 export default Accounts;

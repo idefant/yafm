@@ -1,32 +1,37 @@
 import { useFormik } from "formik";
-import { observer } from "mobx-react-lite";
 import { FC } from "react";
 import { object, string } from "yup";
+
 import { loginRequest } from "../../helper/requests/userRequests";
-import store from "../../store";
+import { useAppDispatch } from "../../hooks/reduxHooks";
+import { login } from "../../store/reducers/userSlice";
 import Button from "../Generic/Button/Button";
 import FormField from "../Generic/Form/FormField";
 
-const Login: FC = observer(() => {
+const Login: FC = () => {
   type TForm = {
     serverUrl: string;
     username: string;
     password: string;
   };
 
+  const dispatch = useAppDispatch();
+
   const submitForm = async (values: TForm) => {
-    const serverResponse = await loginRequest(
+    const response = await loginRequest(
       values.serverUrl,
       values.username,
       values.password
     );
-    if (!serverResponse) return;
+    if (!response) return;
 
-    store.user.login(
-      values.serverUrl,
-      values.username,
-      serverResponse.data.refresh_token,
-      serverResponse.data.access_token
+    dispatch(
+      login({
+        url: values.serverUrl,
+        username: values.username,
+        refreshToken: response.data.refresh_token,
+        accessToken: response.data.access_token,
+      })
     );
   };
 
@@ -81,6 +86,6 @@ const Login: FC = observer(() => {
       </form>
     </>
   );
-});
+};
 
 export default Login;

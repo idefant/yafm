@@ -1,54 +1,63 @@
+import { FC, useState } from "react";
 import classNames from "classnames";
 import FocusTrap from "focus-trap-react";
-import { observer } from "mobx-react-lite";
-import { FC, useState } from "react";
 import { useNavigate, NavLink } from "react-router-dom";
 import Swal from "sweetalert2";
+
 import { ArchiveIcon, LockIcon, ShieldIcon, UploadIcon } from "../assets/svg";
 import { aesEncrypt } from "../helper/crypto";
 import { createVersionRequest } from "../helper/requests/versionRequests";
 import { getSyncData } from "../helper/sync";
-import store from "../store";
+import { useAppDispatch, useAppSelector } from "../hooks/reduxHooks";
+import {
+  clearAppDate,
+  setArchiveMode,
+  setIsUnsaved,
+  setSafeMode,
+} from "../store/reducers/appSlice";
+import { clearCategories } from "../store/reducers/categorySlice";
+import { clearCurrencyData } from "../store/reducers/currencySlice";
+import { clearAccounts } from "../store/reducers/accountSlice";
+import { clearAesPass } from "../store/reducers/userSlice";
 import Hamburger from "./Hamburger";
+import { clearTransactions } from "../store/reducers/transactionSlice";
 
-const Header: FC = observer(() => {
+const Header: FC = () => {
   const navigate = useNavigate();
+
   const {
-    user: { api, aesPass, accessToken },
+    user: { api, aesPass },
     app: { safeMode, archiveMode, isUnsaved },
-  } = store;
+  } = useAppSelector((state) => state);
+  const dispatch = useAppDispatch();
+
   const [isOpen, setIsOpen] = useState(false);
   const toggle = () => setIsOpen(!isOpen);
 
   const sync = async () => {
-    if (!api || !aesPass || !accessToken) return;
+    if (!api || !aesPass) return;
 
     const data = aesEncrypt(getSyncData(true), aesPass);
 
-    const serverResponse = await createVersionRequest(
+    const response = await createVersionRequest(
       data.iv,
       data.hmac,
       data.cipher,
-      accessToken,
       api
     );
+    if (!response) return;
 
-    if (!serverResponse) return;
-
-    store.app.setIsUnsaved(false);
+    dispatch(setIsUnsaved(false));
     Swal.fire({ title: "Synchronization is successful", icon: "success" });
   };
 
   const lock = () => {
-    store.user.clearAesPass();
-    store.account.clearAccounts();
-    store.category.clearCategories();
-    store.transaction.clearData();
-    store.currency.clearFnG();
-    store.currency.clearPrices();
-    store.app.setSafeMode(true);
-    store.app.setArchiveMode(false);
-    store.app.setIsUnsaved(false);
+    dispatch(clearAesPass());
+    dispatch(clearAccounts());
+    dispatch(clearTransactions());
+    dispatch(clearCategories());
+    dispatch(clearAppDate());
+    dispatch(clearCurrencyData());
     navigate("/decrypt");
   };
 
@@ -61,13 +70,13 @@ const Header: FC = observer(() => {
       focusCancel: true,
     }).then((res) => {
       if (res.isConfirmed) {
-        store.app.setSafeMode(false);
+        dispatch(setSafeMode(false));
       }
     });
   };
 
   const enableSafeMode = () => {
-    store.app.setSafeMode(true);
+    dispatch(setSafeMode(true));
     Swal.fire({
       title: "Safe mode is enabled",
       icon: "success",
@@ -106,7 +115,7 @@ const Header: FC = observer(() => {
             </HeaderIconButton>
 
             <HeaderIconButton
-              onClick={() => store.app.setArchiveMode(!archiveMode)}
+              onClick={() => dispatch(setArchiveMode(!archiveMode))}
               className={classNames(!archiveMode && "opacity-40")}
             >
               <ArchiveIcon />
@@ -160,7 +169,7 @@ const Header: FC = observer(() => {
       </nav>
     </FocusTrap>
   );
-});
+};
 
 const HeaderIconButton: FC<React.ButtonHTMLAttributes<HTMLButtonElement>> = ({
   className,

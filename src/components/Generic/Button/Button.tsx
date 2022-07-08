@@ -1,5 +1,6 @@
 import classNames from "classnames";
 import { FC } from "react";
+
 import { TButtonColor } from "../../../types/buttonType";
 
 interface ButtonProps {

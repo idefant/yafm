@@ -1,4 +1,5 @@
 import axios from "axios";
+
 import { defaultCurrencies } from "../../data/defaultCurrencies";
 
 export const getPricesRequest = () => {
