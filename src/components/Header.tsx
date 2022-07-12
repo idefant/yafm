@@ -37,7 +37,7 @@ const Header: FC = () => {
   const sync = async () => {
     if (!api || !aesPass) return;
 
-    const data = aesEncrypt(getSyncData(true), aesPass);
+    const data = aesEncrypt(JSON.stringify(getSyncData()), aesPass);
 
     const response = await createVersionRequest(
       data.iv,

@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import { FC } from "react";
+import { FC, ReactNode } from "react";
 
 import { TButtonColor } from "../../../types/buttonType";
 
@@ -8,6 +8,7 @@ interface ButtonProps {
   onClick?: () => void;
   type?: "button" | "submit" | "reset";
   className?: string;
+  children?: ReactNode;
 }
 
 const Button: FC<ButtonProps> = ({

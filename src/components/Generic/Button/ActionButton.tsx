@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import { FC } from "react";
+import { FC, ReactNode } from "react";
 
 import { TButtonColor } from "../../../types/buttonType";
 
@@ -8,6 +8,7 @@ interface ActionButtonProps {
   color?: TButtonColor;
   active?: boolean;
   shadow?: boolean;
+  children?: ReactNode;
 }
 
 const ActionButton: FC<ActionButtonProps> = ({

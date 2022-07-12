@@ -1,4 +1,3 @@
-import { compress } from "compress-json";
 import { array, object, ValidationError } from "yup";
 
 import { store } from "../store/store";
@@ -9,7 +8,7 @@ import { TAccount } from "../types/accountType";
 import { TCategory } from "../types/categoryType";
 import { TTemplate, TTransaction } from "../types/transactionType";
 
-export const getSyncData = (isCompress?: boolean) => {
+export const getSyncData = () => {
   const {
     account: { accounts },
     transaction: { transactions, templates },
@@ -26,10 +25,7 @@ export const getSyncData = (isCompress?: boolean) => {
     templates,
   };
 
-  if (isCompress) {
-    return JSON.stringify(compress(JSON.parse(JSON.stringify(data))));
-  }
-  return JSON.stringify(data);
+  return data;
 };
 
 const schema = object().shape({
@@ -48,16 +44,13 @@ export const checkBaseIntegrity = async (data: {
   templates: TTemplate[];
   categories: { accounts: TCategory[]; transactions: TCategory[] };
 }) => {
-  const validated = await schema
+  const error = await schema
     .validate(data)
     .then(() => undefined)
-    .catch((err: ValidationError) => {
-      console.log("base object", err.value);
-      return { error: err.message };
-    });
+    .catch((err: ValidationError) => ({ error: err.message }));
 
-  if (validated) {
-    return validated;
+  if (error) {
+    return error;
   }
 
   const getIds = (categories: { id: string }[]) =>

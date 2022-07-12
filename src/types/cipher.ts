@@ -1,6 +1,5 @@
-export type EncryptedYAFM = {
+export type TCipher = {
   iv: string;
   hmac: string;
   cipher: string;
-  created_at: string;
 };

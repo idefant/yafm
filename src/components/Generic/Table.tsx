@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import { FC } from "react";
+import { FC, ReactNode } from "react";
 
 const Table: FC<React.TableHTMLAttributes<HTMLTableElement>> = ({
   className,
@@ -13,19 +13,19 @@ const Table: FC<React.TableHTMLAttributes<HTMLTableElement>> = ({
   );
 };
 
-export const THead: FC = ({ children }) => {
+export const THead: FC<{ children?: ReactNode }> = ({ children }) => {
   return <thead>{children}</thead>;
 };
 
-export const TBody: FC = ({ children }) => {
+export const TBody: FC<{ children?: ReactNode }> = ({ children }) => {
   return <tbody>{children}</tbody>;
 };
 
-export const TR: FC<{ className?: string; hide?: boolean }> = ({
-  children,
-  className,
-  hide,
-}) => {
+export const TR: FC<{
+  className?: string;
+  hide?: boolean;
+  children?: ReactNode;
+}> = ({ children, className, hide }) => {
   return (
     <tr
       className={classNames(
@@ -39,11 +39,11 @@ export const TR: FC<{ className?: string; hide?: boolean }> = ({
   );
 };
 
-export const TH: FC<{ colSpan?: number; className?: string }> = ({
-  children,
-  colSpan,
-  className,
-}) => {
+export const TH: FC<{
+  colSpan?: number;
+  className?: string;
+  children?: ReactNode;
+}> = ({ children, colSpan, className }) => {
   return (
     <th
       className={classNames("bg-gray-200 px-4 py-3", className)}
@@ -54,11 +54,11 @@ export const TH: FC<{ colSpan?: number; className?: string }> = ({
   );
 };
 
-export const TD: FC<{ colSpan?: number; className?: string }> = ({
-  children,
-  colSpan,
-  className,
-}) => {
+export const TD: FC<{
+  colSpan?: number;
+  className?: string;
+  children?: ReactNode;
+}> = ({ children, colSpan, className }) => {
   return (
     <td
       className={classNames("bg-gray-100 px-4 py-3", className)}
@@ -69,7 +69,7 @@ export const TD: FC<{ colSpan?: number; className?: string }> = ({
   );
 };
 
-export const TDIcon: FC = ({ children }) => {
+export const TDIcon: FC<{ children?: ReactNode }> = ({ children }) => {
   return <td className="bg-gray-100">{children}</td>;
 };
 

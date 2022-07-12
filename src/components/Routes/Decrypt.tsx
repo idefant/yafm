@@ -1,8 +1,7 @@
-import { decompress } from "compress-json";
 import { useFormik } from "formik";
 import { DateTime } from "luxon";
 import { FC, useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { object, string } from "yup";
 
 import { aesDecrypt } from "../../helper/crypto";
@@ -17,16 +16,21 @@ import { setCategories } from "../../store/reducers/categorySlice";
 import { setAccounts } from "../../store/reducers/accountSlice";
 import { setTransactions } from "../../store/reducers/transactionSlice";
 import { logoutUser, setAesPass } from "../../store/reducers/userSlice";
-import { EncryptedYAFM } from "../../types/cipher";
+import { TCipher } from "../../types/cipher";
 import Button from "../Generic/Button/Button";
 import FormField from "../Generic/Form/FormField";
+import Details from "../Generic/Details";
+import ButtonLink from "../Generic/Button/ButtonLink";
 
 const Decrypt: FC = () => {
-  const { api, aesPass } = useAppSelector((state) => state.user);
+  const { api } = useAppSelector((state) => state.user);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const [cipherData, setCipherData] = useState<EncryptedYAFM>();
+  const [cipherData, setCipherData] = useState<
+    TCipher & { created_at: string }
+  >();
+
   const [isNew, setIsNew] = useState<boolean>();
   const { versionId } = useParams();
 
@@ -46,7 +50,7 @@ const Decrypt: FC = () => {
         }
       })();
     }
-  }, [api, navigate, aesPass, versionId]);
+  }, [api, versionId]);
 
   type TForm = { aesKey: string };
 
@@ -65,8 +69,7 @@ const Decrypt: FC = () => {
       );
 
       if (plaintext) {
-        const data = decompress(JSON.parse(plaintext));
-
+        const data = JSON.parse(plaintext);
         const validatedStatus = await checkBaseIntegrity(data);
         if (validatedStatus) {
           errorAlert({ title: "Validate Error", text: validatedStatus.error });
@@ -130,12 +133,6 @@ const Decrypt: FC = () => {
                   "dd.MM.yyyy - HH:mm"
                 )
               : "Last"}
-            <Link
-              to="/versions"
-              className="text-sm px-2.5 py-1.5 rounded-lg bg-amber-300 inline-block"
-            >
-              Choose another
-            </Link>
           </div>
         </div>
 
@@ -148,6 +145,25 @@ const Decrypt: FC = () => {
           onBlur={() => formik.validateField("aesKey")}
           withError={Boolean(formik.errors.aesKey)}
         />
+
+        <Details title="Advances">
+          <div className="flex gap-3">
+            <ButtonLink
+              to="/versions"
+              className="text-sm !px-2.5 !py-1.5 rounded-lg bg-amber-300 inline-block"
+            >
+              Choose old version
+            </ButtonLink>
+
+            <ButtonLink
+              to="/upload"
+              className="text-sm !px-2.5 !py-1.5 rounded-lg inline-block"
+              color="green"
+            >
+              Upload Version
+            </ButtonLink>
+          </div>
+        </Details>
 
         <div className="mx-auto mt-8 flex justify-center gap-6">
           <Button type="submit" color="green" className="block">

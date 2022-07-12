@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import { FC } from "react";
+import { FC, ReactNode } from "react";
 
 import { genRanHex } from "../../../helper/random";
 import style from "./Checkbox.module.css";
@@ -8,11 +8,17 @@ interface CheckboxProps {
   checked?: boolean;
   onChange?: any;
   name?: string;
+  id?: string;
+  children?: ReactNode;
 }
 
-const Checkbox: FC<CheckboxProps> = ({ children, checked, onChange, name }) => {
-  const id = genRanHex(8);
-
+const Checkbox: FC<CheckboxProps> = ({
+  children,
+  checked,
+  onChange,
+  name,
+  id = genRanHex(8),
+}) => {
   return (
     <div className="form-check">
       <input

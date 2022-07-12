@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import { FC } from "react";
+import { FC, ReactNode } from "react";
 import { Link } from "react-router-dom";
 
 import { TButtonColor } from "../../../types/buttonType";
@@ -8,6 +8,7 @@ interface ButtonLinkProps {
   color?: TButtonColor;
   className?: string;
   to: string;
+  children?: ReactNode;
 }
 
 const ButtonLink: FC<ButtonLinkProps> = ({

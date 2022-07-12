@@ -1,6 +1,6 @@
 import classNames from "classnames";
 import FocusTrap from "focus-trap-react";
-import { FC } from "react";
+import { FC, ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { CSSTransition } from "react-transition-group";
 
@@ -13,6 +13,7 @@ interface ModalProps {
   onEnter?: () => void;
   onSubmit?: any;
   width?: "middle" | "big" | "biggest";
+  children?: ReactNode;
 }
 
 const Modal: FC<ModalProps> = ({
@@ -70,6 +71,7 @@ const Modal: FC<ModalProps> = ({
 
 interface ModalHeaderProps {
   close?: () => void;
+  children?: ReactNode;
 }
 
 export const ModalHeader: FC<ModalHeaderProps> = ({ children, close }) => {
@@ -85,11 +87,15 @@ export const ModalHeader: FC<ModalHeaderProps> = ({ children, close }) => {
   );
 };
 
-export const ModalContent: FC = ({ children }) => {
+export const ModalContent: FC<{
+  children?: ReactNode;
+}> = ({ children }) => {
   return <div className="overflow-y-auto flex-1 p-5">{children}</div>;
 };
 
-export const ModalFooter: FC = ({ children }) => {
+export const ModalFooter: FC<{
+  children?: ReactNode;
+}> = ({ children }) => {
   return (
     <div className="border-t border-gray-600 p-5 flex gap-4 justify-center">
       {children}

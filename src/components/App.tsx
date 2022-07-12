@@ -14,9 +14,10 @@ import Categories from "./Routes/Categories";
 import Decrypt from "./Routes/Decrypt";
 import Login from "./Routes/Login";
 import Main from "./Routes/Main";
-import Setting from "./Routes/Setting";
+import Setting from "./Routes/Setting/Setting";
 import Templates from "./Routes/Templates";
 import Transactions from "./Routes/Transactions";
+import Upload from "./Routes/Upload";
 import Versions from "./Routes/Versions";
 
 const App: FC = () => {
@@ -59,6 +60,7 @@ const App: FC = () => {
             <Route path="/decrypt/last" element={<Decrypt />} />
             <Route path="/decrypt/:versionId" element={<Decrypt />} />
             <Route path="/versions" element={<Versions />} />
+            <Route path="/upload" element={<Upload />} />
           </Route>
           <Route path="*" element={<Navigate to="/decrypt/last" />} />
         </>
