@@ -1,5 +1,5 @@
 import { useFormik } from "formik";
-import { DateTime } from "luxon";
+import dayjs from "dayjs";
 import { ChangeEvent, FC, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { bool, mixed, object, string, ValidationError } from "yup";
@@ -166,9 +166,7 @@ const Upload: FC = () => {
             <div className="flex gap-3 mb-3">
               <div className="w-1/3">Created at:</div>
               <div className="w-2/3">
-                {DateTime.fromISO(fileData.created_at).toFormat(
-                  "dd.MM.yyyy - HH:mm"
-                )}
+                {dayjs(fileData.created_at).format("DD.MM.YYYY (HH:mm)")}
               </div>
             </div>
 

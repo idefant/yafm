@@ -1,8 +1,9 @@
 import { FC, useEffect, useRef } from "react";
+import { Dayjs } from "dayjs";
 
 interface DatePickerProps {
-  date: Date;
-  setDate: (date: Date) => void;
+  date: Dayjs;
+  setDate: (date: Dayjs) => void;
 }
 
 const DatePicker: FC<DatePickerProps> = ({ date, setDate }) => {
@@ -11,14 +12,9 @@ const DatePicker: FC<DatePickerProps> = ({ date, setDate }) => {
   const yearRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    dayRef.current?.value &&
-      (dayRef.current.value = date.toLocaleString("ru", { day: "2-digit" }));
-    monthRef.current?.value &&
-      (monthRef.current.value = date.toLocaleString("ru", {
-        month: "2-digit",
-      }));
-    yearRef.current?.value &&
-      (yearRef.current.value = date.toLocaleString("ru", { year: "numeric" }));
+    dayRef.current?.value && (dayRef.current.value = date.format("DD"));
+    monthRef.current?.value && (monthRef.current.value = date.format("MM"));
+    yearRef.current?.value && (yearRef.current.value = date.format("YYYY"));
   }, [date]);
 
   return (
@@ -26,20 +22,18 @@ const DatePicker: FC<DatePickerProps> = ({ date, setDate }) => {
       <input
         className="bg-transparent focus:outline-none"
         type="text"
-        defaultValue={date.toLocaleString("ru", { day: "2-digit" })}
+        defaultValue={date.format("DD")}
         ref={dayRef}
         size={2}
         onKeyDown={(e) => {
-          const updatedDate = new Date(date);
           switch (e.key) {
             case "ArrowUp":
-              updatedDate.setDate(date.getDate() + 1);
+              setDate(date.add(1, "day"));
               break;
             case "ArrowDown":
-              updatedDate.setDate(date.getDate() - 1);
+              setDate(date.subtract(1, "day"));
               break;
           }
-          setDate(updatedDate);
         }}
       />
       <span>.</span>
@@ -47,19 +41,17 @@ const DatePicker: FC<DatePickerProps> = ({ date, setDate }) => {
         className="bg-transparent focus:outline-none"
         type="text"
         size={2}
-        defaultValue={date.toLocaleString("ru", { month: "2-digit" })}
+        defaultValue={date.format("MM")}
         ref={monthRef}
         onKeyDown={(e) => {
-          const updatedDate = new Date(date);
           switch (e.key) {
             case "ArrowUp":
-              updatedDate.setMonth(date.getMonth() + 1);
+              setDate(date.add(1, "month"));
               break;
             case "ArrowDown":
-              updatedDate.setMonth(date.getMonth() - 1);
+              setDate(date.subtract(1, "month"));
               break;
           }
-          setDate(updatedDate);
         }}
       />
       <span>.</span>
@@ -67,19 +59,17 @@ const DatePicker: FC<DatePickerProps> = ({ date, setDate }) => {
         className="bg-transparent focus:outline-none"
         type="text"
         size={4}
-        defaultValue={date.toLocaleString("ru", { year: "numeric" })}
+        defaultValue={date.format("YYYY")}
         ref={yearRef}
         onKeyDown={(e) => {
-          const updatedDate = new Date(date);
           switch (e.key) {
             case "ArrowUp":
-              updatedDate.setFullYear(date.getFullYear() + 1);
+              setDate(date.add(1, "year"));
               break;
             case "ArrowDown":
-              updatedDate.setFullYear(date.getFullYear() - 1);
+              setDate(date.subtract(1, "year"));
               break;
           }
-          setDate(updatedDate);
         }}
       />
     </div>

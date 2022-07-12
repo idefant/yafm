@@ -1,12 +1,13 @@
 import { FC } from "react";
+import dayjs, { Dayjs } from "dayjs";
 import ReactDatePicker, { registerLocale } from "react-datepicker";
 import ru from "date-fns/locale/ru";
 
 import { CalendarIcon } from "../../../assets/svg";
 
 interface CalendarButtonProps {
-  date: Date;
-  setDate: (date: Date) => void;
+  date: Dayjs;
+  setDate: (date: Dayjs) => void;
 }
 
 registerLocale("ru", ru);
@@ -14,8 +15,8 @@ registerLocale("ru", ru);
 const CalendarButton: FC<CalendarButtonProps> = ({ date, setDate }) => {
   return (
     <ReactDatePicker
-      selected={date}
-      onChange={(date) => date && setDate(date)}
+      selected={date.toDate()}
+      onChange={(date) => date && setDate(dayjs(date))}
       locale="ru"
       showTimeSelect
       timeIntervals={30}

@@ -1,5 +1,6 @@
 import { FC } from "react";
 import { useFormik } from "formik";
+import dayjs from "dayjs";
 
 import { exportFile } from "../../../helper/file";
 import { aesEncrypt } from "../../../helper/crypto";
@@ -20,7 +21,7 @@ const SettingBackup: FC = () => {
 
     const data = getSyncData();
     const infoData = {
-      created_at: new Date().toISOString(),
+      created_at: dayjs().toISOString(),
       is_encrypted: values.useEncryption,
     };
 

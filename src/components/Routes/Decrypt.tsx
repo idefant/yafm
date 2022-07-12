@@ -1,5 +1,5 @@
 import { useFormik } from "formik";
-import { DateTime } from "luxon";
+import dayjs from "dayjs";
 import { FC, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { object, string } from "yup";
@@ -128,10 +128,7 @@ const Decrypt: FC = () => {
           <div className="w-1/3">Version:</div>
           <div className="w-2/3 flex gap-x-4 gap-y-1.5 flex-wrap items-center">
             {versionId
-              ? cipherData &&
-                DateTime.fromISO(cipherData.created_at).toFormat(
-                  "dd.MM.yyyy - HH:mm"
-                )
+              ? dayjs(cipherData?.created_at).format("DD.MM.YYYY (HH:mm)")
               : "Last"}
           </div>
         </div>

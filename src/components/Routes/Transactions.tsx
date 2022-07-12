@@ -1,7 +1,8 @@
 import React, { FC, useState } from "react";
 import Swal from "sweetalert2";
 import ReactTooltip from "react-tooltip";
-import { DateTime } from "luxon";
+import dayjs from "dayjs";
+import quarterOfYear from "dayjs/plugin/quarterOfYear";
 
 import {
   ChevronLeftIcon,
@@ -18,7 +19,6 @@ import Table, { TBody, TD, TDIcon, TH, THead, TR } from "../Generic/Table";
 import { getCurrencyValue } from "../../helper/currencies";
 import SetTransaction from "../Transaction/SetTransaction";
 import { TTransaction, TTransactionType } from "../../types/transactionType";
-import { getDateText, getTimeText } from "../../helper/datetime";
 import ActionButton from "../Generic/Button/ActionButton";
 import Select from "../Generic/Form/Select";
 import { TPeriod } from "../../types/periodType";
@@ -33,11 +33,13 @@ import {
 import { deleteTransaction } from "../../store/reducers/transactionSlice";
 import { setIsUnsaved } from "../../store/reducers/appSlice";
 
+dayjs.extend(quarterOfYear);
+
 const Transactions: FC = () => {
   const transactions = useAppSelector(selectFilteredTransactions);
 
   const [isOpen, setIsOpen] = useState(false);
-  const [date, setDate] = useState(DateTime.now().setLocale("en"));
+  const [date, setDate] = useState(dayjs());
   const [datePeriodType, setDatePeriodType] = useState<TPeriod>("month");
 
   const [transactionType, setTransactionType] = useState<TTransactionType>();
@@ -63,7 +65,7 @@ const Transactions: FC = () => {
 
   const transactionGroups = transactions
     .filter((transaction) => {
-      const datetime = DateTime.fromMillis(transaction.datetime);
+      const datetime = dayjs(transaction.datetime);
       return (
         datetime > date.startOf(datePeriodType) &&
         datetime < date.endOf(datePeriodType)
@@ -71,8 +73,10 @@ const Transactions: FC = () => {
     })
     .sort((a, b) => b.datetime - a.datetime)
     .reduce(function (groups: { [date: string]: TTransaction[] }, transaction) {
-      (groups[getDateText(transaction.datetime)] =
-        groups[getDateText(transaction.datetime)] || []).push(transaction);
+      const date = dayjs(transaction.datetime).format("DD.MM.YYYY");
+
+      if (!(date in groups)) groups[date] = [];
+      groups[date].push(transaction);
       return groups;
     }, {});
 
@@ -114,18 +118,19 @@ const Transactions: FC = () => {
             onChange={(e) => setDatePeriodType(e.target.value as TPeriod)}
           />
           <button
-            onClick={() => setDate(date.minus({ [datePeriodType]: 1 }))}
+            onClick={() => setDate(date.subtract(1, datePeriodType))}
             className="p-2 bg-gray-200 border border-gray-600 rounded-full"
           >
             <ChevronLeftIcon />
           </button>
           <div>
-            {datePeriodType === "month" && `${date.monthShort} ${date.year}`}
-            {datePeriodType === "quarter" && `Q${date.quarter} ${date.year}`}
-            {datePeriodType === "year" && date.year}
+            {datePeriodType === "month" && `${date.format("MMM YYYY")}`}
+            {datePeriodType === "quarter" &&
+              date.format(`Q${date.quarter()} YYYY`)}
+            {datePeriodType === "year" && date.year()}
           </div>
           <button
-            onClick={() => setDate(date.plus({ [datePeriodType]: 1 }))}
+            onClick={() => setDate(date.add(1, datePeriodType))}
             className="p-2 bg-gray-200 border border-gray-600 rounded-full"
           >
             <ChevronRightIcon />
@@ -237,8 +242,10 @@ const TransactionItem: FC<TransactionItemProps> = ({
     <TR>
       <TD>{transaction.name}</TD>
       <TD className="text-center">
-        <div>{getDateText(transaction.datetime)}</div>
-        <div className="text-sm">{getTimeText(transaction.datetime)}</div>
+        <div>{dayjs(transaction.datetime).format("DD.MM.YYYY")}</div>
+        <div className="text-sm">
+          {dayjs(transaction.datetime).format("HH:mm")}
+        </div>
       </TD>
       <TD className="text-center">{categoryName}</TD>
 

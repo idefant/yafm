@@ -1,6 +1,7 @@
 import { FC, useMemo, useRef, useState } from "react";
 import { useFormik } from "formik";
 import { object, string } from "yup";
+import dayjs from "dayjs";
 import "react-datepicker/dist/react-datepicker.css";
 
 import Button from "../Generic/Button/Button";
@@ -75,7 +76,7 @@ const SetTransaction: FC<SetTransactionProps> = ({
 
   const [transactionType, setTransactionType] =
     useState<TTransactionType>("outcome");
-  const [date, setDate] = useState(new Date());
+  const [date, setDate] = useState(dayjs());
   const [isOpenTemplateModal, setIsOpenTemplateModal] = useState(false);
 
   type TForm = {
@@ -219,9 +220,7 @@ const SetTransaction: FC<SetTransactionProps> = ({
       categoryId: trans?.category_id || "",
     });
 
-    setDate(
-      transaction?.datetime ? new Date(transaction.datetime) : new Date()
-    );
+    setDate(dayjs(transaction?.datetime));
     setTransactionType(startTransactionType || "outcome");
   };
 

@@ -1,5 +1,5 @@
 import { FC, useEffect, useState } from "react";
-import { DateTime } from "luxon";
+import dayjs from "dayjs";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 
@@ -30,9 +30,7 @@ const Versions: FC = () => {
       setVersions(
         response.data.map((version: { id: number; created_at: string }) => ({
           ...version,
-          createdAt: DateTime.fromISO(version.created_at).toFormat(
-            "dd.MM.yyyy - HH:mm"
-          ),
+          createdAt: dayjs(version.created_at).format("DD.MM.YYYY (HH:mm)"),
         }))
       );
     })();

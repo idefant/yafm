@@ -1,8 +1,9 @@
 import { FC, useEffect, useRef } from "react";
+import { Dayjs } from "dayjs";
 
 interface DatePickerProps {
-  date: Date;
-  setDate: (date: Date) => void;
+  date: Dayjs;
+  setDate: (date: Dayjs) => void;
 }
 
 const TimePicker: FC<DatePickerProps> = ({ date, setDate }) => {
@@ -10,12 +11,8 @@ const TimePicker: FC<DatePickerProps> = ({ date, setDate }) => {
   const minuteRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    hourRef.current?.value &&
-      (hourRef.current.value = date.toLocaleString("ru", { hour: "2-digit" }));
-    minuteRef.current?.value &&
-      (minuteRef.current.value = date.toLocaleString("ru", {
-        minute: "2-digit",
-      }));
+    hourRef.current?.value && (hourRef.current.value = date.format("HH"));
+    minuteRef.current?.value && (minuteRef.current.value = date.format("mm"));
   }, [date]);
 
   return (
@@ -24,19 +21,17 @@ const TimePicker: FC<DatePickerProps> = ({ date, setDate }) => {
         className="bg-transparent focus:outline-none"
         type="text"
         ref={hourRef}
-        defaultValue={date.toLocaleString("ru", { hour: "2-digit" })}
+        defaultValue={date.format("HH")}
         size={2}
         onKeyDown={(e) => {
-          const updatedDate = new Date(date);
           switch (e.key) {
             case "ArrowUp":
-              updatedDate.setHours(date.getHours() + 1);
+              setDate(date.add(1, "hour"));
               break;
             case "ArrowDown":
-              updatedDate.setHours(date.getHours() - 1);
+              setDate(date.subtract(1, "hour"));
               break;
           }
-          setDate(updatedDate);
         }}
       />
       <span>:</span>
@@ -45,18 +40,16 @@ const TimePicker: FC<DatePickerProps> = ({ date, setDate }) => {
         type="text"
         size={2}
         ref={minuteRef}
-        defaultValue={date.toLocaleString("ru", { minute: "2-digit" })}
+        defaultValue={date.format("mm")}
         onKeyDown={(e) => {
-          const updatedDate = new Date(date);
           switch (e.key) {
             case "ArrowUp":
-              updatedDate.setMinutes(date.getMinutes() + 1);
+              setDate(date.add(1, "minute"));
               break;
             case "ArrowDown":
-              updatedDate.setMinutes(date.getMinutes() - 1);
+              setDate(date.subtract(1, "minute"));
               break;
           }
-          setDate(updatedDate);
         }}
       />
     </div>
