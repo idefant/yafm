@@ -65,7 +65,8 @@ const Decrypt: FC = () => {
         cipherData.cipher,
         values.aesKey,
         cipherData.iv,
-        cipherData.hmac
+        cipherData.hmac,
+        cipherData.salt
       );
 
       if (plaintext) {

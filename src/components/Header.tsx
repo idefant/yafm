@@ -39,12 +39,7 @@ const Header: FC = () => {
 
     const data = aesEncrypt(JSON.stringify(getSyncData()), aesPass);
 
-    const response = await createVersionRequest(
-      data.iv,
-      data.hmac,
-      data.cipher,
-      api
-    );
+    const response = await createVersionRequest(data, api);
     if (!response) return;
 
     dispatch(setIsUnsaved(false));

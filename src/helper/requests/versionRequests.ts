@@ -1,22 +1,18 @@
 import axios from "axios";
 
 import { getErrorMessage } from ".";
+import { TCipher } from "../../types/cipher";
 import { TApi } from "../../types/userType";
 import { refreshToken } from "../jwt";
 import { errorAlert } from "../sweetalert";
 
-export const createVersionRequest = async (
-  iv: string,
-  hmac: string,
-  cipher: string,
-  api: TApi
-) => {
+export const createVersionRequest = async (data: TCipher, api: TApi) => {
   await refreshToken(api);
   return axios({
     method: "POST",
     baseURL: api.url,
     url: "/me/versions/new",
-    data: { iv, hmac, cipher },
+    data,
     headers: { Authorization: `Bearer ${api.accessToken}` },
   }).catch((error) => {
     errorAlert({ title: getErrorMessage(error) });

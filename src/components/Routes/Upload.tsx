@@ -41,7 +41,8 @@ const Upload: FC = () => {
       fileData.data.cipher,
       values.aesKey,
       fileData.data.iv,
-      fileData.data.hmac
+      fileData.data.hmac,
+      fileData.data.salt
     );
     if (!plaintext) {
       errorAlert({ title: "Wrong password" });
