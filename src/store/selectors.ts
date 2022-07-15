@@ -14,8 +14,6 @@ export const selectTransactionCategories = (state: RootState) =>
   state.category.transactions;
 export const selectAccounts = (state: RootState) => state.account.accounts;
 export const selectCurrencies = (state: RootState) => state.currency.currencies;
-export const selectPrices = (state: RootState) => state.currency.prices;
-export const selectFnG = (state: RootState) => state.currency.fng;
 export const selectTransactions = (state: RootState) =>
   state.transaction.transactions;
 export const selectTemplates = (state: RootState) =>
@@ -45,17 +43,6 @@ export const selectFilteredTransactionCategories = createSelector(
 
 export const selectTransactionCategoryDict = createSelector(
   [selectTransactionCategories],
-  (categories) => {
-    const dict: { [id: string]: TCategory } = {};
-    categories.forEach((category) => {
-      dict[category.id] = category;
-    });
-    return dict;
-  }
-);
-
-export const selectAccountCategoryDict = createSelector(
-  [selectAccountCategories],
   (categories) => {
     const dict: { [id: string]: TCategory } = {};
     categories.forEach((category) => {

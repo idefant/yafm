@@ -6,11 +6,11 @@ import Swal from "sweetalert2";
 
 import { ArchiveIcon, LockIcon, ShieldIcon, UploadIcon } from "../assets/svg";
 import { aesEncrypt } from "../helper/crypto";
-import { createVersionRequest } from "../helper/requests/versionRequests";
+import { setBaseRequest } from "../helper/requests/versionRequests";
 import { getSyncData } from "../helper/sync";
 import { useAppDispatch, useAppSelector } from "../hooks/reduxHooks";
 import {
-  clearAppDate,
+  lockBase,
   setArchiveMode,
   setIsUnsaved,
   setSafeMode,
@@ -18,7 +18,6 @@ import {
 import { clearCategories } from "../store/reducers/categorySlice";
 import { clearCurrencyData } from "../store/reducers/currencySlice";
 import { clearAccounts } from "../store/reducers/accountSlice";
-import { clearAesPass } from "../store/reducers/userSlice";
 import Hamburger from "./Hamburger";
 import { clearTransactions } from "../store/reducers/transactionSlice";
 
@@ -26,8 +25,7 @@ const Header: FC = () => {
   const navigate = useNavigate();
 
   const {
-    user: { api, aesPass },
-    app: { safeMode, archiveMode, isUnsaved },
+    app: { safeMode, archiveMode, isUnsaved, vaultUrl, password },
   } = useAppSelector((state) => state);
   const dispatch = useAppDispatch();
 
@@ -35,11 +33,10 @@ const Header: FC = () => {
   const toggle = () => setIsOpen(!isOpen);
 
   const sync = async () => {
-    if (!api || !aesPass) return;
+    if (!vaultUrl || !password) return;
 
-    const data = aesEncrypt(JSON.stringify(getSyncData()), aesPass);
-
-    const response = await createVersionRequest(data, api);
+    const data = aesEncrypt(JSON.stringify(getSyncData()), password);
+    const response = await setBaseRequest(data, vaultUrl);
     if (!response) return;
 
     dispatch(setIsUnsaved(false));
@@ -47,11 +44,10 @@ const Header: FC = () => {
   };
 
   const lock = () => {
-    dispatch(clearAesPass());
     dispatch(clearAccounts());
     dispatch(clearTransactions());
     dispatch(clearCategories());
-    dispatch(clearAppDate());
+    dispatch(lockBase());
     dispatch(clearCurrencyData());
     navigate("/decrypt");
   };

@@ -2,7 +2,7 @@ import classNames from "classnames";
 import { FC, ReactNode } from "react";
 import { Link } from "react-router-dom";
 
-import { TButtonColor } from "../../../types/buttonType";
+import { TButtonColor } from ".";
 
 interface ButtonLinkProps {
   color?: TButtonColor;

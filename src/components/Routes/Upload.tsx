@@ -3,23 +3,22 @@ import dayjs from "dayjs";
 import { ChangeEvent, FC, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { bool, mixed, object, string, ValidationError } from "yup";
+import Swal from "sweetalert2";
 
 import { aesDecrypt } from "../../helper/crypto";
-import { errorAlert } from "../../helper/sweetalert";
 import { checkBaseIntegrity } from "../../helper/sync";
 import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
 import { setCategories } from "../../store/reducers/categorySlice";
 import { setAccounts } from "../../store/reducers/accountSlice";
 import { setTransactions } from "../../store/reducers/transactionSlice";
-import { logoutUser, setAesPass } from "../../store/reducers/userSlice";
 import Button from "../Generic/Button/Button";
 import FormField from "../Generic/Form/FormField";
 import { readFileContent } from "../../helper/file";
-import { setIsUnsaved } from "../../store/reducers/appSlice";
+import { setIsUnsaved, setPassword } from "../../store/reducers/appSlice";
 import { TCipher } from "../../types/cipher";
 
 const Upload: FC = () => {
-  const { api } = useAppSelector((state) => state.user);
+  const vaultUrl = useAppSelector((state) => state.app.vaultUrl);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
@@ -30,7 +29,7 @@ const Upload: FC = () => {
     )
   >();
 
-  type TForm = { aesKey: string };
+  type TForm = { password: string };
 
   const getPlainData = (values: TForm) => {
     if (!fileData) return;
@@ -39,13 +38,13 @@ const Upload: FC = () => {
 
     const plaintext = aesDecrypt(
       fileData.data.cipher,
-      values.aesKey,
+      values.password,
       fileData.data.iv,
       fileData.data.hmac,
       fileData.data.salt
     );
     if (!plaintext) {
-      errorAlert({ title: "Wrong password" });
+      Swal.fire({ title: "Wrong password", icon: "error" });
       return;
     }
 
@@ -58,14 +57,15 @@ const Upload: FC = () => {
 
     const validatedStatus = await checkBaseIntegrity(data);
     if (validatedStatus) {
-      errorAlert({
+      Swal.fire({
         title: "Validate Error",
         text: validatedStatus.error,
+        icon: "error",
       });
       return;
     }
 
-    dispatch(setAesPass(values.aesKey));
+    dispatch(setPassword(values.password));
     dispatch(setAccounts(data.accounts));
     dispatch(
       setTransactions({
@@ -79,17 +79,12 @@ const Upload: FC = () => {
   };
 
   const formik = useFormik({
-    initialValues: { aesKey: "" },
+    initialValues: { password: "" },
     onSubmit: submitForm,
-    validationSchema: object({ aesKey: string().required() }),
+    validationSchema: object({ password: string().required() }),
     validateOnChange: false,
     validateOnBlur: true,
   });
-
-  const logout = () => {
-    dispatch(logoutUser());
-    navigate("/login");
-  };
 
   const uploadBackup = (event: ChangeEvent<HTMLInputElement>) => {
     const input = event.target;
@@ -97,7 +92,7 @@ const Upload: FC = () => {
       readFileContent(input.files[0])
         .then(async (content) => {
           if (typeof content !== "string") {
-            errorAlert({ title: "Wrong Format" });
+            Swal.fire({ title: "Wrong Format", icon: "error" });
             return;
           }
 
@@ -114,14 +109,18 @@ const Upload: FC = () => {
             .catch((err: ValidationError) => err.message);
 
           if (error) {
-            errorAlert({ title: "File Opening Error", text: error });
+            Swal.fire({
+              title: "File Opening Error",
+              text: error,
+              icon: "error",
+            });
             return;
           }
 
           setFileData(data);
         })
         .catch(() => {
-          errorAlert({ title: "File Opening Error" });
+          Swal.fire({ title: "File Opening Error", icon: "error" });
         });
     }
   };
@@ -134,12 +133,7 @@ const Upload: FC = () => {
       <form onSubmit={formik.handleSubmit}>
         <div className="flex gap-3 mb-3">
           <div className="w-1/3">Server URL: </div>
-          <div className="w-2/3">{api?.url}</div>
-        </div>
-
-        <div className="flex gap-3 mb-3">
-          <div className="w-1/3">Username:</div>
-          <div className="w-2/3">{api?.username}</div>
+          <div className="w-2/3">{vaultUrl}</div>
         </div>
 
         <div className="flex gap-3 mb-3">
@@ -179,13 +173,13 @@ const Upload: FC = () => {
             </div>
 
             <FormField
-              label={fileData.is_encrypted ? "AES Key:" : "New AES Key"}
-              value={formik.values.aesKey}
-              name="aesKey"
+              label={fileData.is_encrypted ? "Password:" : "New Password"}
+              value={formik.values.password}
+              name="password"
               onChange={formik.handleChange}
               type="password"
-              onBlur={() => formik.validateField("aesKey")}
-              withError={Boolean(formik.errors.aesKey)}
+              onBlur={() => formik.validateField("password")}
+              withError={Boolean(formik.errors.password)}
             />
           </>
         )}
@@ -193,9 +187,6 @@ const Upload: FC = () => {
         <div className="mx-auto mt-8 flex justify-center gap-6">
           <Button type="submit" color="green" className="block">
             Open
-          </Button>
-          <Button type="button" color="red" className="block" onClick={logout}>
-            Logout
           </Button>
         </div>
       </form>

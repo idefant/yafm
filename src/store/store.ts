@@ -8,18 +8,16 @@ import categoryReducer from "./reducers/categorySlice";
 import currencyReducer from "./reducers/currencySlice";
 import accountReducer from "./reducers/accountSlice";
 import transactionReducer from "./reducers/transactionSlice";
-import userReducer from "./reducers/userSlice";
 
 const persistConfig = {
-  key: "user",
+  key: "app",
   storage,
-  whitelist: ["api"],
+  whitelist: ["vaultUrl", "isVersioningEnabled"],
 };
 
 export const rootReducer = combineReducers({
-  app: appReducer,
+  app: persistReducer(persistConfig, appReducer),
   currency: currencyReducer,
-  user: persistReducer(persistConfig, userReducer),
   account: accountReducer,
   transaction: transactionReducer,
   category: categoryReducer,

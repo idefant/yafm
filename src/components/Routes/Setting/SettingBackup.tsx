@@ -10,14 +10,14 @@ import Checkbox from "../../Generic/Form/Checkbox";
 import Button from "../../Generic/Button/Button";
 
 const SettingBackup: FC = () => {
-  const { aesPass } = useAppSelector((state) => state.user);
+  const password = useAppSelector((state) => state.app.password);
 
   type TForm = {
     useEncryption: boolean;
   };
 
   const downloadBackup = (values: TForm) => {
-    if (!aesPass) return;
+    if (!password) return;
 
     const data = getSyncData();
     const infoData = {
@@ -28,11 +28,11 @@ const SettingBackup: FC = () => {
     exportFile(
       JSON.stringify({
         data: values.useEncryption
-          ? aesEncrypt(JSON.stringify(data), aesPass)
+          ? aesEncrypt(JSON.stringify(data), password)
           : data,
         ...infoData,
       }),
-      values.useEncryption ? "backup-enc.yafm" : "backup-decr.yafm"
+      values.useEncryption ? "backup-enc.json" : "backup-decr.json"
     );
   };
 

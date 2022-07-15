@@ -1,18 +1,20 @@
 import { FC, useEffect } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
+import Swal from "sweetalert2";
 
-import { refreshToken } from "../helper/jwt";
+import { isValidUrl } from "../helper/url";
 import { useAppDispatch, useAppSelector } from "../hooks/reduxHooks";
+import { fetchVaultInfo } from "../store/actionCreators/appActionCreator";
 import {
   fetchFnG,
   fetchPrices,
 } from "../store/actionCreators/currencyActionCreator";
+import { setVaultUrl } from "../store/reducers/appSlice";
 import CabinetTemplate from "./Container/CabinetTemplate";
-import PreLoginTemplate from "./Container/PreLoginTemplate";
+import EntranceTemplate from "./Container/EntranceTemplate";
 import Accounts from "./Routes/Accounts";
 import Categories from "./Routes/Categories";
 import Decrypt from "./Routes/Decrypt";
-import Login from "./Routes/Login";
 import Main from "./Routes/Main";
 import Setting from "./Routes/Setting/Setting";
 import Templates from "./Routes/Templates";
@@ -23,40 +25,52 @@ import Versions from "./Routes/Versions";
 const App: FC = () => {
   const {
     currency: { prices },
-    user: { api, aesPass },
-    app: { isUnsaved },
+    app: { isUnsaved, password, vaultUrl, isVaultWorking },
   } = useAppSelector((state) => state);
   const dispatch = useAppDispatch();
-
-  useEffect(() => {
-    if (api) {
-      refreshToken(api);
-    }
-  }, [api]);
+  const defaultVaultUrl = process.env.REACT_APP_SERVER_URL;
 
   useEffect(() => {
     window.onbeforeunload = () => (isUnsaved ? false : undefined);
   }, [isUnsaved]);
 
   useEffect(() => {
-    if (aesPass && !prices) {
+    if (password && !prices) {
       dispatch(fetchPrices());
       dispatch(fetchFnG());
     }
-  }, [aesPass, dispatch, prices]);
+  }, [dispatch, prices, password]);
+
+  useEffect(() => {
+    if (isVaultWorking !== undefined) return;
+
+    dispatch(fetchVaultInfo(vaultUrl))
+      .unwrap()
+      .catch(() => {
+        Swal.fire({
+          title: "Unable to connect to vault",
+          text: "Check the operation of the vault and URL",
+          input: "text",
+          inputPlaceholder: defaultVaultUrl,
+          inputValue: vaultUrl,
+          confirmButtonText: "Check URL",
+          allowOutsideClick: false,
+          preConfirm: (url) => {
+            if (!isValidUrl(url)) {
+              Swal.showValidationMessage(`Wrong URL`);
+            } else {
+              dispatch(setVaultUrl(url));
+            }
+          },
+        });
+      });
+  }, [dispatch, vaultUrl, isVaultWorking, defaultVaultUrl]);
 
   return (
     <Routes>
-      {!api ? (
+      {!password ? (
         <>
-          <Route element={<PreLoginTemplate />}>
-            <Route path="/login" element={<Login />} />
-          </Route>
-          <Route path="*" element={<Navigate to="/login" />} />
-        </>
-      ) : !aesPass ? (
-        <>
-          <Route element={<PreLoginTemplate />}>
+          <Route element={<EntranceTemplate />}>
             <Route path="/decrypt/last" element={<Decrypt />} />
             <Route path="/decrypt/:versionId" element={<Decrypt />} />
             <Route path="/versions" element={<Versions />} />

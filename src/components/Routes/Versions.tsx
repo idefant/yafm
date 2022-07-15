@@ -1,75 +1,61 @@
 import { FC, useEffect, useState } from "react";
 import dayjs from "dayjs";
-import { Link } from "react-router-dom";
-import Swal from "sweetalert2";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+import { Link, Navigate } from "react-router-dom";
 
-import { DownloadIcon, TrashIcon, UnlockIcon } from "../../assets/svg";
+import { DownloadIcon, UnlockIcon } from "../../assets/svg";
 import { exportFile } from "../../helper/file";
 import {
-  deleteVersionByIdRequest,
-  getAllVersionsRequest,
-  getVersionByIdRequest,
+  getVersionListRequest,
+  getVersionByFilenameRequest,
 } from "../../helper/requests/versionRequests";
-import { useAppSelector } from "../../hooks/reduxHooks";
 import Table, { THead, TR, TH, TBody, TD, TDIcon } from "../Generic/Table";
+import { useAppSelector } from "../../hooks/reduxHooks";
+import ButtonLink from "../Generic/Button/ButtonLink";
 
-type TVersion = { id: number; createdAt: string };
+dayjs.extend(customParseFormat);
 
 const Versions: FC = () => {
-  const [versions, setVersions] = useState<TVersion[]>([]);
-
-  const api = useAppSelector((state) => state.user.api);
+  const { isVersioningEnabled, vaultUrl } = useAppSelector(
+    (state) => state.app
+  );
+  const [versions, setVersions] = useState<
+    { filename: string; date: string }[]
+  >([]);
 
   useEffect(() => {
-    if (!api) return;
-
     (async () => {
-      const response = await getAllVersionsRequest(api);
+      const response = await getVersionListRequest(vaultUrl);
       if (!response) return;
 
       setVersions(
-        response.data.map((version: { id: number; created_at: string }) => ({
-          ...version,
-          createdAt: dayjs(version.created_at).format("DD.MM.YYYY (HH:mm)"),
+        response.data.map((filename: string) => ({
+          filename,
+          date: dayjs(filename, "YYYYMMDD_HHmm.json").format(
+            "DD.MM.YYYY (HH:mm)"
+          ),
         }))
       );
     })();
-  }, [api]);
+  }, [vaultUrl]);
 
-  const downloadVersion = async (versionId: number) => {
-    if (!api) return;
-
-    const response = await getVersionByIdRequest(versionId, api);
+  const downloadVersion = async (filename: string) => {
+    const response = await getVersionByFilenameRequest(filename, vaultUrl);
     if (!response) return;
 
     exportFile(
       JSON.stringify({
-        cipher: response.data.cipher,
-        iv: response.data.iv,
-        hmac: response.data.hmac,
+        data: response.data,
+        created_at: dayjs(filename, "YYYYMMDD_HHmm.json").toISOString(),
+        is_encrypted: true,
       }),
       "backup-enc.yafm"
     );
   };
 
-  const deleteVersion = (deletedVersion: TVersion) => {
-    Swal.fire({
-      title: "Delete version",
-      icon: "error",
-      text: deletedVersion.createdAt,
-      showCancelButton: true,
-      cancelButtonText: "Cancel",
-      confirmButtonText: "Delete",
-    }).then((result) => {
-      if (result.isConfirmed && api) {
-        const response = deleteVersionByIdRequest(deletedVersion.id, api);
-        if (!response) return;
-        setVersions(
-          versions.filter((version) => version.id !== deletedVersion.id)
-        );
-      }
-    });
-  };
+  if (!isVersioningEnabled) {
+    return <Navigate to="/decrypt" />;
+  }
 
   return (
     <div>
@@ -77,43 +63,46 @@ const Versions: FC = () => {
         Versions
       </h1>
 
-      <Table className="w-full">
-        <THead>
-          <TR>
-            <TH>ID</TH>
-            <TH>Date</TH>
-            <TH></TH>
-            <TH></TH>
-            <TH></TH>
-          </TR>
-        </THead>
-        <TBody>
-          {versions.map((version) => (
-            <TR key={version.id}>
-              <TD>{version.id}</TD>
-              <TD>{version.createdAt}</TD>
-              <TDIcon>
-                <Link to={`/decrypt/${version.id}`}>
-                  <UnlockIcon className="w-7 h-7" />
-                </Link>
-              </TDIcon>
-              <TDIcon>
-                <button
-                  className="p-2"
-                  onClick={() => downloadVersion(version.id)}
-                >
-                  <DownloadIcon className="w-7 h-7" />
-                </button>
-              </TDIcon>
-              <TDIcon>
-                <button className="p-2" onClick={() => deleteVersion(version)}>
-                  <TrashIcon className="w-7 h-7" />
-                </button>
-              </TDIcon>
+      {versions.length === 0 ? (
+        <div className="text-center">
+          <div className="font-sans text-3xl my-10">¯\_(ツ)_/¯</div>
+          <ButtonLink to="/decrypt/last" color="gray">
+            Back
+          </ButtonLink>
+        </div>
+      ) : (
+        <Table className="w-full">
+          <THead>
+            <TR>
+              <TH>ID</TH>
+              <TH>Date</TH>
+              <TH></TH>
+              <TH></TH>
             </TR>
-          ))}
-        </TBody>
-      </Table>
+          </THead>
+          <TBody>
+            {versions.map((version, i) => (
+              <TR key={i}>
+                <TD>{i + 1}</TD>
+                <TD>{version.date}</TD>
+                <TDIcon>
+                  <Link to={`/decrypt/${version.filename}`}>
+                    <UnlockIcon className="w-7 h-7" />
+                  </Link>
+                </TDIcon>
+                <TDIcon>
+                  <button
+                    className="p-2"
+                    onClick={() => downloadVersion(version.filename)}
+                  >
+                    <DownloadIcon className="w-7 h-7" />
+                  </button>
+                </TDIcon>
+              </TR>
+            ))}
+          </TBody>
+        </Table>
+      )}
     </div>
   );
 };

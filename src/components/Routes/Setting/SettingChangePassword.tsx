@@ -6,10 +6,10 @@ import { object, string } from "yup";
 import FormField from "../../Generic/Form/FormField";
 import Button from "../../Generic/Button/Button";
 import { useAppDispatch, useAppSelector } from "../../../hooks/reduxHooks";
-import { setAesPass } from "../../../store/reducers/userSlice";
+import { setPassword } from "../../../store/reducers/appSlice";
 
 const SettingChangePassword: FC = () => {
-  const { aesPass } = useAppSelector((state) => state.user);
+  const password = useAppSelector((state) => state.app.password);
   const dispatch = useAppDispatch();
 
   type TForm = {
@@ -19,7 +19,7 @@ const SettingChangePassword: FC = () => {
   };
 
   const changePassword = (values: TForm) => {
-    if (values.oldPassword !== aesPass) {
+    if (values.oldPassword !== password) {
       Swal.fire({ title: "Wrong password", icon: "error" });
       return;
     }
@@ -28,7 +28,7 @@ const SettingChangePassword: FC = () => {
       return;
     }
 
-    dispatch(setAesPass(values.newPassword));
+    dispatch(setPassword(values.newPassword));
     Swal.fire({ title: "Password changed successfully", icon: "success" });
     formik.resetForm();
   };

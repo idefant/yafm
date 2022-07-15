@@ -20,7 +20,7 @@ export type TTransactionType = "income" | "outcome" | "exchange";
 export const transactionTypes = ["income", "outcome", "exchange"];
 
 export const checkNeedIncome = (transactionType: TTransactionType) =>
-  transactionType === "income" || transactionType === "exchange";
+  ["income", "exchange"].includes(transactionType);
 
 export const checkNeedOutcome = (transactionType: TTransactionType) =>
-  transactionType === "outcome" || transactionType === "exchange";
+  ["outcome", "exchange"].includes(transactionType);
