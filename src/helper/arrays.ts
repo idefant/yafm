@@ -1,13 +1,17 @@
-export const sum = <T>(arr: T[], callbackfn: (value: T) => number) =>
-  arr.reduce((acc, value) => acc + callbackfn(value), 0);
+/* eslint-disable no-unused-vars, no-param-reassign */
+export const sum = <T>(arr: T[], callbackfn: (value: T) => number) => (
+  arr.reduce((acc, value) => acc + callbackfn(value), 0)
+);
+
+type TGroupSumResult = { [key: string]: number };
 
 export const groupSum = <T>(
   arr: T[],
-  callbackfn: (value: T) => { key: string; num: number }
-) => {
-  return arr.reduce((acc: { [key: string]: number }, value: T) => {
-    const { key, num } = callbackfn(value);
-    acc[key] = (key in acc ? acc[key] : 0) + num;
-    return acc;
-  }, {});
-};
+  callbackfn: (value: T) => { key: string; num: number },
+): TGroupSumResult => (
+    arr.reduce((acc: TGroupSumResult, value: T) => {
+      const { key, num } = callbackfn(value);
+      acc[key] = (key in acc ? acc[key] : 0) + num;
+      return acc;
+    }, {})
+  );

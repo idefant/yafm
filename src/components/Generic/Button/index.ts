@@ -1,1 +1,1 @@
-export type TButtonColor = "green" | "red" | "gray" | "white" | "yellow";
+export type TButtonColor = 'green' | 'red' | 'gray' | 'white' | 'yellow';

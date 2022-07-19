@@ -1,22 +1,15 @@
-import { FC } from "react";
-import { useFormik } from "formik";
-import { boolean, object, string } from "yup";
+import { useFormik } from 'formik';
+import { FC } from 'react';
+import { boolean, object, string } from 'yup';
 
-import Modal, {
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-} from "../Generic/Modal";
-import { TCategory, TCategoryType } from "../../types/categoryType";
-import {
-  createCategory,
-  editCategory,
-} from "../../store/reducers/categorySlice";
-import Button from "../Generic/Button/Button";
-import Checkbox from "../Generic/Form/Checkbox";
-import FormField from "../Generic/Form/FormField";
-import { useAppDispatch } from "../../hooks/reduxHooks";
-import { setIsUnsaved } from "../../store/reducers/appSlice";
+import { useAppDispatch } from '../../hooks/reduxHooks';
+import { setIsUnsaved } from '../../store/reducers/appSlice';
+import { createCategory, editCategory } from '../../store/reducers/categorySlice';
+import { TCategory, TCategoryType } from '../../types/categoryType';
+import Button from '../Generic/Button/Button';
+import Checkbox from '../Generic/Form/Checkbox';
+import FormField from '../Generic/Form/FormField';
+import Modal, { ModalContent, ModalFooter, ModalHeader } from '../Generic/Modal';
 
 interface SetCategoryProps {
   isOpen: boolean;
@@ -49,7 +42,7 @@ const SetCategory: FC<SetCategoryProps> = ({
         editCategory({
           updatedCategory: { ...category, ...categoryData },
           categoryType,
-        })
+        }),
       );
     }
     dispatch(setIsUnsaved(true));
@@ -58,7 +51,7 @@ const SetCategory: FC<SetCategoryProps> = ({
 
   const formik = useFormik({
     initialValues: {
-      name: "",
+      name: '',
       isHide: false,
       isArchive: false,
     },
@@ -74,7 +67,7 @@ const SetCategory: FC<SetCategoryProps> = ({
 
   const onEnter = () => {
     formik.setValues({
-      name: category?.name || "",
+      name: category?.name || '',
       isArchive: category?.is_archive || false,
       isHide: category?.is_hide || false,
     });
@@ -93,7 +86,7 @@ const SetCategory: FC<SetCategoryProps> = ({
       onSubmit={formik.handleSubmit}
     >
       <ModalHeader close={close}>
-        {category ? "Edit Category" : "Create Category"}
+        {category ? 'Edit Category' : 'Create Category'}
       </ModalHeader>
       <ModalContent>
         <FormField
@@ -101,7 +94,7 @@ const SetCategory: FC<SetCategoryProps> = ({
           name="name"
           value={formik.values.name}
           onChange={formik.handleChange}
-          onBlur={() => formik.validateField("name")}
+          onBlur={() => formik.validateField('name')}
           withError={Boolean(formik.errors.name)}
         />
 

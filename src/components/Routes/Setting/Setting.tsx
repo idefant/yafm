@@ -1,17 +1,16 @@
-import { FC } from "react";
+import { FC } from 'react';
 
-import { Title } from "../../Generic/Title";
-import SettingChangePassword from "./SettingChangePassword";
-import SettingBackup from "./SettingBackup";
+import { Title } from '../../Generic/Title';
 
-const Setting: FC = () => {
-  return (
-    <>
-      <Title>Setting</Title>
-      <SettingChangePassword />
-      <SettingBackup />
-    </>
-  );
-};
+import SettingBackup from './SettingBackup';
+import SettingChangePassword from './SettingChangePassword';
+
+const Setting: FC = () => (
+  <>
+    <Title>Setting</Title>
+    <SettingChangePassword />
+    <SettingBackup />
+  </>
+);
 
 export default Setting;

@@ -1,6 +1,6 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { fetchVaultInfo } from "../actionCreators/appActionCreator";
+import { fetchVaultInfo } from '../actionCreators/appActionCreator';
 
 type AppState = {
   safeMode: boolean;
@@ -16,12 +16,12 @@ const initialState: AppState = {
   safeMode: true,
   archiveMode: false,
   isUnsaved: false,
-  vaultUrl: process.env.REACT_APP_DEFAULT_VAULT_URL || "",
+  vaultUrl: process.env.REACT_APP_DEFAULT_VAULT_URL || '',
   isVersioningEnabled: false,
 };
 
 export const appSlice = createSlice({
-  name: "app",
+  name: 'app',
   initialState,
   reducers: {
     setSafeMode(state, { payload: safeMode }: PayloadAction<boolean>) {
@@ -45,7 +45,7 @@ export const appSlice = createSlice({
   extraReducers: {
     [fetchVaultInfo.fulfilled.type]: (
       state,
-      { payload: isVersioningEnabled }: PayloadAction<boolean>
+      { payload: isVersioningEnabled }: PayloadAction<boolean>,
     ) => {
       state.isVersioningEnabled = isVersioningEnabled;
       state.isVaultWorking = true;

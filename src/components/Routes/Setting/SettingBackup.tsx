@@ -1,13 +1,13 @@
-import { FC } from "react";
-import { useFormik } from "formik";
-import dayjs from "dayjs";
+import dayjs from 'dayjs';
+import { useFormik } from 'formik';
+import { FC } from 'react';
 
-import { exportFile } from "../../../helper/file";
-import { aesEncrypt } from "../../../helper/crypto";
-import { getSyncData } from "../../../helper/sync";
-import { useAppSelector } from "../../../hooks/reduxHooks";
-import Checkbox from "../../Generic/Form/Checkbox";
-import Button from "../../Generic/Button/Button";
+import { aesEncrypt } from '../../../helper/crypto';
+import { exportFile } from '../../../helper/file';
+import { getSyncData } from '../../../helper/sync';
+import { useAppSelector } from '../../../hooks/reduxHooks';
+import Button from '../../Generic/Button/Button';
+import Checkbox from '../../Generic/Form/Checkbox';
 
 const SettingBackup: FC = () => {
   const password = useAppSelector((state) => state.app.password);
@@ -27,12 +27,12 @@ const SettingBackup: FC = () => {
 
     exportFile(
       JSON.stringify({
+        ...infoData,
         data: values.useEncryption
           ? aesEncrypt(JSON.stringify(data), password)
           : data,
-        ...infoData,
       }),
-      values.useEncryption ? "backup-enc.json" : "backup-decr.json"
+      values.useEncryption ? 'backup-enc.json' : 'backup-decr.json',
     );
   };
 

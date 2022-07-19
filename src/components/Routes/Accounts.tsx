@@ -1,29 +1,35 @@
-import { FC, Fragment, useMemo, useState } from "react";
-import Swal from "sweetalert2";
 import {
   Chart as ChartJS,
   ArcElement,
   Tooltip,
   Legend,
   ChartData,
-} from "chart.js";
-import { Pie } from "react-chartjs-2";
+} from 'chart.js';
+import {
+  FC, Fragment, useMemo, useState,
+} from 'react';
+import { Pie } from 'react-chartjs-2';
+import Swal from 'sweetalert2';
 
-import SetAccount from "../Account/SetAccount";
-import { ArchiveIcon, LockIcon, PencilIcon, TrashIcon } from "../../assets/svg";
-import Button from "../Generic/Button/Button";
-import Table, { TBody, TD, TDIcon, TH, THead, TR } from "../Generic/Table";
-import { convertPrice, getCurrencyValue } from "../../helper/currencies";
-import { TAccount, TCalculatedAccount } from "../../types/accountType";
-import { groupSum, sum } from "../../helper/arrays";
-import { Title } from "../Generic/Title";
-import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
+import {
+  ArchiveIcon, LockIcon, PencilIcon, TrashIcon,
+} from '../../assets/svg';
+import { groupSum, sum } from '../../helper/arrays';
+import { convertPrice, getCurrencyValue } from '../../helper/currencies';
+import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
+import { deleteAccount } from '../../store/reducers/accountSlice';
+import { setIsUnsaved } from '../../store/reducers/appSlice';
 import {
   selectCurrencyDict,
   selectFilteredAccounts,
-} from "../../store/selectors";
-import { deleteAccount } from "../../store/reducers/accountSlice";
-import { setIsUnsaved } from "../../store/reducers/appSlice";
+} from '../../store/selectors';
+import { TAccount, TCalculatedAccount } from '../../types/accountType';
+import SetAccount from '../Account/SetAccount';
+import Button from '../Generic/Button/Button';
+import Table, {
+  TBody, TD, TDIcon, TH, THead, TR,
+} from '../Generic/Table';
+import { Title } from '../Generic/Title';
 
 const Accounts: FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -35,20 +41,17 @@ const Accounts: FC = () => {
   } = useAppSelector((state) => state);
   const accounts = useAppSelector(selectFilteredAccounts);
 
-  const baseCurrencyCode = "btc";
+  const baseCurrencyCode = 'btc';
 
   const accountDict = accounts.reduce(
     (dict: { [key: string]: TCalculatedAccount[] }, account) => {
-      const categoryId = account.category_id || "";
-
-      if (!(categoryId in dict)) {
-        dict[categoryId] = [];
-      }
+      const categoryId = account.category_id || '';
+      // eslint-disable-next-line no-param-reassign
+      if (!(categoryId in dict)) dict[categoryId] = [];
       dict[categoryId].push(account);
-
       return dict;
     },
-    {}
+    {},
   );
 
   const [openedAccount, setOpenedAccount] = useState<TAccount>();
@@ -71,7 +74,7 @@ const Accounts: FC = () => {
         idealBalance: convertPrice(
           currency.code.toLowerCase(),
           baseCurrencyCode,
-          currencySum[currency.code]
+          currencySum[currency.code],
         ),
       }))
       .filter((account) => account.balance);
@@ -79,11 +82,11 @@ const Accounts: FC = () => {
 
   const currencyBalancesSum = useMemo(
     () => sum(currencyBalances, (elem) => elem.idealBalance),
-    [currencyBalances]
+    [currencyBalances],
   );
 
   const accountsWithoutCategory = accounts.filter(
-    (account) => !account.category_id
+    (account) => !account.category_id,
   );
 
   const accountWithCategory = categories
@@ -91,13 +94,13 @@ const Accounts: FC = () => {
     .map((category) => ({
       ...category,
       accounts: accountDict[category.id].sort(
-        (a, b) => +(a.is_archive || false) - +(b.is_archive || false)
+        (a, b) => +(a.is_archive || false) - +(b.is_archive || false),
       ),
     }));
 
   ChartJS.register(ArcElement, Tooltip, Legend);
 
-  const data: ChartData<"pie", number[], string> = useMemo(
+  const data: ChartData<'pie', number[], string> = useMemo(
     () => ({
       labels: currencyBalances.map((currency) => currency.code),
       datasets: [
@@ -107,7 +110,7 @@ const Accounts: FC = () => {
         },
       ],
     }),
-    [currencyBalances]
+    [currencyBalances],
   );
 
   return (
@@ -134,18 +137,12 @@ const Accounts: FC = () => {
                     <TD>{currency.name}</TD>
                     <TD>
                       <div className="text-right">
-                        {getCurrencyValue(
-                          currency.balance,
-                          currency.decimal_places_number
-                        )}
+                        {getCurrencyValue(currency.balance, currency.decimal_places_number)}
                         <span className="pl-3">{currency.code}</span>
                       </div>
                     </TD>
                     <TD>
-                      {(
-                        (currency.idealBalance / currencyBalancesSum) *
-                        100
-                      ).toFixed(2)}
+                      {((currency.idealBalance / currencyBalancesSum) * 100).toFixed(2)}
                       %
                     </TD>
                   </TR>
@@ -174,9 +171,9 @@ const Accounts: FC = () => {
                           convertPrice(
                             baseCurrencyCode,
                             currency.code.toLowerCase(),
-                            currencyBalancesSum
+                            currencyBalancesSum,
                           ),
-                          currency.decimal_places_number
+                          currency.decimal_places_number,
                         )}
                         <span className="pl-3">{currency.code}</span>
                       </div>
@@ -194,10 +191,10 @@ const Accounts: FC = () => {
               <TR>
                 <TH>Name</TH>
                 <TH>Balance</TH>
-                {!safeMode && <TH></TH>}
-                <TH></TH>
-                <TH></TH>
-                <TH></TH>
+                {!safeMode && <TH />}
+                <TH />
+                <TH />
+                <TH />
               </TR>
             </THead>
             <TBody>
@@ -261,44 +258,34 @@ const AccountItem: FC<AccountItemProps> = ({ account, openModal }) => {
 
   const accountCurrency = currencyDict[account.currency_code];
 
-  const checkAccountIsUsed = () => {
-    for (const transaction of transactions) {
-      if (
-        transaction.income?.account_id === account.id ||
-        transaction.outcome?.account_id === account.id
-      )
-        return true;
-    }
-    for (const template of templates) {
-      if (
-        template.income?.account_id === account.id ||
-        template.outcome?.account_id === account.id
-      )
-        return true;
-    }
-    return false;
-  };
+  const checkAccountIsUsed = () => (
+    [...transactions, ...templates].some(
+      ({ income, outcome }) => [income?.account_id, outcome?.account_id].includes(account.id),
+    )
+  );
 
   const confirmDelete = () => {
-    checkAccountIsUsed()
-      ? Swal.fire({
-          title: "Unable to delete account",
-          text: "There are transactions or templates using this account",
-          icon: "error",
-        })
-      : Swal.fire({
-          title: "Delete account",
-          icon: "error",
-          text: account.name,
-          showCancelButton: true,
-          cancelButtonText: "Cancel",
-          confirmButtonText: "Delete",
-        }).then((result) => {
-          if (result.isConfirmed) {
-            dispatch(deleteAccount(account.id));
-            dispatch(setIsUnsaved(true));
-          }
-        });
+    if (checkAccountIsUsed()) {
+      Swal.fire({
+        title: 'Unable to delete account',
+        text: 'There are transactions or templates using this account',
+        icon: 'error',
+      });
+    } else {
+      Swal.fire({
+        title: 'Delete account',
+        icon: 'error',
+        text: account.name,
+        showCancelButton: true,
+        cancelButtonText: 'Cancel',
+        confirmButtonText: 'Delete',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          dispatch(deleteAccount(account.id));
+          dispatch(setIsUnsaved(true));
+        }
+      });
+    }
   };
 
   return (
@@ -307,19 +294,19 @@ const AccountItem: FC<AccountItemProps> = ({ account, openModal }) => {
       <TD className="text-right">
         {getCurrencyValue(
           account.balance,
-          accountCurrency.decimal_places_number
+          accountCurrency.decimal_places_number,
         )}
         <span className="pl-3">{accountCurrency.code}</span>
       </TD>
       {!safeMode && <TD>{account.is_hide && <LockIcon />}</TD>}
       <TD>{account.is_archive && <ArchiveIcon />}</TD>
       <TDIcon>
-        <button className="p-2" onClick={openModal}>
+        <button className="p-2" onClick={openModal} type="button">
           <PencilIcon className="w-7 h-7" />
         </button>
       </TDIcon>
       <TDIcon>
-        <button className="p-2" onClick={confirmDelete}>
+        <button className="p-2" onClick={confirmDelete} type="button">
           <TrashIcon className="w-7 h-7" />
         </button>
       </TDIcon>

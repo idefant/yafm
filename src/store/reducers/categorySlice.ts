@@ -1,7 +1,7 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { genId } from "../../helper/random";
-import { TCategory, TCategoryType } from "../../types/categoryType";
+import { genId } from '../../helper/random';
+import { TCategory, TCategoryType } from '../../types/categoryType';
 
 type CategoryState = {
   accounts: TCategory[];
@@ -14,7 +14,7 @@ const initialState: CategoryState = {
 };
 
 export const categorySlice = createSlice({
-  name: "category",
+  name: 'category',
   initialState,
   reducers: {
     setCategories(
@@ -24,7 +24,7 @@ export const categorySlice = createSlice({
       }: PayloadAction<{
         accounts: TCategory[];
         transactions: TCategory[];
-      }>
+      }>,
     ) {
       state.accounts = accounts;
       state.transactions = transactions;
@@ -35,9 +35,9 @@ export const categorySlice = createSlice({
       {
         payload: { category, categoryType },
       }: PayloadAction<{
-        category: Omit<TCategory, "id">;
+        category: Omit<TCategory, 'id'>;
         categoryType: TCategoryType;
-      }>
+      }>,
     ) {
       state[categoryType].push({ id: genId(), ...category });
     },
@@ -48,10 +48,10 @@ export const categorySlice = createSlice({
       }: PayloadAction<{
         updatedCategory: TCategory;
         categoryType: TCategoryType;
-      }>
+      }>,
     ) {
       const index = state[categoryType].findIndex(
-        (category) => category.id === updatedCategory.id
+        (category) => category.id === updatedCategory.id,
       );
       if (index !== -1) {
         state[categoryType][index] = updatedCategory;
@@ -61,10 +61,10 @@ export const categorySlice = createSlice({
       state,
       {
         payload: { id, categoryType },
-      }: PayloadAction<{ id: string; categoryType: TCategoryType }>
+      }: PayloadAction<{ id: string; categoryType: TCategoryType }>,
     ) {
       state[categoryType] = state[categoryType].filter(
-        (account) => account.id !== id
+        (account) => account.id !== id,
       );
     },
   },

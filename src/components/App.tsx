@@ -1,31 +1,34 @@
-import { FC, useEffect } from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
-import Swal from "sweetalert2";
+import { FC, useEffect } from 'react';
+import { Navigate, Route, Routes } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
-import { isValidUrl } from "../helper/url";
-import { useAppDispatch, useAppSelector } from "../hooks/reduxHooks";
-import { fetchVaultInfo } from "../store/actionCreators/appActionCreator";
+import { isValidUrl } from '../helper/url';
+import { useAppDispatch, useAppSelector } from '../hooks/reduxHooks';
+import { fetchVaultInfo } from '../store/actionCreators/appActionCreator';
 import {
   fetchFnG,
   fetchPrices,
-} from "../store/actionCreators/currencyActionCreator";
-import { setVaultUrl } from "../store/reducers/appSlice";
-import CabinetTemplate from "./Container/CabinetTemplate";
-import EntranceTemplate from "./Container/EntranceTemplate";
-import Accounts from "./Routes/Accounts";
-import Categories from "./Routes/Categories";
-import Decrypt from "./Routes/Decrypt";
-import Main from "./Routes/Main";
-import Setting from "./Routes/Setting/Setting";
-import Templates from "./Routes/Templates";
-import Transactions from "./Routes/Transactions";
-import Upload from "./Routes/Upload";
-import Versions from "./Routes/Versions";
+} from '../store/actionCreators/currencyActionCreator';
+import { setVaultUrl } from '../store/reducers/appSlice';
+
+import CabinetTemplate from './Container/CabinetTemplate';
+import EntranceTemplate from './Container/EntranceTemplate';
+import Accounts from './Routes/Accounts';
+import Categories from './Routes/Categories';
+import Decrypt from './Routes/Decrypt';
+import Main from './Routes/Main';
+import Setting from './Routes/Setting/Setting';
+import Templates from './Routes/Templates';
+import Transactions from './Routes/Transactions';
+import Upload from './Routes/Upload';
+import Versions from './Routes/Versions';
 
 const App: FC = () => {
   const {
     currency: { prices },
-    app: { isUnsaved, password, vaultUrl, isVaultWorking },
+    app: {
+      isUnsaved, password, vaultUrl, isVaultWorking,
+    },
   } = useAppSelector((state) => state);
   const dispatch = useAppDispatch();
   const defaultVaultUrl = process.env.REACT_APP_SERVER_URL;
@@ -48,16 +51,16 @@ const App: FC = () => {
       .unwrap()
       .catch(() => {
         Swal.fire({
-          title: "Unable to connect to vault",
-          text: "Check the operation of the vault and URL",
-          input: "text",
+          title: 'Unable to connect to vault',
+          text: 'Check the operation of the vault and URL',
+          input: 'text',
           inputPlaceholder: defaultVaultUrl,
           inputValue: vaultUrl,
-          confirmButtonText: "Check URL",
+          confirmButtonText: 'Check URL',
           allowOutsideClick: false,
           preConfirm: (url) => {
             if (!isValidUrl(url)) {
-              Swal.showValidationMessage(`Wrong URL`);
+              Swal.showValidationMessage('Wrong URL');
             } else {
               dispatch(setVaultUrl(url));
             }

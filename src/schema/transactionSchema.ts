@@ -1,11 +1,11 @@
-import { object, string, number } from "yup";
+import { object, string, number } from 'yup';
 
 import {
   checkNeedIncome,
   checkNeedOutcome,
   transactionTypes,
   TTransactionType,
-} from "../types/transactionType";
+} from '../types/transactionType';
 
 export const transferSchema = object({
   account_id: string().required(),
@@ -18,11 +18,11 @@ export const transactionSchema = object().shape({
   description: string(),
   datetime: number().required().integer(),
   type: string().required().oneOf(transactionTypes),
-  income: transferSchema.when("type", {
+  income: transferSchema.when('type', {
     is: (value: TTransactionType) => checkNeedIncome(value),
     otherwise: (schema) => schema.default(undefined),
   }),
-  outcome: transferSchema.when("type", {
+  outcome: transferSchema.when('type', {
     is: (value: TTransactionType) => checkNeedOutcome(value),
     otherwise: (schema) => schema.default(undefined),
   }),
@@ -34,11 +34,11 @@ export const templateSchema = object().shape({
   name: string(),
   description: string(),
   type: string().required().oneOf(transactionTypes),
-  income: transferSchema.when("type", {
+  income: transferSchema.when('type', {
     is: (value: TTransactionType) => checkNeedIncome(value),
     otherwise: (schema) => schema.default(undefined),
   }),
-  outcome: transferSchema.when("type", {
+  outcome: transferSchema.when('type', {
     is: (value: TTransactionType) => checkNeedOutcome(value),
     otherwise: (schema) => schema.default(undefined),
   }),

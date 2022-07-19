@@ -1,39 +1,32 @@
-import { useFormik } from "formik";
-import dayjs from "dayjs";
-import { FC, useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { object, string } from "yup";
-import Swal from "sweetalert2";
+import dayjs from 'dayjs';
+import { useFormik } from 'formik';
+import { FC, useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import Swal from 'sweetalert2';
+import { object, string } from 'yup';
 
-import { aesDecrypt } from "../../helper/crypto";
-import {
-  getBaseRequest,
-  getVersionByFilenameRequest,
-} from "../../helper/requests/versionRequests";
-import { checkBaseIntegrity } from "../../helper/sync";
-import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
-import { setCategories } from "../../store/reducers/categorySlice";
-import { setAccounts } from "../../store/reducers/accountSlice";
-import { setTransactions } from "../../store/reducers/transactionSlice";
-import { TCipher } from "../../types/cipher";
-import Button from "../Generic/Button/Button";
-import FormField from "../Generic/Form/FormField";
-import Details from "../Generic/Details";
-import ButtonLink from "../Generic/Button/ButtonLink";
-import { setPassword, setVaultUrl } from "../../store/reducers/appSlice";
-import { isValidUrl } from "../../helper/url";
+import { aesDecrypt } from '../../helper/crypto';
+import { getBaseRequest, getVersionByFilenameRequest } from '../../helper/requests/versionRequests';
+import { checkBaseIntegrity } from '../../helper/sync';
+import { isValidUrl } from '../../helper/url';
+import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
+import { setAccounts } from '../../store/reducers/accountSlice';
+import { setPassword, setVaultUrl } from '../../store/reducers/appSlice';
+import { setCategories } from '../../store/reducers/categorySlice';
+import { setTransactions } from '../../store/reducers/transactionSlice';
+import { TCipher } from '../../types/cipher';
+import Button from '../Generic/Button/Button';
+import ButtonLink from '../Generic/Button/ButtonLink';
+import Details from '../Generic/Details';
+import FormField from '../Generic/Form/FormField';
 
 const Decrypt: FC = () => {
-  const { vaultUrl, isVaultWorking, isVersioningEnabled } = useAppSelector(
-    (state) => state.app
-  );
+  const { vaultUrl, isVaultWorking, isVersioningEnabled } = useAppSelector((state) => state.app);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const defaultVaultUrl = process.env.REACT_APP_SERVER_URL;
 
-  const [cipherData, setCipherData] = useState<
-    TCipher & { created_at: string }
-  >();
+  const [cipherData, setCipherData] = useState<TCipher & { created_at: string }>();
 
   const [isNew, setIsNew] = useState<boolean>();
   const { versionId } = useParams();
@@ -70,7 +63,7 @@ const Decrypt: FC = () => {
         values.password,
         cipherData.iv,
         cipherData.hmac,
-        cipherData.salt
+        cipherData.salt,
       );
 
       if (plaintext) {
@@ -78,9 +71,9 @@ const Decrypt: FC = () => {
         const validatedStatus = await checkBaseIntegrity(data);
         if (validatedStatus) {
           Swal.fire({
-            title: "Validate Error",
+            title: 'Validate Error',
             text: validatedStatus.error,
-            icon: "error",
+            icon: 'error',
           });
           return;
         }
@@ -91,28 +84,28 @@ const Decrypt: FC = () => {
           setTransactions({
             transactions: data.transactions,
             templates: data.templates,
-          })
+          }),
         );
         dispatch(setCategories(data.categories));
 
-        navigate("/");
+        navigate('/');
       } else {
-        Swal.fire({ title: "Wrong password", icon: "error" });
+        Swal.fire({ title: 'Wrong password', icon: 'error' });
       }
     }
   };
 
   const changeVaultUrl = () => {
     Swal.fire({
-      title: "Vault URL Config",
-      input: "text",
+      title: 'Vault URL Config',
+      input: 'text',
       inputPlaceholder: defaultVaultUrl,
       inputValue: vaultUrl,
-      confirmButtonText: "Check URL",
+      confirmButtonText: 'Check URL',
       showCancelButton: true,
       preConfirm: (url) => {
         if (!isValidUrl(url)) {
-          Swal.showValidationMessage(`Wrong URL`);
+          Swal.showValidationMessage('Wrong URL');
         } else {
           dispatch(setVaultUrl(url));
           setIsNew(undefined);
@@ -122,7 +115,7 @@ const Decrypt: FC = () => {
   };
 
   const formik = useFormik({
-    initialValues: { password: "" },
+    initialValues: { password: '' },
     onSubmit: submitForm,
     validationSchema: object({ password: string().required() }),
     validateOnChange: false,
@@ -134,7 +127,7 @@ const Decrypt: FC = () => {
   ) : (
     <>
       <h1 className="text-3xl font-bold underline text-center mb-7">
-        {isNew ? "Create Base" : "Decrypt Base"}
+        {isNew ? 'Create Base' : 'Decrypt Base'}
       </h1>
       <form onSubmit={formik.handleSubmit}>
         <div className="flex gap-3 mb-3">
@@ -147,19 +140,19 @@ const Decrypt: FC = () => {
             <div className="w-1/3">Version:</div>
             <div className="w-2/3 flex gap-x-4 gap-y-1.5 flex-wrap items-center">
               {versionId
-                ? dayjs(cipherData?.created_at).format("DD.MM.YYYY (HH:mm)")
-                : "Last"}
+                ? dayjs(cipherData?.created_at).format('DD.MM.YYYY (HH:mm)')
+                : 'Last'}
             </div>
           </div>
         )}
 
         <FormField
-          label={isNew ? "New Password:" : "Password:"}
+          label={isNew ? 'New Password:' : 'Password:'}
           value={formik.values.password}
           name="password"
           onChange={formik.handleChange}
           type="password"
-          onBlur={() => formik.validateField("password")}
+          onBlur={() => formik.validateField('password')}
           withError={Boolean(formik.errors.password)}
         />
 
@@ -194,7 +187,7 @@ const Decrypt: FC = () => {
 
         <div className="mx-auto mt-8 flex justify-center gap-6">
           <Button type="submit" color="green" className="block">
-            {isNew ? "Create new Base" : "Decrypt"}
+            {isNew ? 'Create new Base' : 'Decrypt'}
           </Button>
         </div>
       </form>

@@ -1,4 +1,3 @@
-import { AxiosError } from "axios";
+import { AxiosError } from 'axios';
 
-export const getErrorMessage = (error: AxiosError<any>) =>
-  error.response?.data.message || "Неизвестная ошибка";
+export const getErrorMessage = (error: AxiosError<any>) => error.response?.data.message || 'Неизвестная ошибка';

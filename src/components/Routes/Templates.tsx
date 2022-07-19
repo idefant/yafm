@@ -1,6 +1,6 @@
-import { FC, useState } from "react";
-import Swal from "sweetalert2";
-import ReactTooltip from "react-tooltip";
+import { FC, useState } from 'react';
+import ReactTooltip from 'react-tooltip';
+import Swal from 'sweetalert2';
 
 import {
   InfoIcon,
@@ -9,22 +9,24 @@ import {
   PlusIcon,
   RepeatIcon,
   TrashIcon,
-} from "../../assets/svg";
-import Table, { TBody, TD, TDIcon, TH, THead, TR } from "../Generic/Table";
-import { getCurrencyValue } from "../../helper/currencies";
-import { TTemplate, TTransactionType } from "../../types/transactionType";
-import ActionButton from "../Generic/Button/ActionButton";
-import SetTemplate from "../Template/SetTemplate";
-import { Title } from "../Generic/Title";
+} from '../../assets/svg';
+import { getCurrencyValue } from '../../helper/currencies';
+import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
+import { setIsUnsaved } from '../../store/reducers/appSlice';
+import { deleteTemplate } from '../../store/reducers/transactionSlice';
 import {
   selectAccountDict,
   selectCurrencyDict,
   selectFilteredTemplates,
   selectTransactionCategoryDict,
-} from "../../store/selectors";
-import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
-import { deleteTemplate } from "../../store/reducers/transactionSlice";
-import { setIsUnsaved } from "../../store/reducers/appSlice";
+} from '../../store/selectors';
+import { TTemplate, TTransactionType } from '../../types/transactionType';
+import ActionButton from '../Generic/Button/ActionButton';
+import Table, {
+  TBody, TD, TDIcon, TH, THead, TR,
+} from '../Generic/Table';
+import { Title } from '../Generic/Title';
+import SetTemplate from '../Template/SetTemplate';
 
 const Templates: FC = () => {
   const templates = useAppSelector(selectFilteredTemplates);
@@ -44,7 +46,7 @@ const Templates: FC = () => {
       <Title>Templates</Title>
       <div className="flex gap-2">
         <ActionButton
-          onClick={() => openTemplate("outcome")}
+          onClick={() => openTemplate('outcome')}
           color="red"
           active
         >
@@ -52,14 +54,14 @@ const Templates: FC = () => {
         </ActionButton>
 
         <ActionButton
-          onClick={() => openTemplate("income")}
+          onClick={() => openTemplate('income')}
           color="green"
           active
         >
           <PlusIcon className="w-8 h-8" />
         </ActionButton>
 
-        <ActionButton onClick={() => openTemplate("exchange")} active>
+        <ActionButton onClick={() => openTemplate('exchange')} active>
           <RepeatIcon className="w-8 h-8" />
         </ActionButton>
       </div>
@@ -72,9 +74,9 @@ const Templates: FC = () => {
               <TH>Category</TH>
               <TH>Outcome</TH>
               <TH>Income</TH>
-              <TH></TH>
-              <TH></TH>
-              <TH></TH>
+              <TH />
+              <TH />
+              <TH />
             </TR>
           </THead>
           <TBody>
@@ -119,23 +121,21 @@ const TemplateItem: FC<TemplateItemProps> = ({ template, openModal }) => {
     ? accountDict[template.outcome?.account_id]
     : undefined;
 
-  const incomeCurrency =
-    incomeAccount && currencyDict[incomeAccount.currency_code];
-  const outcomeCurrency =
-    outcomeAccount && currencyDict[outcomeAccount.currency_code];
+  const incomeCurrency = incomeAccount && currencyDict[incomeAccount.currency_code];
+  const outcomeCurrency = outcomeAccount && currencyDict[outcomeAccount.currency_code];
 
   const categoryName = template.category_id
     ? categoryDict[template.category_id].name
-    : "-";
+    : '-';
 
   const confirmDelete = () => {
     Swal.fire({
-      title: "Delete template",
-      icon: "error",
+      title: 'Delete template',
+      icon: 'error',
       text: template.name,
       showCancelButton: true,
-      cancelButtonText: "Cancel",
-      confirmButtonText: "Delete",
+      cancelButtonText: 'Cancel',
+      confirmButtonText: 'Delete',
     }).then((result) => {
       if (result.isConfirmed) {
         dispatch(deleteTemplate(template.id));
@@ -154,12 +154,12 @@ const TemplateItem: FC<TemplateItemProps> = ({ template, openModal }) => {
           <div className="text-red-700">
             {getCurrencyValue(
               template.outcome.sum,
-              outcomeCurrency.decimal_places_number
+              outcomeCurrency.decimal_places_number,
             )}
-            <span className="pl-2.5">{outcomeCurrency.code || ""}</span>
+            <span className="pl-2.5">{outcomeCurrency.code || ''}</span>
           </div>
           <div className="text-sm text-gray-600">
-            {outcomeAccount.name || ""}
+            {outcomeAccount.name || ''}
           </div>
         </TD>
       ) : (
@@ -171,12 +171,12 @@ const TemplateItem: FC<TemplateItemProps> = ({ template, openModal }) => {
           <div className="text-green-700">
             {getCurrencyValue(
               template.income.sum,
-              incomeCurrency.decimal_places_number
+              incomeCurrency.decimal_places_number,
             )}
-            <span className="pl-2.5">{incomeCurrency.code || ""}</span>
+            <span className="pl-2.5">{incomeCurrency.code || ''}</span>
           </div>
           <div className="text-sm text-gray-600">
-            {incomeAccount.name || ""}
+            {incomeAccount.name || ''}
           </div>
         </TD>
       ) : (
@@ -201,12 +201,12 @@ const TemplateItem: FC<TemplateItemProps> = ({ template, openModal }) => {
       </TDIcon>
 
       <TDIcon>
-        <button className="p-2" onClick={openModal}>
+        <button className="p-2" onClick={openModal} type="button">
           <PencilIcon className="w-7 h-7" />
         </button>
       </TDIcon>
       <TDIcon>
-        <button className="p-2" onClick={confirmDelete}>
+        <button className="p-2" onClick={confirmDelete} type="button">
           <TrashIcon className="w-7 h-7" />
         </button>
       </TDIcon>

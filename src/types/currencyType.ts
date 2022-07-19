@@ -1,3 +1,5 @@
+export type TCurrencyType = 'fiat' | 'crypto';
+
 export type TCurrency = {
   code: string;
   name: string;
@@ -5,5 +7,3 @@ export type TCurrency = {
   type: TCurrencyType;
   color: string;
 };
-
-export type TCurrencyType = "fiat" | "crypto";

@@ -1,7 +1,7 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { genId } from "../../helper/random";
-import { TTemplate, TTransaction } from "../../types/transactionType";
+import { genId } from '../../helper/random';
+import { TTemplate, TTransaction } from '../../types/transactionType';
 
 type TransactionState = {
   transactions: TTransaction[];
@@ -14,7 +14,7 @@ const initialState: TransactionState = {
 };
 
 export const transactionSlice = createSlice({
-  name: "transaction",
+  name: 'transaction',
   initialState,
   reducers: {
     setTransactions(
@@ -24,7 +24,7 @@ export const transactionSlice = createSlice({
       }: PayloadAction<{
         transactions: TTransaction[];
         templates: TTemplate[];
-      }>
+      }>,
     ) {
       state.transactions = transactions;
       state.templates = templates;
@@ -32,16 +32,16 @@ export const transactionSlice = createSlice({
     clearTransactions: () => ({ ...initialState }),
     createTransaction(
       state,
-      { payload: transaction }: PayloadAction<Omit<TTransaction, "id">>
+      { payload: transaction }: PayloadAction<Omit<TTransaction, 'id'>>,
     ) {
       state.transactions.unshift({ id: genId(), ...transaction });
     },
     editTransaction(
       state,
-      { payload: updatedTransaction }: PayloadAction<TTransaction>
+      { payload: updatedTransaction }: PayloadAction<TTransaction>,
     ) {
       const index = state.transactions.findIndex(
-        (transaction) => transaction.id === updatedTransaction.id
+        (transaction) => transaction.id === updatedTransaction.id,
       );
       if (index !== -1) {
         state.transactions[index] = updatedTransaction;
@@ -49,21 +49,21 @@ export const transactionSlice = createSlice({
     },
     deleteTransaction(state, { payload: id }: PayloadAction<string>) {
       state.transactions = state.transactions.filter(
-        (transaction) => transaction.id !== id
+        (transaction) => transaction.id !== id,
       );
     },
     createTemplate(
       state,
-      { payload: template }: PayloadAction<Omit<TTemplate, "id">>
+      { payload: template }: PayloadAction<Omit<TTemplate, 'id'>>,
     ) {
       state.templates.unshift({ id: genId(), ...template });
     },
     editTemplate(
       state,
-      { payload: updatedTemplate }: PayloadAction<TTemplate>
+      { payload: updatedTemplate }: PayloadAction<TTemplate>,
     ) {
       const index = state.templates.findIndex(
-        (template) => template.id === updatedTemplate.id
+        (template) => template.id === updatedTemplate.id,
       );
       if (index !== -1) {
         state.templates[index] = updatedTemplate;
@@ -71,7 +71,7 @@ export const transactionSlice = createSlice({
     },
     deleteTemplate(state, { payload: id }: PayloadAction<string>) {
       state.templates = state.templates.filter(
-        (template) => template.id !== id
+        (template) => template.id !== id,
       );
     },
   },

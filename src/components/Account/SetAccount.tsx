@@ -1,23 +1,19 @@
-import { FC } from "react";
-import { useFormik } from "formik";
-import { boolean, object, string } from "yup";
+import { useFormik } from 'formik';
+import { FC, useMemo } from 'react';
+import { boolean, object, string } from 'yup';
 
-import Button from "../Generic/Button/Button";
-import FormField from "../Generic/Form/FormField";
-import Select from "../Generic/Form/Select";
-import Modal, {
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-} from "../Generic/Modal";
-import { TAccount } from "../../types/accountType";
-import { TCurrency } from "../../types/currencyType";
-import Checkbox from "../Generic/Form/Checkbox";
-import { compareObjByStr } from "../../helper/string";
-import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
-import { createAccount, editAccount } from "../../store/reducers/accountSlice";
-import { selectFilteredAccountCategories } from "../../store/selectors";
-import { setIsUnsaved } from "../../store/reducers/appSlice";
+import { compareObjByStr } from '../../helper/string';
+import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
+import { createAccount, editAccount } from '../../store/reducers/accountSlice';
+import { setIsUnsaved } from '../../store/reducers/appSlice';
+import { selectFilteredAccountCategories } from '../../store/selectors';
+import { TAccount } from '../../types/accountType';
+import { TCurrency } from '../../types/currencyType';
+import Button from '../Generic/Button/Button';
+import Checkbox from '../Generic/Form/Checkbox';
+import FormField from '../Generic/Form/FormField';
+import Select from '../Generic/Form/Select';
+import Modal, { ModalContent, ModalFooter, ModalHeader } from '../Generic/Modal';
 
 interface SetAccountProps {
   account?: TAccount;
@@ -53,7 +49,7 @@ const SetAccount: FC<SetAccountProps> = ({ isOpen, close, account }) => {
         createAccount({
           ...accountData,
           currency_code: values.currencyCode,
-        })
+        }),
       );
     }
     dispatch(setIsUnsaved(true));
@@ -62,9 +58,9 @@ const SetAccount: FC<SetAccountProps> = ({ isOpen, close, account }) => {
 
   const formik = useFormik({
     initialValues: {
-      name: "",
-      currencyCode: "",
-      categoryId: "",
+      name: '',
+      currencyCode: '',
+      categoryId: '',
       isHide: false,
       isArchive: false,
     },
@@ -81,46 +77,34 @@ const SetAccount: FC<SetAccountProps> = ({ isOpen, close, account }) => {
   });
 
   type TSelectOption = { value: string; text: string };
-  const currencyOptions = currencies.reduce(
-    (
-      result: {
-        optgroups: { [type: string]: TSelectOption[] };
-        options: TSelectOption[];
-      },
-      current: TCurrency
-    ) => {
-      if (current.code) {
+
+  const currencyOptGroups = useMemo(() => {
+    const objGroups = currencies.reduce(
+      (optGroups: { [type: string]: TSelectOption[] }, currency: TCurrency) => {
         const option = {
-          value: current.code,
-          text: current.name,
+          value: currency.code,
+          text: currency.name,
         };
-        if (!(current.type in result.optgroups))
-          result.optgroups[current.type] = [];
-        result.optgroups[current.type].push(option);
-        return result;
-      }
-      return result;
-    },
-    { optgroups: {}, options: [] }
-  );
+        // eslint-disable-next-line no-param-reassign
+        if (!(currency.type in optGroups)) optGroups[currency.type] = [];
+        optGroups[currency.type].push(option);
+        return optGroups;
+      },
+      {},
+    );
+
+    return Object.entries(objGroups).map(([label, options]) => ({ label, options }));
+  }, [currencies]);
 
   const categoryOptions = categories
     .sort((a, b) => compareObjByStr(a, b, (e) => e.name))
     .map((category) => ({ value: category.id, text: category.name }));
 
-  const optgroups = (() => {
-    const optgroups = [];
-    for (const key in currencyOptions.optgroups) {
-      optgroups.push({ label: key, options: currencyOptions.optgroups[key] });
-    }
-    return optgroups;
-  })();
-
   const onEnter = () => {
     formik.setValues({
-      name: account?.name || "",
-      currencyCode: account?.currency_code || "",
-      categoryId: account?.category_id || "",
+      name: account?.name || '',
+      currencyCode: account?.currency_code || '',
+      categoryId: account?.category_id || '',
       isHide: account?.is_hide || false,
       isArchive: account?.is_archive || false,
     });
@@ -139,7 +123,7 @@ const SetAccount: FC<SetAccountProps> = ({ isOpen, close, account }) => {
       onSubmit={formik.handleSubmit}
     >
       <ModalHeader close={close}>
-        {account ? "Edit Account" : "Create Account"}
+        {account ? 'Edit Account' : 'Create Account'}
       </ModalHeader>
       <ModalContent>
         <FormField
@@ -147,7 +131,7 @@ const SetAccount: FC<SetAccountProps> = ({ isOpen, close, account }) => {
           name="name"
           value={formik.values.name}
           onChange={formik.handleChange}
-          onBlur={() => formik.validateField("name")}
+          onBlur={() => formik.validateField('name')}
           withError={Boolean(formik.errors.name)}
         />
         {!account && (
@@ -156,10 +140,9 @@ const SetAccount: FC<SetAccountProps> = ({ isOpen, close, account }) => {
             <Select
               name="currencyCode"
               selectedValue={formik.values.currencyCode}
-              optgroups={optgroups}
-              options={currencyOptions.options}
+              optGroups={currencyOptGroups}
               onChange={formik.handleChange}
-              onBlur={() => formik.validateField("currencyCode")}
+              onBlur={() => formik.validateField('currencyCode')}
               withError={Boolean(formik.errors.currencyCode)}
               className="w-2/3"
             />

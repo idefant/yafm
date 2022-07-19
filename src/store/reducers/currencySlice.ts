@@ -1,8 +1,8 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice } from '@reduxjs/toolkit';
 
-import { defaultCurrencies } from "../../data/defaultCurrencies";
-import { TCurrency } from "../../types/currencyType";
-import { fetchFnG, fetchPrices } from "../actionCreators/currencyActionCreator";
+import { defaultCurrencies } from '../../data/defaultCurrencies';
+import { TCurrency } from '../../types/currencyType';
+import { fetchFnG, fetchPrices } from '../actionCreators/currencyActionCreator';
 
 type CurrencyState = {
   currencies: TCurrency[];
@@ -17,7 +17,7 @@ const initialState: CurrencyState = {
 };
 
 export const currencySlice = createSlice({
-  name: "currency",
+  name: 'currency',
   initialState,
   reducers: {
     clearCurrencyData: () => ({ ...initialState }),

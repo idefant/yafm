@@ -1,19 +1,19 @@
-import { createAsyncThunk } from "@reduxjs/toolkit";
+import { createAsyncThunk } from '@reduxjs/toolkit';
 
 import {
   getFnGIndexRequest,
   getPricesRequest,
-} from "../../helper/requests/currencyApiRequest";
+} from '../../helper/requests/currencyApiRequest';
 
 export const fetchPrices = createAsyncThunk(
-  "currency/fetchPrices",
+  'currency/fetchPrices',
   async () => {
     const response = await getPricesRequest();
     return response.data.bitcoin;
-  }
+  },
 );
 
-export const fetchFnG = createAsyncThunk("currency/fetchFnG", async () => {
+export const fetchFnG = createAsyncThunk('currency/fetchFnG', async () => {
   const response = await getFnGIndexRequest();
   const data = response.data.data[0];
   return {

@@ -1,12 +1,12 @@
-import { FC } from "react";
-import Swal from "sweetalert2";
-import { useFormik } from "formik";
-import { object, string } from "yup";
+import { useFormik } from 'formik';
+import { FC } from 'react';
+import Swal from 'sweetalert2';
+import { object, string } from 'yup';
 
-import FormField from "../../Generic/Form/FormField";
-import Button from "../../Generic/Button/Button";
-import { useAppDispatch, useAppSelector } from "../../../hooks/reduxHooks";
-import { setPassword } from "../../../store/reducers/appSlice";
+import { useAppDispatch, useAppSelector } from '../../../hooks/reduxHooks';
+import { setPassword } from '../../../store/reducers/appSlice';
+import Button from '../../Generic/Button/Button';
+import FormField from '../../Generic/Form/FormField';
 
 const SettingChangePassword: FC = () => {
   const password = useAppSelector((state) => state.app.password);
@@ -20,24 +20,24 @@ const SettingChangePassword: FC = () => {
 
   const changePassword = (values: TForm) => {
     if (values.oldPassword !== password) {
-      Swal.fire({ title: "Wrong password", icon: "error" });
+      Swal.fire({ title: 'Wrong password', icon: 'error' });
       return;
     }
     if (values.newPassword !== values.repeatPassword) {
-      Swal.fire({ title: "Passwords don't match", icon: "error" });
+      Swal.fire({ title: "Passwords don't match", icon: 'error' });
       return;
     }
 
     dispatch(setPassword(values.newPassword));
-    Swal.fire({ title: "Password changed successfully", icon: "success" });
+    Swal.fire({ title: 'Password changed successfully', icon: 'success' });
     formik.resetForm();
   };
 
   const formik = useFormik({
     initialValues: {
-      oldPassword: "",
-      newPassword: "",
-      repeatPassword: "",
+      oldPassword: '',
+      newPassword: '',
+      repeatPassword: '',
     },
     onSubmit: changePassword,
     validationSchema: object({
@@ -60,7 +60,7 @@ const SettingChangePassword: FC = () => {
           onChange={formik.handleChange}
           name="oldPassword"
           type="password"
-          onBlur={() => formik.validateField("oldPassword")}
+          onBlur={() => formik.validateField('oldPassword')}
           withError={Boolean(formik.errors.oldPassword)}
         />
 
@@ -70,7 +70,7 @@ const SettingChangePassword: FC = () => {
           onChange={formik.handleChange}
           name="newPassword"
           type="password"
-          onBlur={() => formik.validateField("newPassword")}
+          onBlur={() => formik.validateField('newPassword')}
           withError={Boolean(formik.errors.newPassword)}
         />
 
@@ -80,7 +80,7 @@ const SettingChangePassword: FC = () => {
           onChange={formik.handleChange}
           name="repeatPassword"
           type="password"
-          onBlur={() => formik.validateField("repeatPassword")}
+          onBlur={() => formik.validateField('repeatPassword')}
           withError={Boolean(formik.errors.repeatPassword)}
         />
 

@@ -1,8 +1,8 @@
-import React, { FC, useState } from "react";
-import Swal from "sweetalert2";
-import ReactTooltip from "react-tooltip";
-import dayjs from "dayjs";
-import quarterOfYear from "dayjs/plugin/quarterOfYear";
+import dayjs from 'dayjs';
+import quarterOfYear from 'dayjs/plugin/quarterOfYear';
+import React, { FC, useState } from 'react';
+import ReactTooltip from 'react-tooltip';
+import Swal from 'sweetalert2';
 
 import {
   ChevronLeftIcon,
@@ -14,24 +14,26 @@ import {
   PlusIcon,
   RepeatIcon,
   TrashIcon,
-} from "../../assets/svg";
-import Table, { TBody, TD, TDIcon, TH, THead, TR } from "../Generic/Table";
-import { getCurrencyValue } from "../../helper/currencies";
-import SetTransaction from "../Transaction/SetTransaction";
-import { TTransaction, TTransactionType } from "../../types/transactionType";
-import ActionButton from "../Generic/Button/ActionButton";
-import Select from "../Generic/Form/Select";
-import { TPeriod } from "../../types/periodType";
-import { Title } from "../Generic/Title";
-import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
+} from '../../assets/svg';
+import { getCurrencyValue } from '../../helper/currencies';
+import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
+import { setIsUnsaved } from '../../store/reducers/appSlice';
+import { deleteTransaction } from '../../store/reducers/transactionSlice';
 import {
   selectAccountDict,
   selectCurrencyDict,
   selectFilteredTransactions,
   selectTransactionCategoryDict,
-} from "../../store/selectors";
-import { deleteTransaction } from "../../store/reducers/transactionSlice";
-import { setIsUnsaved } from "../../store/reducers/appSlice";
+} from '../../store/selectors';
+import { TPeriod } from '../../types/periodType';
+import { TTransaction, TTransactionType } from '../../types/transactionType';
+import ActionButton from '../Generic/Button/ActionButton';
+import Select from '../Generic/Form/Select';
+import Table, {
+  TBody, TD, TDIcon, TH, THead, TR,
+} from '../Generic/Table';
+import { Title } from '../Generic/Title';
+import SetTransaction from '../Transaction/SetTransaction';
 
 dayjs.extend(quarterOfYear);
 
@@ -40,7 +42,7 @@ const Transactions: FC = () => {
 
   const [isOpen, setIsOpen] = useState(false);
   const [date, setDate] = useState(dayjs());
-  const [datePeriodType, setDatePeriodType] = useState<TPeriod>("month");
+  const [datePeriodType, setDatePeriodType] = useState<TPeriod>('month');
 
   const [transactionType, setTransactionType] = useState<TTransactionType>();
   const [openedTransaction, setOpenedTransaction] = useState<TTransaction>();
@@ -48,7 +50,7 @@ const Transactions: FC = () => {
 
   const openTransaction = (
     type: TTransactionType,
-    transaction?: TTransaction
+    transaction?: TTransaction,
   ) => {
     setOpenedTransaction(transaction);
     setCopiedTransaction(undefined);
@@ -67,14 +69,14 @@ const Transactions: FC = () => {
     .filter((transaction) => {
       const datetime = dayjs(transaction.datetime);
       return (
-        datetime > date.startOf(datePeriodType) &&
-        datetime < date.endOf(datePeriodType)
+        datetime > date.startOf(datePeriodType)
+        && datetime < date.endOf(datePeriodType)
       );
     })
     .sort((a, b) => b.datetime - a.datetime)
-    .reduce(function (groups: { [date: string]: TTransaction[] }, transaction) {
-      const date = dayjs(transaction.datetime).format("DD.MM.YYYY");
-
+    .reduce((groups: { [date: string]: TTransaction[] }, transaction) => {
+      const date = dayjs(transaction.datetime).format('DD.MM.YYYY');
+      // eslint-disable-next-line no-param-reassign
       if (!(date in groups)) groups[date] = [];
       groups[date].push(transaction);
       return groups;
@@ -86,7 +88,7 @@ const Transactions: FC = () => {
       <div className="flex gap-20 items-center my-4">
         <div className="flex gap-2">
           <ActionButton
-            onClick={() => openTransaction("outcome")}
+            onClick={() => openTransaction('outcome')}
             color="red"
             active
           >
@@ -94,14 +96,14 @@ const Transactions: FC = () => {
           </ActionButton>
 
           <ActionButton
-            onClick={() => openTransaction("income")}
+            onClick={() => openTransaction('income')}
             color="green"
             active
           >
             <PlusIcon className="w-8 h-8" />
           </ActionButton>
 
-          <ActionButton onClick={() => openTransaction("exchange")} active>
+          <ActionButton onClick={() => openTransaction('exchange')} active>
             <RepeatIcon className="w-8 h-8" />
           </ActionButton>
         </div>
@@ -110,9 +112,9 @@ const Transactions: FC = () => {
           <Select
             className="border-gray-600"
             options={[
-              { value: "month", text: "Month" },
-              { value: "quarter", text: "Quarter" },
-              { value: "year", text: "Year" },
+              { value: 'month', text: 'Month' },
+              { value: 'quarter', text: 'Quarter' },
+              { value: 'year', text: 'Year' },
             ]}
             selectedValue={datePeriodType}
             onChange={(e) => setDatePeriodType(e.target.value as TPeriod)}
@@ -120,18 +122,20 @@ const Transactions: FC = () => {
           <button
             onClick={() => setDate(date.subtract(1, datePeriodType))}
             className="p-2 bg-gray-200 border border-gray-600 rounded-full"
+            type="button"
           >
             <ChevronLeftIcon />
           </button>
           <div>
-            {datePeriodType === "month" && `${date.format("MMM YYYY")}`}
-            {datePeriodType === "quarter" &&
-              date.format(`Q${date.quarter()} YYYY`)}
-            {datePeriodType === "year" && date.year()}
+            {datePeriodType === 'month' && `${date.format('MMM YYYY')}`}
+            {datePeriodType === 'quarter'
+              && date.format(`Q${date.quarter()} YYYY`)}
+            {datePeriodType === 'year' && date.year()}
           </div>
           <button
             onClick={() => setDate(date.add(1, datePeriodType))}
             className="p-2 bg-gray-200 border border-gray-600 rounded-full"
+            type="button"
           >
             <ChevronRightIcon />
           </button>
@@ -147,10 +151,10 @@ const Transactions: FC = () => {
               <TH>Category</TH>
               <TH>Outcome</TH>
               <TH>Income</TH>
-              <TH></TH>
-              <TH></TH>
-              <TH></TH>
-              <TH></TH>
+              <TH />
+              <TH />
+              <TH />
+              <TH />
             </TR>
           </THead>
           <TBody>
@@ -164,9 +168,7 @@ const Transactions: FC = () => {
                 {group[1].map((transaction) => (
                   <TransactionItem
                     transaction={transaction}
-                    openModal={() =>
-                      openTransaction(transaction.type, transaction)
-                    }
+                    openModal={() => openTransaction(transaction.type, transaction)}
                     key={transaction.id}
                     copyTransaction={() => copyTransaction(transaction)}
                   />
@@ -213,23 +215,21 @@ const TransactionItem: FC<TransactionItemProps> = ({
     ? accountDict[transaction.outcome?.account_id]
     : undefined;
 
-  const incomeCurrency =
-    incomeAccount && currencyDict[incomeAccount.currency_code];
-  const outcomeCurrency =
-    outcomeAccount && currencyDict[outcomeAccount.currency_code];
+  const incomeCurrency = incomeAccount && currencyDict[incomeAccount.currency_code];
+  const outcomeCurrency = outcomeAccount && currencyDict[outcomeAccount.currency_code];
 
   const categoryName = transaction.category_id
     ? categoryDict[transaction.category_id].name
-    : "-";
+    : '-';
 
   const confirmDelete = () => {
     Swal.fire({
-      title: "Delete transaction",
-      icon: "error",
+      title: 'Delete transaction',
+      icon: 'error',
       text: transaction.name,
       showCancelButton: true,
-      cancelButtonText: "Cancel",
-      confirmButtonText: "Delete",
+      cancelButtonText: 'Cancel',
+      confirmButtonText: 'Delete',
     }).then((result) => {
       if (result.isConfirmed) {
         dispatch(deleteTransaction(transaction.id));
@@ -242,9 +242,9 @@ const TransactionItem: FC<TransactionItemProps> = ({
     <TR>
       <TD>{transaction.name}</TD>
       <TD className="text-center">
-        <div>{dayjs(transaction.datetime).format("DD.MM.YYYY")}</div>
+        <div>{dayjs(transaction.datetime).format('DD.MM.YYYY')}</div>
         <div className="text-sm">
-          {dayjs(transaction.datetime).format("HH:mm")}
+          {dayjs(transaction.datetime).format('HH:mm')}
         </div>
       </TD>
       <TD className="text-center">{categoryName}</TD>
@@ -254,12 +254,12 @@ const TransactionItem: FC<TransactionItemProps> = ({
           <div className="text-red-700">
             {getCurrencyValue(
               transaction.outcome.sum,
-              outcomeCurrency.decimal_places_number
+              outcomeCurrency.decimal_places_number,
             )}
-            <span className="pl-2.5">{outcomeCurrency.code || ""}</span>
+            <span className="pl-2.5">{outcomeCurrency.code || ''}</span>
           </div>
           <div className="text-sm text-gray-600">
-            {outcomeAccount.name || ""}
+            {outcomeAccount.name || ''}
           </div>
         </TD>
       ) : (
@@ -271,12 +271,12 @@ const TransactionItem: FC<TransactionItemProps> = ({
           <div className="text-green-700">
             {getCurrencyValue(
               transaction.income.sum,
-              incomeCurrency.decimal_places_number
+              incomeCurrency.decimal_places_number,
             )}
-            <span className="pl-2.5">{incomeCurrency.code || ""}</span>
+            <span className="pl-2.5">{incomeCurrency.code || ''}</span>
           </div>
           <div className="text-sm text-gray-600">
-            {incomeAccount.name || ""}
+            {incomeAccount.name || ''}
           </div>
         </TD>
       ) : (
@@ -301,17 +301,17 @@ const TransactionItem: FC<TransactionItemProps> = ({
       </TDIcon>
 
       <TDIcon>
-        <button className="p-2" onClick={copyTransaction}>
+        <button className="p-2" onClick={copyTransaction} type="button">
           <CopyIcon className="w-7 h-7" />
         </button>
       </TDIcon>
       <TDIcon>
-        <button className="p-2" onClick={openModal}>
+        <button className="p-2" onClick={openModal} type="button">
           <PencilIcon className="w-7 h-7" />
         </button>
       </TDIcon>
       <TDIcon>
-        <button className="p-2" onClick={confirmDelete}>
+        <button className="p-2" onClick={confirmDelete} type="button">
           <TrashIcon className="w-7 h-7" />
         </button>
       </TDIcon>

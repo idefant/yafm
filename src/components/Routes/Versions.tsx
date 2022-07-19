@@ -1,23 +1,25 @@
-import { FC, useEffect, useState } from "react";
-import dayjs from "dayjs";
-import customParseFormat from "dayjs/plugin/customParseFormat";
-import { Link, Navigate } from "react-router-dom";
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+import { FC, useEffect, useState } from 'react';
+import { Link, Navigate } from 'react-router-dom';
 
-import { DownloadIcon, UnlockIcon } from "../../assets/svg";
-import { exportFile } from "../../helper/file";
+import { DownloadIcon, UnlockIcon } from '../../assets/svg';
+import { exportFile } from '../../helper/file';
 import {
   getVersionListRequest,
   getVersionByFilenameRequest,
-} from "../../helper/requests/versionRequests";
-import Table, { THead, TR, TH, TBody, TD, TDIcon } from "../Generic/Table";
-import { useAppSelector } from "../../hooks/reduxHooks";
-import ButtonLink from "../Generic/Button/ButtonLink";
+} from '../../helper/requests/versionRequests';
+import { useAppSelector } from '../../hooks/reduxHooks';
+import ButtonLink from '../Generic/Button/ButtonLink';
+import Table, {
+  THead, TR, TH, TBody, TD, TDIcon,
+} from '../Generic/Table';
 
 dayjs.extend(customParseFormat);
 
 const Versions: FC = () => {
   const { isVersioningEnabled, vaultUrl } = useAppSelector(
-    (state) => state.app
+    (state) => state.app,
   );
   const [versions, setVersions] = useState<
     { filename: string; date: string }[]
@@ -31,10 +33,8 @@ const Versions: FC = () => {
       setVersions(
         response.data.map((filename: string) => ({
           filename,
-          date: dayjs(filename, "YYYYMMDD_HHmm.json").format(
-            "DD.MM.YYYY (HH:mm)"
-          ),
-        }))
+          date: dayjs(filename, 'YYYYMMDD_HHmm.json').format('DD.MM.YYYY (HH:mm)'),
+        })),
       );
     })();
   }, [vaultUrl]);
@@ -46,10 +46,10 @@ const Versions: FC = () => {
     exportFile(
       JSON.stringify({
         data: response.data,
-        created_at: dayjs(filename, "YYYYMMDD_HHmm.json").toISOString(),
+        created_at: dayjs(filename, 'YYYYMMDD_HHmm.json').toISOString(),
         is_encrypted: true,
       }),
-      "backup-enc.yafm"
+      'backup-enc.yafm',
     );
   };
 
@@ -76,13 +76,13 @@ const Versions: FC = () => {
             <TR>
               <TH>ID</TH>
               <TH>Date</TH>
-              <TH></TH>
-              <TH></TH>
+              <TH />
+              <TH />
             </TR>
           </THead>
           <TBody>
             {versions.map((version, i) => (
-              <TR key={i}>
+              <TR key={version.filename}>
                 <TD>{i + 1}</TD>
                 <TD>{version.date}</TD>
                 <TDIcon>
@@ -94,6 +94,7 @@ const Versions: FC = () => {
                   <button
                     className="p-2"
                     onClick={() => downloadVersion(version.filename)}
+                    type="button"
                   >
                     <DownloadIcon className="w-7 h-7" />
                   </button>

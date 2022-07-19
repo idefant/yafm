@@ -1,20 +1,24 @@
-import { FC, useState } from "react";
-import Swal from "sweetalert2";
+import { FC, useState } from 'react';
+import Swal from 'sweetalert2';
 
-import { ArchiveIcon, LockIcon, PencilIcon, TrashIcon } from "../../assets/svg";
-import Button from "../Generic/Button/Button";
-import Table, { TBody, TD, TDIcon, TH, THead, TR } from "../Generic/Table";
-import SetCategory from "../Caterory/SetCategory";
-import { TCategory, TCategoryType } from "../../types/categoryType";
-import { compareObjByStr } from "../../helper/string";
-import { Title } from "../Generic/Title";
-import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
-import { deleteCategory } from "../../store/reducers/categorySlice";
+import {
+  ArchiveIcon, LockIcon, PencilIcon, TrashIcon,
+} from '../../assets/svg';
+import { compareObjByStr } from '../../helper/string';
+import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
+import { setIsUnsaved } from '../../store/reducers/appSlice';
+import { deleteCategory } from '../../store/reducers/categorySlice';
 import {
   selectAccountCategories,
   selectTransactionCategories,
-} from "../../store/selectors";
-import { setIsUnsaved } from "../../store/reducers/appSlice";
+} from '../../store/selectors';
+import { TCategory, TCategoryType } from '../../types/categoryType';
+import SetCategory from '../Caterory/SetCategory';
+import Button from '../Generic/Button/Button';
+import Table, {
+  TBody, TD, TDIcon, TH, THead, TR,
+} from '../Generic/Table';
+import { Title } from '../Generic/Title';
 
 interface CategoriesProps {
   categoryType: TCategoryType;
@@ -44,7 +48,9 @@ const Categories: FC<CategoriesProps> = ({ categoryType }) => {
   return (
     <>
       <Title>
-        {categoryType === "accounts" ? "Account" : "Transaction"} Categories!!!
+        {categoryType === 'accounts' ? 'Account' : 'Transaction'}
+        {' '}
+        Categories!!!
       </Title>
       <Button color="green" onClick={() => openCategory()}>
         Create Category
@@ -57,8 +63,8 @@ const Categories: FC<CategoriesProps> = ({ categoryType }) => {
               <TH>Name</TH>
               {!safeMode && <TH>Hidden</TH>}
               <TH>Archived</TH>
-              <TH></TH>
-              <TH></TH>
+              <TH />
+              <TH />
             </TR>
           </THead>
           <TBody>
@@ -106,43 +112,44 @@ const CategoryItem: FC<CategoryItemProps> = ({
   const dispatch = useAppDispatch();
 
   const checkCategoryIsUsed = () => {
-    if (categoryType === "transactions") {
-      for (const transaction of transactions) {
-        if (transaction.category_id === category.id) return true;
-      }
-      for (const template of templates) {
-        if (template.category_id === category.id) return true;
-      }
+    if (categoryType === 'transactions') {
+      const isFound = [...transactions, ...templates].some(
+        ({ category_id: transactionCategoryId }) => transactionCategoryId === category.id,
+      );
+      if (isFound) return true;
     }
 
-    if (categoryType === "accounts") {
-      for (const account of accounts) {
-        if (account.category_id === category.id) return true;
-      }
+    if (categoryType === 'accounts') {
+      const isFound = accounts.some(
+        ({ category_id: accountCategoryId }) => accountCategoryId === category.id,
+      );
+      if (isFound) return true;
     }
     return false;
   };
 
   const confirmDelete = () => {
-    checkCategoryIsUsed()
-      ? Swal.fire({
-          title: "Unable to delete category",
-          text: `There are ${categoryType} or templates using this category`,
-          icon: "error",
-        })
-      : Swal.fire({
-          title: "Delete category",
-          icon: "error",
-          text: category.name,
-          showCancelButton: true,
-          cancelButtonText: "Cancel",
-          confirmButtonText: "Delete",
-        }).then((result) => {
-          if (result.isConfirmed) {
-            dispatch(deleteCategory({ id: category.id, categoryType }));
-            dispatch(setIsUnsaved(true));
-          }
-        });
+    if (checkCategoryIsUsed()) {
+      Swal.fire({
+        title: 'Unable to delete category',
+        text: `There are ${categoryType} or templates using this category`,
+        icon: 'error',
+      });
+    } else {
+      Swal.fire({
+        title: 'Delete category',
+        icon: 'error',
+        text: category.name,
+        showCancelButton: true,
+        cancelButtonText: 'Cancel',
+        confirmButtonText: 'Delete',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          dispatch(deleteCategory({ id: category.id, categoryType }));
+          dispatch(setIsUnsaved(true));
+        }
+      });
+    }
   };
 
   return (
@@ -151,12 +158,12 @@ const CategoryItem: FC<CategoryItemProps> = ({
       {!safeMode && <TD>{category.is_hide && <LockIcon />}</TD>}
       <TD>{category.is_archive && <ArchiveIcon />}</TD>
       <TDIcon>
-        <button className="p-2" onClick={openModal}>
+        <button className="p-2" onClick={openModal} type="button">
           <PencilIcon className="w-7 h-7" />
         </button>
       </TDIcon>
       <TDIcon>
-        <button className="p-2" onClick={confirmDelete}>
+        <button className="p-2" onClick={confirmDelete} type="button">
           <TrashIcon className="w-7 h-7" />
         </button>
       </TDIcon>

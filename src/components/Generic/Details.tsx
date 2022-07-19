@@ -1,8 +1,10 @@
-import classNames from "classnames";
-import { FC, ReactNode, useReducer, useRef, useState } from "react";
+import classNames from 'classnames';
+import {
+  FC, ReactNode, useReducer, useRef, useState,
+} from 'react';
 
-import { ChevronRightIcon } from "../../assets/svg";
-import useInterval from "../../hooks/useInterval";
+import { ChevronRightIcon } from '../../assets/svg';
+import useInterval from '../../hooks/useInterval';
 
 interface DetailsProps {
   title: string;
@@ -27,15 +29,11 @@ const Details: FC<DetailsProps> = ({ title, children }) => {
         onClick={toggleIsOpen}
         type="button"
       >
-        <ChevronRightIcon
-          className={classNames("transition-all w-8", isOpen && "rotate-90")}
-        />
+        <ChevronRightIcon className={classNames('transition-all w-8', isOpen && 'rotate-90')} />
         <div>{title}</div>
       </button>
       <div
-        className={classNames(
-          "w-full overflow-hidden transition-all bg-gray-100"
-        )}
+        className="w-full overflow-hidden transition-all bg-gray-100"
         style={{ height: isOpen ? contentHeight : 0 }}
       >
         <div ref={refContent} className="p-4">

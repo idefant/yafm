@@ -1,4 +1,4 @@
-import { object, string, boolean } from "yup";
+import { object, string, boolean } from 'yup';
 
 export const accountSchema = object().shape({
   id: string().required(),

@@ -5,4 +5,4 @@ export type TCategory = {
   is_archive?: boolean;
 };
 
-export type TCategoryType = "accounts" | "transactions";
+export type TCategoryType = 'accounts' | 'transactions';
