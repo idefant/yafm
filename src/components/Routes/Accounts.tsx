@@ -15,7 +15,7 @@ import {
   ArchiveIcon, LockIcon, PencilIcon, TrashIcon,
 } from '../../assets/svg';
 import { groupSum, sum } from '../../helper/arrays';
-import { convertPrice, getCurrencyValue } from '../../helper/currencies';
+import { convertPrice, formatPrice } from '../../helper/currencies';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
 import { deleteAccount } from '../../store/reducers/accountSlice';
 import { setIsUnsaved } from '../../store/reducers/appSlice';
@@ -137,7 +137,7 @@ const Accounts: FC = () => {
                     <TD>{currency.name}</TD>
                     <TD>
                       <div className="text-right">
-                        {getCurrencyValue(currency.balance, currency.decimal_places_number)}
+                        {formatPrice(currency.balance, currency.decimal_places_number)}
                         <span className="pl-3">{currency.code}</span>
                       </div>
                     </TD>
@@ -167,7 +167,7 @@ const Accounts: FC = () => {
                     <TD>{currency.name}</TD>
                     <TD>
                       <div className="text-right">
-                        {getCurrencyValue(
+                        {formatPrice(
                           convertPrice(
                             baseCurrencyCode,
                             currency.code.toLowerCase(),
@@ -292,7 +292,7 @@ const AccountItem: FC<AccountItemProps> = ({ account, openModal }) => {
     <TR hide={account.is_archive}>
       <TD>{account.name}</TD>
       <TD className="text-right">
-        {getCurrencyValue(
+        {formatPrice(
           account.balance,
           accountCurrency.decimal_places_number,
         )}

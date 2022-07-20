@@ -1,24 +1,42 @@
 import { selectCurrencyDict } from '../store/selectors';
 import { store } from '../store/store';
 
-export const numToString = (num: number, decimalPlaces: number, useGrouping = true) => (
-  num.toLocaleString('en', { maximumFractionDigits: decimalPlaces, useGrouping })
+interface FormatPriceOptions {
+  useGrouping?: boolean,
+  useAtomicUnit?: boolean
+}
+
+export const formatPrice = (
+  value: number,
+  decimalPlaces: number,
+  options: FormatPriceOptions = { useGrouping: true, useAtomicUnit: true },
+) => {
+  const numDegree = options.useAtomicUnit ? decimalPlaces : 0;
+  const priceNum = value / 10 ** numDegree;
+  return priceNum.toLocaleString(
+    'en',
+    {
+      maximumFractionDigits: decimalPlaces,
+      useGrouping: options.useGrouping,
+    },
+  );
+};
+
+export const parseInputPrice = (text: string, decimalPlaces = 0) => (
+  Math.round(parseFloat(text.replace(',', '.')) * 10 ** decimalPlaces)
 );
 
-export const getCurrencyValue = (value: number, decimalPlaces: number, useGrouping = true) => (
-  numToString(value / 10 ** decimalPlaces, decimalPlaces, useGrouping)
-);
-
-export const displayToSysValue = (text: string, decimalPlaces: number) => Math.round(
-  parseFloat(text.replace(',', '.')) * 10 ** decimalPlaces || 0,
-);
-
-export const checkDecimalPlaces = (value: string, decimalPlaces: number) => {
-  const regex = new RegExp(`^\\d*.?\\d{0,${decimalPlaces}}$`);
+export const checkValidPrice = (value: string, decimalPlaces: number) => {
+  const regex = new RegExp(`^\\d+(\\.|,)?\\d{0,${decimalPlaces}}$`);
   return regex.test(value);
 };
 
-export const convertPrice = (from: string, to: string, amount: number) => {
+export const convertPrice = (
+  from: string,
+  to: string,
+  amount: number,
+  options = { useAtomicUnit: true },
+) => {
   const state = store.getState();
   const { prices } = state.currency;
   const currencyDict = selectCurrencyDict(state);
@@ -33,8 +51,13 @@ export const convertPrice = (from: string, to: string, amount: number) => {
     return 0;
   }
 
-  const getNormalRate = (curCode: string) => prices[curCode]
-    * 10 ** currencyDict[curCode.toUpperCase()].decimal_places_number;
+  const getDecimalPlaces = (curCode: string) => (
+    currencyDict[curCode.toUpperCase()].decimal_places_number
+  );
 
-  return (amount * getNormalRate(to)) / getNormalRate(from);
+  const numberDegree = options.useAtomicUnit
+    ? getDecimalPlaces(to) - getDecimalPlaces(from)
+    : 0;
+
+  return (amount * prices[to] * 10 ** numberDegree) / prices[from];
 };

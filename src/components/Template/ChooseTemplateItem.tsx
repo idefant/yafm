@@ -2,7 +2,7 @@ import { FC } from 'react';
 import ReactTooltip from 'react-tooltip';
 
 import { CircleIcon, InfoIcon } from '../../assets/svg';
-import { getCurrencyValue } from '../../helper/currencies';
+import { formatPrice } from '../../helper/currencies';
 import { useAppSelector } from '../../hooks/reduxHooks';
 import {
   selectAccountDict,
@@ -49,7 +49,7 @@ const ChooseTemplateItem: FC<ChooseTemplateItemProps> = ({ template, choose }) =
       {template.outcome && outcomeCurrency && outcomeAccount ? (
         <TD className="text-right">
           <div className="text-red-700">
-            {getCurrencyValue(
+            {formatPrice(
               template.outcome.sum,
               outcomeCurrency.decimal_places_number,
             )}
@@ -66,7 +66,7 @@ const ChooseTemplateItem: FC<ChooseTemplateItemProps> = ({ template, choose }) =
       {template.income && incomeCurrency && incomeAccount ? (
         <TD className="text-right">
           <div className="text-green-700">
-            {getCurrencyValue(
+            {formatPrice(
               template.income.sum,
               incomeCurrency.decimal_places_number,
             )}

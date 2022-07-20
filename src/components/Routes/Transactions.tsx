@@ -15,7 +15,7 @@ import {
   RepeatIcon,
   TrashIcon,
 } from '../../assets/svg';
-import { getCurrencyValue } from '../../helper/currencies';
+import { formatPrice } from '../../helper/currencies';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
 import { setIsUnsaved } from '../../store/reducers/appSlice';
 import { deleteTransaction } from '../../store/reducers/transactionSlice';
@@ -252,7 +252,7 @@ const TransactionItem: FC<TransactionItemProps> = ({
       {transaction.outcome && outcomeCurrency && outcomeAccount ? (
         <TD className="text-right">
           <div className="text-red-700">
-            {getCurrencyValue(
+            {formatPrice(
               transaction.outcome.sum,
               outcomeCurrency.decimal_places_number,
             )}
@@ -269,7 +269,7 @@ const TransactionItem: FC<TransactionItemProps> = ({
       {transaction.income && incomeCurrency && incomeAccount ? (
         <TD className="text-right">
           <div className="text-green-700">
-            {getCurrencyValue(
+            {formatPrice(
               transaction.income.sum,
               incomeCurrency.decimal_places_number,
             )}

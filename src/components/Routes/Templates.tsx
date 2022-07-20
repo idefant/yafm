@@ -10,7 +10,7 @@ import {
   RepeatIcon,
   TrashIcon,
 } from '../../assets/svg';
-import { getCurrencyValue } from '../../helper/currencies';
+import { formatPrice } from '../../helper/currencies';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
 import { setIsUnsaved } from '../../store/reducers/appSlice';
 import { deleteTemplate } from '../../store/reducers/transactionSlice';
@@ -152,7 +152,7 @@ const TemplateItem: FC<TemplateItemProps> = ({ template, openModal }) => {
       {template.outcome && outcomeCurrency && outcomeAccount ? (
         <TD className="text-right">
           <div className="text-red-700">
-            {getCurrencyValue(
+            {formatPrice(
               template.outcome.sum,
               outcomeCurrency.decimal_places_number,
             )}
@@ -169,7 +169,7 @@ const TemplateItem: FC<TemplateItemProps> = ({ template, openModal }) => {
       {template.income && incomeCurrency && incomeAccount ? (
         <TD className="text-right">
           <div className="text-green-700">
-            {getCurrencyValue(
+            {formatPrice(
               template.income.sum,
               incomeCurrency.decimal_places_number,
             )}

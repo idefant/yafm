@@ -1,6 +1,6 @@
 import { FC } from 'react';
 
-import { convertPrice, numToString } from '../../helper/currencies';
+import { convertPrice, formatPrice } from '../../helper/currencies';
 import { useAppSelector } from '../../hooks/reduxHooks';
 import { Title } from '../Generic/Title';
 
@@ -12,10 +12,10 @@ const Main: FC = () => {
     .filter((currency) => currency.code.toLowerCase() !== baseCurrencyCode)
     .map((currency) => ({
       code: currency.code,
-      price: numToString(
-        convertPrice(currency.code.toLowerCase(), baseCurrencyCode, 1)
-          * 10 ** (currency.decimal_places_number - 2),
+      price: formatPrice(
+        convertPrice(currency.code.toLowerCase(), baseCurrencyCode, 1, { useAtomicUnit: false }),
         currency.decimal_places_number,
+        { useAtomicUnit: false },
       ),
     }));
 
@@ -35,6 +35,7 @@ const Main: FC = () => {
                 {fng.text}
                 {' '}
                 -
+                {' '}
                 <span className="font-bold">{fng.value}</span>
               </div>
             </a>

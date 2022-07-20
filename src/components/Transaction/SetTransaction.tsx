@@ -9,7 +9,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import {
   MinusIcon, PlusIcon, RepeatIcon, StarIcon,
 } from '../../assets/svg';
-import { displayToSysValue, getCurrencyValue } from '../../helper/currencies';
+import { parseInputPrice, formatPrice } from '../../helper/currencies';
 import { compareObjByStr } from '../../helper/string';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
 import { numberWithDecimalPlacesSchema } from '../../schema';
@@ -104,7 +104,7 @@ const SetTransaction: FC<SetTransactionProps> = ({
         && incomeCurrency
           ? {
             account_id: values.incomeAccountId,
-            sum: displayToSysValue(values.incomeSum, incomeCurrency.decimal_places_number),
+            sum: parseInputPrice(values.incomeSum, incomeCurrency.decimal_places_number),
           }
           : undefined,
       outcome:
@@ -113,7 +113,7 @@ const SetTransaction: FC<SetTransactionProps> = ({
         && outcomeCurrency
           ? {
             account_id: values.outcomeAccountId,
-            sum: displayToSysValue(values.outcomeSum, outcomeCurrency.decimal_places_number),
+            sum: parseInputPrice(values.outcomeSum, outcomeCurrency.decimal_places_number),
           }
           : undefined,
     };
@@ -198,12 +198,20 @@ const SetTransaction: FC<SetTransactionProps> = ({
       outcomeAccountId: trans?.outcome?.account_id || '',
       outcomeSum:
         trans?.outcome?.sum && outcomeCurrency
-          ? getCurrencyValue(trans.outcome.sum, outcomeCurrency.decimal_places_number, false)
+          ? formatPrice(
+            trans.outcome.sum,
+            outcomeCurrency.decimal_places_number,
+            { useGrouping: false },
+          )
           : '',
       incomeAccountId: trans?.income?.account_id || '',
       incomeSum:
         trans?.income?.sum && incomeCurrency
-          ? getCurrencyValue(trans.income.sum, incomeCurrency.decimal_places_number, false)
+          ? formatPrice(
+            trans.income.sum,
+            incomeCurrency.decimal_places_number,
+            { useGrouping: false },
+          )
           : '',
       categoryId: trans?.category_id || '',
     });
@@ -226,13 +234,21 @@ const SetTransaction: FC<SetTransactionProps> = ({
         template.outcome?.account_id || formik.values.outcomeAccountId,
       outcomeSum:
         template.outcome?.sum && outcomeCurrency
-          ? getCurrencyValue(template.outcome.sum, outcomeCurrency.decimal_places_number, false)
+          ? formatPrice(
+            template.outcome.sum,
+            outcomeCurrency.decimal_places_number,
+            { useGrouping: false },
+          )
           : formik.values.outcomeSum,
       incomeAccountId:
         template.income?.account_id || formik.values.incomeAccountId,
       incomeSum:
         template.income?.sum && incomeCurrency
-          ? getCurrencyValue(template.income.sum, incomeCurrency.decimal_places_number, false)
+          ? formatPrice(
+            template.income.sum,
+            incomeCurrency.decimal_places_number,
+            { useGrouping: false },
+          )
           : formik.values.incomeSum,
       categoryId: template.category_id || formik.values.categoryId,
     });

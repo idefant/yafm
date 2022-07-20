@@ -6,7 +6,7 @@ import { object, string } from 'yup';
 import 'react-datepicker/dist/react-datepicker.css';
 
 import { MinusIcon, PlusIcon, RepeatIcon } from '../../assets/svg';
-import { displayToSysValue, getCurrencyValue } from '../../helper/currencies';
+import { parseInputPrice, formatPrice } from '../../helper/currencies';
 import { compareObjByStr } from '../../helper/string';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
 import { numberWithDecimalPlacesSchema } from '../../schema';
@@ -93,7 +93,7 @@ const SetTemplate: FC<SetTemplateProps> = ({
         && incomeCurrency
           ? {
             account_id: values.incomeAccountId,
-            sum: displayToSysValue(values.incomeSum, incomeCurrency.decimal_places_number),
+            sum: parseInputPrice(values.incomeSum, incomeCurrency.decimal_places_number),
           }
           : undefined,
       outcome:
@@ -102,7 +102,7 @@ const SetTemplate: FC<SetTemplateProps> = ({
         && outcomeCurrency
           ? {
             account_id: values.outcomeAccountId,
-            sum: displayToSysValue(values.outcomeSum, outcomeCurrency.decimal_places_number),
+            sum: parseInputPrice(values.outcomeSum, outcomeCurrency.decimal_places_number),
           }
           : undefined,
     };
@@ -190,12 +190,20 @@ const SetTemplate: FC<SetTemplateProps> = ({
       outcomeAccountId: template?.outcome?.account_id || '',
       outcomeSum:
         template?.outcome?.sum && outcomeCurrency
-          ? getCurrencyValue(template.outcome.sum, outcomeCurrency.decimal_places_number, false)
+          ? formatPrice(
+            template.outcome.sum,
+            outcomeCurrency.decimal_places_number,
+            { useGrouping: false },
+          )
           : '',
       incomeAccountId: template?.income?.account_id || '',
       incomeSum:
         template?.income?.sum && incomeCurrency
-          ? getCurrencyValue(template.income.sum, incomeCurrency.decimal_places_number, false)
+          ? formatPrice(
+            template.income.sum,
+            incomeCurrency.decimal_places_number,
+            { useGrouping: false },
+          )
           : '',
       categoryId: template?.category_id || '',
     });
