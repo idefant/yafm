@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import FocusTrap from 'focus-trap-react';
-import { FC, ReactNode } from 'react';
+import { FC, ReactNode, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { CSSTransition } from 'react-transition-group';
 
@@ -27,24 +27,27 @@ const Modal: FC<ModalProps> = ({
 }) => {
   // eslint-disable-next-line no-undef
   const Tag = (onSubmit ? 'form' : 'div') as keyof JSX.IntrinsicElements;
+  const [isActiveFocusTrap, setIsActiveFocusTrap] = useState(false);
 
   return createPortal(
     <CSSTransition
       in={isOpen}
-      timeout={300}
+      timeout={200}
       mountOnEnter
       unmountOnExit
       classNames={{
-        enter: 'opacity-0',
         enterActive: 'opacity-100',
+        enterDone: 'opacity-100',
         exitActive: 'opacity-0',
       }}
+      onExit={() => setIsActiveFocusTrap(false)}
       onExited={onExited}
       onEnter={onEnter}
+      onEntered={() => setIsActiveFocusTrap(true)}
     >
-      <FocusTrap focusTrapOptions={{ onDeactivate: close }}>
+      <FocusTrap focusTrapOptions={{ onDeactivate: close }} active={isActiveFocusTrap}>
         <div
-          className="fixed inset-0 bg-gray-800/60 transition ease-in-out duration-300"
+          className="opacity-0 fixed inset-0 bg-gray-800/60 transition ease-in-out duration-200"
           onClick={close}
           aria-hidden="true"
         >
