@@ -2,8 +2,8 @@ import { selectCurrencyDict } from '../../store/selectors';
 import { store } from '../../store/store';
 
 interface FormatPriceOptions {
-  useGrouping?: boolean,
-  useAtomicUnit?: boolean
+  useGrouping?: boolean;
+  useAtomicUnit?: boolean;
 }
 
 export const formatPrice = (

@@ -21,7 +21,8 @@
       "jsx": true
     },
     "ecmaVersion": "latest",
-    "sourceType": "module"
+    "sourceType": "module",
+    "project": "./tsconfig.json"
   },
   "plugins": [
     "react",
@@ -114,10 +115,6 @@
       "warn",
       "always"
     ],
-    // "space"
-    // "@typescript-eslint/space-before-function-paren": "warn",
-    // "@typescript-eslint/space-before-blocks": "warn",
-    // 
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/semi": "warn",
     "@typescript-eslint/space-infix-ops": [
@@ -127,7 +124,24 @@
       }
     ],
     "@typescript-eslint/type-annotation-spacing": "warn",
-    "@typescript-eslint/keyword-spacing": "warn"
+    "@typescript-eslint/keyword-spacing": "warn",
+    "@typescript-eslint/member-delimiter-style": [
+      "warn",
+      {
+        "multiline": {
+          "delimiter": "semi",
+          "requireLast": true
+        },
+        "singleline": {
+          "delimiter": "semi",
+          "requireLast": false
+        }
+      }
+    ]
+  },
+  "globals": {
+    "React": true,
+    "JSX": true
   },
   "settings": {
     "import/resolver": {
