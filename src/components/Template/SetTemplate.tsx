@@ -32,11 +32,7 @@ import Button from '../Generic/Button/Button';
 import FormField, { FormFieldInput } from '../Generic/Form/FormField';
 import Select from '../Generic/Form/Select';
 import Textarea from '../Generic/Form/Textarea';
-import Modal, {
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-} from '../Generic/Modal';
+import Modal from '../Generic/Modal';
 
 interface SetTemplateProps {
   template?: TTemplate;
@@ -223,10 +219,10 @@ const SetTemplate: FC<SetTemplateProps> = ({
       onExited={onExited}
       onSubmit={formik.handleSubmit}
     >
-      <ModalHeader close={close}>
+      <Modal.Header close={close}>
         {template ? 'Edit Template' : 'Create Template'}
-      </ModalHeader>
-      <ModalContent>
+      </Modal.Header>
+      <Modal.Content>
         <div className="flex justify-center gap-6">
           <ActionButton
             onClick={() => {
@@ -355,15 +351,15 @@ const SetTemplate: FC<SetTemplateProps> = ({
           onChange={formik.handleChange}
           placeholder="Description ..."
         />
-      </ModalContent>
-      <ModalFooter>
+      </Modal.Content>
+      <Modal.Footer>
         <Button color="green" type="submit">
           Save
         </Button>
         <Button color="gray" onClick={close}>
           Cancel
         </Button>
-      </ModalFooter>
+      </Modal.Footer>
     </Modal>
   );
 };

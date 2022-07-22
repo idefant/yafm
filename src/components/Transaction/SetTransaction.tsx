@@ -38,11 +38,7 @@ import FormField, { FormFieldInput } from '../Generic/Form/FormField';
 import Select from '../Generic/Form/Select';
 import Textarea from '../Generic/Form/Textarea';
 import TimePicker from '../Generic/Form/TimePicker';
-import Modal, {
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-} from '../Generic/Modal';
+import Modal from '../Generic/Modal';
 import ChooseTemplate from '../Template/ChooseTemplate';
 
 interface SetTransactionProps {
@@ -269,10 +265,10 @@ const SetTransaction: FC<SetTransactionProps> = ({
         onExited={onExited}
         onSubmit={formik.handleSubmit}
       >
-        <ModalHeader close={close}>
+        <Modal.Header close={close}>
           {transaction ? 'Edit Transaction' : 'Create Transaction'}
-        </ModalHeader>
-        <ModalContent>
+        </Modal.Header>
+        <Modal.Content>
           <div className="flex justify-center gap-3">
             <div className="flex justify-center gap-6 border-r-2 border-gray-400 pr-3">
               <ActionButton
@@ -419,15 +415,15 @@ const SetTransaction: FC<SetTransactionProps> = ({
             <TimePicker date={date} setDate={setDate} />
             <CalendarButton date={date} setDate={setDate} />
           </div>
-        </ModalContent>
-        <ModalFooter>
+        </Modal.Content>
+        <Modal.Footer>
           <Button color="green" type="submit">
             Save
           </Button>
           <Button color="gray" onClick={close}>
             Cancel
           </Button>
-        </ModalFooter>
+        </Modal.Footer>
       </Modal>
       <ChooseTemplate
         isOpen={isOpenTemplateModal}
