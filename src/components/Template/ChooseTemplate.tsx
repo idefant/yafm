@@ -5,7 +5,7 @@ import { useAppSelector } from '../../hooks/reduxHooks';
 import { selectFilteredTemplates } from '../../store/selectors';
 import { TTemplate, TTransactionType } from '../../types/transactionType';
 import ActionButton from '../Generic/Button/ActionButton';
-import Modal, { ModalContent, ModalHeader } from '../Generic/Modal';
+import Modal from '../Generic/Modal';
 import Table, {
   THead, TR, TH, TBody,
 } from '../Generic/Table';
@@ -40,8 +40,8 @@ const ChooseTemplate: FC<ChooseTemplateProps> = ({
 
   return (
     <Modal isOpen={isOpen} close={close} width="biggest" onEnter={onEnter}>
-      <ModalHeader close={close}>Choose Template</ModalHeader>
-      <ModalContent>
+      <Modal.Header close={close}>Choose Template</Modal.Header>
+      <Modal.Content>
         <div className="flex justify-center gap-6">
           <ActionButton
             onClick={() => setTransactionType('outcome')}
@@ -100,7 +100,7 @@ const ChooseTemplate: FC<ChooseTemplateProps> = ({
             </TBody>
           </Table>
         )}
-      </ModalContent>
+      </Modal.Content>
     </Modal>
   );
 };

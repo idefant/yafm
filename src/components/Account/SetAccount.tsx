@@ -13,7 +13,7 @@ import Button from '../Generic/Button/Button';
 import Checkbox from '../Generic/Form/Checkbox';
 import FormField from '../Generic/Form/FormField';
 import Select from '../Generic/Form/Select';
-import Modal, { ModalContent, ModalFooter, ModalHeader } from '../Generic/Modal';
+import Modal from '../Generic/Modal';
 
 interface SetAccountProps {
   account?: TAccount;
@@ -122,10 +122,10 @@ const SetAccount: FC<SetAccountProps> = ({ isOpen, close, account }) => {
       onExited={onExited}
       onSubmit={formik.handleSubmit}
     >
-      <ModalHeader close={close}>
+      <Modal.Header close={close}>
         {account ? 'Edit Account' : 'Create Account'}
-      </ModalHeader>
-      <ModalContent>
+      </Modal.Header>
+      <Modal.Content>
         <FormField
           label="Name"
           name="name"
@@ -180,15 +180,15 @@ const SetAccount: FC<SetAccountProps> = ({ isOpen, close, account }) => {
             </Checkbox>
           </>
         )}
-      </ModalContent>
-      <ModalFooter>
+      </Modal.Content>
+      <Modal.Footer>
         <Button color="green" type="submit">
           Save
         </Button>
         <Button color="gray" onClick={close}>
           Cancel
         </Button>
-      </ModalFooter>
+      </Modal.Footer>
     </Modal>
   );
 };
