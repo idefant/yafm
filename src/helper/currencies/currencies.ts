@@ -9,15 +9,16 @@ interface FormatPriceOptions {
 export const formatPrice = (
   value: number,
   decimalPlaces: number,
-  options: FormatPriceOptions = { useGrouping: true, useAtomicUnit: true },
+  options?: FormatPriceOptions,
 ) => {
-  const numDegree = options.useAtomicUnit ? decimalPlaces : 0;
+  const mergedOptions = { useGrouping: true, useAtomicUnit: true, ...options };
+  const numDegree = mergedOptions.useAtomicUnit ? decimalPlaces : 0;
   const priceNum = value / 10 ** numDegree;
   return priceNum.toLocaleString(
     'en',
     {
       maximumFractionDigits: decimalPlaces,
-      useGrouping: options.useGrouping,
+      useGrouping: mergedOptions.useGrouping,
     },
   );
 };
@@ -35,8 +36,9 @@ export const convertPrice = (
   from: string,
   to: string,
   amount: number,
-  options = { useAtomicUnit: true },
+  options?: { useAtomicUnit?: boolean },
 ) => {
+  const mergedOptions = { useAtomicUnit: true, ...options };
   const state = store.getState();
   const { prices } = state.currency;
   const currencyDict = selectCurrencyDict(state);
@@ -55,7 +57,7 @@ export const convertPrice = (
     currencyDict[curCode.toUpperCase()].decimal_places_number
   );
 
-  const numberDegree = options.useAtomicUnit
+  const numberDegree = mergedOptions.useAtomicUnit
     ? getDecimalPlaces(to) - getDecimalPlaces(from)
     : 0;
 

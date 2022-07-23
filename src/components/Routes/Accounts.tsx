@@ -24,6 +24,7 @@ import {
   selectFilteredAccounts,
 } from '../../store/selectors';
 import { TAccount, TCalculatedAccount } from '../../types/accountType';
+import { TCurrency } from '../../types/currencyType';
 import SetAccount from '../Account/SetAccount';
 import Button from '../Generic/Button/Button';
 import Table, {
@@ -61,28 +62,36 @@ const Accounts: FC = () => {
     setIsOpen(true);
   };
 
-  const currencyBalances = useMemo(() => {
+  type TBalance = TCurrency & {
+    balance: number;
+    idealBalance: number;
+    formattedBalance: string;
+  };
+
+  const balances: TBalance[] = useMemo(() => {
     const currencySum = groupSum(accounts, (elem) => ({
       key: elem.currency_code,
       num: elem.balance,
     }));
 
     return currencies
-      .map((currency) => ({
-        ...currency,
-        balance: currencySum[currency.code],
-        idealBalance: convertPrice(
-          currency.code.toLowerCase(),
-          baseCurrencyCode,
-          currencySum[currency.code],
-        ),
-      }))
+      .map((currency) => {
+        const balance = currencySum[currency.code];
+        const idealBalance = convertPrice(currency.code.toLowerCase(), baseCurrencyCode, balance);
+        const formattedBalance = formatPrice(balance, currency.decimal_places_number);
+        return {
+          ...currency,
+          balance,
+          formattedBalance,
+          idealBalance,
+        };
+      })
       .filter((account) => account.balance);
   }, [currencies, accounts]);
 
-  const currencyBalancesSum = useMemo(
-    () => sum(currencyBalances, (elem) => elem.idealBalance),
-    [currencyBalances],
+  const totalAmount = useMemo(
+    () => sum(balances, (elem) => elem.idealBalance),
+    [balances],
   );
 
   const accountsWithoutCategory = accounts.filter(
@@ -100,18 +109,26 @@ const Accounts: FC = () => {
 
   ChartJS.register(ArcElement, Tooltip, Legend);
 
-  const data: ChartData<'pie', number[], string> = useMemo(
+  const data: ChartData<'pie', any, string> = useMemo(
     () => ({
-      labels: currencyBalances.map((currency) => currency.code),
+      labels: balances.map((currency) => currency.code),
       datasets: [
         {
-          data: currencyBalances.map((currency) => currency.idealBalance),
-          backgroundColor: currencyBalances.map((currency) => currency.color),
+          data: balances.map((currency) => currency.idealBalance),
+          backgroundColor: balances.map((currency) => currency.color),
         },
       ],
     }),
-    [currencyBalances],
+    [balances],
   );
+
+  const currencyBalancesDict = useMemo(() => (
+    balances.reduce((dict: { [curCode: string]: TBalance }, currency) => {
+      // eslint-disable-next-line no-param-reassign
+      dict[currency.code] = currency;
+      return dict;
+    }, {})
+  ), [balances]);
 
   return (
     <>
@@ -121,37 +138,29 @@ const Accounts: FC = () => {
       </Button>
 
       <div className="flex items-start gap-20">
-        {currencyBalances.length > 0 && (
+        {balances.length > 0 && (
           <div>
-            <Table>
-              <THead>
-                <TR>
-                  <TH>Currency</TH>
-                  <TH>Balance</TH>
-                  <TH>Percentage</TH>
-                </TR>
-              </THead>
-              <TBody>
-                {currencyBalances.map((currency) => (
-                  <TR key={currency.code}>
-                    <TD>{currency.name}</TD>
-                    <TD>
-                      <div className="text-right">
-                        {formatPrice(currency.balance, currency.decimal_places_number)}
-                        <span className="pl-3">{currency.code}</span>
-                      </div>
-                    </TD>
-                    <TD>
-                      {((currency.idealBalance / currencyBalancesSum) * 100).toFixed(2)}
-                      %
-                    </TD>
-                  </TR>
-                ))}
-              </TBody>
-            </Table>
-
             <div className="w-72 my-8 mx-auto">
-              <Pie data={data} options={{ animation: { duration: 600 } }} />
+              <Pie
+                data={data}
+                options={{
+                  animation: { duration: 600 },
+                  plugins: {
+                    tooltip: {
+                      callbacks: {
+                        label: (tooltipItem) => {
+                          const {
+                            formattedBalance,
+                            idealBalance,
+                          } = currencyBalancesDict[tooltipItem.label];
+                          const percentage = ((idealBalance / totalAmount) * 100).toFixed(2);
+                          return `${tooltipItem.label}: ${formattedBalance} - ${percentage}%`;
+                        },
+                      },
+                    },
+                  },
+                }}
+              />
             </div>
 
             <Table className="w-full">
@@ -168,11 +177,7 @@ const Accounts: FC = () => {
                     <TD>
                       <div className="text-right">
                         {formatPrice(
-                          convertPrice(
-                            baseCurrencyCode,
-                            currency.code.toLowerCase(),
-                            currencyBalancesSum,
-                          ),
+                          convertPrice(baseCurrencyCode, currency.code.toLowerCase(), totalAmount),
                           currency.decimal_places_number,
                         )}
                         <span className="pl-3">{currency.code}</span>
