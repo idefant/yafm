@@ -4,14 +4,6 @@ import React, { FC, useState } from 'react';
 import ReactTooltip from 'react-tooltip';
 import Swal from 'sweetalert2';
 
-import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  CopyIcon,
-  InfoIcon,
-  PencilIcon,
-  TrashIcon,
-} from '../../assets/svg';
 import { formatPrice } from '../../helper/currencies';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
 import { setIsUnsaved } from '../../store/reducers/appSlice';
@@ -26,6 +18,7 @@ import { TPeriod } from '../../types/periodType';
 import { TTransaction, TOperationExtended } from '../../types/transactionType';
 import Button from '../Generic/Button/Button';
 import Select from '../Generic/Form/Select';
+import Icon from '../Generic/Icon';
 import Table, {
   TBody, TD, TDIcon, TH, THead, TR,
 } from '../Generic/Table';
@@ -99,7 +92,7 @@ const Transactions: FC = () => {
             className="p-2 bg-gray-200 border border-gray-600 rounded-full"
             type="button"
           >
-            <ChevronLeftIcon />
+            <Icon.ChevronLeft />
           </button>
           <div>
             {datePeriodType === 'month' && `${date.format('MMM YYYY')}`}
@@ -112,7 +105,7 @@ const Transactions: FC = () => {
             className="p-2 bg-gray-200 border border-gray-600 rounded-full"
             type="button"
           >
-            <ChevronRightIcon />
+            <Icon.ChevronRight />
           </button>
         </div>
       </div>
@@ -271,7 +264,7 @@ const TransactionItem: FC<TransactionItemProps> = ({
         {transaction.description && (
           <>
             <div data-tip data-for={`tr_${transaction.id}`} className="px-3">
-              <InfoIcon className="w-7 h-7" />
+              <Icon.Info className="w-7 h-7" />
             </div>
             <ReactTooltip
               id={`tr_${transaction.id}`}
@@ -286,17 +279,17 @@ const TransactionItem: FC<TransactionItemProps> = ({
 
       <TDIcon>
         <button className="p-2" onClick={copyTransaction} type="button">
-          <CopyIcon className="w-7 h-7" />
+          <Icon.Copy className="w-7 h-7" />
         </button>
       </TDIcon>
       <TDIcon>
         <button className="p-2" onClick={openModal} type="button">
-          <PencilIcon className="w-7 h-7" />
+          <Icon.Pencil className="w-7 h-7" />
         </button>
       </TDIcon>
       <TDIcon>
         <button className="p-2" onClick={confirmDelete} type="button">
-          <TrashIcon className="w-7 h-7" />
+          <Icon.Trash className="w-7 h-7" />
         </button>
       </TDIcon>
     </TR>

@@ -1,9 +1,6 @@
 import { FC, useState } from 'react';
 import Swal from 'sweetalert2';
 
-import {
-  ArchiveIcon, LockIcon, PencilIcon, TrashIcon,
-} from '../../assets/svg';
 import { compareObjByStr } from '../../helper/string';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
 import { setIsUnsaved } from '../../store/reducers/appSlice';
@@ -15,6 +12,7 @@ import {
 import { TCategory, TCategoryType } from '../../types/categoryType';
 import SetCategory from '../Caterory/SetCategory';
 import Button from '../Generic/Button/Button';
+import Icon from '../Generic/Icon';
 import Table, {
   TBody, TD, TDIcon, TH, THead, TR,
 } from '../Generic/Table';
@@ -155,16 +153,18 @@ const CategoryItem: FC<CategoryItemProps> = ({
   return (
     <TR hide={category.is_archive}>
       <TD>{category.name}</TD>
-      {!safeMode && <TD>{category.is_hide && <LockIcon />}</TD>}
-      <TD>{category.is_archive && <ArchiveIcon />}</TD>
+      {!safeMode && (
+        <TD>{category.is_hide && <Icon.Lock />}</TD>
+      )}
+      <TD>{category.is_archive && <Icon.Archive />}</TD>
       <TDIcon>
         <button className="p-2" onClick={openModal} type="button">
-          <PencilIcon className="w-7 h-7" />
+          <Icon.Pencil className="w-7 h-7" />
         </button>
       </TDIcon>
       <TDIcon>
         <button className="p-2" onClick={confirmDelete} type="button">
-          <TrashIcon className="w-7 h-7" />
+          <Icon.Trash className="w-7 h-7" />
         </button>
       </TDIcon>
     </TR>

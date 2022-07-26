@@ -2,7 +2,6 @@ import { FC, useState } from 'react';
 import ReactTooltip from 'react-tooltip';
 import Swal from 'sweetalert2';
 
-import { InfoIcon, PencilIcon, TrashIcon } from '../../assets/svg';
 import { formatPrice } from '../../helper/currencies';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
 import { setIsUnsaved } from '../../store/reducers/appSlice';
@@ -15,6 +14,7 @@ import {
 } from '../../store/selectors';
 import { TTemplate, TOperationExtended } from '../../types/transactionType';
 import Button from '../Generic/Button/Button';
+import Icon from '../Generic/Icon';
 import Table, {
   TBody, TD, TDIcon, TH, THead, TR,
 } from '../Generic/Table';
@@ -166,7 +166,7 @@ const TemplateItem: FC<TemplateItemProps> = ({ template, openModal }) => {
         {template.description && (
           <>
             <div data-tip data-for={`tr_${template.id}`} className="px-3">
-              <InfoIcon className="w-7 h-7" />
+              <Icon.Info className="w-7 h-7" />
             </div>
             <ReactTooltip
               id={`tr_${template.id}`}
@@ -181,12 +181,12 @@ const TemplateItem: FC<TemplateItemProps> = ({ template, openModal }) => {
 
       <TDIcon>
         <button className="p-2" onClick={openModal} type="button">
-          <PencilIcon className="w-7 h-7" />
+          <Icon.Pencil className="w-7 h-7" />
         </button>
       </TDIcon>
       <TDIcon>
         <button className="p-2" onClick={confirmDelete} type="button">
-          <TrashIcon className="w-7 h-7" />
+          <Icon.Trash className="w-7 h-7" />
         </button>
       </TDIcon>
     </TR>

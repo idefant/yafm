@@ -11,9 +11,6 @@ import {
 import { Pie } from 'react-chartjs-2';
 import Swal from 'sweetalert2';
 
-import {
-  ArchiveIcon, LockIcon, PencilIcon, TrashIcon,
-} from '../../assets/svg';
 import { groupSum, sum } from '../../helper/arrays';
 import { convertPrice, formatPrice } from '../../helper/currencies';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
@@ -27,6 +24,7 @@ import { TAccount, TCalculatedAccount } from '../../types/accountType';
 import { TCurrency } from '../../types/currencyType';
 import SetAccount from '../Account/SetAccount';
 import Button from '../Generic/Button/Button';
+import Icon from '../Generic/Icon';
 import Table, {
   TBody, TD, TDIcon, TH, THead, TR,
 } from '../Generic/Table';
@@ -217,10 +215,10 @@ const Accounts: FC = () => {
                     <TH colSpan={6} className="!bg-orange-200 !py-1">
                       <div className="flex justify-center gap-3 items-center">
                         {category.is_hide && (
-                          <LockIcon className="w-[22px] h-[22px]" />
+                          <Icon.Lock className="w-[22px] h-[22px]" />
                         )}
                         {category.is_archive && (
-                          <ArchiveIcon className="w-[22px] h-[22px]" />
+                          <Icon.Archive className="w-[22px] h-[22px]" />
                         )}
                         {category.name}
                       </div>
@@ -308,16 +306,18 @@ const AccountItem: FC<AccountItemProps> = ({ account, openModal }) => {
         )}
         <span className="pl-3">{accountCurrency.code}</span>
       </TD>
-      {!safeMode && <TD>{account.is_hide && <LockIcon />}</TD>}
-      <TD>{account.is_archive && <ArchiveIcon />}</TD>
+      {!safeMode && (
+        <TD>{account.is_hide && <Icon.Lock />}</TD>
+      )}
+      <TD>{account.is_archive && <Icon.Archive />}</TD>
       <TDIcon>
         <button className="p-2" onClick={openModal} type="button">
-          <PencilIcon className="w-7 h-7" />
+          <Icon.Pencil className="w-7 h-7" />
         </button>
       </TDIcon>
       <TDIcon>
         <button className="p-2" onClick={confirmDelete} type="button">
-          <TrashIcon className="w-7 h-7" />
+          <Icon.Trash className="w-7 h-7" />
         </button>
       </TDIcon>
     </TR>

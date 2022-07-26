@@ -4,9 +4,6 @@ import React, { FC, useState } from 'react';
 import { useNavigate, NavLink } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
-import {
-  ArchiveIcon, LockIcon, ShieldIcon, UploadIcon,
-} from '../assets/svg';
 import { aesEncrypt } from '../helper/crypto';
 import { setBaseRequest } from '../helper/requests/versionRequests';
 import { getSyncData } from '../helper/sync';
@@ -22,6 +19,7 @@ import { clearCategories } from '../store/reducers/categorySlice';
 import { clearCurrencyData } from '../store/reducers/currencySlice';
 import { clearTransactions } from '../store/reducers/transactionSlice';
 
+import Icon from './Generic/Icon';
 import Hamburger from './Hamburger';
 
 const Header: FC = () => {
@@ -107,25 +105,25 @@ const Header: FC = () => {
               onClick={safeMode ? disableSafeMode : enableSafeMode}
               className={classNames(safeMode && 'opacity-40')}
             >
-              <ShieldIcon />
+              <Icon.Shield />
             </HeaderIconButton>
 
             <HeaderIconButton
               onClick={() => dispatch(setArchiveMode(!archiveMode))}
               className={classNames(!archiveMode && 'opacity-40')}
             >
-              <ArchiveIcon />
+              <Icon.Archive />
             </HeaderIconButton>
 
             <HeaderIconButton
               onClick={sync}
               className={classNames(!isUnsaved && 'opacity-40')}
             >
-              <UploadIcon />
+              <Icon.Upload />
             </HeaderIconButton>
 
             <HeaderIconButton onClick={lock}>
-              <LockIcon className="text-white" />
+              <Icon.Lock className="text-white" />
             </HeaderIconButton>
 
             <Hamburger

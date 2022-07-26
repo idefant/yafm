@@ -3,8 +3,9 @@ import {
   FC, ReactNode, useReducer, useRef, useState,
 } from 'react';
 
-import { ChevronRightIcon } from '../../assets/svg';
 import useInterval from '../../hooks/useInterval';
+
+import Icon from './Icon';
 
 interface DetailsProps {
   title: string;
@@ -29,7 +30,9 @@ const Details: FC<DetailsProps> = ({ title, children }) => {
         onClick={toggleIsOpen}
         type="button"
       >
-        <ChevronRightIcon className={classNames('transition-all w-8', isOpen && 'rotate-90')} />
+        <Icon.ChevronRight
+          className={classNames('transition-all w-8', isOpen && 'rotate-90')}
+        />
         <div>{title}</div>
       </button>
       <div

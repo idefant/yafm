@@ -9,7 +9,6 @@ import {
 } from 'yup';
 import 'react-datepicker/dist/react-datepicker.css';
 
-import { MinusIcon, PlusIcon, TrashIcon } from '../../assets/svg';
 import { parseInputPrice, formatPrice } from '../../helper/currencies';
 import { compareObjByStr } from '../../helper/string';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
@@ -29,6 +28,7 @@ import FormField, { FormFieldInput } from '../Generic/Form/FormField';
 import Select from '../Generic/Form/Select';
 import Textarea from '../Generic/Form/Textarea';
 import TimePicker from '../Generic/Form/TimePicker';
+import Icon from '../Generic/Icon';
 import Modal from '../Generic/Modal';
 import ChooseTemplate from '../Template/ChooseTemplate';
 
@@ -252,7 +252,7 @@ const SetTransaction: FC<SetTransactionProps> = ({
                               !operation.isPositive,
                             )}
                           >
-                            {operation.isPositive ? <PlusIcon /> : <MinusIcon />}
+                            {operation.isPositive ? <Icon.Plus /> : <Icon.Minus />}
                           </Button>
 
                           <Select
@@ -297,7 +297,7 @@ const SetTransaction: FC<SetTransactionProps> = ({
                             onClick={() => remove(index)}
                             disabled={values.operations.length === 1}
                           >
-                            <TrashIcon />
+                            <Icon.Trash />
                           </Button>
                         </div>
                       );

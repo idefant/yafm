@@ -1,7 +1,6 @@
 import { FC } from 'react';
 import ReactTooltip from 'react-tooltip';
 
-import { CircleIcon, InfoIcon } from '../../assets/svg';
 import { formatPrice } from '../../helper/currencies';
 import { useAppSelector } from '../../hooks/reduxHooks';
 import {
@@ -10,6 +9,7 @@ import {
   selectTransactionCategoryDict,
 } from '../../store/selectors';
 import { TTemplate, TOperationExtended } from '../../types/transactionType';
+import Icon from '../Generic/Icon';
 import { TR, TD, TDIcon } from '../Generic/Table';
 
 interface ChooseTemplateItemProps {
@@ -44,7 +44,7 @@ const ChooseTemplateItem: FC<ChooseTemplateItemProps> = ({ template, choose }) =
     <TR>
       <TD>
         <button onClick={choose} type="button">
-          <CircleIcon />
+          <Icon.Circle />
         </button>
       </TD>
       <TD>{template.name}</TD>
@@ -96,7 +96,7 @@ const ChooseTemplateItem: FC<ChooseTemplateItemProps> = ({ template, choose }) =
         {template.description && (
           <>
             <div data-tip data-for={`tr_${template.id}`} className="px-3">
-              <InfoIcon className="w-7 h-7" />
+              <Icon.Info className="w-7 h-7" />
             </div>
             <ReactTooltip
               id={`tr_${template.id}`}

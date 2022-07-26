@@ -3,7 +3,6 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { FC, useEffect, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 
-import { DownloadIcon, UnlockIcon } from '../../assets/svg';
 import { exportFile } from '../../helper/file';
 import {
   getVersionListRequest,
@@ -11,6 +10,7 @@ import {
 } from '../../helper/requests/versionRequests';
 import { useAppSelector } from '../../hooks/reduxHooks';
 import ButtonLink from '../Generic/Button/ButtonLink';
+import Icon from '../Generic/Icon';
 import Table, {
   THead, TR, TH, TBody, TD, TDIcon,
 } from '../Generic/Table';
@@ -87,7 +87,7 @@ const Versions: FC = () => {
                 <TD>{version.date}</TD>
                 <TDIcon>
                   <Link to={`/decrypt/${version.filename}`}>
-                    <UnlockIcon className="w-7 h-7" />
+                    <Icon.Unlock className="w-7 h-7" />
                   </Link>
                 </TDIcon>
                 <TDIcon>
@@ -96,7 +96,7 @@ const Versions: FC = () => {
                     onClick={() => downloadVersion(version.filename)}
                     type="button"
                   >
-                    <DownloadIcon className="w-7 h-7" />
+                    <Icon.Download className="w-7 h-7" />
                   </button>
                 </TDIcon>
               </TR>
