@@ -9,7 +9,7 @@ import {
   selectCurrencyDict,
   selectTransactionCategoryDict,
 } from '../../store/selectors';
-import { TTemplate } from '../../types/transactionType';
+import { TTemplate, TOperationExtended } from '../../types/transactionType';
 import { TR, TD, TDIcon } from '../Generic/Table';
 
 interface ChooseTemplateItemProps {
@@ -22,15 +22,19 @@ const ChooseTemplateItem: FC<ChooseTemplateItemProps> = ({ template, choose }) =
   const accountDict = useAppSelector(selectAccountDict);
   const categoryDict = useAppSelector(selectTransactionCategoryDict);
 
-  const incomeAccount = template.income?.account_id
-    ? accountDict[template.income?.account_id]
-    : undefined;
-  const outcomeAccount = template.outcome?.account_id
-    ? accountDict[template.outcome?.account_id]
-    : undefined;
+  const operations: TOperationExtended[] = template.operations.map((operation) => ({
+    ...operation,
+    account: accountDict[operation.account_id],
+    currency: currencyDict[accountDict[operation.account_id].currency_code],
+  }));
 
-  const incomeCurrency = incomeAccount && currencyDict[incomeAccount.currency_code];
-  const outcomeCurrency = outcomeAccount && currencyDict[outcomeAccount.currency_code];
+  const { incomes, outcomes } = operations.reduce((
+    acc: { incomes: TOperationExtended[]; outcomes: TOperationExtended[] },
+    operation,
+  ) => {
+    (operation.sum < 0 ? acc.outcomes : acc.incomes).push(operation);
+    return acc;
+  }, { incomes: [], outcomes: [] });
 
   const categoryName = template.category_id
     ? categoryDict[template.category_id].name
@@ -46,35 +50,43 @@ const ChooseTemplateItem: FC<ChooseTemplateItemProps> = ({ template, choose }) =
       <TD>{template.name}</TD>
       <TD className="text-center">{categoryName}</TD>
 
-      {template.outcome && outcomeCurrency && outcomeAccount ? (
+      {outcomes.length ? (
         <TD className="text-right">
-          <div className="text-red-700">
-            {formatPrice(
-              template.outcome.sum,
-              outcomeCurrency.decimal_places_number,
-            )}
-            <span className="pl-2.5">{outcomeCurrency.code || ''}</span>
-          </div>
-          <div className="text-sm text-gray-600">
-            {outcomeAccount.name || ''}
-          </div>
+          {outcomes.map((outcome, index) => (
+            <div key={index}>
+              <div className="text-red-700">
+                {formatPrice(
+                  -outcome.sum,
+                  outcome.currency.decimal_places_number,
+                )}
+                <span className="pl-2.5">{outcome.currency.code}</span>
+              </div>
+              <div className="text-sm text-gray-600">
+                {outcome.account.name}
+              </div>
+            </div>
+          ))}
         </TD>
       ) : (
         <TD className="text-center">-</TD>
       )}
 
-      {template.income && incomeCurrency && incomeAccount ? (
+      {incomes.length ? (
         <TD className="text-right">
-          <div className="text-green-700">
-            {formatPrice(
-              template.income.sum,
-              incomeCurrency.decimal_places_number,
-            )}
-            <span className="pl-2.5">{incomeCurrency.code || ''}</span>
-          </div>
-          <div className="text-sm text-gray-600">
-            {incomeAccount.name || ''}
-          </div>
+          {incomes.map((income, index) => (
+            <div key={index}>
+              <div className="text-green-700">
+                {formatPrice(
+                  income.sum,
+                  income.currency.decimal_places_number,
+                )}
+                <span className="pl-2.5">{income.currency.code || ''}</span>
+              </div>
+              <div className="text-sm text-gray-600">
+                {income.account.name || ''}
+              </div>
+            </div>
+          ))}
         </TD>
       ) : (
         <TD className="text-center">-</TD>

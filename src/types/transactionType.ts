@@ -1,23 +1,23 @@
-export type TTransactionTransfer = {
+import { TAccount } from './accountType';
+import { TCurrency } from './currencyType';
+
+export type TOperation = {
   account_id: string;
   sum: number;
 };
 
-export type TTransactionType = 'income' | 'outcome' | 'exchange';
-export const transactionTypes = ['income', 'outcome', 'exchange'];
+export type TOperationExtended = TOperation & {
+  account: TAccount;
+  currency: TCurrency;
+};
 
 export type TTransaction = {
   id: string;
   name?: string;
   description?: string;
   datetime: number;
-  type: TTransactionType;
-  income?: TTransactionTransfer;
-  outcome?: TTransactionTransfer;
   category_id?: string;
+  operations: TOperation[];
 };
 
 export type TTemplate = Omit<TTransaction, 'datetime'>;
-
-export const checkNeedIncome = (transactionType: TTransactionType) => ['income', 'exchange'].includes(transactionType);
-export const checkNeedOutcome = (transactionType: TTransactionType) => ['outcome', 'exchange'].includes(transactionType);

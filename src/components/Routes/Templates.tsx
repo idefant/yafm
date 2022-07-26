@@ -2,14 +2,7 @@ import { FC, useState } from 'react';
 import ReactTooltip from 'react-tooltip';
 import Swal from 'sweetalert2';
 
-import {
-  InfoIcon,
-  MinusIcon,
-  PencilIcon,
-  PlusIcon,
-  RepeatIcon,
-  TrashIcon,
-} from '../../assets/svg';
+import { InfoIcon, PencilIcon, TrashIcon } from '../../assets/svg';
 import { formatPrice } from '../../helper/currencies';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
 import { setIsUnsaved } from '../../store/reducers/appSlice';
@@ -20,8 +13,8 @@ import {
   selectFilteredTemplates,
   selectTransactionCategoryDict,
 } from '../../store/selectors';
-import { TTemplate, TTransactionType } from '../../types/transactionType';
-import ActionButton from '../Generic/Button/ActionButton';
+import { TTemplate, TOperationExtended } from '../../types/transactionType';
+import Button from '../Generic/Button/Button';
 import Table, {
   TBody, TD, TDIcon, TH, THead, TR,
 } from '../Generic/Table';
@@ -32,39 +25,20 @@ const Templates: FC = () => {
   const templates = useAppSelector(selectFilteredTemplates);
 
   const [isOpen, setIsOpen] = useState(false);
-  const [transactionType, setTransactionType] = useState<TTransactionType>();
   const [openedTemplate, setOpenedTemplate] = useState<TTemplate>();
 
-  const openTemplate = (type: TTransactionType, template?: TTemplate) => {
+  const openTemplate = (template?: TTemplate) => {
     setOpenedTemplate(template);
-    setTransactionType(type);
     setIsOpen(true);
   };
 
   return (
     <>
       <Title>Templates</Title>
-      <div className="flex gap-2">
-        <ActionButton
-          onClick={() => openTemplate('outcome')}
-          color="red"
-          active
-        >
-          <MinusIcon className="w-8 h-8" />
-        </ActionButton>
 
-        <ActionButton
-          onClick={() => openTemplate('income')}
-          color="green"
-          active
-        >
-          <PlusIcon className="w-8 h-8" />
-        </ActionButton>
-
-        <ActionButton onClick={() => openTemplate('exchange')} active>
-          <RepeatIcon className="w-8 h-8" />
-        </ActionButton>
-      </div>
+      <Button color="green" onClick={() => openTemplate()}>
+        Create
+      </Button>
 
       {templates.length ? (
         <Table>
@@ -83,7 +57,7 @@ const Templates: FC = () => {
             {templates.map((template) => (
               <TemplateItem
                 template={template}
-                openModal={() => openTemplate(template.type, template)}
+                openModal={() => openTemplate(template)}
                 key={template.id}
               />
             ))}
@@ -96,7 +70,6 @@ const Templates: FC = () => {
       <SetTemplate
         isOpen={isOpen}
         close={() => setIsOpen(false)}
-        startTransactionType={transactionType}
         template={openedTemplate}
       />
     </>
@@ -114,15 +87,19 @@ const TemplateItem: FC<TemplateItemProps> = ({ template, openModal }) => {
   const categoryDict = useAppSelector(selectTransactionCategoryDict);
   const dispatch = useAppDispatch();
 
-  const incomeAccount = template.income?.account_id
-    ? accountDict[template.income?.account_id]
-    : undefined;
-  const outcomeAccount = template.outcome?.account_id
-    ? accountDict[template.outcome?.account_id]
-    : undefined;
+  const operations: TOperationExtended[] = template.operations.map((operation) => ({
+    ...operation,
+    account: accountDict[operation.account_id],
+    currency: currencyDict[accountDict[operation.account_id].currency_code],
+  }));
 
-  const incomeCurrency = incomeAccount && currencyDict[incomeAccount.currency_code];
-  const outcomeCurrency = outcomeAccount && currencyDict[outcomeAccount.currency_code];
+  const { incomes, outcomes } = operations.reduce((
+    acc: { incomes: TOperationExtended[]; outcomes: TOperationExtended[] },
+    operation,
+  ) => {
+    (operation.sum < 0 ? acc.outcomes : acc.incomes).push(operation);
+    return acc;
+  }, { incomes: [], outcomes: [] });
 
   const categoryName = template.category_id
     ? categoryDict[template.category_id].name
@@ -149,35 +126,37 @@ const TemplateItem: FC<TemplateItemProps> = ({ template, openModal }) => {
       <TD>{template.name}</TD>
       <TD className="text-center">{categoryName}</TD>
 
-      {template.outcome && outcomeCurrency && outcomeAccount ? (
+      {outcomes.length ? (
         <TD className="text-right">
-          <div className="text-red-700">
-            {formatPrice(
-              template.outcome.sum,
-              outcomeCurrency.decimal_places_number,
-            )}
-            <span className="pl-2.5">{outcomeCurrency.code || ''}</span>
-          </div>
-          <div className="text-sm text-gray-600">
-            {outcomeAccount.name || ''}
-          </div>
+          {outcomes.map((outcome, index) => (
+            <div key={index}>
+              <div className="text-red-700">
+                {formatPrice(-outcome.sum, outcome.currency.decimal_places_number)}
+                <span className="pl-2.5">{outcome.currency.code}</span>
+              </div>
+              <div className="text-sm text-gray-600">
+                {outcome.account.name}
+              </div>
+            </div>
+          ))}
         </TD>
       ) : (
         <TD className="text-center">-</TD>
       )}
 
-      {template.income && incomeCurrency && incomeAccount ? (
-        <TD className="text-right">
-          <div className="text-green-700">
-            {formatPrice(
-              template.income.sum,
-              incomeCurrency.decimal_places_number,
-            )}
-            <span className="pl-2.5">{incomeCurrency.code || ''}</span>
-          </div>
-          <div className="text-sm text-gray-600">
-            {incomeAccount.name || ''}
-          </div>
+      {incomes.length ? (
+        <TD className="text-right grid gap-4">
+          {incomes.map((income, index) => (
+            <div key={index}>
+              <div className="text-green-700">
+                {formatPrice(income.sum, income.currency.decimal_places_number)}
+                <span className="pl-2.5">{income.currency.code || ''}</span>
+              </div>
+              <div className="text-sm text-gray-600">
+                {income.account.name || ''}
+              </div>
+            </div>
+          ))}
         </TD>
       ) : (
         <TD className="text-center">-</TD>

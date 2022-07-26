@@ -65,12 +65,9 @@ export const selectAccountsWithBalance = createSelector(
     const accountBalancesDict = Object.fromEntries(accounts.map(({ id }) => [id, 0]));
 
     transactions.forEach((transaction) => {
-      if (transaction.income) {
-        accountBalancesDict[transaction.income.account_id] += transaction.income.sum;
-      }
-      if (transaction.outcome) {
-        accountBalancesDict[transaction.outcome.account_id] -= transaction.outcome.sum;
-      }
+      transaction.operations.forEach((operation) => {
+        accountBalancesDict[operation.account_id] += operation.sum;
+      });
     });
 
     return accounts.map((account) => ({
@@ -81,10 +78,15 @@ export const selectAccountsWithBalance = createSelector(
 );
 
 export const selectFilteredAccounts = createSelector(
-  [selectSafeMode, selectArchiveMode, selectAccountsWithBalance],
-  (safeMode, archiveMode, accounts) => accounts.filter(
-    (account) => !(safeMode && account.is_hide) && !(!archiveMode && account.is_archive),
-  ),
+  [selectSafeMode, selectArchiveMode, selectAccountsWithBalance, selectHiddenAccountCategoryIds],
+  (safeMode, archiveMode, accounts, hiddenCategoryIds) => accounts.filter((account) => {
+    const isHidden = safeMode && account.is_hide;
+    const isArchived = !archiveMode && account.is_archive;
+    const isCategoryHidden = safeMode
+      && account.category_id
+      && hiddenCategoryIds.has(account.category_id);
+    return !(isHidden || isArchived || isCategoryHidden);
+  }),
 );
 
 export const selectAccountDict = createSelector(
@@ -129,12 +131,14 @@ export const selectFilteredTransactions = createSelector(
     selectTransactions,
   ],
   (safeMode, hiddenCategoryIds, hiddenAccountIds, transactions) => transactions.filter(
-    (transaction) => !safeMode
-        || !(
-          (transaction.category_id && hiddenCategoryIds.has(transaction.category_id))
-          || (transaction.outcome && hiddenAccountIds.has(transaction.outcome.account_id))
-          || (transaction.income && hiddenAccountIds.has(transaction.income.account_id))
-        ),
+    (transaction) => {
+      if (!safeMode) return true;
+      if ((transaction.category_id && hiddenCategoryIds.has(transaction.category_id))) return false;
+
+      return !transaction.operations.some(
+        (operation) => hiddenAccountIds.has(operation.account_id),
+      );
+    },
   ),
 );
 
@@ -146,11 +150,13 @@ export const selectFilteredTemplates = createSelector(
     selectTemplates,
   ],
   (safeMode, hiddenCategoryIds, hiddenAccountIds, templates) => templates.filter(
-    (template) => !safeMode
-        || !(
-          (template.category_id && hiddenCategoryIds.has(template.category_id))
-          || (template.outcome && hiddenAccountIds.has(template.outcome.account_id))
-          || (template.income && hiddenAccountIds.has(template.income.account_id))
-        ),
+    (template) => {
+      if (!safeMode) return true;
+      if ((template.category_id && hiddenCategoryIds.has(template.category_id))) return false;
+
+      return !template.operations.some(
+        (operation) => hiddenAccountIds.has(operation.account_id),
+      );
+    },
   ),
 );

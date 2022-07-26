@@ -8,7 +8,7 @@ import {
 
 interface FormFieldProps {
   label: string;
-  value: string | number;
+  value?: string | number;
   // eslint-disable-next-line no-unused-vars
   onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
   units?: string;
@@ -45,7 +45,7 @@ const FormField: FC<FormFieldProps> = ({
 );
 
 interface FormFieldInputProps {
-  value: string | number;
+  value?: string | number;
   // eslint-disable-next-line no-unused-vars
   onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
   type?: HTMLInputTypeAttribute;

@@ -9,8 +9,8 @@ import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
 import { setIsUnsaved } from '../../store/reducers/appSlice';
 import { deleteCategory } from '../../store/reducers/categorySlice';
 import {
-  selectAccountCategories,
-  selectTransactionCategories,
+  selectFilteredAccountCategories,
+  selectFilteredTransactionCategories,
 } from '../../store/selectors';
 import { TCategory, TCategoryType } from '../../types/categoryType';
 import SetCategory from '../Caterory/SetCategory';
@@ -26,8 +26,8 @@ interface CategoriesProps {
 
 const Categories: FC<CategoriesProps> = ({ categoryType }) => {
   const categorySelectorDict = {
-    accounts: selectAccountCategories,
-    transactions: selectTransactionCategories,
+    accounts: selectFilteredAccountCategories,
+    transactions: selectFilteredTransactionCategories,
   };
 
   const categories = useAppSelector(categorySelectorDict[categoryType]);

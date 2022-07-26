@@ -89,18 +89,16 @@ export const checkBaseIntegrity = async (data: {
 
   [...data.transactions, ...data.templates].forEach(({
     category_id: categoryId,
-    income,
-    outcome,
+    operations,
   }) => {
     if (categoryId && !categoryTransactionIds.has(categoryId)) {
       messages.push(`There is no transaction category with id=${categoryId}`);
     }
-    if (income && !accountIds.has(income.account_id)) {
-      messages.push(`There is no account with id=${income.account_id}`);
-    }
-    if (outcome && !accountIds.has(outcome.account_id)) {
-      messages.push(`There is no account with id=${outcome.account_id}`);
-    }
+    operations.forEach((operation) => {
+      if (!accountIds.has(operation.account_id)) {
+        messages.push(`There is no account with id=${operation.account_id}`);
+      }
+    });
   });
 
   if (messages.length) return ({ error: messages[0] });

@@ -219,6 +219,9 @@ const Accounts: FC = () => {
                         {category.is_hide && (
                           <LockIcon className="w-[22px] h-[22px]" />
                         )}
+                        {category.is_archive && (
+                          <ArchiveIcon className="w-[22px] h-[22px]" />
+                        )}
                         {category.name}
                       </div>
                     </TH>
@@ -265,7 +268,9 @@ const AccountItem: FC<AccountItemProps> = ({ account, openModal }) => {
 
   const checkAccountIsUsed = () => (
     [...transactions, ...templates].some(
-      ({ income, outcome }) => [income?.account_id, outcome?.account_id].includes(account.id),
+      ({ operations }) => (
+        operations.map((operation) => operation.account_id).includes(account.id)
+      ),
     )
   );
 

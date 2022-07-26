@@ -9,10 +9,7 @@ import {
   ChevronRightIcon,
   CopyIcon,
   InfoIcon,
-  MinusIcon,
   PencilIcon,
-  PlusIcon,
-  RepeatIcon,
   TrashIcon,
 } from '../../assets/svg';
 import { formatPrice } from '../../helper/currencies';
@@ -26,8 +23,8 @@ import {
   selectTransactionCategoryDict,
 } from '../../store/selectors';
 import { TPeriod } from '../../types/periodType';
-import { TTransaction, TTransactionType } from '../../types/transactionType';
-import ActionButton from '../Generic/Button/ActionButton';
+import { TTransaction, TOperationExtended } from '../../types/transactionType';
+import Button from '../Generic/Button/Button';
 import Select from '../Generic/Form/Select';
 import Table, {
   TBody, TD, TDIcon, TH, THead, TR,
@@ -44,24 +41,20 @@ const Transactions: FC = () => {
   const [date, setDate] = useState(dayjs());
   const [datePeriodType, setDatePeriodType] = useState<TPeriod>('month');
 
-  const [transactionType, setTransactionType] = useState<TTransactionType>();
   const [openedTransaction, setOpenedTransaction] = useState<TTransaction>();
   const [copiedTransaction, setCopiedTransaction] = useState<TTransaction>();
 
   const openTransaction = (
-    type: TTransactionType,
     transaction?: TTransaction,
   ) => {
     setOpenedTransaction(transaction);
     setCopiedTransaction(undefined);
-    setTransactionType(type);
     setIsOpen(true);
   };
 
   const copyTransaction = (transaction: TTransaction) => {
     setOpenedTransaction(undefined);
     setCopiedTransaction(transaction);
-    setTransactionType(transaction.type);
     setIsOpen(true);
   };
 
@@ -86,27 +79,9 @@ const Transactions: FC = () => {
     <>
       <Title>Transactions</Title>
       <div className="flex gap-20 items-center my-4">
-        <div className="flex gap-2">
-          <ActionButton
-            onClick={() => openTransaction('outcome')}
-            color="red"
-            active
-          >
-            <MinusIcon className="w-8 h-8" />
-          </ActionButton>
-
-          <ActionButton
-            onClick={() => openTransaction('income')}
-            color="green"
-            active
-          >
-            <PlusIcon className="w-8 h-8" />
-          </ActionButton>
-
-          <ActionButton onClick={() => openTransaction('exchange')} active>
-            <RepeatIcon className="w-8 h-8" />
-          </ActionButton>
-        </div>
+        <Button color="green" onClick={() => openTransaction()}>
+          Create
+        </Button>
 
         <div className="flex gap-3 items-center">
           <Select
@@ -168,7 +143,7 @@ const Transactions: FC = () => {
                 {group[1].map((transaction) => (
                   <TransactionItem
                     transaction={transaction}
-                    openModal={() => openTransaction(transaction.type, transaction)}
+                    openModal={() => openTransaction(transaction)}
                     key={transaction.id}
                     copyTransaction={() => copyTransaction(transaction)}
                   />
@@ -184,7 +159,6 @@ const Transactions: FC = () => {
       <SetTransaction
         isOpen={isOpen}
         close={() => setIsOpen(false)}
-        startTransactionType={transactionType}
         transaction={openedTransaction}
         copiedTransaction={copiedTransaction}
       />
@@ -208,15 +182,19 @@ const TransactionItem: FC<TransactionItemProps> = ({
   const categoryDict = useAppSelector(selectTransactionCategoryDict);
   const dispatch = useAppDispatch();
 
-  const incomeAccount = transaction.income?.account_id
-    ? accountDict[transaction.income?.account_id]
-    : undefined;
-  const outcomeAccount = transaction.outcome?.account_id
-    ? accountDict[transaction.outcome?.account_id]
-    : undefined;
+  const operations: TOperationExtended[] = transaction.operations.map((operation) => ({
+    ...operation,
+    account: accountDict[operation.account_id],
+    currency: currencyDict[accountDict[operation.account_id].currency_code],
+  }));
 
-  const incomeCurrency = incomeAccount && currencyDict[incomeAccount.currency_code];
-  const outcomeCurrency = outcomeAccount && currencyDict[outcomeAccount.currency_code];
+  const { incomes, outcomes } = operations.reduce((
+    acc: { incomes: TOperationExtended[]; outcomes: TOperationExtended[] },
+    operation,
+  ) => {
+    (operation.sum < 0 ? acc.outcomes : acc.incomes).push(operation);
+    return acc;
+  }, { incomes: [], outcomes: [] });
 
   const categoryName = transaction.category_id
     ? categoryDict[transaction.category_id].name
@@ -249,34 +227,40 @@ const TransactionItem: FC<TransactionItemProps> = ({
       </TD>
       <TD className="text-center">{categoryName}</TD>
 
-      {transaction.outcome && outcomeCurrency && outcomeAccount ? (
-        <TD className="text-right">
-          <div className="text-red-700">
-            {formatPrice(
-              transaction.outcome.sum,
-              outcomeCurrency.decimal_places_number,
-            )}
-            <span className="pl-2.5">{outcomeCurrency.code || ''}</span>
-          </div>
-          <div className="text-sm text-gray-600">
-            {outcomeAccount.name || ''}
+      {outcomes.length ? (
+        <TD>
+          <div className="text-right grid gap-2">
+            {outcomes.map((outcome, index) => (
+              <div key={index}>
+                <div className="text-red-700">
+                  {formatPrice(-outcome.sum, outcome.currency.decimal_places_number)}
+                  <span className="pl-2.5">{outcome.currency.code}</span>
+                </div>
+                <div className="text-sm text-gray-600">
+                  {outcome.account.name}
+                </div>
+              </div>
+            ))}
           </div>
         </TD>
       ) : (
         <TD className="text-center">-</TD>
       )}
 
-      {transaction.income && incomeCurrency && incomeAccount ? (
-        <TD className="text-right">
-          <div className="text-green-700">
-            {formatPrice(
-              transaction.income.sum,
-              incomeCurrency.decimal_places_number,
-            )}
-            <span className="pl-2.5">{incomeCurrency.code || ''}</span>
-          </div>
-          <div className="text-sm text-gray-600">
-            {incomeAccount.name || ''}
+      {incomes.length ? (
+        <TD>
+          <div className="text-right grid gap-2">
+            {incomes.map((income, index) => (
+              <div key={index}>
+                <div className="text-green-700">
+                  {formatPrice(income.sum, income.currency.decimal_places_number)}
+                  <span className="pl-2.5">{income.currency.code || ''}</span>
+                </div>
+                <div className="text-sm text-gray-600">
+                  {income.account.name || ''}
+                </div>
+              </div>
+            ))}
           </div>
         </TD>
       ) : (
