@@ -29,6 +29,8 @@
     "@typescript-eslint"
   ],
   "rules": {
+    "object-curly-newline": "warn",
+    "arrow-body-style": "warn",
     "space-infix-ops": "warn",
     "no-unused-vars": "warn",
     "key-spacing": "warn",

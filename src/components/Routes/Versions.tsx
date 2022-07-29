@@ -11,9 +11,7 @@ import {
 import { useAppSelector } from '../../hooks/reduxHooks';
 import ButtonLink from '../Generic/Button/ButtonLink';
 import Icon from '../Generic/Icon';
-import Table, {
-  THead, TR, TH, TBody, TD, TDIcon,
-} from '../Generic/Table';
+import Table, { TColumn, TableAction } from '../Generic/Table';
 
 dayjs.extend(customParseFormat);
 
@@ -57,6 +55,33 @@ const Versions: FC = () => {
     return <Navigate to="/decrypt" />;
   }
 
+  const tableColumns: TColumn<{ filename: string; date: string }>[] = [
+    {
+      title: '#',
+      key: 'id',
+      render: ({ index }) => index + 1,
+    },
+    {
+      title: 'Date',
+      key: 'date',
+    },
+    {
+      key: 'actions',
+      cellClassName: '!p-0',
+      render: ({ record }) => (
+        <div className="flex justify-center gap-2">
+          <Link to={`/decrypt/${record.filename}`} className="p-2">
+            <Icon.Unlock className="w-7 h-7" />
+          </Link>
+          <TableAction
+            onClick={() => downloadVersion(record.filename)}
+            icon={Icon.Download}
+          />
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div>
       <h1 className="text-3xl font-bold underline text-center mb-7">
@@ -71,38 +96,12 @@ const Versions: FC = () => {
           </ButtonLink>
         </div>
       ) : (
-        <Table className="w-full">
-          <THead>
-            <TR>
-              <TH>ID</TH>
-              <TH>Date</TH>
-              <TH />
-              <TH />
-            </TR>
-          </THead>
-          <TBody>
-            {versions.map((version, i) => (
-              <TR key={version.filename}>
-                <TD>{i + 1}</TD>
-                <TD>{version.date}</TD>
-                <TDIcon>
-                  <Link to={`/decrypt/${version.filename}`}>
-                    <Icon.Unlock className="w-7 h-7" />
-                  </Link>
-                </TDIcon>
-                <TDIcon>
-                  <button
-                    className="p-2"
-                    onClick={() => downloadVersion(version.filename)}
-                    type="button"
-                  >
-                    <Icon.Download className="w-7 h-7" />
-                  </button>
-                </TDIcon>
-              </TR>
-            ))}
-          </TBody>
-        </Table>
+        <Table
+          columns={tableColumns}
+          data={versions}
+          getKey={(record) => record.filename}
+          className={{ table: 'w-full' }}
+        />
       )}
     </div>
   );

@@ -202,7 +202,7 @@ const SetTransaction: FC<SetTransactionProps> = ({
           <Form>
             <Modal.Header close={close}>
               {transaction ? 'Edit Transaction' : 'Create Transaction'}
-              {!transaction && (
+              {!transaction && !copiedTransaction && (
                 <Button
                   color="yellow"
                   className="text-sm !px-2 !py-1 ml-4"

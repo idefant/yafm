@@ -183,14 +183,14 @@ const Upload: FC = () => {
               onBlur={() => formik.validateField('password')}
               withError={Boolean(formik.errors.password)}
             />
+
+            <div className="mx-auto mt-8 flex justify-center gap-6">
+              <Button type="submit" color="green" className="block">
+                Open
+              </Button>
+            </div>
           </>
         )}
-
-        <div className="mx-auto mt-8 flex justify-center gap-6">
-          <Button type="submit" color="green" className="block">
-            Open
-          </Button>
-        </div>
       </form>
     </>
   );

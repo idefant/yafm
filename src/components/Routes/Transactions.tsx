@@ -1,26 +1,25 @@
 import dayjs from 'dayjs';
 import quarterOfYear from 'dayjs/plugin/quarterOfYear';
-import React, { FC, useState } from 'react';
-import ReactTooltip from 'react-tooltip';
+import { FC, useMemo, useState } from 'react';
 import Swal from 'sweetalert2';
 
-import { formatPrice } from '../../helper/currencies';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
 import { setIsUnsaved } from '../../store/reducers/appSlice';
 import { deleteTransaction } from '../../store/reducers/transactionSlice';
 import {
-  selectAccountDict,
-  selectCurrencyDict,
   selectFilteredTransactions,
   selectTransactionCategoryDict,
 } from '../../store/selectors';
 import { TPeriod } from '../../types/periodType';
-import { TTransaction, TOperationExtended } from '../../types/transactionType';
+import { TTransaction } from '../../types/transactionType';
 import Button from '../Generic/Button/Button';
 import Select from '../Generic/Form/Select';
 import Icon from '../Generic/Icon';
 import Table, {
-  TBody, TD, TDIcon, TH, THead, TR,
+  TColumn,
+  TableAction,
+  TableOperations,
+  TableTooltip,
 } from '../Generic/Table';
 import { Title } from '../Generic/Title';
 import SetTransaction from '../Transaction/SetTransaction';
@@ -29,8 +28,10 @@ dayjs.extend(quarterOfYear);
 
 const Transactions: FC = () => {
   const transactions = useAppSelector(selectFilteredTransactions);
+  const categoryDict = useAppSelector(selectTransactionCategoryDict);
+  const dispatch = useAppDispatch();
 
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpenSetter, setIsOpenSetter] = useState(false);
   const [date, setDate] = useState(dayjs());
   const [datePeriodType, setDatePeriodType] = useState<TPeriod>('month');
 
@@ -42,31 +43,123 @@ const Transactions: FC = () => {
   ) => {
     setOpenedTransaction(transaction);
     setCopiedTransaction(undefined);
-    setIsOpen(true);
+    setIsOpenSetter(true);
   };
 
   const copyTransaction = (transaction: TTransaction) => {
     setOpenedTransaction(undefined);
     setCopiedTransaction(transaction);
-    setIsOpen(true);
+    setIsOpenSetter(true);
   };
 
-  const transactionGroups = transactions
-    .filter((transaction) => {
-      const datetime = dayjs(transaction.datetime);
-      return (
-        datetime > date.startOf(datePeriodType)
-        && datetime < date.endOf(datePeriodType)
-      );
-    })
-    .sort((a, b) => b.datetime - a.datetime)
-    .reduce((groups: { [date: string]: TTransaction[] }, transaction) => {
-      const date = dayjs(transaction.datetime).format('DD.MM.YYYY');
-      // eslint-disable-next-line no-param-reassign
-      if (!(date in groups)) groups[date] = [];
-      groups[date].push(transaction);
-      return groups;
-    }, {});
+  const transactionGroups = useMemo(() => {
+    const transactionGroups = transactions
+      .filter((transaction) => {
+        const datetime = dayjs(transaction.datetime);
+        return (
+          datetime > date.startOf(datePeriodType)
+          && datetime < date.endOf(datePeriodType)
+        );
+      })
+      .sort((a, b) => b.datetime - a.datetime)
+      .reduce((groups: { [date: string]: TTransaction[] }, transaction) => {
+        const date = dayjs(transaction.datetime).format('DD.MM.YYYY');
+        // eslint-disable-next-line no-param-reassign
+        if (!(date in groups)) groups[date] = [];
+        groups[date].push(transaction);
+        return groups;
+      }, {});
+
+    return Object.entries(transactionGroups)
+      .map(([name, data]) => ({ name, data, key: name }));
+  }, [date, datePeriodType, transactions]);
+
+  const confirmDelete = (transaction: TTransaction) => {
+    Swal.fire({
+      title: 'Delete transaction',
+      icon: 'error',
+      text: transaction.name,
+      showCancelButton: true,
+      cancelButtonText: 'Cancel',
+      confirmButtonText: 'Delete',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        dispatch(deleteTransaction(transaction.id));
+        dispatch(setIsUnsaved(true));
+      }
+    });
+  };
+
+  const tableColumns: TColumn<TTransaction>[] = [
+    {
+      title: 'Name',
+      key: 'name',
+    },
+    {
+      title: 'Date',
+      key: 'datetime',
+      cellClassName: 'text-center',
+      render: ({ record }) => {
+        const date = dayjs(record.datetime);
+        return (
+          <>
+            <div>{date.format('DD.MM.YYYY')}</div>
+            <div className="text-sm">
+              {date.format('HH:mm')}
+            </div>
+          </>
+        );
+      },
+    },
+    {
+      title: 'Category',
+      key: 'category',
+      cellClassName: 'text-center',
+      render: ({ record }) => (
+        record.category_id && categoryDict[record.category_id].name
+      ),
+    },
+    {
+      title: 'Outcome',
+      key: 'outcome',
+      render: ({ record }) => (
+        <TableOperations
+          operations={record.operations}
+          isPositive={false}
+        />
+      ),
+    },
+    {
+      title: 'Income',
+      key: 'income',
+      render: ({ record }) => (
+        <TableOperations
+          operations={record.operations}
+          isPositive
+        />
+      ),
+    },
+    {
+      title: <Icon.Info className="w-6 h-6 mx-auto" />,
+      key: 'description',
+      render: ({ record }) => (
+        <TableTooltip id={`tr_${record.id}`}>
+          {record.description}
+        </TableTooltip>
+      ),
+    },
+    {
+      key: 'actions',
+      cellClassName: '!p-0',
+      render: ({ record }) => (
+        <div className="flex">
+          <TableAction onClick={() => copyTransaction(record)} icon={Icon.Copy} />
+          <TableAction onClick={() => openTransaction(record)} icon={Icon.Pencil} />
+          <TableAction onClick={() => confirmDelete(record)} icon={Icon.Trash} />
+        </div>
+      ),
+    },
+  ];
 
   return (
     <>
@@ -110,189 +203,23 @@ const Transactions: FC = () => {
         </div>
       </div>
 
-      {transactions.length ? (
-        <Table className="w-full">
-          <THead>
-            <TR>
-              <TH>Name</TH>
-              <TH>Date</TH>
-              <TH>Category</TH>
-              <TH>Outcome</TH>
-              <TH>Income</TH>
-              <TH />
-              <TH />
-              <TH />
-              <TH />
-            </TR>
-          </THead>
-          <TBody>
-            {Object.entries(transactionGroups).map((group) => (
-              <React.Fragment key={group[0]}>
-                <TR>
-                  <TH colSpan={9} className="!bg-stone-300 !py-0">
-                    {group[0]}
-                  </TH>
-                </TR>
-                {group[1].map((transaction) => (
-                  <TransactionItem
-                    transaction={transaction}
-                    openModal={() => openTransaction(transaction)}
-                    key={transaction.id}
-                    copyTransaction={() => copyTransaction(transaction)}
-                  />
-                ))}
-              </React.Fragment>
-            ))}
-          </TBody>
-        </Table>
+      {transactionGroups.length ? (
+        <Table
+          columns={tableColumns}
+          dataGroups={transactionGroups}
+          className={{ table: 'w-full' }}
+        />
       ) : (
         <div className="font-sans text-3xl">¯\_(ツ)_/¯</div>
       )}
 
       <SetTransaction
-        isOpen={isOpen}
-        close={() => setIsOpen(false)}
+        isOpen={isOpenSetter}
+        close={() => setIsOpenSetter(false)}
         transaction={openedTransaction}
         copiedTransaction={copiedTransaction}
       />
     </>
-  );
-};
-
-interface TransactionItemProps {
-  transaction: TTransaction;
-  openModal: () => void;
-  copyTransaction: () => void;
-}
-
-const TransactionItem: FC<TransactionItemProps> = ({
-  transaction,
-  openModal,
-  copyTransaction,
-}) => {
-  const currencyDict = useAppSelector(selectCurrencyDict);
-  const accountDict = useAppSelector(selectAccountDict);
-  const categoryDict = useAppSelector(selectTransactionCategoryDict);
-  const dispatch = useAppDispatch();
-
-  const operations: TOperationExtended[] = transaction.operations.map((operation) => ({
-    ...operation,
-    account: accountDict[operation.account_id],
-    currency: currencyDict[accountDict[operation.account_id].currency_code],
-  }));
-
-  const { incomes, outcomes } = operations.reduce((
-    acc: { incomes: TOperationExtended[]; outcomes: TOperationExtended[] },
-    operation,
-  ) => {
-    (operation.sum < 0 ? acc.outcomes : acc.incomes).push(operation);
-    return acc;
-  }, { incomes: [], outcomes: [] });
-
-  const categoryName = transaction.category_id
-    ? categoryDict[transaction.category_id].name
-    : '-';
-
-  const confirmDelete = () => {
-    Swal.fire({
-      title: 'Delete transaction',
-      icon: 'error',
-      text: transaction.name,
-      showCancelButton: true,
-      cancelButtonText: 'Cancel',
-      confirmButtonText: 'Delete',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        dispatch(deleteTransaction(transaction.id));
-        dispatch(setIsUnsaved(true));
-      }
-    });
-  };
-
-  return (
-    <TR>
-      <TD>{transaction.name}</TD>
-      <TD className="text-center">
-        <div>{dayjs(transaction.datetime).format('DD.MM.YYYY')}</div>
-        <div className="text-sm">
-          {dayjs(transaction.datetime).format('HH:mm')}
-        </div>
-      </TD>
-      <TD className="text-center">{categoryName}</TD>
-
-      {outcomes.length ? (
-        <TD>
-          <div className="text-right grid gap-2">
-            {outcomes.map((outcome, index) => (
-              <div key={index}>
-                <div className="text-red-700">
-                  {formatPrice(-outcome.sum, outcome.currency.decimal_places_number)}
-                  <span className="pl-2.5">{outcome.currency.code}</span>
-                </div>
-                <div className="text-sm text-gray-600">
-                  {outcome.account.name}
-                </div>
-              </div>
-            ))}
-          </div>
-        </TD>
-      ) : (
-        <TD className="text-center">-</TD>
-      )}
-
-      {incomes.length ? (
-        <TD>
-          <div className="text-right grid gap-2">
-            {incomes.map((income, index) => (
-              <div key={index}>
-                <div className="text-green-700">
-                  {formatPrice(income.sum, income.currency.decimal_places_number)}
-                  <span className="pl-2.5">{income.currency.code || ''}</span>
-                </div>
-                <div className="text-sm text-gray-600">
-                  {income.account.name || ''}
-                </div>
-              </div>
-            ))}
-          </div>
-        </TD>
-      ) : (
-        <TD className="text-center">-</TD>
-      )}
-
-      <TDIcon>
-        {transaction.description && (
-          <>
-            <div data-tip data-for={`tr_${transaction.id}`} className="px-3">
-              <Icon.Info className="w-7 h-7" />
-            </div>
-            <ReactTooltip
-              id={`tr_${transaction.id}`}
-              effect="solid"
-              className="max-w-sm"
-            >
-              {transaction.description}
-            </ReactTooltip>
-          </>
-        )}
-      </TDIcon>
-
-      <TDIcon>
-        <button className="p-2" onClick={copyTransaction} type="button">
-          <Icon.Copy className="w-7 h-7" />
-        </button>
-      </TDIcon>
-      <TDIcon>
-        <button className="p-2" onClick={openModal} type="button">
-          <Icon.Pencil className="w-7 h-7" />
-        </button>
-      </TDIcon>
-      <TDIcon>
-        <button className="p-2" onClick={confirmDelete} type="button">
-          <Icon.Trash className="w-7 h-7" />
-        </button>
-      </TDIcon>
-    </TR>
   );
 };
 

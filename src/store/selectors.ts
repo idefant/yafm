@@ -59,6 +59,15 @@ export const selectHiddenAccountCategoryIds = createSelector(
   ),
 );
 
+export const selectArchivedAccountCategoryIds = createSelector(
+  [selectAccountCategories],
+  (categories) => new Set(
+    categories
+      .filter((category) => category.is_archive)
+      .map((category) => category.id),
+  ),
+);
+
 export const selectAccountsWithBalance = createSelector(
   [selectAccounts, selectTransactions],
   (accounts, transactions) => {
@@ -78,14 +87,29 @@ export const selectAccountsWithBalance = createSelector(
 );
 
 export const selectFilteredAccounts = createSelector(
-  [selectSafeMode, selectArchiveMode, selectAccountsWithBalance, selectHiddenAccountCategoryIds],
-  (safeMode, archiveMode, accounts, hiddenCategoryIds) => accounts.filter((account) => {
+  [
+    selectSafeMode,
+    selectArchiveMode,
+    selectAccountsWithBalance,
+    selectHiddenAccountCategoryIds,
+    selectArchivedAccountCategoryIds,
+  ],
+  (
+    safeMode,
+    archiveMode,
+    accounts,
+    hiddenCategoryIds,
+    archivedCategoryIds,
+  ) => accounts.filter((account) => {
     const isHidden = safeMode && account.is_hide;
     const isArchived = !archiveMode && account.is_archive;
     const isCategoryHidden = safeMode
       && account.category_id
       && hiddenCategoryIds.has(account.category_id);
-    return !(isHidden || isArchived || isCategoryHidden);
+    const isCategoryArchived = !archiveMode
+      && account.category_id
+      && archivedCategoryIds.has(account.category_id);
+    return !(isHidden || isArchived || isCategoryHidden || isCategoryArchived);
   }),
 );
 

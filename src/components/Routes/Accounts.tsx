@@ -5,9 +5,7 @@ import {
   Legend,
   ChartData,
 } from 'chart.js';
-import {
-  FC, Fragment, useMemo, useState,
-} from 'react';
+import { FC, useMemo, useState } from 'react';
 import { Pie } from 'react-chartjs-2';
 import Swal from 'sweetalert2';
 
@@ -25,9 +23,7 @@ import { TCurrency } from '../../types/currencyType';
 import SetAccount from '../Account/SetAccount';
 import Button from '../Generic/Button/Button';
 import Icon from '../Generic/Icon';
-import Table, {
-  TBody, TD, TDIcon, TH, THead, TR,
-} from '../Generic/Table';
+import Table, { TColumn, TableAction } from '../Generic/Table';
 import { Title } from '../Generic/Title';
 
 const Accounts: FC = () => {
@@ -36,9 +32,12 @@ const Accounts: FC = () => {
   const {
     currency: { currencies },
     category: { accounts: categories },
-    app: { safeMode },
+    app: { safeMode, archiveMode },
+    transaction: { transactions, templates },
   } = useAppSelector((state) => state);
   const accounts = useAppSelector(selectFilteredAccounts);
+  const currencyDict = useAppSelector(selectCurrencyDict);
+  const dispatch = useAppDispatch();
 
   const baseCurrencyCode = 'btc';
 
@@ -96,11 +95,18 @@ const Accounts: FC = () => {
     (account) => !account.category_id,
   );
 
-  const accountWithCategory = categories
+  const accountsWithCategory = categories
     .filter((category) => accountDict[category.id])
     .map((category) => ({
-      ...category,
-      accounts: accountDict[category.id].sort(
+      key: category.id,
+      name: (
+        <div className="flex justify-center gap-3 items-center">
+          {category.is_hide && (<Icon.Lock className="w-[22px] h-[22px]" />)}
+          {category.is_archive && (<Icon.Archive className="w-[22px] h-[22px]" />)}
+          {category.name}
+        </div>
+      ),
+      data: accountDict[category.id].sort(
         (a, b) => +(a.is_archive || false) - +(b.is_archive || false),
       ),
     }));
@@ -128,152 +134,16 @@ const Accounts: FC = () => {
     }, {})
   ), [balances]);
 
-  return (
-    <>
-      <Title>Accounts</Title>
-      <Button color="green" onClick={() => openAccount()} className="mb-4">
-        Create Account
-      </Button>
-
-      <div className="flex items-start gap-20">
-        {balances.length > 0 && (
-          <div>
-            <div className="w-72 my-8 mx-auto">
-              <Pie
-                data={data}
-                options={{
-                  animation: { duration: 600 },
-                  plugins: {
-                    tooltip: {
-                      callbacks: {
-                        label: (tooltipItem) => {
-                          const {
-                            formattedBalance,
-                            idealBalance,
-                          } = currencyBalancesDict[tooltipItem.label];
-                          const percentage = ((idealBalance / totalAmount) * 100).toFixed(2);
-                          return `${tooltipItem.label}: ${formattedBalance} - ${percentage}%`;
-                        },
-                      },
-                    },
-                  },
-                }}
-              />
-            </div>
-
-            <Table className="w-full">
-              <THead>
-                <TR>
-                  <TH>Currency</TH>
-                  <TH>Result Sum</TH>
-                </TR>
-              </THead>
-              <TBody>
-                {currencies.map((currency) => (
-                  <TR key={currency.code}>
-                    <TD>{currency.name}</TD>
-                    <TD>
-                      <div className="text-right">
-                        {formatPrice(
-                          convertPrice(baseCurrencyCode, currency.code.toLowerCase(), totalAmount),
-                          currency.decimal_places_number,
-                        )}
-                        <span className="pl-3">{currency.code}</span>
-                      </div>
-                    </TD>
-                  </TR>
-                ))}
-              </TBody>
-            </Table>
-          </div>
-        )}
-
-        {accountsWithoutCategory.length || accountWithCategory.length ? (
-          <Table>
-            <THead>
-              <TR>
-                <TH>Name</TH>
-                <TH>Balance</TH>
-                {!safeMode && <TH />}
-                <TH />
-                <TH />
-                <TH />
-              </TR>
-            </THead>
-            <TBody>
-              {accountsWithoutCategory.map((account) => (
-                <AccountItem
-                  account={account}
-                  openModal={() => openAccount(account)}
-                  key={account.id}
-                />
-              ))}
-
-              {accountWithCategory.map((category) => (
-                <Fragment key={category.id}>
-                  <TR>
-                    <TH colSpan={6} className="!bg-orange-200 !py-1">
-                      <div className="flex justify-center gap-3 items-center">
-                        {category.is_hide && (
-                          <Icon.Lock className="w-[22px] h-[22px]" />
-                        )}
-                        {category.is_archive && (
-                          <Icon.Archive className="w-[22px] h-[22px]" />
-                        )}
-                        {category.name}
-                      </div>
-                    </TH>
-                  </TR>
-                  {category.accounts.map((account) => (
-                    <AccountItem
-                      account={account}
-                      openModal={() => openAccount(account)}
-                      key={account.id}
-                    />
-                  ))}
-                </Fragment>
-              ))}
-            </TBody>
-          </Table>
-        ) : (
-          <div className="font-sans text-3xl">¯\_(ツ)_/¯</div>
-        )}
-      </div>
-
-      <SetAccount
-        isOpen={isOpen}
-        close={() => setIsOpen(false)}
-        account={openedAccount}
-      />
-    </>
-  );
-};
-
-interface AccountItemProps {
-  account: TCalculatedAccount;
-  openModal: () => void;
-}
-
-const AccountItem: FC<AccountItemProps> = ({ account, openModal }) => {
-  const currencyDict = useAppSelector(selectCurrencyDict);
-  const {
-    transaction: { transactions, templates },
-    app: { safeMode },
-  } = useAppSelector((state) => state);
-  const dispatch = useAppDispatch();
-
-  const accountCurrency = currencyDict[account.currency_code];
-
-  const checkAccountIsUsed = () => (
+  const checkAccountIsUsed = (accountId: string) => (
     [...transactions, ...templates].some(
       ({ operations }) => (
-        operations.map((operation) => operation.account_id).includes(account.id)
+        operations.map((operation) => operation.account_id).includes(accountId)
       ),
     )
   );
 
-  const confirmDelete = () => {
-    if (checkAccountIsUsed()) {
+  const confirmDelete = (account: TAccount) => {
+    if (checkAccountIsUsed(account.id)) {
       Swal.fire({
         title: 'Unable to delete account',
         text: 'There are transactions or templates using this account',
@@ -296,31 +166,106 @@ const AccountItem: FC<AccountItemProps> = ({ account, openModal }) => {
     }
   };
 
+  const tableColumns: TColumn<TCalculatedAccount>[] = [
+    {
+      title: 'Name',
+      key: 'name',
+    },
+    {
+      title: 'Balance',
+      key: 'balance',
+      cellClassName: 'text-right',
+      render: ({ record }) => {
+        const currency = currencyDict[record.currency_code];
+        return (
+          <>
+            {formatPrice(
+              record.balance,
+              currency.decimal_places_number,
+            )}
+            <span className="pl-3">{currency.code}</span>
+          </>
+        );
+      },
+    },
+    {
+      title: <Icon.Lock className="w-[22px] h-[22px]" />,
+      key: 'is_hide',
+      render: ({ record }) => record.is_hide && <Icon.Lock className="w-[22px] h-[22px]" />,
+      default: '',
+      hidden: safeMode,
+    },
+    {
+      title: <Icon.Archive className="w-[22px] h-[22px]" />,
+      key: 'is_archive',
+      render: ({ record }) => record.is_archive && <Icon.Archive className="w-[22px] h-[22px]" />,
+      default: '',
+      hidden: !archiveMode,
+    },
+    {
+      key: 'actions',
+      cellClassName: '!p-0',
+      render: ({ record }) => (
+        <div className="flex ml-6">
+          <TableAction onClick={() => openAccount(record)} icon={Icon.Pencil} />
+          <TableAction onClick={() => confirmDelete(record)} icon={Icon.Trash} />
+        </div>
+      ),
+    },
+  ];
+
   return (
-    <TR hide={account.is_archive}>
-      <TD>{account.name}</TD>
-      <TD className="text-right">
-        {formatPrice(
-          account.balance,
-          accountCurrency.decimal_places_number,
+    <>
+      <Title>Accounts</Title>
+      <Button color="green" onClick={() => openAccount()} className="mb-4">
+        Create Account
+      </Button>
+
+      <div className="flex items-start gap-20">
+        {balances.length > 0 && (
+          <div className="w-72 my-8 mx-auto">
+            <Pie
+              data={data}
+              options={{
+                animation: { duration: 600 },
+                plugins: {
+                  tooltip: {
+                    callbacks: {
+                      label: (tooltipItem) => {
+                        const {
+                          formattedBalance,
+                          idealBalance,
+                        } = currencyBalancesDict[tooltipItem.label];
+                        const percentage = ((idealBalance / totalAmount) * 100).toFixed(2);
+                        return `${tooltipItem.label}: ${formattedBalance} - ${percentage}%`;
+                      },
+                    },
+                  },
+                },
+              }}
+            />
+          </div>
         )}
-        <span className="pl-3">{accountCurrency.code}</span>
-      </TD>
-      {!safeMode && (
-        <TD>{account.is_hide && <Icon.Lock />}</TD>
-      )}
-      <TD>{account.is_archive && <Icon.Archive />}</TD>
-      <TDIcon>
-        <button className="p-2" onClick={openModal} type="button">
-          <Icon.Pencil className="w-7 h-7" />
-        </button>
-      </TDIcon>
-      <TDIcon>
-        <button className="p-2" onClick={confirmDelete} type="button">
-          <Icon.Trash className="w-7 h-7" />
-        </button>
-      </TDIcon>
-    </TR>
+
+        {accountsWithoutCategory.length || accountsWithCategory.length ? (
+          <Table
+            columns={tableColumns}
+            isTranslucentRow={(record) => record.is_archive}
+            className={{ groupName: '!bg-orange-200 !py-1' }}
+            data={accountsWithoutCategory}
+            dataGroups={accountsWithCategory}
+          />
+        ) : (
+          <div className="font-sans text-3xl">¯\_(ツ)_/¯</div>
+        )}
+      </div>
+
+      <SetAccount
+        isOpen={isOpen}
+        close={() => setIsOpen(false)}
+        account={openedAccount}
+      />
+    </>
   );
 };
 
