@@ -53,14 +53,11 @@ const SetTransaction: FC<SetTransactionProps> = ({
 
   const accountOptions = accounts
     .sort((a, b) => compareObjByStr(a, b, (e) => e.name))
-    .map((account) => ({
-      value: account.id,
-      text: account.name,
-    }));
+    .map((account) => ({ value: account.id, label: account.name }));
 
   const categoryOptions = [...categories]
     .sort((a, b) => compareObjByStr(a, b, (e) => e.name))
-    .map((category) => ({ value: category.id, text: category.name }));
+    .map((category) => ({ value: category.id, label: category.name }));
 
   const [date, setDate] = useState(dayjs());
   const [isOpenTemplateModal, setIsOpenTemplateModal] = useState(false);
@@ -158,6 +155,27 @@ const SetTransaction: FC<SetTransactionProps> = ({
     categoryId: trans?.category_id || '',
   };
 
+  const validationSchema = object({
+    name: string(),
+    description: string(),
+    operations: array(object().shape({
+      isPositive: bool().required(),
+      accountId: string().required(),
+      sum: string().required().when('accountId', (data, schema) => {
+        const account = accountDict[data];
+        if (account) {
+          const currency = currencyDict[account.currency_code];
+          if (currency) {
+            return numberWithDecimalPlacesSchema(currency.decimal_places_number, true);
+          }
+        }
+        return schema;
+      }),
+    }))
+      .min(1),
+    categoryId: string(),
+  });
+
   return (
     <Modal
       isOpen={isOpen}
@@ -168,36 +186,12 @@ const SetTransaction: FC<SetTransactionProps> = ({
       <Formik
         initialValues={initialValues}
         onSubmit={onSubmit}
-        validationSchema={object({
-          name: string(),
-          description: string(),
-          operations: array(object().shape({
-            isPositive: bool().required(),
-            accountId: string().required(),
-            sum: string().required().when('accountId', (data, schema) => {
-              const account = accountDict[data];
-              if (account) {
-                const currency = currencyDict[account.currency_code];
-                if (currency) {
-                  return numberWithDecimalPlacesSchema(currency.decimal_places_number, true);
-                }
-              }
-              return schema;
-            }),
-          }))
-            .min(1),
-          categoryId: string(),
-        })}
+        validationSchema={validationSchema}
         validateOnChange={false}
         validateOnBlur
       >
         {({
-          errors,
-          values,
-          handleChange,
-          validateField,
-          setFieldValue,
-          setValues,
+          errors, values, handleChange, validateField, setFieldValue, setValues,
         }) => (
           <Form>
             <Modal.Header close={close}>
@@ -225,13 +219,13 @@ const SetTransaction: FC<SetTransactionProps> = ({
                   Category
                 </label>
                 <Select
-                  selectedValue={values.categoryId}
-                  name="categoryId"
-                  options={categoryOptions}
-                  onChange={handleChange}
                   className="w-2/3"
-                  useEmpty
-                  defaultText="Choose a category"
+                  placeholder="Choose a category"
+                  options={categoryOptions}
+                  isClearable
+                  name="categoryId"
+                  value={categoryOptions.find((option) => (option.value === values.categoryId))}
+                  onChange={(newValue: any) => setFieldValue('categoryId', newValue?.value)}
                 />
               </div>
 
@@ -256,13 +250,17 @@ const SetTransaction: FC<SetTransactionProps> = ({
                           </Button>
 
                           <Select
-                            selectedValue={operation.accountId}
-                            options={accountOptions}
-                            onChange={handleChange}
                             className="w-1/2"
-                            name={`operations.${index}.accountId`}
-                            defaultText="Choose"
+                            placeholder="Account"
+                            options={accountOptions}
+                            name="accountId"
+                            value={accountOptions.find((option) => (
+                              option.value === values.operations[index].accountId
+                            ))}
                             onBlur={() => validateField(`operations.${index}.accountId`)}
+                            onChange={(newValue: any) => (
+                              setFieldValue(`operations.${index}.accountId`, newValue?.value)
+                            )}
                             withError={(() => {
                               const error = errors.operations?.[index];
                               if (!error || typeof error === 'string') return false;

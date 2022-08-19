@@ -5,7 +5,7 @@ interface ModalContentProps {
 }
 
 const ModalContent: FC<ModalContentProps> = ({ children }) => (
-  <div className="overflow-y-auto flex-1 p-5">{children}</div>
+  <div className="p-5">{children}</div>
 );
 
 export default ModalContent;

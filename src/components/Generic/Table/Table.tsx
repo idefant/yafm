@@ -121,7 +121,12 @@ const TableRow = <T, >({
   }
 
   return (
-    <tr className={classNames('border-b-2 border-gray-700', isTranslucentRow?.(row) && 'opacity-60', getClassName?.(row))}>
+    <tr className={classNames(
+      'border-b-2 border-gray-700',
+      isTranslucentRow?.(row) && 'opacity-60',
+      getClassName?.(row),
+    )}
+    >
       {visibleColumns.map((column) => (
         <td key={column.key} className={classNames('bg-gray-100 px-4 py-3', column.cellClassName)}>
           {(column.render

@@ -1,4 +1,4 @@
-import { useFormik } from 'formik';
+import { Form, Formik } from 'formik';
 import { FC, useMemo } from 'react';
 import { boolean, object, string } from 'yup';
 
@@ -56,34 +56,14 @@ const SetAccount: FC<SetAccountProps> = ({ isOpen, close, account }) => {
     close();
   };
 
-  const formik = useFormik({
-    initialValues: {
-      name: '',
-      currencyCode: '',
-      categoryId: '',
-      isHide: false,
-      isArchive: false,
-    },
-    onSubmit,
-    validationSchema: object({
-      name: string().required(),
-      currencyCode: string().required(),
-      categoryId: string(),
-      isHide: boolean(),
-      isArchive: boolean(),
-    }),
-    validateOnChange: false,
-    validateOnBlur: true,
-  });
-
-  type TSelectOption = { value: string; text: string };
+  type TSelectOption = { value: string; label: string };
 
   const currencyOptGroups = useMemo(() => {
     const objGroups = currencies.reduce(
       (optGroups: { [type: string]: TSelectOption[] }, currency: TCurrency) => {
         const option = {
           value: currency.code,
-          text: currency.name,
+          label: currency.name,
         };
         // eslint-disable-next-line no-param-reassign
         if (!(currency.type in optGroups)) optGroups[currency.type] = [];
@@ -98,97 +78,113 @@ const SetAccount: FC<SetAccountProps> = ({ isOpen, close, account }) => {
 
   const categoryOptions = categories
     .sort((a, b) => compareObjByStr(a, b, (e) => e.name))
-    .map((category) => ({ value: category.id, text: category.name }));
+    .map((category) => ({ value: category.id, label: category.name }));
 
-  const onEnter = () => {
-    formik.setValues({
-      name: account?.name || '',
-      currencyCode: account?.currency_code || '',
-      categoryId: account?.category_id || '',
-      isHide: account?.is_hide || false,
-      isArchive: account?.is_archive || false,
-    });
+  const initialFormValues = {
+    name: account?.name || '',
+    currencyCode: account?.currency_code || '',
+    categoryId: account?.category_id || '',
+    isHide: account?.is_hide || false,
+    isArchive: account?.is_archive || false,
   };
 
-  const onExited = () => {
-    formik.resetForm();
-  };
+  const validationSchema = object({
+    name: string().required(),
+    currencyCode: string().required(),
+    categoryId: string(),
+    isHide: boolean(),
+    isArchive: boolean(),
+  });
 
   return (
     <Modal
       isOpen={isOpen}
       close={close}
-      onEnter={onEnter}
-      onExited={onExited}
-      onSubmit={formik.handleSubmit}
     >
-      <Modal.Header close={close}>
-        {account ? 'Edit Account' : 'Create Account'}
-      </Modal.Header>
-      <Modal.Content>
-        <FormField
-          label="Name"
-          name="name"
-          value={formik.values.name}
-          onChange={formik.handleChange}
-          onBlur={() => formik.validateField('name')}
-          withError={Boolean(formik.errors.name)}
-        />
-        {!account && (
-          <div className="flex items-center my-2 gap-3">
-            <label className="block w-1/3">Currency</label>
-            <Select
-              name="currencyCode"
-              selectedValue={formik.values.currencyCode}
-              optGroups={currencyOptGroups}
-              onChange={formik.handleChange}
-              onBlur={() => formik.validateField('currencyCode')}
-              withError={Boolean(formik.errors.currencyCode)}
-              className="w-2/3"
-            />
-          </div>
-        )}
+      <Formik
+        initialValues={initialFormValues}
+        onSubmit={onSubmit}
+        validationSchema={validationSchema}
+        validateOnChange={false}
+        validateOnBlur
+      >
+        {({
+          errors, values, handleChange, validateField, setFieldValue,
+        }) => (
+          <Form>
+            <Modal.Header close={close}>
+              {account ? 'Edit Account' : 'Create Account'}
+            </Modal.Header>
+            <Modal.Content>
+              <FormField
+                label="Name"
+                name="name"
+                value={values.name}
+                onChange={handleChange}
+                onBlur={() => validateField('name')}
+                withError={Boolean(errors.name)}
+              />
+              {!account && (
+                <div className="flex items-center my-2 gap-3">
+                  <label className="block w-1/3">Currency</label>
+                  <Select
+                    className="w-2/3"
+                    placeholder="Currency"
+                    options={currencyOptGroups}
+                    name="currencyCode"
+                    value={currencyOptGroups
+                      .flatMap((group) => group.options)
+                      .find((option) => (option.value === values.currencyCode))}
+                    onChange={(newValue: any) => setFieldValue('currencyCode', newValue?.value)}
+                    onBlur={() => validateField('currencyCode')}
+                    withError={Boolean(errors.currencyCode)}
+                  />
+                </div>
+              )}
 
-        <div className="flex items-center my-2 gap-3">
-          <label className="block w-1/3">Category</label>
-          <Select
-            name="categoryId"
-            selectedValue={formik.values.categoryId}
-            options={categoryOptions}
-            onChange={formik.handleChange}
-            className="w-2/3"
-            useEmpty
-            defaultText="Choose a category"
-          />
-        </div>
+              <div className="flex items-center my-2 gap-3">
+                <label className="block w-1/3">Category</label>
+                <Select
+                  className="w-2/3"
+                  placeholder="Category"
+                  options={categoryOptions}
+                  isClearable
+                  name="categoryId"
+                  value={categoryOptions.find((option) => (option.value === values.categoryId))}
+                  onChange={(newValue: any) => setFieldValue('categoryId', newValue?.value)}
+                />
+              </div>
 
-        {account && (
-          <>
-            <Checkbox
-              checked={formik.values.isHide}
-              onChange={formik.handleChange}
-              name="isHide"
-            >
-              Hide
-            </Checkbox>
-            <Checkbox
-              checked={formik.values.isArchive}
-              onChange={formik.handleChange}
-              name="isArchive"
-            >
-              Archive
-            </Checkbox>
-          </>
+              {account && (
+                <>
+                  <Checkbox
+                    checked={values.isHide}
+                    onChange={handleChange}
+                    name="isHide"
+                  >
+                    Hide
+                  </Checkbox>
+                  <Checkbox
+                    checked={values.isArchive}
+                    onChange={handleChange}
+                    name="isArchive"
+                  >
+                    Archive
+                  </Checkbox>
+                </>
+              )}
+            </Modal.Content>
+            <Modal.Footer>
+              <Button color="green" type="submit">
+                Save
+              </Button>
+              <Button color="gray" onClick={close}>
+                Cancel
+              </Button>
+            </Modal.Footer>
+          </Form>
         )}
-      </Modal.Content>
-      <Modal.Footer>
-        <Button color="green" type="submit">
-          Save
-        </Button>
-        <Button color="gray" onClick={close}>
-          Cancel
-        </Button>
-      </Modal.Footer>
+      </Formik>
     </Modal>
   );
 };

@@ -161,6 +161,12 @@ const Transactions: FC = () => {
     },
   ];
 
+  const periodOptions = [
+    { value: 'month', label: 'Month' },
+    { value: 'quarter', label: 'Quarter' },
+    { value: 'year', label: 'Year' },
+  ];
+
   return (
     <>
       <Title>Transactions</Title>
@@ -172,13 +178,10 @@ const Transactions: FC = () => {
         <div className="flex gap-3 items-center">
           <Select
             className="border-gray-600"
-            options={[
-              { value: 'month', text: 'Month' },
-              { value: 'quarter', text: 'Quarter' },
-              { value: 'year', text: 'Year' },
-            ]}
-            selectedValue={datePeriodType}
-            onChange={(e) => setDatePeriodType(e.target.value as TPeriod)}
+            options={periodOptions}
+            name="categoryId"
+            value={periodOptions.find((option) => (option.value === datePeriodType))}
+            onChange={(newValue: any) => setDatePeriodType(newValue?.value)}
           />
           <button
             onClick={() => setDate(date.subtract(1, datePeriodType))}

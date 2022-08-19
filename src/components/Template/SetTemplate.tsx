@@ -51,14 +51,11 @@ const SetTemplate: FC<SetTemplateProps> = ({
 
   const accountOptions = accounts
     .sort((a, b) => compareObjByStr(a, b, (e) => e.name))
-    .map((account) => ({
-      value: account.id,
-      text: account.name,
-    }));
+    .map((account) => ({ value: account.id, label: account.name }));
 
   const categoryOptions = categories
     .sort((a, b) => compareObjByStr(a, b, (e) => e.name))
-    .map((category) => ({ value: category.id, text: category.name }));
+    .map((category) => ({ value: category.id, label: category.name }));
 
   type TForm = {
     name: string;
@@ -151,11 +148,7 @@ const SetTemplate: FC<SetTemplateProps> = ({
         validateOnBlur
       >
         {({
-          errors,
-          values,
-          handleChange,
-          validateField,
-          setFieldValue,
+          errors, values, handleChange, validateField, setFieldValue,
         }) => (
           <Form>
             <Modal.Header close={close}>
@@ -174,13 +167,13 @@ const SetTemplate: FC<SetTemplateProps> = ({
                   Category
                 </label>
                 <Select
-                  selectedValue={values.categoryId}
-                  name="categoryId"
-                  options={categoryOptions}
-                  onChange={handleChange}
                   className="w-2/3"
-                  useEmpty
-                  defaultText="Choose a category"
+                  placeholder="Choose a category"
+                  options={categoryOptions}
+                  isClearable
+                  name="categoryId"
+                  value={categoryOptions.find((option) => (option.value === values.categoryId))}
+                  onChange={(newValue: any) => setFieldValue('categoryId', newValue?.value)}
                 />
               </div>
 
@@ -205,13 +198,17 @@ const SetTemplate: FC<SetTemplateProps> = ({
                           </Button>
 
                           <Select
-                            selectedValue={operation.accountId}
-                            options={accountOptions}
-                            onChange={handleChange}
                             className="w-1/2"
-                            name={`operations.${index}.accountId`}
-                            defaultText="Choose"
+                            placeholder="Account"
+                            options={accountOptions}
+                            name="accountId"
+                            value={accountOptions.find((option) => (
+                              option.value === values.operations[index].accountId
+                            ))}
                             onBlur={() => validateField(`operations.${index}.accountId`)}
+                            onChange={(newValue: any) => (
+                              setFieldValue(`operations.${index}.accountId`, newValue?.value)
+                            )}
                             withError={(() => {
                               const error = errors.operations?.[index];
                               if (!error || typeof error === 'string') return false;
