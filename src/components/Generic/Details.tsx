@@ -17,11 +17,15 @@ const Details: FC<DetailsProps> = ({ title, children }) => {
   const [contentHeight, setContentHeight] = useState(0);
   const refContent = useRef<HTMLDivElement>(null);
 
-  useInterval(() => {
-    if (refContent.current) {
-      setContentHeight(refContent.current.scrollHeight);
-    }
-  }, 200);
+  useInterval({
+    callback: () => {
+      if (refContent.current) {
+        setContentHeight(refContent.current.scrollHeight);
+      }
+    },
+    interval: 200,
+    isWorking: true,
+  });
 
   return (
     <div className="w-full border-2 border-gray-500 rounded-lg overflow-hidden">
