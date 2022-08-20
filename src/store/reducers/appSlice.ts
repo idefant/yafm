@@ -10,6 +10,7 @@ type AppState = {
   password?: string;
   isVaultWorking?: boolean;
   isVersioningEnabled: boolean;
+  openedModalsCount: number;
 };
 
 const initialState: AppState = {
@@ -18,6 +19,7 @@ const initialState: AppState = {
   isUnsaved: false,
   vaultUrl: process.env.REACT_APP_DEFAULT_VAULT_URL || '',
   isVersioningEnabled: false,
+  openedModalsCount: 0,
 };
 
 export const appSlice = createSlice({
@@ -41,6 +43,12 @@ export const appSlice = createSlice({
       state.password = pass;
     },
     lockBase: (state) => ({ ...initialState, vaultUrl: state.vaultUrl }),
+    incrementOpenedModalsCount(state) {
+      state.openedModalsCount += 1;
+    },
+    decrementOpenedModalsCount(state) {
+      state.openedModalsCount = Math.max(state.openedModalsCount - 1, 0);
+    },
   },
   extraReducers: {
     [fetchVaultInfo.fulfilled.type]: (
@@ -63,6 +71,8 @@ export const {
   setVaultUrl,
   setPassword,
   lockBase,
+  incrementOpenedModalsCount,
+  decrementOpenedModalsCount,
 } = appSlice.actions;
 
 export default appSlice.reducer;

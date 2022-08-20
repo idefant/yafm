@@ -12,6 +12,7 @@ import Swal from 'sweetalert2';
 import { groupSum, sum } from '../../helper/arrays';
 import { convertPrice, formatPrice } from '../../helper/currencies';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
+import useModal from '../../hooks/useModal';
 import { deleteAccount } from '../../store/reducers/accountSlice';
 import { setIsUnsaved } from '../../store/reducers/appSlice';
 import {
@@ -27,7 +28,7 @@ import Table, { TColumn, TableAction } from '../Generic/Table';
 import { Title } from '../Generic/Title';
 
 const Accounts: FC = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const accountModal = useModal();
 
   const {
     currency: { currencies },
@@ -56,7 +57,7 @@ const Accounts: FC = () => {
 
   const openAccount = (account?: TAccount) => {
     setOpenedAccount(account);
-    setIsOpen(true);
+    accountModal.open();
   };
 
   type TBalance = TCurrency & {
@@ -261,8 +262,8 @@ const Accounts: FC = () => {
       </div>
 
       <SetAccount
-        isOpen={isOpen}
-        close={() => setIsOpen(false)}
+        isOpen={accountModal.isOpen}
+        close={accountModal.close}
         account={openedAccount}
       />
     </>

@@ -18,6 +18,11 @@ const Icon = {
   ChevronRight: Icons.ChevronRightIcon,
   Download: Icons.DownloadIcon,
   Unlock: Icons.UnlockIcon,
+  Home: Icons.HomeIcon,
+  CreditCard: Icons.CreditCardIcon,
+  Repeat: Icons.RepeatIcon,
+  Tag: Icons.TagIcon,
+  Setting: Icons.SettingIcon,
 };
 
 export default Icon;

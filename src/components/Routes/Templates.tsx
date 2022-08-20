@@ -2,6 +2,7 @@ import { FC, useState } from 'react';
 import Swal from 'sweetalert2';
 
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
+import useModal from '../../hooks/useModal';
 import { setIsUnsaved } from '../../store/reducers/appSlice';
 import { deleteTemplate } from '../../store/reducers/transactionSlice';
 import {
@@ -25,12 +26,12 @@ const Templates: FC = () => {
   const categoryDict = useAppSelector(selectTransactionCategoryDict);
   const dispatch = useAppDispatch();
 
-  const [isOpen, setIsOpen] = useState(false);
+  const templateModal = useModal();
   const [openedTemplate, setOpenedTemplate] = useState<TTemplate>();
 
   const openTemplate = (template?: TTemplate) => {
     setOpenedTemplate(template);
-    setIsOpen(true);
+    templateModal.open();
   };
 
   const confirmDelete = (template: TTemplate) => {
@@ -121,8 +122,8 @@ const Templates: FC = () => {
       )}
 
       <SetTemplate
-        isOpen={isOpen}
-        close={() => setIsOpen(false)}
+        isOpen={templateModal.isOpen}
+        close={templateModal.close}
         template={openedTemplate}
       />
     </>

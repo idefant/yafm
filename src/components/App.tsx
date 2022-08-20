@@ -87,13 +87,13 @@ const App: FC = () => {
           <Route path="/transactions" element={<Transactions />} />
           <Route path="/accounts" element={<Accounts />} />
           <Route path="/setting" element={<Setting />} />
-          <Route path="transactions/templates" element={<Templates />} />
+          <Route path="templates" element={<Templates />} />
           <Route
-            path="/accounts/categories"
+            path="/categories/accounts"
             element={<Categories categoryType="accounts" />}
           />
           <Route
-            path="/transactions/categories"
+            path="/categories/transactions"
             element={<Categories categoryType="transactions" />}
           />
           <Route path="*" element={<Navigate to="/" />} />

@@ -60,7 +60,7 @@ const Modal: FC<ModalProps> & ModalExtensions = ({
     >
       <FocusTrap focusTrapOptions={{ onDeactivate: close }} active={isActiveFocusTrap}>
         <div
-          className="opacity-0 fixed inset-0 bg-gray-800/60 transition ease-in-out duration-200 overflow-auto"
+          className="opacity-0 fixed inset-0 bg-gray-800/60 transition ease-in-out duration-200 overflow-auto z-50"
           onClick={close}
           aria-hidden="true"
         >

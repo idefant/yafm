@@ -4,6 +4,7 @@ import { FC, useMemo, useState } from 'react';
 import Swal from 'sweetalert2';
 
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
+import useModal from '../../hooks/useModal';
 import { setIsUnsaved } from '../../store/reducers/appSlice';
 import { deleteTransaction } from '../../store/reducers/transactionSlice';
 import {
@@ -31,7 +32,7 @@ const Transactions: FC = () => {
   const categoryDict = useAppSelector(selectTransactionCategoryDict);
   const dispatch = useAppDispatch();
 
-  const [isOpenSetter, setIsOpenSetter] = useState(false);
+  const transactionModal = useModal();
   const [date, setDate] = useState(dayjs());
   const [datePeriodType, setDatePeriodType] = useState<TPeriod>('month');
 
@@ -43,13 +44,13 @@ const Transactions: FC = () => {
   ) => {
     setOpenedTransaction(transaction);
     setCopiedTransaction(undefined);
-    setIsOpenSetter(true);
+    transactionModal.open();
   };
 
   const copyTransaction = (transaction: TTransaction) => {
     setOpenedTransaction(undefined);
     setCopiedTransaction(transaction);
-    setIsOpenSetter(true);
+    transactionModal.open();
   };
 
   const transactionGroups = useMemo(() => {
@@ -217,8 +218,8 @@ const Transactions: FC = () => {
       )}
 
       <SetTransaction
-        isOpen={isOpenSetter}
-        close={() => setIsOpenSetter(false)}
+        isOpen={transactionModal.isOpen}
+        close={transactionModal.close}
         transaction={openedTransaction}
         copiedTransaction={copiedTransaction}
       />

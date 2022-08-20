@@ -3,6 +3,7 @@ import Swal from 'sweetalert2';
 
 import { compareObjByStr } from '../../helper/string';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
+import useModal from '../../hooks/useModal';
 import { setIsUnsaved } from '../../store/reducers/appSlice';
 import { deleteCategory } from '../../store/reducers/categorySlice';
 import {
@@ -34,12 +35,12 @@ const Categories: FC<CategoriesProps> = ({ categoryType }) => {
   } = useAppSelector((state) => state);
   const dispatch = useAppDispatch();
 
-  const [isOpen, setIsOpen] = useState(false);
+  const categoryModal = useModal();
   const [openedCategory, setOpenedCategory] = useState<TCategory>();
 
   const openCategory = (category?: TCategory) => {
     setOpenedCategory(category);
-    setIsOpen(true);
+    categoryModal.open();
   };
 
   const sortedCategories = [...categories]
@@ -140,8 +141,8 @@ const Categories: FC<CategoriesProps> = ({ categoryType }) => {
       )}
 
       <SetCategory
-        isOpen={isOpen}
-        close={() => setIsOpen(false)}
+        isOpen={categoryModal.isOpen}
+        close={categoryModal.close}
         categoryType={categoryType}
         category={openedCategory}
       />

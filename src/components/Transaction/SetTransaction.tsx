@@ -12,6 +12,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { parseInputPrice, formatPrice } from '../../helper/currencies';
 import { compareObjByStr } from '../../helper/string';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
+import useModal from '../../hooks/useModal';
 import { numberWithDecimalPlacesSchema } from '../../schema';
 import { setIsUnsaved } from '../../store/reducers/appSlice';
 import { createTransaction, editTransaction } from '../../store/reducers/transactionSlice';
@@ -60,7 +61,7 @@ const SetTransaction: FC<SetTransactionProps> = ({
     .map((category) => ({ value: category.id, label: category.name }));
 
   const [date, setDate] = useState(dayjs());
-  const [isOpenTemplateModal, setIsOpenTemplateModal] = useState(false);
+  const templateModal = useModal();
 
   type TForm = {
     name: string;
@@ -200,7 +201,7 @@ const SetTransaction: FC<SetTransactionProps> = ({
                 <Button
                   color="yellow"
                   className="text-sm !px-2 !py-1 ml-4"
-                  onClick={() => setIsOpenTemplateModal(true)}
+                  onClick={templateModal.open}
                 >
                   Use Template
                 </Button>
@@ -345,8 +346,8 @@ const SetTransaction: FC<SetTransactionProps> = ({
             </Modal.Footer>
 
             <ChooseTemplate
-              isOpen={isOpenTemplateModal}
-              close={() => setIsOpenTemplateModal(false)}
+              isOpen={templateModal.isOpen}
+              close={templateModal.close}
               setTransaction={(template) => setValues(getTemplateData(template))}
             />
           </Form>
