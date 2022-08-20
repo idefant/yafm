@@ -55,10 +55,8 @@ const SidebarCategory: FC<SidebarCategoryProps> = ({
       </div>
 
       <div
-        className={classNames(
-          'overflow-hidden transition-all h-0',
-          isOpen && `h-[${elementsWrapperRef.current?.clientHeight}px]`,
-        )}
+        className="overflow-hidden transition-all"
+        style={{ height: isOpen ? elementsWrapperRef.current?.clientHeight : 0 }}
       >
         <div ref={elementsWrapperRef}>
           {children}
