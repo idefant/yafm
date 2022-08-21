@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 import { createSelector } from '@reduxjs/toolkit';
 
 import { TAccount } from '../types/accountType';
@@ -13,7 +14,9 @@ export const selectAccountCategories = (state: RootState) => state.category.acco
 export const selectTransactionCategories = (state: RootState) => state.category.transactions;
 export const selectAccounts = (state: RootState) => state.account.accounts;
 export const selectCurrencies = (state: RootState) => state.currency.currencies;
-export const selectTransactions = (state: RootState) => state.transaction.transactions;
+export const selectTransactions = (state: RootState) => (
+  [...state.transaction.transactions].sort((a, b) => b.datetime - a.datetime)
+);
 export const selectTemplates = (state: RootState) => state.transaction.templates;
 
 export const selectFilteredAccountCategories = createSelector(
@@ -86,33 +89,6 @@ export const selectAccountsWithBalance = createSelector(
   },
 );
 
-export const selectFilteredAccounts = createSelector(
-  [
-    selectSafeMode,
-    selectArchiveMode,
-    selectAccountsWithBalance,
-    selectHiddenAccountCategoryIds,
-    selectArchivedAccountCategoryIds,
-  ],
-  (
-    safeMode,
-    archiveMode,
-    accounts,
-    hiddenCategoryIds,
-    archivedCategoryIds,
-  ) => accounts.filter((account) => {
-    const isHidden = safeMode && account.is_hide;
-    const isArchived = !archiveMode && account.is_archive;
-    const isCategoryHidden = safeMode
-      && account.category_id
-      && hiddenCategoryIds.has(account.category_id);
-    const isCategoryArchived = !archiveMode
-      && account.category_id
-      && archivedCategoryIds.has(account.category_id);
-    return !(isHidden || isArchived || isCategoryHidden || isCategoryArchived);
-  }),
-);
-
 export const selectAccountDict = createSelector(
   [selectAccountsWithBalance],
   (accounts) => {
@@ -163,6 +139,55 @@ export const selectFilteredTransactions = createSelector(
         (operation) => hiddenAccountIds.has(operation.account_id),
       );
     },
+  ),
+);
+
+export const selectAccountsLastActivity = createSelector(
+  [selectFilteredTransactions],
+  (transactions) => (
+    transactions.reduce((acc: Record<string, number>, transaction) => {
+      transaction.operations.forEach((operation) => {
+        if (!(operation.account_id in acc)) {
+          acc[operation.account_id] = transaction.datetime;
+        }
+      });
+      return acc;
+    }, {})
+  ),
+);
+
+export const selectFilteredAccounts = createSelector(
+  [
+    selectSafeMode,
+    selectArchiveMode,
+    selectAccountsWithBalance,
+    selectHiddenAccountCategoryIds,
+    selectArchivedAccountCategoryIds,
+    selectAccountsLastActivity,
+  ],
+  (
+    safeMode,
+    archiveMode,
+    accounts,
+    hiddenCategoryIds,
+    archivedCategoryIds,
+    accountsLastActivity,
+  ) => (
+    accounts
+      .filter((account) => {
+        const isHidden = safeMode && account.is_hide;
+        const isArchived = !archiveMode && account.is_archive;
+        const isCategoryHidden = safeMode
+          && account.category_id
+          && hiddenCategoryIds.has(account.category_id);
+        const isCategoryArchived = !archiveMode
+          && account.category_id
+          && archivedCategoryIds.has(account.category_id);
+        return !(isHidden || isArchived || isCategoryHidden || isCategoryArchived);
+      }).map((account) => ({
+        ...account,
+        last_activity: accountsLastActivity?.[account.id],
+      }))
   ),
 );
 

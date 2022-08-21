@@ -5,6 +5,7 @@ import {
   Legend,
   ChartData,
 } from 'chart.js';
+import dayjs from 'dayjs';
 import { FC, useMemo, useState } from 'react';
 import { Pie } from 'react-chartjs-2';
 import Swal from 'sweetalert2';
@@ -24,7 +25,7 @@ import { TCurrency } from '../../types/currencyType';
 import SetAccount from '../Account/SetAccount';
 import Button from '../Generic/Button/Button';
 import Icon from '../Generic/Icon';
-import Table, { TColumn, TableAction } from '../Generic/Table';
+import Table, { TColumn, TableAction, TableDate } from '../Generic/Table';
 import { Title } from '../Generic/Title';
 
 const Accounts: FC = () => {
@@ -188,6 +189,15 @@ const Accounts: FC = () => {
           </>
         );
       },
+    },
+    {
+      title: 'Last Activity',
+      key: 'last_activity',
+      render: ({ record }) => (
+        record.last_activity
+          ? <TableDate date={dayjs(record.last_activity)} />
+          : <div className="text-center">Never</div>
+      ),
     },
     {
       title: <Icon.Lock className="w-[22px] h-[22px]" />,

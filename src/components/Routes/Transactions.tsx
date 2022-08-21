@@ -21,6 +21,7 @@ import Table, {
   TableAction,
   TableOperations,
   TableTooltip,
+  TableDate,
 } from '../Generic/Table';
 import { Title } from '../Generic/Title';
 import SetTransaction from '../Transaction/SetTransaction';
@@ -99,18 +100,7 @@ const Transactions: FC = () => {
     {
       title: 'Date',
       key: 'datetime',
-      cellClassName: 'text-center',
-      render: ({ record }) => {
-        const date = dayjs(record.datetime);
-        return (
-          <>
-            <div>{date.format('DD.MM.YYYY')}</div>
-            <div className="text-sm">
-              {date.format('HH:mm')}
-            </div>
-          </>
-        );
-      },
+      render: ({ record }) => <TableDate date={dayjs(record.datetime)} />,
     },
     {
       title: 'Category',

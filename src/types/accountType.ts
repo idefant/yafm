@@ -7,4 +7,7 @@ export type TAccount = {
   is_archive?: boolean;
 };
 
-export type TCalculatedAccount = TAccount & { balance: number };
+export type TCalculatedAccount = TAccount & {
+  balance: number;
+  last_activity?: number;
+};
