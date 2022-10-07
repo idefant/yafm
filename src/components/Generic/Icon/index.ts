@@ -23,6 +23,7 @@ const Icon = {
   Repeat: Icons.RepeatIcon,
   Tag: Icons.TagIcon,
   Setting: Icons.SettingIcon,
+  Search: Icons.SearchIcon,
 };
 
 export default Icon;

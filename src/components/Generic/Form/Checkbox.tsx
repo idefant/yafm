@@ -33,7 +33,7 @@ const Checkbox: FC<CheckboxProps> = ({
       name={name}
     />
     <label
-      className="form-check-label inline-block text-gray-800"
+      className="form-check-label inline-block"
       htmlFor={id}
     >
       {children}

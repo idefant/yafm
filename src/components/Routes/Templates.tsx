@@ -11,6 +11,7 @@ import {
 } from '../../store/selectors';
 import { TTemplate } from '../../types/transactionType';
 import Button from '../Generic/Button/Button';
+import Card from '../Generic/Card';
 import Icon from '../Generic/Icon';
 import Table, {
   TColumn,
@@ -86,6 +87,7 @@ const Templates: FC = () => {
     {
       title: <Icon.Info className="w-6 h-6 mx-auto" />,
       key: 'description',
+      width: 'min',
       render: ({ record }) => (
         <TableTooltip id={`tr_${record.id}`}>
           {record.description}
@@ -95,6 +97,7 @@ const Templates: FC = () => {
     {
       key: 'actions',
       cellClassName: '!p-0',
+      width: 'min',
       render: ({ record }) => (
         <div className="flex">
           <TableAction onClick={() => openTemplate(record)} icon={Icon.Pencil} />
@@ -108,18 +111,21 @@ const Templates: FC = () => {
     <>
       <Title>Templates</Title>
 
-      <Button color="green" onClick={() => openTemplate()} className="mb-4">
-        Create
-      </Button>
+      <Card>
+        <Card.Header>List of Templates</Card.Header>
 
-      {templates.length ? (
-        <Table
-          columns={tableColumns}
-          data={templates}
-        />
-      ) : (
-        <div className="font-sans text-3xl">¯\_(ツ)_/¯</div>
-      )}
+        <Card.Body>
+          <Button color="green" onClick={() => openTemplate()} className="mb-2">
+            Create
+          </Button>
+
+          <Table
+            columns={tableColumns}
+            data={templates}
+            className={{ table: 'w-full' }}
+          />
+        </Card.Body>
+      </Card>
 
       <SetTemplate
         isOpen={templateModal.isOpen}

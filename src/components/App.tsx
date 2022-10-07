@@ -15,8 +15,8 @@ import CabinetTemplate from './Container/CabinetTemplate';
 import EntranceTemplate from './Container/EntranceTemplate';
 import Accounts from './Routes/Accounts';
 import Categories from './Routes/Categories';
+import Dashboard from './Routes/Dashboard';
 import Decrypt from './Routes/Decrypt';
-import Main from './Routes/Main';
 import Setting from './Routes/Setting/Setting';
 import Templates from './Routes/Templates';
 import Transactions from './Routes/Transactions';
@@ -83,18 +83,14 @@ const App: FC = () => {
         </>
       ) : (
         <Route element={<CabinetTemplate />}>
-          <Route path="/" element={<Main />} />
+          <Route path="/" element={<Dashboard />} />
           <Route path="/transactions" element={<Transactions />} />
           <Route path="/accounts" element={<Accounts />} />
           <Route path="/setting" element={<Setting />} />
           <Route path="templates" element={<Templates />} />
           <Route
-            path="/categories/accounts"
-            element={<Categories categoryType="accounts" />}
-          />
-          <Route
-            path="/categories/transactions"
-            element={<Categories categoryType="transactions" />}
+            path="/categories"
+            element={<Categories />}
           />
           <Route path="*" element={<Navigate to="/" />} />
         </Route>

@@ -20,7 +20,7 @@ const Textarea: FC<TextareaProps> = ({
     value={value}
     onChange={onChange}
     placeholder={placeholder}
-    className="resize-none w-full bg-gray-200 rounded-md px-3 py-1.5 focus:outline-none focus:bg-gray-100 border focus:border-gray-600 overflow-hidden"
+    className="resize-none w-full bg-slate-700 rounded-md px-3 py-1.5 focus:outline-none border border-slate-100/30 focus:border-slate-100/60 overflow-hidden focus:shadow focus:shadow-slate-100/50 text-slate-200 transition-shadow"
   />
 );
 

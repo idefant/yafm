@@ -28,7 +28,7 @@ const FormField: FC<FormFieldProps> = ({
   withError,
   onBlur,
 }) => (
-  <div className="flex items-center my-2 gap-3">
+  <div className="flex items-center my-3 gap-3">
     <label className="block w-1/3">{label}</label>
     <div className="w-2/3 flex gap-4 items-center">
       <FormFieldInput
@@ -65,8 +65,8 @@ export const FormFieldInput: FC<FormFieldInputProps> = ({
   <input
     type={type}
     className={classNames(
-      'w-full flex-1 bg-gray-200 rounded-md px-3 py-1.5 focus:outline-none focus:bg-gray-100 border focus:border-gray-600 focus:shadow-none transition-shadow',
-      withError && 'shadow-[0_0_0_3px_#DC2626a0]',
+      'w-full flex-1 bg-slate-700 rounded-md px-3 py-1.5 focus:outline-none border border-slate-100/30 focus:border-slate-100/60 focus:shadow focus:shadow-slate-100/50 text-slate-200 transition-shadow',
+      withError && 'shadow-[0_0_0_3px_#ff0000c5]',
     )}
     value={value}
     onChange={onChange}

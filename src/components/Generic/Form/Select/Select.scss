@@ -1,27 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 .select {
   &__control {
-    background-color: #e5e7eb !important;
-    border-radius: 0.375rem !important;
+    @apply bg-slate-700 border-slate-100/30 rounded-md #{!important};
     &--is-focused {
-      box-shadow: none !important;
-      background-color: #f3f4f6 !important;
-      border-color: #4b5563 !important;
+      @apply outline-none border-slate-100/60 shadow shadow-slate-100/50 #{!important};
     }
   }
   &__option {
-    padding: 4px 12px !important;
+    @apply py-1 px-3 #{!important};
     &--is-focused {
-      background-color: #FDE68A !important;
+      @apply bg-slate-600 #{!important};
     }
     &--is-selected {
-      background-color: #FBBF24 !important;
-      color: #000 !important;
+      @apply bg-slate-700 font-bold #{!important};
     }
+  }
+  &__single-value {
+    @apply text-slate-200 #{!important};
+  }
+  &__input-container {
+    @apply text-slate-300 #{!important};
+  }
+
+  &__menu {
+    @apply bg-slate-900 border border-slate-100/50 rounded-md #{!important};
   }
 }
 
 .withError {
   .select__control {
-    box-shadow: 0 0 0 3px #DC2626a0;
+    @apply transition-shadow;
+    box-shadow: 0 0 0 3px #ff0000c5;
   }
 }

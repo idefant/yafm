@@ -74,6 +74,7 @@ const ChooseTemplate: FC<ChooseTemplateProps> = ({
     {
       title: <Icon.Info className="w-6 h-6 mx-auto" />,
       key: 'description',
+      width: 'min',
       render: ({ record }) => (
         <TableTooltip id={`template_${record.id}`}>
           {record.description}
@@ -86,17 +87,11 @@ const ChooseTemplate: FC<ChooseTemplateProps> = ({
     <Modal isOpen={isOpen} close={close} width="biggest">
       <Modal.Header close={close}>Choose Template</Modal.Header>
       <Modal.Content>
-        {templates.length === 0 ? (
-          <div className="font-sans text-3xl text-center mt-8 mb-3">
-            ¯\_(ツ)_/¯
-          </div>
-        ) : (
-          <Table
-            columns={tableColumns}
-            data={templates}
-            className={{ table: 'w-full' }}
-          />
-        )}
+        <Table
+          columns={tableColumns}
+          data={templates}
+          className={{ table: 'w-full' }}
+        />
       </Modal.Content>
     </Modal>
   );

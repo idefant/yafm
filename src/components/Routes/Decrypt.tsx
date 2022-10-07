@@ -18,6 +18,7 @@ import { TCipher } from '../../types/cipher';
 import Button from '../Generic/Button/Button';
 import ButtonLink from '../Generic/Button/ButtonLink';
 import Details from '../Generic/Details';
+import EntranceTitle from '../Generic/EntranceTitle';
 import FormField from '../Generic/Form/FormField';
 
 const Decrypt: FC = () => {
@@ -126,12 +127,13 @@ const Decrypt: FC = () => {
     <>Loading...</>
   ) : (
     <>
-      <h1 className="text-3xl font-bold underline text-center mb-7">
+      <EntranceTitle>
         {isNew ? 'Create Base' : 'Decrypt Base'}
-      </h1>
+      </EntranceTitle>
+
       <form onSubmit={formik.handleSubmit}>
         <div className="flex gap-3 mb-3">
-          <div className="w-1/3">Server URL: </div>
+          <div className="w-1/3">Vault URL:</div>
           <div className="w-2/3">{vaultUrl}</div>
         </div>
 
@@ -161,7 +163,8 @@ const Decrypt: FC = () => {
             {isVersioningEnabled && (
               <ButtonLink
                 to="/versions"
-                className="text-sm !px-2.5 !py-1.5 rounded-lg bg-amber-300 inline-block"
+                color="yellow"
+                className="text-sm !px-2.5 !py-1.5 rounded-lg"
               >
                 Choose old version
               </ButtonLink>
@@ -169,7 +172,7 @@ const Decrypt: FC = () => {
 
             <ButtonLink
               to="/upload"
-              className="text-sm !px-2.5 !py-1.5 rounded-lg inline-block"
+              className="text-sm !px-2.5 !py-1.5 rounded-lg"
               color="green"
             >
               Upload Version
@@ -177,7 +180,7 @@ const Decrypt: FC = () => {
 
             <Button
               color="gray"
-              className="text-sm !px-2.5 !py-1.5 rounded-lg inline-block"
+              className="text-sm !px-2.5 !py-1.5 rounded-lg"
               onClick={changeVaultUrl}
             >
               Change Vault Url

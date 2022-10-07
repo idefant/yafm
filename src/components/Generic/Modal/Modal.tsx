@@ -60,7 +60,7 @@ const Modal: FC<ModalProps> & ModalExtensions = ({
     >
       <FocusTrap focusTrapOptions={{ onDeactivate: close }} active={isActiveFocusTrap}>
         <div
-          className="opacity-0 fixed inset-0 bg-gray-800/60 transition ease-in-out duration-200 overflow-auto z-50"
+          className="opacity-0 fixed inset-0 bg-slate-800/70 transition ease-in-out duration-200 overflow-auto z-50"
           onClick={close}
           aria-hidden="true"
         >
@@ -68,7 +68,7 @@ const Modal: FC<ModalProps> & ModalExtensions = ({
             className={classNames('mx-auto my-7', widthClassnames[width])}
           >
             <Container
-              className="bg-white rounded-lg"
+              className="bg-slate-800 rounded-lg border border-slate-100/30"
               onClick={(e) => e.stopPropagation()}
               onSubmit={onSubmit}
             >

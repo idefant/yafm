@@ -125,7 +125,7 @@ const SetAccount: FC<SetAccountProps> = ({ isOpen, close, account }) => {
                 withError={Boolean(errors.name)}
               />
               {!account && (
-                <div className="flex items-center my-2 gap-3">
+                <div className="flex items-center my-3 gap-3">
                   <label className="block w-1/3">Currency</label>
                   <Select
                     className="w-2/3"
@@ -142,7 +142,7 @@ const SetAccount: FC<SetAccountProps> = ({ isOpen, close, account }) => {
                 </div>
               )}
 
-              <div className="flex items-center my-2 gap-3">
+              <div className="flex items-center my-3 gap-3">
                 <label className="block w-1/3">Category</label>
                 <Select
                   className="w-2/3"

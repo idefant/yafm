@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import { FC, ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 
-import { buttonColors, TButtonColor } from '.';
+import { buttonColors, TButtonColor } from './buttonColors';
 
 interface ButtonLinkProps {
   color?: TButtonColor;
@@ -21,7 +21,7 @@ const ButtonLink: FC<ButtonLinkProps> = ({
     to={to}
     className={classNames(
       color && buttonColors[color],
-      'px-4 py-2 rounded-lg border border-gray-600 border-2 inline-block',
+      'btn',
       className,
     )}
   >

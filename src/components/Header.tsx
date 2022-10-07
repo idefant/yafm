@@ -24,7 +24,7 @@ const Header: FC = () => {
   const navigate = useNavigate();
 
   const {
-    safeMode, archiveMode, isUnsaved, vaultUrl, password,
+    safeMode, archiveMode, isUnsaved, vaultUrl, password, openedModalsCount,
   } = useAppSelector((state) => state.app);
   const dispatch = useAppDispatch();
 
@@ -72,7 +72,12 @@ const Header: FC = () => {
   };
 
   return (
-    <div className="flex items-center justify-between bg-gray-800 py-3 sticky top-0 z-10">
+    <div
+      className={classNames(
+        'flex items-center justify-between bg-slate-900 py-3 sticky top-0 z-10 border-b border-b-slate-300/30',
+        openedModalsCount && 'blur',
+      )}
+    >
       <div className="text-white text-2xl text-center font-bold w-60">YAFM</div>
 
       <div className="flex px-6 gap-2 md:gap-6 items-center">

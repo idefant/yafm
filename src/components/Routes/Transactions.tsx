@@ -14,6 +14,7 @@ import {
 import { TPeriod } from '../../types/periodType';
 import { TTransaction } from '../../types/transactionType';
 import Button from '../Generic/Button/Button';
+import Card from '../Generic/Card';
 import Select from '../Generic/Form/Select';
 import Icon from '../Generic/Icon';
 import Table, {
@@ -133,6 +134,7 @@ const Transactions: FC = () => {
     {
       title: <Icon.Info className="w-6 h-6 mx-auto" />,
       key: 'description',
+      width: 'min',
       render: ({ record }) => (
         <TableTooltip id={`tr_${record.id}`}>
           {record.description}
@@ -142,6 +144,7 @@ const Transactions: FC = () => {
     {
       key: 'actions',
       cellClassName: '!p-0',
+      width: 'min',
       render: ({ record }) => (
         <div className="flex">
           <TableAction onClick={() => copyTransaction(record)} icon={Icon.Copy} />
@@ -161,51 +164,58 @@ const Transactions: FC = () => {
   return (
     <>
       <Title>Transactions</Title>
-      <div className="flex gap-20 items-center my-4">
-        <Button color="green" onClick={() => openTransaction()}>
-          Create
-        </Button>
 
-        <div className="flex gap-3 items-center">
-          <Select
-            className="border-gray-600"
-            options={periodOptions}
-            name="categoryId"
-            value={periodOptions.find((option) => (option.value === datePeriodType))}
-            onChange={(newValue: any) => setDatePeriodType(newValue?.value)}
-          />
-          <button
-            onClick={() => setDate(date.subtract(1, datePeriodType))}
-            className="p-2 bg-gray-200 border border-gray-600 rounded-full"
-            type="button"
-          >
-            <Icon.ChevronLeft />
-          </button>
-          <div>
-            {datePeriodType === 'month' && `${date.format('MMM YYYY')}`}
-            {datePeriodType === 'quarter'
-              && date.format(`Q${date.quarter()} YYYY`)}
-            {datePeriodType === 'year' && date.year()}
+      <Card>
+        <Card.Header>Transaction Filter</Card.Header>
+        <Card.Body>
+          <div className="flex gap-3 items-center">
+            <Select
+              className="border-gray-600"
+              options={periodOptions}
+              name="categoryId"
+              value={periodOptions.find((option) => (option.value === datePeriodType))}
+              onChange={(newValue: any) => setDatePeriodType(newValue?.value)}
+            />
+            <button
+              onClick={() => setDate(date.subtract(1, datePeriodType))}
+              className="p-2 bg-slate-700 border border-slate-100/30 rounded-full"
+              type="button"
+            >
+              <Icon.ChevronLeft />
+            </button>
+            <div>
+              {datePeriodType === 'month' && `${date.format('MMM YYYY')}`}
+              {datePeriodType === 'quarter'
+                && date.format(`Q${date.quarter()} YYYY`)}
+              {datePeriodType === 'year' && date.year()}
+            </div>
+            <button
+              onClick={() => setDate(date.add(1, datePeriodType))}
+              className="p-2 bg-slate-700 border border-slate-100/30 rounded-full"
+              type="button"
+            >
+              <Icon.ChevronRight />
+            </button>
           </div>
-          <button
-            onClick={() => setDate(date.add(1, datePeriodType))}
-            className="p-2 bg-gray-200 border border-gray-600 rounded-full"
-            type="button"
-          >
-            <Icon.ChevronRight />
-          </button>
-        </div>
-      </div>
+        </Card.Body>
+      </Card>
 
-      {transactionGroups.length ? (
-        <Table
-          columns={tableColumns}
-          dataGroups={transactionGroups}
-          className={{ table: 'w-full' }}
-        />
-      ) : (
-        <div className="font-sans text-3xl">¯\_(ツ)_/¯</div>
-      )}
+      <Card>
+        <Card.Header>List of Transactions</Card.Header>
+
+        <Card.Body>
+          <Button color="green" onClick={() => openTransaction()} className="mb-2">
+            Create Transaction
+          </Button>
+
+          <Table
+            columns={tableColumns}
+            dataGroups={transactionGroups}
+            className={{ table: 'w-full' }}
+          />
+        </Card.Body>
+
+      </Card>
 
       <SetTransaction
         isOpen={transactionModal.isOpen}

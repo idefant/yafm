@@ -30,7 +30,7 @@ const Details: FC<DetailsProps> = ({ title, children }) => {
   return (
     <div className="w-full border-2 border-gray-500 rounded-lg overflow-hidden">
       <button
-        className="w-full bg-gray-300 p-2 flex gap-2"
+        className="w-full bg-slate-800 p-2 flex gap-2"
         onClick={toggleIsOpen}
         type="button"
       >
@@ -40,7 +40,7 @@ const Details: FC<DetailsProps> = ({ title, children }) => {
         <div>{title}</div>
       </button>
       <div
-        className="w-full overflow-hidden transition-all bg-gray-100"
+        className={classNames('w-full overflow-hidden transition-all bg-slate-800 border-t-slate-100/30', isOpen && 'border-t-2')}
         style={{ height: isOpen ? contentHeight : 0 }}
       >
         <div ref={refContent} className="p-4">

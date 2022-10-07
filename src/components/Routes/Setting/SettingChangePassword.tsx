@@ -6,6 +6,7 @@ import { object, string } from 'yup';
 import { useAppDispatch, useAppSelector } from '../../../hooks/reduxHooks';
 import { setPassword } from '../../../store/reducers/appSlice';
 import Button from '../../Generic/Button/Button';
+import Card from '../../Generic/Card';
 import FormField from '../../Generic/Form/FormField';
 
 const SettingChangePassword: FC = () => {
@@ -50,43 +51,49 @@ const SettingChangePassword: FC = () => {
   });
 
   return (
-    <>
-      <h2 className="text-2xl font-bold underline pb-3">Change Password</h2>
+    <Card>
+      <Card.Header>Change Password</Card.Header>
 
-      <form className="w-2/3" onSubmit={formik.handleSubmit}>
-        <FormField
-          label="Old password"
-          value={formik.values.oldPassword}
-          onChange={formik.handleChange}
-          name="oldPassword"
-          type="password"
-          onBlur={() => formik.validateField('oldPassword')}
-          withError={Boolean(formik.errors.oldPassword)}
-        />
+      <form onSubmit={formik.handleSubmit}>
+        <Card.Body>
+          <FormField
+            label="Old password"
+            value={formik.values.oldPassword}
+            onChange={formik.handleChange}
+            name="oldPassword"
+            type="password"
+            onBlur={() => formik.validateField('oldPassword')}
+            withError={Boolean(formik.errors.oldPassword)}
+          />
 
-        <FormField
-          label="New password"
-          value={formik.values.newPassword}
-          onChange={formik.handleChange}
-          name="newPassword"
-          type="password"
-          onBlur={() => formik.validateField('newPassword')}
-          withError={Boolean(formik.errors.newPassword)}
-        />
+          <FormField
+            label="New password"
+            value={formik.values.newPassword}
+            onChange={formik.handleChange}
+            name="newPassword"
+            type="password"
+            onBlur={() => formik.validateField('newPassword')}
+            withError={Boolean(formik.errors.newPassword)}
+          />
 
-        <FormField
-          label="Repeat password"
-          value={formik.values.repeatPassword}
-          onChange={formik.handleChange}
-          name="repeatPassword"
-          type="password"
-          onBlur={() => formik.validateField('repeatPassword')}
-          withError={Boolean(formik.errors.repeatPassword)}
-        />
+          <FormField
+            label="Repeat password"
+            value={formik.values.repeatPassword}
+            onChange={formik.handleChange}
+            name="repeatPassword"
+            type="password"
+            onBlur={() => formik.validateField('repeatPassword')}
+            withError={Boolean(formik.errors.repeatPassword)}
+          />
+        </Card.Body>
 
-        <Button type="submit">Change Password</Button>
+        <Card.Footer>
+          <Button type="submit" color="green" className="!py-1.5">
+            Change Password
+          </Button>
+        </Card.Footer>
       </form>
-    </>
+    </Card>
   );
 };
 

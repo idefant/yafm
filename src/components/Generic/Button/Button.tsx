@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import { ButtonHTMLAttributes, FC } from 'react';
 
-import { buttonColors, TButtonColor } from '.';
+import { buttonColors, TButtonColor } from './buttonColors';
 
 interface ButtonProps {
   color?: TButtonColor;
@@ -16,7 +16,7 @@ const Button: FC<ButtonHTMLAttributes<HTMLButtonElement> & ButtonProps> = ({
   <button
     className={classNames(
       color && buttonColors[color],
-      'px-4 py-2 rounded-lg border border-gray-600 border-2',
+      'btn',
       className,
       props.disabled && 'opacity-60',
     )}

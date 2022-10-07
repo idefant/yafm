@@ -7,6 +7,7 @@ import { exportFile } from '../../../helper/file';
 import { getSyncData } from '../../../helper/sync';
 import { useAppSelector } from '../../../hooks/reduxHooks';
 import Button from '../../Generic/Button/Button';
+import Card from '../../Generic/Card';
 import Checkbox from '../../Generic/Form/Checkbox';
 
 const SettingBackup: FC = () => {
@@ -42,12 +43,12 @@ const SettingBackup: FC = () => {
   });
 
   return (
-    <>
-      <h2 className="text-2xl font-bold underline pb-3 mt-12">Backup</h2>
+    <Card>
+      <Card.Header>Backup</Card.Header>
 
       <form onSubmit={formik.handleSubmit}>
-        <div className="flex gap-8 items-center">
-          <div>
+        <Card.Body>
+          <div className="flex gap-8 items-center">
             <Checkbox
               id="useEncryption"
               checked={formik.values.useEncryption}
@@ -56,12 +57,15 @@ const SettingBackup: FC = () => {
               Use encryption
             </Checkbox>
           </div>
-          <Button color="green" type="submit">
+        </Card.Body>
+
+        <Card.Footer>
+          <Button color="green" type="submit" className="!py-1.5">
             Download
           </Button>
-        </div>
+        </Card.Footer>
       </form>
-    </>
+    </Card>
   );
 };
 

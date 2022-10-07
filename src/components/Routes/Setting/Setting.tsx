@@ -8,8 +8,10 @@ import SettingChangePassword from './SettingChangePassword';
 const Setting: FC = () => (
   <>
     <Title>Setting</Title>
-    <SettingChangePassword />
-    <SettingBackup />
+    <div className="grid grid-cols-2 items-start gap-4">
+      <SettingChangePassword />
+      <SettingBackup />
+    </div>
   </>
 );
 

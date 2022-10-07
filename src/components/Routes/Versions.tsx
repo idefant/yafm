@@ -9,7 +9,8 @@ import {
   getVersionByFilenameRequest,
 } from '../../helper/requests/versionRequests';
 import { useAppSelector } from '../../hooks/reduxHooks';
-import ButtonLink from '../Generic/Button/ButtonLink';
+import GoBackButton from '../Generic/Button/GoBackButton';
+import EntranceTitle from '../Generic/EntranceTitle';
 import Icon from '../Generic/Icon';
 import Table, { TColumn, TableAction } from '../Generic/Table';
 
@@ -68,6 +69,7 @@ const Versions: FC = () => {
     {
       key: 'actions',
       cellClassName: '!p-0',
+      width: 'min',
       render: ({ record }) => (
         <div className="flex justify-center gap-2">
           <Link to={`/decrypt/${record.filename}`} className="p-2">
@@ -84,25 +86,15 @@ const Versions: FC = () => {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold underline text-center mb-7">
-        Versions
-      </h1>
+      <GoBackButton />
+      <EntranceTitle>Versions</EntranceTitle>
 
-      {versions.length === 0 ? (
-        <div className="text-center">
-          <div className="font-sans text-3xl my-10">¯\_(ツ)_/¯</div>
-          <ButtonLink to="/decrypt/last" color="gray">
-            Back
-          </ButtonLink>
-        </div>
-      ) : (
-        <Table
-          columns={tableColumns}
-          data={versions}
-          getKey={(record) => record.filename}
-          className={{ table: 'w-full' }}
-        />
-      )}
+      <Table
+        columns={tableColumns}
+        data={versions}
+        getKey={(record) => record.filename}
+        className={{ table: 'w-full' }}
+      />
     </div>
   );
 };

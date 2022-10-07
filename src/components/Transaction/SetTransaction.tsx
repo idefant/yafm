@@ -28,7 +28,6 @@ import DatePicker from '../Generic/Form/DatePicker';
 import FormField, { FormFieldInput } from '../Generic/Form/FormField';
 import Select from '../Generic/Form/Select';
 import Textarea from '../Generic/Form/Textarea';
-import TimePicker from '../Generic/Form/TimePicker';
 import Icon from '../Generic/Icon';
 import Modal from '../Generic/Modal';
 import ChooseTemplate from '../Template/ChooseTemplate';
@@ -332,7 +331,6 @@ const SetTransaction: FC<SetTransactionProps> = ({
 
               <div className="flex gap-2 mt-2 items-center">
                 <DatePicker date={date} setDate={setDate} />
-                <TimePicker date={date} setDate={setDate} />
                 <CalendarButton date={date} setDate={setDate} />
               </div>
             </Modal.Content>

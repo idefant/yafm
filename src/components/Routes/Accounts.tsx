@@ -5,6 +5,7 @@ import {
   Legend,
   ChartData,
 } from 'chart.js';
+import classNames from 'classnames';
 import dayjs from 'dayjs';
 import { FC, useMemo, useState } from 'react';
 import { Pie } from 'react-chartjs-2';
@@ -24,6 +25,7 @@ import { TAccount, TCalculatedAccount } from '../../types/accountType';
 import { TCurrency } from '../../types/currencyType';
 import SetAccount from '../Account/SetAccount';
 import Button from '../Generic/Button/Button';
+import Card from '../Generic/Card';
 import Icon from '../Generic/Icon';
 import Table, { TColumn, TableAction, TableDate } from '../Generic/Table';
 import { Title } from '../Generic/Title';
@@ -180,13 +182,18 @@ const Accounts: FC = () => {
       render: ({ record }) => {
         const currency = currencyDict[record.currency_code];
         return (
-          <>
+          <div
+            className={classNames(
+              record.balance > 0 && 'text-green-500 font-bold',
+              record.balance < 0 && 'text-red-500 font-bold',
+            )}
+          >
             {formatPrice(
               record.balance,
               currency.decimal_places_number,
             )}
             <span className="pl-3">{currency.code}</span>
-          </>
+          </div>
         );
       },
     },
@@ -216,6 +223,7 @@ const Accounts: FC = () => {
     {
       key: 'actions',
       cellClassName: '!p-0',
+      width: 'min',
       render: ({ record }) => (
         <div className="flex ml-6">
           <TableAction onClick={() => openAccount(record)} icon={Icon.Pencil} />
@@ -228,47 +236,59 @@ const Accounts: FC = () => {
   return (
     <>
       <Title>Accounts</Title>
-      <Button color="green" onClick={() => openAccount()} className="mb-4">
-        Create Account
-      </Button>
 
-      <div className="flex items-start gap-20">
-        {balances.length > 0 && (
-          <div className="w-72 my-8 mx-auto">
-            <Pie
-              data={data}
-              options={{
-                animation: { duration: 600 },
-                plugins: {
-                  tooltip: {
-                    callbacks: {
-                      label: (tooltipItem) => {
-                        const {
-                          formattedBalance,
-                          idealBalance,
-                        } = currencyBalancesDict[tooltipItem.label];
-                        const percentage = ((idealBalance / totalAmount) * 100).toFixed(2);
-                        return `${tooltipItem.label}: ${formattedBalance} - ${percentage}%`;
+      <div className="grid grid-cols-3 gap-4 items-start">
+        <Card>
+          <Card.Header>Capital</Card.Header>
+          <Card.Body>
+            <div className="max-w-[300px] mx-auto">
+              {balances.length > 0 && (
+                <Pie
+                  data={data}
+                  options={{
+                    animation: { duration: 600 },
+                    plugins: {
+                      legend: {
+                        labels: {
+                          color: '#fff',
+                        },
+                      },
+                      tooltip: {
+                        callbacks: {
+                          label: (tooltipItem) => {
+                            const {
+                              formattedBalance,
+                              idealBalance,
+                            } = currencyBalancesDict[tooltipItem.label];
+                            const percentage = ((idealBalance / totalAmount) * 100).toFixed(2);
+                            return `${tooltipItem.label}: ${formattedBalance} - ${percentage}%`;
+                          },
+                        },
                       },
                     },
-                  },
-                },
-              }}
-            />
-          </div>
-        )}
+                  }}
+                />
+              )}
+            </div>
+          </Card.Body>
+        </Card>
 
-        {accountsWithoutCategory.length || accountsWithCategory.length ? (
-          <Table
-            columns={tableColumns}
-            isTranslucentRow={(record) => record.is_archive}
-            className={{ groupName: '!bg-orange-200 !py-1' }}
-            data={accountsWithoutCategory}
-            dataGroups={accountsWithCategory}
-          />
-        ) : (
-          <div className="font-sans text-3xl">¯\_(ツ)_/¯</div>
-        )}
+        <Card className="col-span-2">
+          <Card.Header>List of Accounts</Card.Header>
+          <Card.Body>
+            <Button color="green" onClick={() => openAccount()} className="mb-2">
+              Create Account
+            </Button>
+
+            <Table
+              columns={tableColumns}
+              isTranslucentRow={(record) => record.is_archive}
+              className={{ groupName: '!bg-orange-900', table: 'w-full' }}
+              data={accountsWithoutCategory}
+              dataGroups={accountsWithCategory}
+            />
+          </Card.Body>
+        </Card>
       </div>
 
       <SetAccount

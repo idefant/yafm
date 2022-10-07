@@ -1,5 +1,6 @@
+import classNames from 'classnames';
 import { Dayjs, QUnitType } from 'dayjs';
-import { FC, useEffect, useRef } from 'react';
+import { FC } from 'react';
 
 interface DatePickerProps {
   date: Dayjs;
@@ -8,22 +9,6 @@ interface DatePickerProps {
 }
 
 const DatePicker: FC<DatePickerProps> = ({ date, setDate }) => {
-  const dayRef = useRef<HTMLInputElement>(null);
-  const monthRef = useRef<HTMLInputElement>(null);
-  const yearRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (dayRef.current?.value) {
-      (dayRef.current.value = date.format('DD'));
-    }
-    if (monthRef.current?.value) {
-      (monthRef.current.value = date.format('MM'));
-    }
-    if (yearRef.current?.value) {
-      (yearRef.current.value = date.format('YYYY'));
-    }
-  }, [date]);
-
   const setTimeKeyboard = (key: string, unit: QUnitType) => {
     const handlers = {
       ArrowUp: () => setDate(date.add(1, unit)),
@@ -35,35 +20,68 @@ const DatePicker: FC<DatePickerProps> = ({ date, setDate }) => {
   };
 
   return (
-    <div className="bg-gray-200 rounded-md px-3 py-1.5 border">
-      <input
-        className="bg-transparent focus:outline-none"
-        type="text"
-        defaultValue={date.format('DD')}
-        ref={dayRef}
-        size={2}
-        onKeyDown={(e) => setTimeKeyboard(e.key, 'day')}
-      />
-      <span>.</span>
-      <input
-        className="bg-transparent focus:outline-none"
-        type="text"
-        size={2}
-        defaultValue={date.format('MM')}
-        ref={monthRef}
-        onKeyDown={(e) => setTimeKeyboard(e.key, 'month')}
-      />
-      <span>.</span>
-      <input
-        className="bg-transparent focus:outline-none"
-        type="text"
-        size={4}
-        defaultValue={date.format('YYYY')}
-        ref={yearRef}
-        onKeyDown={(e) => setTimeKeyboard(e.key, 'year')}
-      />
+    <div className="flex gap-2">
+      <DatePickerCard>
+        <DatePickerElement
+          value={date.format('DD')}
+          onKeyDown={(e) => setTimeKeyboard(e.key, 'day')}
+          className="w-5"
+        />
+        <span>.</span>
+        <DatePickerElement
+          value={date.format('MM')}
+          onKeyDown={(e) => setTimeKeyboard(e.key, 'month')}
+          className="w-5"
+        />
+        <span>.</span>
+        <DatePickerElement
+          value={date.format('YYYY')}
+          onKeyDown={(e) => setTimeKeyboard(e.key, 'year')}
+          className="w-10"
+        />
+      </DatePickerCard>
+
+      <DatePickerCard>
+        <DatePickerElement
+          value={date.format('HH')}
+          onKeyDown={(e) => setTimeKeyboard(e.key, 'hour')}
+          className="w-6"
+        />
+        <span>:</span>
+        <DatePickerElement
+          value={date.format('mm')}
+          onKeyDown={(e) => setTimeKeyboard(e.key, 'minute')}
+          className="w-6"
+        />
+      </DatePickerCard>
     </div>
   );
 };
+
+const DatePickerCard: FC<React.HTMLAttributes<HTMLDivElement>> = ({ className, ...props }) => (
+  <div
+    className={classNames(
+      'bg-slate-700 rounded-md px-3 py-1.5 border border-slate-100/30',
+      className,
+    )}
+    {...props}
+  />
+);
+
+const DatePickerElement: FC<React.InputHTMLAttributes<HTMLInputElement>> = ({
+  className,
+  ...props
+}) => (
+  <input
+    className={classNames(
+      'bg-transparent focus:outline-none text-center transition-shadow focus:shadow-[0_1px_0_0_#fff]',
+      className,
+    )}
+    type="text"
+    onChange={(e) => e.preventDefault()}
+    readOnly
+    {...props}
+  />
+);
 
 export default DatePicker;

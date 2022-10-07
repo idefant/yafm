@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import dayjs from 'dayjs';
 import { useFormik } from 'formik';
 import { ChangeEvent, FC, useState } from 'react';
@@ -16,7 +17,10 @@ import { setIsUnsaved, setPassword } from '../../store/reducers/appSlice';
 import { setCategories } from '../../store/reducers/categorySlice';
 import { setTransactions } from '../../store/reducers/transactionSlice';
 import { TCipher } from '../../types/cipher';
+import { buttonColors } from '../Generic/Button';
 import Button from '../Generic/Button/Button';
+import GoBackButton from '../Generic/Button/GoBackButton';
+import EntranceTitle from '../Generic/EntranceTitle';
 import FormField from '../Generic/Form/FormField';
 
 const Upload: FC = () => {
@@ -129,16 +133,16 @@ const Upload: FC = () => {
 
   return (
     <>
-      <h1 className="text-3xl font-bold underline text-center mb-7">
-        Upload Base
-      </h1>
+      <GoBackButton />
+      <EntranceTitle>Upload Base</EntranceTitle>
+
       <form onSubmit={formik.handleSubmit}>
-        <div className="flex gap-3 mb-3">
+        <div className="flex gap-3 mb-5">
           <div className="w-1/3">Server URL: </div>
           <div className="w-2/3">{vaultUrl}</div>
         </div>
 
-        <div className="flex gap-3 mb-3">
+        <div className="flex gap-3 mb-4">
           <div className="w-1/3">Base:</div>
           <div className="w-2/3 flex gap-x-4 gap-y-1.5 flex-wrap items-center">
             <div>
@@ -149,7 +153,7 @@ const Upload: FC = () => {
                 onChange={uploadBackup}
               />
               <label
-                className="block text-sm px-4 py-2 leading-none border rounded w-fit bg-green-500"
+                className={classNames('btn !py-1.5', buttonColors.green)}
                 htmlFor="upload-enc-backup"
               >
                 Upload Base
