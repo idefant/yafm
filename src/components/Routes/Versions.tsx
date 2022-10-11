@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
-import { FC, useEffect, useState } from 'react';
+import { FC, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 
 import { exportFile } from '../../helper/file';
@@ -9,6 +9,7 @@ import {
   getVersionByFilenameRequest,
 } from '../../helper/requests/versionRequests';
 import { useAppSelector } from '../../hooks/reduxHooks';
+import useAsyncEff from '../../hooks/useAsyncEffect';
 import GoBackButton from '../Generic/Button/GoBackButton';
 import EntranceTitle from '../Generic/EntranceTitle';
 import Icon from '../Generic/Icon';
@@ -24,18 +25,16 @@ const Versions: FC = () => {
     { filename: string; date: string }[]
   >([]);
 
-  useEffect(() => {
-    (async () => {
-      const response = await getVersionListRequest(vaultUrl);
-      if (!response) return;
+  useAsyncEff(async () => {
+    const response = await getVersionListRequest(vaultUrl);
+    if (!response) return;
 
-      setVersions(
-        response.data.map((filename: string) => ({
-          filename,
-          date: dayjs(filename, 'YYYYMMDD_HHmm.json').format('DD.MM.YYYY (HH:mm)'),
-        })),
-      );
-    })();
+    setVersions(
+      response.data.map((filename: string) => ({
+        filename,
+        date: dayjs(filename, 'YYYYMMDD_HHmm.json').format('DD.MM.YYYY (HH:mm)'),
+      })),
+    );
   }, [vaultUrl]);
 
   const downloadVersion = async (filename: string) => {

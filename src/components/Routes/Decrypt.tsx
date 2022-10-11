@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import { useFormik } from 'formik';
-import { FC, useEffect, useState } from 'react';
+import { FC, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { object, string } from 'yup';
@@ -10,6 +10,7 @@ import { getBaseRequest, getVersionByFilenameRequest } from '../../helper/reques
 import { checkBaseIntegrity } from '../../helper/sync';
 import { isValidUrl } from '../../helper/url';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
+import useAsyncEff from '../../hooks/useAsyncEffect';
 import { setAccounts } from '../../store/reducers/accountSlice';
 import { setPassword, setVaultUrl } from '../../store/reducers/appSlice';
 import { setCategories } from '../../store/reducers/categorySlice';
@@ -32,21 +33,19 @@ const Decrypt: FC = () => {
   const [isNew, setIsNew] = useState<boolean>();
   const { versionId } = useParams();
 
-  useEffect(() => {
+  useAsyncEff(async () => {
     if (isVaultWorking) {
-      (async () => {
-        const response = await (versionId
-          ? getVersionByFilenameRequest(versionId, vaultUrl)
-          : getBaseRequest(vaultUrl));
-        if (!response) return;
+      const response = await (versionId
+        ? getVersionByFilenameRequest(versionId, vaultUrl)
+        : getBaseRequest(vaultUrl));
+      if (!response) return;
 
-        if (!response.data) {
-          setIsNew(true);
-        } else {
-          setIsNew(false);
-          setCipherData(response.data);
-        }
-      })();
+      if (!response.data) {
+        setIsNew(true);
+      } else {
+        setIsNew(false);
+        setCipherData(response.data);
+      }
     }
   }, [versionId, isVaultWorking, vaultUrl]);
 
