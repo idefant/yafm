@@ -11,11 +11,11 @@ import {
   selectFilteredTransactions,
   selectTransactionCategoryDict,
 } from '../../store/selectors';
-import { TPeriod } from '../../types/periodType';
 import { TTransaction } from '../../types/transactionType';
 import Button from '../Generic/Button/Button';
 import Card from '../Generic/Card';
-import Select from '../Generic/Form/Select';
+import DateFilter from '../Generic/DateFilter/DateFilter';
+import useDateFilter from '../Generic/DateFilter/useDateFilter';
 import Icon from '../Generic/Icon';
 import Table, {
   TColumn,
@@ -35,8 +35,8 @@ const Transactions: FC = () => {
   const dispatch = useAppDispatch();
 
   const transactionModal = useModal();
-  const [date, setDate] = useState(dayjs());
-  const [datePeriodType, setDatePeriodType] = useState<TPeriod>('month');
+  const filterData = useDateFilter();
+  const { date, periodType } = filterData;
 
   const [openedTransaction, setOpenedTransaction] = useState<TTransaction>();
   const [copiedTransaction, setCopiedTransaction] = useState<TTransaction>();
@@ -60,8 +60,8 @@ const Transactions: FC = () => {
       .filter((transaction) => {
         const datetime = dayjs(transaction.datetime);
         return (
-          datetime > date.startOf(datePeriodType)
-          && datetime < date.endOf(datePeriodType)
+          datetime > date.startOf(periodType)
+          && datetime < date.endOf(periodType)
         );
       })
       .sort((a, b) => b.datetime - a.datetime)
@@ -75,7 +75,7 @@ const Transactions: FC = () => {
 
     return Object.entries(transactionGroups)
       .map(([name, data]) => ({ name, data, key: name }));
-  }, [date, datePeriodType, transactions]);
+  }, [date, periodType, transactions]);
 
   const confirmDelete = (transaction: TTransaction) => {
     Swal.fire({
@@ -155,12 +155,6 @@ const Transactions: FC = () => {
     },
   ];
 
-  const periodOptions = [
-    { value: 'month', label: 'Month' },
-    { value: 'quarter', label: 'Quarter' },
-    { value: 'year', label: 'Year' },
-  ];
-
   return (
     <>
       <Title>Transactions</Title>
@@ -168,35 +162,7 @@ const Transactions: FC = () => {
       <Card>
         <Card.Header>Transaction Filter</Card.Header>
         <Card.Body>
-          <div className="flex gap-3 items-center">
-            <Select
-              className="border-gray-600"
-              options={periodOptions}
-              name="categoryId"
-              value={periodOptions.find((option) => (option.value === datePeriodType))}
-              onChange={(newValue: any) => setDatePeriodType(newValue?.value)}
-            />
-            <button
-              onClick={() => setDate(date.subtract(1, datePeriodType))}
-              className="p-2 bg-slate-700 border border-slate-100/30 rounded-full"
-              type="button"
-            >
-              <Icon.ChevronLeft />
-            </button>
-            <div>
-              {datePeriodType === 'month' && `${date.format('MMM YYYY')}`}
-              {datePeriodType === 'quarter'
-                && date.format(`Q${date.quarter()} YYYY`)}
-              {datePeriodType === 'year' && date.year()}
-            </div>
-            <button
-              onClick={() => setDate(date.add(1, datePeriodType))}
-              className="p-2 bg-slate-700 border border-slate-100/30 rounded-full"
-              type="button"
-            >
-              <Icon.ChevronRight />
-            </button>
-          </div>
+          <DateFilter options={filterData} />
         </Card.Body>
       </Card>
 
