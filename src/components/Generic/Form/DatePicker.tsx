@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import { Dayjs, QUnitType } from 'dayjs';
+import { Dayjs, ManipulateType } from 'dayjs';
 import { FC } from 'react';
 
 interface DatePickerProps {
@@ -9,7 +9,7 @@ interface DatePickerProps {
 }
 
 const DatePicker: FC<DatePickerProps> = ({ date, setDate }) => {
-  const setTimeKeyboard = (key: string, unit: QUnitType) => {
+  const setTimeKeyboard = (key: string, unit: ManipulateType) => {
     const handlers = {
       ArrowUp: () => setDate(date.add(1, unit)),
       ArrowDown: () => setDate(date.subtract(1, unit)),

@@ -16,7 +16,6 @@ const DateFilter: FC<DateFilterProps> = ({ options }) => {
 
   const periodOptions = [
     { value: 'month', label: 'Month' },
-    { value: 'quarter', label: 'Quarter' },
     { value: 'year', label: 'Year' },
   ];
 
@@ -38,8 +37,6 @@ const DateFilter: FC<DateFilterProps> = ({ options }) => {
       </button>
       <div>
         {periodType === 'month' && `${date.format('MMM YYYY')}`}
-        {periodType === 'quarter'
-          && date.format(`Q${date.quarter()} YYYY`)}
         {periodType === 'year' && date.year()}
       </div>
       <button

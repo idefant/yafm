@@ -6,29 +6,28 @@ interface FormatPriceOptions {
   useAtomicUnit?: boolean;
 }
 
-export const formatPrice = (
-  value: number,
-  decimalPlaces: number,
-  options?: FormatPriceOptions,
-) => {
+export const withDigits = (sum: number, digits: number) => sum * 10 ** -digits;
+export const withoutDigits = (sum: number, digits: number) => sum * 10 ** digits;
+
+export const formatPrice = (value: number, digits: number, options?: FormatPriceOptions) => {
   const mergedOptions = { useGrouping: true, useAtomicUnit: true, ...options };
-  const numDegree = mergedOptions.useAtomicUnit ? decimalPlaces : 0;
-  const priceNum = value / 10 ** numDegree;
+  const numDegree = mergedOptions.useAtomicUnit ? digits : 0;
+  const priceNum = withDigits(value, numDegree);
   return priceNum.toLocaleString(
     'en',
     {
-      maximumFractionDigits: decimalPlaces,
+      maximumFractionDigits: digits,
       useGrouping: mergedOptions.useGrouping,
     },
   );
 };
 
-export const parseInputPrice = (text: string, decimalPlaces = 0) => (
-  Math.round(parseFloat(text.replace(',', '.')) * 10 ** decimalPlaces)
+export const parseInputPrice = (text: string, digits = 0) => (
+  Math.round(withoutDigits(parseFloat(text.replace(',', '.')), digits))
 );
 
-export const checkValidPrice = (value: string, decimalPlaces: number) => {
-  const regex = new RegExp(`^\\d+(\\.|,)?\\d{0,${decimalPlaces}}$`);
+export const checkValidPrice = (value: string, digits: number) => {
+  const regex = new RegExp(`^\\d+(\\.|,)?\\d{0,${digits}}$`);
   return regex.test(value);
 };
 
@@ -61,5 +60,19 @@ export const convertPrice = (
     ? getDecimalPlaces(to) - getDecimalPlaces(from)
     : 0;
 
-  return (amount * prices[to] * 10 ** numberDegree) / prices[from];
+  return (withoutDigits(amount, numberDegree) * prices[to]) / prices[from];
+};
+
+export const getHistoryBalancesByChanges = (
+  startSum: Record<string, number>,
+  changes: Record<string, number>[],
+) => {
+  const currentSum = { ...startSum };
+
+  return changes.map((change) => {
+    Object.entries(change).forEach(([code, sum]) => {
+      currentSum[code] += sum;
+    });
+    return { ...currentSum };
+  });
 };

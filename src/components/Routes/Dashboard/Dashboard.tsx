@@ -1,13 +1,18 @@
 import { FC } from 'react';
 
-import { convertPrice, formatPrice } from '../../helper/currencies';
-import { useAppSelector } from '../../hooks/reduxHooks';
-import Card from '../Generic/Card';
-import { Title } from '../Generic/Title';
+import { convertPrice, formatPrice } from '../../../helper/currencies';
+import { useAppSelector } from '../../../hooks/reduxHooks';
+import Card from '../../Generic/Card';
+import DateFilter, { useDateFilter } from '../../Generic/DateFilter';
+import { Title } from '../../Generic/Title';
+
+import DashboardBalanceHistoryChart from './DashboardBalanceHistoryChart';
 
 const Dashboard: FC = () => {
   const { fng, prices, currencies } = useAppSelector((state) => state.currency);
   const baseCurrencyCode = 'rub';
+
+  const filterData = useDateFilter();
 
   const data = currencies
     .filter((currency) => currency.code.toLowerCase() !== baseCurrencyCode)
@@ -65,6 +70,15 @@ const Dashboard: FC = () => {
           </Card>
         )}
       </div>
+
+      <Card>
+        <Card.Header>Data Filter</Card.Header>
+        <Card.Body>
+          <DateFilter options={filterData} />
+        </Card.Body>
+      </Card>
+
+      <DashboardBalanceHistoryChart filterData={filterData} />
     </>
   );
 };

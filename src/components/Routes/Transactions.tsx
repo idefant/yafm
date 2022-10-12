@@ -1,5 +1,4 @@
 import dayjs from 'dayjs';
-import quarterOfYear from 'dayjs/plugin/quarterOfYear';
 import { FC, useMemo, useState } from 'react';
 import Swal from 'sweetalert2';
 
@@ -14,8 +13,7 @@ import {
 import { TTransaction } from '../../types/transactionType';
 import Button from '../Generic/Button/Button';
 import Card from '../Generic/Card';
-import DateFilter from '../Generic/DateFilter/DateFilter';
-import useDateFilter from '../Generic/DateFilter/useDateFilter';
+import DateFilter, { useDateFilter } from '../Generic/DateFilter';
 import Icon from '../Generic/Icon';
 import Table, {
   TColumn,
@@ -26,8 +24,6 @@ import Table, {
 } from '../Generic/Table';
 import { Title } from '../Generic/Title';
 import SetTransaction from '../Transaction/SetTransaction';
-
-dayjs.extend(quarterOfYear);
 
 const Transactions: FC = () => {
   const transactions = useAppSelector(selectFilteredTransactions);

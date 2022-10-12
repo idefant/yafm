@@ -1,13 +1,13 @@
-import { groupSum, sum } from './arrays';
+import { groupSum, sumObjectsProp } from './arrays';
 
 describe('sum', () => {
   test('sum in array', () => {
-    expect(sum([12, 49, 35], (value) => value)).toBe(96);
+    expect(sumObjectsProp([12, 49, 35], (value) => value)).toBe(96);
   });
 
   test('sum of keys in array of objects', () => {
-    expect(sum([{ num: 76 }, { num: 91 }, { num: 2 }], (value) => value.num)).toBe(169);
-    expect(sum([{ num: 44, foo: 12 }, { num: 15, bar: 'test' }], (value) => value.num)).toBe(59);
+    expect(sumObjectsProp([{ num: 76 }, { num: 91 }, { num: 2 }], (value) => value.num)).toBe(169);
+    expect(sumObjectsProp([{ num: 44, foo: 12 }, { num: 15, bar: 'test' }], (value) => value.num)).toBe(59);
   });
 });
 

@@ -11,7 +11,7 @@ import { FC, useMemo, useState } from 'react';
 import { Pie } from 'react-chartjs-2';
 import Swal from 'sweetalert2';
 
-import { groupSum, sum } from '../../helper/arrays';
+import { groupSum, sumObjectsProp } from '../../helper/arrays';
 import { convertPrice, formatPrice } from '../../helper/currencies';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
 import useModal from '../../hooks/useModal';
@@ -91,7 +91,7 @@ const Accounts: FC = () => {
   }, [currencies, accounts]);
 
   const totalAmount = useMemo(
-    () => sum(balances, (elem) => elem.idealBalance),
+    () => sumObjectsProp(balances, (elem) => elem.idealBalance),
     [balances],
   );
 
