@@ -1,6 +1,8 @@
 import { TAccount } from './accountType';
 import { TCurrency } from './currencyType';
 
+export type TTransactionType = 'income' | 'outcome' | 'exchange';
+
 export type TOperation = {
   account_id: string;
   sum: number;

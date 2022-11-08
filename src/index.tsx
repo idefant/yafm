@@ -1,3 +1,4 @@
+import { Chart } from 'chart.js';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
@@ -8,6 +9,8 @@ import './index.css';
 import App from './components/App';
 import reportWebVitals from './reportWebVitals';
 import { store, persistor } from './store/store';
+
+Chart.defaults.animation = { duration: 600 };
 
 ReactDOM.render(
   <React.StrictMode>

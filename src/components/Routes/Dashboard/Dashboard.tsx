@@ -1,18 +1,33 @@
-import { FC } from 'react';
+import { FC, useState } from 'react';
 
 import { convertPrice, formatPrice } from '../../../helper/currencies';
+import { getRatesBySimplePeriod, TDateRates } from '../../../helper/requests/exratesRequests';
 import { useAppSelector } from '../../../hooks/reduxHooks';
+import useAsyncEff from '../../../hooks/useAsyncEffect';
 import Card from '../../Generic/Card';
 import DateFilter, { useDateFilter } from '../../Generic/DateFilter';
 import { Title } from '../../Generic/Title';
 
 import DashboardBalanceHistoryChart from './DashboardBalanceHistoryChart';
+import DashboardCategoryChart from './DashboardCategoryChart';
 
 const Dashboard: FC = () => {
   const { fng, prices, currencies } = useAppSelector((state) => state.currency);
   const baseCurrencyCode = 'rub';
 
   const filterData = useDateFilter();
+  const { date, periodType } = filterData;
+  const [rates, setRates] = useState<TDateRates>();
+
+  useAsyncEff(async () => {
+    setRates({});
+    const dateQuery = {
+      month: 'YYYY-MM',
+      year: 'YYYY',
+    };
+    const res = await getRatesBySimplePeriod(date.format(dateQuery[periodType]));
+    setRates(res.data);
+  }, [date, periodType]);
 
   const data = currencies
     .filter((currency) => currency.code.toLowerCase() !== baseCurrencyCode)
@@ -78,7 +93,9 @@ const Dashboard: FC = () => {
         </Card.Body>
       </Card>
 
-      <DashboardBalanceHistoryChart filterData={filterData} />
+      <DashboardBalanceHistoryChart filterData={filterData} rates={rates} />
+
+      <DashboardCategoryChart filterData={filterData} rates={rates} />
     </>
   );
 };

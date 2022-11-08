@@ -9,24 +9,26 @@ import {
   Legend,
 } from 'chart.js';
 import dayjs from 'dayjs';
-import { FC, useMemo, useState } from 'react';
+import { FC, useMemo } from 'react';
 import { Line } from 'react-chartjs-2';
 
 import { defaultCurrencies } from '../../../data/defaultCurrencies';
 import { getHistoryBalancesByChanges, withDigits } from '../../../helper/currencies';
 import { average } from '../../../helper/math';
-import { getRatesBySimplePeriod, TDateRates } from '../../../helper/requests/exratesRequests';
+import { TDateRates } from '../../../helper/requests/exratesRequests';
 import { useAppSelector } from '../../../hooks/reduxHooks';
-import useAsyncEff from '../../../hooks/useAsyncEffect';
 import { selectAccountDict, selectCurrencyDict, selectTransactions } from '../../../store/selectors';
 import Card from '../../Generic/Card';
 import { TDateFilterOptions } from '../../Generic/DateFilter/useDateFilter';
 
 interface DashboardBalanceHistoryChartProps {
   filterData: TDateFilterOptions;
+  rates?: TDateRates;
 }
 
-const DashboardBalanceHistoryChart: FC<DashboardBalanceHistoryChartProps> = ({ filterData }) => {
+const DashboardBalanceHistoryChart: FC<DashboardBalanceHistoryChartProps> = ({
+  filterData, rates,
+}) => {
   const transactions = useAppSelector(selectTransactions);
   const accountDict = useAppSelector(selectAccountDict);
   const currencyDict = useAppSelector(selectCurrencyDict);
@@ -43,18 +45,6 @@ const DashboardBalanceHistoryChart: FC<DashboardBalanceHistoryChartProps> = ({ f
       return date.isAfter(startPeriodDate) && date.isBefore(endPeriodDate);
     })
   ), [endPeriodDate, startPeriodDate, transactions]);
-
-  const [rates, setRates] = useState<TDateRates>();
-
-  useAsyncEff(async () => {
-    setRates({});
-    const dateQuery = {
-      month: 'YYYY-MM',
-      year: 'YYYY',
-    };
-    const res = await getRatesBySimplePeriod(date.format(dateQuery[periodType]));
-    setRates(res.data);
-  }, [date, periodType]);
 
   const daysList = useMemo(() => {
     const periodTypeAction = {
