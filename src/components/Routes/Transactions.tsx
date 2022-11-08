@@ -2,11 +2,14 @@ import dayjs from 'dayjs';
 import { FC, useMemo, useState } from 'react';
 import Swal from 'sweetalert2';
 
+import { compareObjByStr } from '../../helper/string';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
 import useModal from '../../hooks/useModal';
 import { setIsUnsaved } from '../../store/reducers/appSlice';
 import { deleteTransaction } from '../../store/reducers/transactionSlice';
 import {
+  selectFilteredAccounts,
+  selectFilteredTransactionCategories,
   selectFilteredTransactions,
   selectTransactionCategoryDict,
 } from '../../store/selectors';
@@ -14,6 +17,7 @@ import { TTransaction } from '../../types/transactionType';
 import Button from '../Generic/Button/Button';
 import Card from '../Generic/Card';
 import DateFilter, { useDateFilter } from '../Generic/DateFilter';
+import Select, { TSelectOption } from '../Generic/Form/Select';
 import Icon from '../Generic/Icon';
 import Table, {
   TColumn,
@@ -28,7 +32,27 @@ import SetTransaction from '../Transaction/SetTransaction';
 const Transactions: FC = () => {
   const transactions = useAppSelector(selectFilteredTransactions);
   const categoryDict = useAppSelector(selectTransactionCategoryDict);
+  const categories = useAppSelector(selectFilteredTransactionCategories);
+  const accounts = useAppSelector(selectFilteredAccounts);
   const dispatch = useAppDispatch();
+
+  const [selectedCategories, setSelectedCategories] = useState<TSelectOption[]>([]);
+  const selectedCategoryIds = useMemo(() => (
+    new Set(selectedCategories.map(({ value }) => value))
+  ), [selectedCategories]);
+
+  const categoryOptions = categories
+    .sort((a, b) => compareObjByStr(a, b, (e) => e.name))
+    .map((category) => ({ value: category.id, label: category.name }));
+
+  const [selectedAccounts, setSelectedAccounts] = useState<TSelectOption[]>([]);
+  const selectedAccountsIds = useMemo(() => (
+    new Set(selectedAccounts.map(({ value }) => value))
+  ), [selectedAccounts]);
+
+  const accountOptions = accounts
+    .sort((a, b) => compareObjByStr(a, b, (e) => e.name))
+    .map((category) => ({ value: category.id, label: category.name }));
 
   const transactionModal = useModal();
   const filterData = useDateFilter();
@@ -60,6 +84,16 @@ const Transactions: FC = () => {
           && datetime < date.endOf(periodType)
         );
       })
+      .filter((transaction) => {
+        if (selectedCategoryIds.size === 0) return true;
+        return (transaction.category_id && selectedCategoryIds.has(transaction.category_id));
+      })
+      .filter((transaction) => {
+        if (selectedAccountsIds.size === 0) return true;
+        return transaction.operations.some((operation) => (
+          selectedAccountsIds.has(operation.account_id)
+        ));
+      })
       .sort((a, b) => b.datetime - a.datetime)
       .reduce((groups: { [date: string]: TTransaction[] }, transaction) => {
         const date = dayjs(transaction.datetime).format('DD.MM.YYYY');
@@ -71,7 +105,7 @@ const Transactions: FC = () => {
 
     return Object.entries(transactionGroups)
       .map(([name, data]) => ({ name, data, key: name }));
-  }, [date, periodType, transactions]);
+  }, [date, periodType, selectedAccountsIds, selectedCategoryIds, transactions]);
 
   const confirmDelete = (transaction: TTransaction) => {
     Swal.fire({
@@ -159,6 +193,30 @@ const Transactions: FC = () => {
         <Card.Header>Transaction Filter</Card.Header>
         <Card.Body>
           <DateFilter options={filterData} />
+
+          <div className="grid grid-cols-2 gap-3 mt-5">
+            <div className="w-full">
+              <label>Category:</label>
+              <Select
+                className="border-gray-600 w-full"
+                options={categoryOptions}
+                value={selectedCategories}
+                onChange={(newValue: any) => setSelectedCategories(newValue)}
+                isMulti
+              />
+            </div>
+
+            <div className="w-full">
+              <label>Account:</label>
+              <Select
+                className="border-gray-600 w-full"
+                options={accountOptions}
+                value={selectedAccounts}
+                onChange={(newValue: any) => setSelectedAccounts(newValue)}
+                isMulti
+              />
+            </div>
+          </div>
         </Card.Body>
       </Card>
 

@@ -8,6 +8,8 @@ interface SelectProps {
   withError?: boolean;
 }
 
+export type TSelectOption = { value: string; label: string };
+
 const Select: FC<StateManagerProps & SelectProps> = ({ withError, className, ...props }) => (
   <ReactSelect
     classNamePrefix="select"

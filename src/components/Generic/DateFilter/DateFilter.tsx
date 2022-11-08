@@ -24,7 +24,6 @@ const DateFilter: FC<DateFilterProps> = ({ options }) => {
       <Select
         className="border-gray-600"
         options={periodOptions}
-        name="categoryId"
         value={periodOptions.find((option) => (option.value === periodType))}
         onChange={(newValue: any) => setPeriodType(newValue?.value)}
       />

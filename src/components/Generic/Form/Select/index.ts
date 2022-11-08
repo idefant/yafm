@@ -1,3 +1,4 @@
-import Select from './Select';
+import Select, { TSelectOption } from './Select';
 
 export default Select;
+export type { TSelectOption };

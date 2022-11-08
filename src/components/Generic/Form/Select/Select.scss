@@ -28,6 +28,13 @@
   &__menu {
     @apply bg-slate-900 border border-slate-100/50 rounded-md #{!important};
   }
+
+  &__multi-value {
+    @apply bg-slate-900 border border-slate-500 rounded-md #{!important};
+    &__label {
+      @apply text-white #{!important};
+    }
+  }
 }
 
 .withError {

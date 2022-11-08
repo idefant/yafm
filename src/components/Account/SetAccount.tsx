@@ -12,7 +12,7 @@ import { TCurrency } from '../../types/currencyType';
 import Button from '../Generic/Button/Button';
 import Checkbox from '../Generic/Form/Checkbox';
 import FormField from '../Generic/Form/FormField';
-import Select from '../Generic/Form/Select';
+import Select, { TSelectOption } from '../Generic/Form/Select';
 import Modal from '../Generic/Modal';
 
 interface SetAccountProps {
@@ -55,8 +55,6 @@ const SetAccount: FC<SetAccountProps> = ({ isOpen, close, account }) => {
     dispatch(setIsUnsaved(true));
     close();
   };
-
-  type TSelectOption = { value: string; label: string };
 
   const currencyOptGroups = useMemo(() => {
     const objGroups = currencies.reduce(
