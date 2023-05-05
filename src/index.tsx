@@ -7,7 +7,6 @@ import { PersistGate } from 'redux-persist/integration/react';
 
 import './index.css';
 import App from './components/App';
-import reportWebVitals from './reportWebVitals';
 import { store, persistor } from './store/store';
 
 Chart.defaults.animation = { duration: 600 };
@@ -24,5 +23,3 @@ ReactDOM.render(
   </React.StrictMode>,
   document.getElementById('root'),
 );
-
-reportWebVitals();
