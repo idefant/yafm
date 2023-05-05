@@ -36,7 +36,7 @@ const Upload: FC = () => {
   type TForm = { password: string };
 
   const getPlainData = (values: TForm) => {
-    if (!fileData) return undefined;
+    if (!fileData) return;
 
     if (!fileData.is_encrypted) return fileData.data;
 
@@ -49,7 +49,7 @@ const Upload: FC = () => {
     );
     if (!plaintext) {
       Swal.fire({ title: 'Wrong password', icon: 'error' });
-      return undefined;
+      return;
     }
 
     return JSON.parse(plaintext);

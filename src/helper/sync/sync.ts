@@ -99,5 +99,4 @@ export const checkBaseIntegrity = async (data: {
   });
 
   if (messages.length) return { error: messages[0] };
-  return undefined;
 };
