@@ -37,18 +37,20 @@ const Transactions: FC = () => {
   const dispatch = useAppDispatch();
 
   const [selectedCategories, setSelectedCategories] = useState<TSelectOption[]>([]);
-  const selectedCategoryIds = useMemo(() => (
-    new Set(selectedCategories.map(({ value }) => value))
-  ), [selectedCategories]);
+  const selectedCategoryIds = useMemo(
+    () => new Set(selectedCategories.map(({ value }) => value)),
+    [selectedCategories],
+  );
 
   const categoryOptions = categories
     .sort((a, b) => compareObjByStr(a, b, (e) => e.name))
     .map((category) => ({ value: category.id, label: category.name }));
 
   const [selectedAccounts, setSelectedAccounts] = useState<TSelectOption[]>([]);
-  const selectedAccountsIds = useMemo(() => (
-    new Set(selectedAccounts.map(({ value }) => value))
-  ), [selectedAccounts]);
+  const selectedAccountsIds = useMemo(
+    () => new Set(selectedAccounts.map(({ value }) => value)),
+    [selectedAccounts],
+  );
 
   const accountOptions = accounts
     .sort((a, b) => compareObjByStr(a, b, (e) => e.name))
@@ -61,9 +63,7 @@ const Transactions: FC = () => {
   const [openedTransaction, setOpenedTransaction] = useState<TTransaction>();
   const [copiedTransaction, setCopiedTransaction] = useState<TTransaction>();
 
-  const openTransaction = (
-    transaction?: TTransaction,
-  ) => {
+  const openTransaction = (transaction?: TTransaction) => {
     setOpenedTransaction(transaction);
     setCopiedTransaction(undefined);
     transactionModal.open();
@@ -79,20 +79,17 @@ const Transactions: FC = () => {
     const transactionGroups = transactions
       .filter((transaction) => {
         const datetime = dayjs(transaction.datetime);
-        return (
-          datetime > date.startOf(periodType)
-          && datetime < date.endOf(periodType)
-        );
+        return datetime > date.startOf(periodType) && datetime < date.endOf(periodType);
       })
       .filter((transaction) => {
         if (selectedCategoryIds.size === 0) return true;
-        return (transaction.category_id && selectedCategoryIds.has(transaction.category_id));
+        return transaction.category_id && selectedCategoryIds.has(transaction.category_id);
       })
       .filter((transaction) => {
         if (selectedAccountsIds.size === 0) return true;
-        return transaction.operations.some((operation) => (
-          selectedAccountsIds.has(operation.account_id)
-        ));
+        return transaction.operations.some((operation) =>
+          selectedAccountsIds.has(operation.account_id),
+        );
       })
       .sort((a, b) => b.datetime - a.datetime)
       .reduce((groups: { [date: string]: TTransaction[] }, transaction) => {
@@ -103,8 +100,7 @@ const Transactions: FC = () => {
         return groups;
       }, {});
 
-    return Object.entries(transactionGroups)
-      .map(([name, data]) => ({ name, data, key: name }));
+    return Object.entries(transactionGroups).map(([name, data]) => ({ name, data, key: name }));
   }, [date, periodType, selectedAccountsIds, selectedCategoryIds, transactions]);
 
   const confirmDelete = (transaction: TTransaction) => {
@@ -137,38 +133,24 @@ const Transactions: FC = () => {
       title: 'Category',
       key: 'category',
       cellClassName: 'text-center',
-      render: ({ record }) => (
-        record.category_id && categoryDict[record.category_id].name
-      ),
+      render: ({ record }) => record.category_id && categoryDict[record.category_id].name,
     },
     {
       title: 'Outcome',
       key: 'outcome',
-      render: ({ record }) => (
-        <TableOperations
-          operations={record.operations}
-          isPositive={false}
-        />
-      ),
+      render: ({ record }) => <TableOperations operations={record.operations} isPositive={false} />,
     },
     {
       title: 'Income',
       key: 'income',
-      render: ({ record }) => (
-        <TableOperations
-          operations={record.operations}
-          isPositive
-        />
-      ),
+      render: ({ record }) => <TableOperations operations={record.operations} isPositive />,
     },
     {
       title: <Icon.Info className="w-6 h-6 mx-auto" />,
       key: 'description',
       width: 'min',
       render: ({ record }) => (
-        <TableTooltip id={`tr_${record.id}`}>
-          {record.description}
-        </TableTooltip>
+        <TableTooltip id={`tr_${record.id}`}>{record.description}</TableTooltip>
       ),
     },
     {
@@ -234,7 +216,6 @@ const Transactions: FC = () => {
             className={{ table: 'w-full' }}
           />
         </Card.Body>
-
       </Card>
 
       <SetTransaction

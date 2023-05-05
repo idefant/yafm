@@ -124,9 +124,7 @@ const CategoriesPart: FC<CategoriesPartProps> = ({ categoryType }) => {
     <>
       <Card>
         <Card.Header>
-          {categoryType === 'accounts' ? 'Account' : 'Transaction'}
-          {' '}
-          Categories
+          {categoryType === 'accounts' ? 'Account' : 'Transaction'} Categories
         </Card.Header>
 
         <Card.Body>

@@ -1,9 +1,4 @@
-import {
-  Chart as ChartJS,
-  ArcElement,
-  Tooltip,
-  Legend,
-} from 'chart.js';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import dayjs from 'dayjs';
 import { FC, useMemo } from 'react';
 import { Pie } from 'react-chartjs-2';
@@ -33,12 +28,14 @@ const DashboardCategoryChart: FC<DashboardCategoryChartProps> = ({ filterData, r
   const startPeriodDate = date.startOf(periodType);
   const endPeriodDate = startPeriodDate.add(1, periodType);
 
-  const filteredTransactions = useMemo(() => (
-    transactions.filter((transaction) => {
-      const date = dayjs(transaction.datetime);
-      return date.isAfter(startPeriodDate) && date.isBefore(endPeriodDate);
-    })
-  ), [endPeriodDate, startPeriodDate, transactions]);
+  const filteredTransactions = useMemo(
+    () =>
+      transactions.filter((transaction) => {
+        const date = dayjs(transaction.datetime);
+        return date.isAfter(startPeriodDate) && date.isBefore(endPeriodDate);
+      }),
+    [endPeriodDate, startPeriodDate, transactions],
+  );
 
   const transactionsGroupedByType = getTransactionsGroupedByType(filteredTransactions);
 
@@ -90,7 +87,8 @@ const DashboardCategoryChart: FC<DashboardCategoryChartProps> = ({ filterData, r
                 legend: { display: false },
                 tooltip: {
                   callbacks: {
-                    label: (tooltipItem) => `${tooltipItem.label}: ${tooltipItem.formattedValue} RUB`,
+                    label: (tooltipItem) =>
+                      `${tooltipItem.label}: ${tooltipItem.formattedValue} RUB`,
                   },
                 },
               },
@@ -117,7 +115,8 @@ const DashboardCategoryChart: FC<DashboardCategoryChartProps> = ({ filterData, r
                 legend: { display: false },
                 tooltip: {
                   callbacks: {
-                    label: (tooltipItem) => `${tooltipItem.label}: ${tooltipItem.formattedValue} RUB`,
+                    label: (tooltipItem) =>
+                      `${tooltipItem.label}: ${tooltipItem.formattedValue} RUB`,
                   },
                 },
               },

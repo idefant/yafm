@@ -8,12 +8,7 @@ interface TextareaProps {
   name?: string;
 }
 
-const Textarea: FC<TextareaProps> = ({
-  value,
-  onChange,
-  placeholder,
-  name,
-}) => (
+const Textarea: FC<TextareaProps> = ({ value, onChange, placeholder, name }) => (
   <TextareaAutosize
     name={name}
     minRows={1}

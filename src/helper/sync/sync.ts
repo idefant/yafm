@@ -87,10 +87,7 @@ export const checkBaseIntegrity = async (data: {
     }
   });
 
-  [...data.transactions, ...data.templates].forEach(({
-    category_id: categoryId,
-    operations,
-  }) => {
+  [...data.transactions, ...data.templates].forEach(({ category_id: categoryId, operations }) => {
     if (categoryId && !categoryTransactionIds.has(categoryId)) {
       messages.push(`There is no transaction category with id=${categoryId}`);
     }
@@ -101,6 +98,6 @@ export const checkBaseIntegrity = async (data: {
     });
   });
 
-  if (messages.length) return ({ error: messages[0] });
+  if (messages.length) return { error: messages[0] };
   return undefined;
 };

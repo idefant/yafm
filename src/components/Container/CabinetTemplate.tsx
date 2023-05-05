@@ -14,12 +14,7 @@ const CabinetTemplate: FC = () => {
       <Header />
       <div>
         <Sidebar />
-        <main
-          className={classNames(
-            'flex-1 p-5 overflow-auto ml-60',
-            openedModalsCount && 'blur',
-          )}
-        >
+        <main className={classNames('flex-1 p-5 overflow-auto ml-60', openedModalsCount && 'blur')}>
           <Outlet />
         </main>
       </div>

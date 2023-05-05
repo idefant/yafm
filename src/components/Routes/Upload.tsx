@@ -4,9 +4,7 @@ import { useFormik } from 'formik';
 import { ChangeEvent, FC, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import {
-  bool, mixed, object, string, ValidationError,
-} from 'yup';
+import { bool, mixed, object, string, ValidationError } from 'yup';
 
 import { aesDecrypt } from '../../helper/crypto';
 import { readFileContent } from '../../helper/file';
@@ -166,16 +164,12 @@ const Upload: FC = () => {
           <>
             <div className="flex gap-3 mb-3">
               <div className="w-1/3">Created at:</div>
-              <div className="w-2/3">
-                {dayjs(fileData.created_at).format('DD.MM.YYYY (HH:mm)')}
-              </div>
+              <div className="w-2/3">{dayjs(fileData.created_at).format('DD.MM.YYYY (HH:mm)')}</div>
             </div>
 
             <div className="flex gap-3 mb-3">
               <div className="w-1/3">Properties:</div>
-              <div className="w-2/3">
-                {fileData.is_encrypted ? 'Encrypted' : 'Plaintext'}
-              </div>
+              <div className="w-2/3">{fileData.is_encrypted ? 'Encrypted' : 'Plaintext'}</div>
             </div>
 
             <FormField

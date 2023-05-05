@@ -5,10 +5,5 @@ import TableOperations from './TableOperations';
 import TableTooltip from './TableTooltip';
 
 export * from './Table';
-export {
-  TableAction,
-  TableOperations,
-  TableTooltip,
-  TableDate,
-};
+export { TableAction, TableOperations, TableTooltip, TableDate };
 export default Table;

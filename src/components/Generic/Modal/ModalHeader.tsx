@@ -11,9 +11,9 @@ const ModalHeader: FC<ModalHeaderProps> = ({ children, close }) => (
   <div className="flex justify-between p-5 border-b border-gray-600">
     <h2 className="text-xl font-bold">{children}</h2>
     {close && (
-    <button onClick={close} type="button">
-      <Icon.Cross />
-    </button>
+      <button onClick={close} type="button">
+        <Icon.Cross />
+      </button>
     )}
   </div>
 );

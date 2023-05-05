@@ -14,11 +14,7 @@ interface ChooseTemplateProps {
   setTransaction: (template: TTemplate) => void;
 }
 
-const ChooseTemplate: FC<ChooseTemplateProps> = ({
-  isOpen,
-  close,
-  setTransaction,
-}) => {
+const ChooseTemplate: FC<ChooseTemplateProps> = ({ isOpen, close, setTransaction }) => {
   const templates = useAppSelector(selectFilteredTemplates);
   const categoryDict = useAppSelector(selectTransactionCategoryDict);
 
@@ -31,10 +27,7 @@ const ChooseTemplate: FC<ChooseTemplateProps> = ({
     {
       key: 'choose',
       render: ({ record }) => (
-        <button
-          onClick={() => chooseTemplate(record)}
-          type="button"
-        >
+        <button onClick={() => chooseTemplate(record)} type="button">
           <Icon.Circle />
         </button>
       ),
@@ -47,38 +40,24 @@ const ChooseTemplate: FC<ChooseTemplateProps> = ({
       title: 'Category',
       key: 'category',
       cellClassName: 'text-center',
-      render: ({ record }) => (
-        record.category_id && categoryDict[record.category_id].name
-      ),
+      render: ({ record }) => record.category_id && categoryDict[record.category_id].name,
     },
     {
       title: 'Outcome',
       key: 'outcome',
-      render: ({ record }) => (
-        <TableOperations
-          operations={record.operations}
-          isPositive={false}
-        />
-      ),
+      render: ({ record }) => <TableOperations operations={record.operations} isPositive={false} />,
     },
     {
       title: 'Income',
       key: 'income',
-      render: ({ record }) => (
-        <TableOperations
-          operations={record.operations}
-          isPositive
-        />
-      ),
+      render: ({ record }) => <TableOperations operations={record.operations} isPositive />,
     },
     {
       title: <Icon.Info className="w-6 h-6 mx-auto" />,
       key: 'description',
       width: 'min',
       render: ({ record }) => (
-        <TableTooltip id={`template_${record.id}`}>
-          {record.description}
-        </TableTooltip>
+        <TableTooltip id={`template_${record.id}`}>{record.description}</TableTooltip>
       ),
     },
   ];
@@ -87,11 +66,7 @@ const ChooseTemplate: FC<ChooseTemplateProps> = ({
     <Modal isOpen={isOpen} close={close} width="biggest">
       <Modal.Header close={close}>Choose Template</Modal.Header>
       <Modal.Content>
-        <Table
-          columns={tableColumns}
-          data={templates}
-          className={{ table: 'w-full' }}
-        />
+        <Table columns={tableColumns} data={templates} className={{ table: 'w-full' }} />
       </Modal.Content>
     </Modal>
   );

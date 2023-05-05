@@ -16,7 +16,13 @@ const Card: FC<React.HTMLAttributes<HTMLDivElement>> & CardExtensions = ({
   className,
   ...props
 }) => (
-  <div className={classNames('bg-slate-900 shadow-lg rounded-lg mb-6 border border-slate-100/30', className)} {...props}>
+  <div
+    className={classNames(
+      'bg-slate-900 shadow-lg rounded-lg mb-6 border border-slate-100/30',
+      className,
+    )}
+    {...props}
+  >
     {children}
   </div>
 );

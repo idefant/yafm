@@ -29,7 +29,10 @@ const useModal = (isOpenDefault = false) => {
   };
 
   return {
-    isOpen, open, close, setIsOpen,
+    isOpen,
+    open,
+    close,
+    setIsOpen,
   };
 };
 

@@ -5,20 +5,12 @@ import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
 import useModal from '../../hooks/useModal';
 import { setIsUnsaved } from '../../store/reducers/appSlice';
 import { deleteTemplate } from '../../store/reducers/transactionSlice';
-import {
-  selectFilteredTemplates,
-  selectTransactionCategoryDict,
-} from '../../store/selectors';
+import { selectFilteredTemplates, selectTransactionCategoryDict } from '../../store/selectors';
 import { TTemplate } from '../../types/transactionType';
 import Button from '../Generic/Button/Button';
 import Card from '../Generic/Card';
 import Icon from '../Generic/Icon';
-import Table, {
-  TColumn,
-  TableAction,
-  TableOperations,
-  TableTooltip,
-} from '../Generic/Table';
+import Table, { TColumn, TableAction, TableOperations, TableTooltip } from '../Generic/Table';
 import { Title } from '../Generic/Title';
 import SetTemplate from '../Template/SetTemplate';
 
@@ -60,38 +52,24 @@ const Templates: FC = () => {
       title: 'Category',
       key: 'category',
       cellClassName: 'text-center',
-      render: ({ record }) => (
-        record.category_id && categoryDict[record.category_id].name
-      ),
+      render: ({ record }) => record.category_id && categoryDict[record.category_id].name,
     },
     {
       title: 'Outcome',
       key: 'outcome',
-      render: ({ record }) => (
-        <TableOperations
-          operations={record.operations}
-          isPositive={false}
-        />
-      ),
+      render: ({ record }) => <TableOperations operations={record.operations} isPositive={false} />,
     },
     {
       title: 'Income',
       key: 'income',
-      render: ({ record }) => (
-        <TableOperations
-          operations={record.operations}
-          isPositive
-        />
-      ),
+      render: ({ record }) => <TableOperations operations={record.operations} isPositive />,
     },
     {
       title: <Icon.Info className="w-6 h-6 mx-auto" />,
       key: 'description',
       width: 'min',
       render: ({ record }) => (
-        <TableTooltip id={`tr_${record.id}`}>
-          {record.description}
-        </TableTooltip>
+        <TableTooltip id={`tr_${record.id}`}>{record.description}</TableTooltip>
       ),
     },
     {
@@ -119,11 +97,7 @@ const Templates: FC = () => {
             Create
           </Button>
 
-          <Table
-            columns={tableColumns}
-            data={templates}
-            className={{ table: 'w-full' }}
-          />
+          <Table columns={tableColumns} data={templates} className={{ table: 'w-full' }} />
         </Card.Body>
       </Card>
 

@@ -95,10 +95,7 @@ const SetAccount: FC<SetAccountProps> = ({ isOpen, close, account }) => {
   });
 
   return (
-    <Modal
-      isOpen={isOpen}
-      close={close}
-    >
+    <Modal isOpen={isOpen} close={close}>
       <Formik
         initialValues={initialFormValues}
         onSubmit={onSubmit}
@@ -106,13 +103,9 @@ const SetAccount: FC<SetAccountProps> = ({ isOpen, close, account }) => {
         validateOnChange={false}
         validateOnBlur
       >
-        {({
-          errors, values, handleChange, validateField, setFieldValue,
-        }) => (
+        {({ errors, values, handleChange, validateField, setFieldValue }) => (
           <Form>
-            <Modal.Header close={close}>
-              {account ? 'Edit Account' : 'Create Account'}
-            </Modal.Header>
+            <Modal.Header close={close}>{account ? 'Edit Account' : 'Create Account'}</Modal.Header>
             <Modal.Content>
               <FormField
                 label="Name"
@@ -132,7 +125,7 @@ const SetAccount: FC<SetAccountProps> = ({ isOpen, close, account }) => {
                     name="currencyCode"
                     value={currencyOptGroups
                       .flatMap((group) => group.options)
-                      .find((option) => (option.value === values.currencyCode))}
+                      .find((option) => option.value === values.currencyCode)}
                     onChange={(newValue: any) => setFieldValue('currencyCode', newValue?.value)}
                     onBlur={() => validateField('currencyCode')}
                     withError={Boolean(errors.currencyCode)}
@@ -148,25 +141,17 @@ const SetAccount: FC<SetAccountProps> = ({ isOpen, close, account }) => {
                   options={categoryOptions}
                   isClearable
                   name="categoryId"
-                  value={categoryOptions.find((option) => (option.value === values.categoryId))}
+                  value={categoryOptions.find((option) => option.value === values.categoryId)}
                   onChange={(newValue: any) => setFieldValue('categoryId', newValue?.value)}
                 />
               </div>
 
               {account && (
                 <>
-                  <Checkbox
-                    checked={values.isHide}
-                    onChange={handleChange}
-                    name="isHide"
-                  >
+                  <Checkbox checked={values.isHide} onChange={handleChange} name="isHide">
                     Hide
                   </Checkbox>
-                  <Checkbox
-                    checked={values.isArchive}
-                    onChange={handleChange}
-                    name="isArchive"
-                  >
+                  <Checkbox checked={values.isArchive} onChange={handleChange} name="isArchive">
                     Archive
                   </Checkbox>
                 </>

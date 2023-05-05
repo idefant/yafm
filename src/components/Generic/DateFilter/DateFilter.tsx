@@ -10,9 +10,7 @@ interface DateFilterProps {
 }
 
 const DateFilter: FC<DateFilterProps> = ({ options }) => {
-  const {
-    date, periodType, setDate, setPeriodType,
-  } = options;
+  const { date, periodType, setDate, setPeriodType } = options;
 
   const periodOptions = [
     { value: 'month', label: 'Month' },
@@ -24,7 +22,7 @@ const DateFilter: FC<DateFilterProps> = ({ options }) => {
       <Select
         className="border-gray-600"
         options={periodOptions}
-        value={periodOptions.find((option) => (option.value === periodType))}
+        value={periodOptions.find((option) => option.value === periodType)}
         onChange={(newValue: any) => setPeriodType(newValue?.value)}
       />
       <button

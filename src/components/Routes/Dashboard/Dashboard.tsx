@@ -70,14 +70,9 @@ const Dashboard: FC = () => {
             <Card.Body className="text-lg">
               {data.map((currency) => (
                 <div className="flex justify-between gap-6" key={currency.code}>
+                  <div>{currency.code}:</div>
                   <div>
-                    {currency.code}
-                    :
-                  </div>
-                  <div>
-                    {currency.price}
-                    {' '}
-                    {baseCurrencyCode.toUpperCase()}
+                    {currency.price} {baseCurrencyCode.toUpperCase()}
                   </div>
                 </div>
               ))}

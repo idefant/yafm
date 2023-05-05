@@ -1,11 +1,6 @@
 import { FieldArray, Form, Formik } from 'formik';
 import { FC } from 'react';
-import {
-  array,
-  bool,
-  object,
-  string,
-} from 'yup';
+import { array, bool, object, string } from 'yup';
 import 'react-datepicker/dist/react-datepicker.css';
 
 import { parseInputPrice, formatPrice } from '../../helper/currencies';
@@ -13,10 +8,7 @@ import { compareObjByStr } from '../../helper/string';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
 import { numberWithDecimalPlacesSchema } from '../../schema';
 import { setIsUnsaved } from '../../store/reducers/appSlice';
-import {
-  createTemplate,
-  editTemplate,
-} from '../../store/reducers/transactionSlice';
+import { createTemplate, editTemplate } from '../../store/reducers/transactionSlice';
 import {
   selectFilteredAccounts,
   selectAccountDict,
@@ -37,11 +29,7 @@ interface SetTemplateProps {
   close: () => void;
 }
 
-const SetTemplate: FC<SetTemplateProps> = ({
-  isOpen,
-  close,
-  template,
-}) => {
+const SetTemplate: FC<SetTemplateProps> = ({ isOpen, close, template }) => {
   const currencyDict = useAppSelector(selectCurrencyDict);
   const accounts = useAppSelector(selectFilteredAccounts);
   const accountDict = useAppSelector(selectAccountDict);
@@ -81,9 +69,7 @@ const SetTemplate: FC<SetTemplateProps> = ({
     };
 
     dispatch(
-      template
-        ? editTemplate({ ...template, ...templateData })
-        : createTemplate(templateData),
+      template ? editTemplate({ ...template, ...templateData }) : createTemplate(templateData),
     );
     dispatch(setIsUnsaved(true));
     close();
@@ -97,11 +83,9 @@ const SetTemplate: FC<SetTemplateProps> = ({
       const currency = currencyDict[account.currency_code];
       return {
         accountId: operation.account_id,
-        sum: formatPrice(
-          Math.abs(operation.sum),
-          currency.decimal_places_number,
-          { useGrouping: false },
-        ),
+        sum: formatPrice(Math.abs(operation.sum), currency.decimal_places_number, {
+          useGrouping: false,
+        }),
         isPositive: operation.sum > 0,
       };
     });
@@ -116,51 +100,43 @@ const SetTemplate: FC<SetTemplateProps> = ({
   };
 
   return (
-    <Modal
-      isOpen={isOpen}
-      close={close}
-      width="big"
-    >
+    <Modal isOpen={isOpen} close={close} width="big">
       <Formik
         initialValues={initialValues}
         onSubmit={onSubmit}
         validationSchema={object({
           name: string(),
           description: string(),
-          operations: array(object().shape({
-            isPositive: bool().required(),
-            accountId: string().required(),
-            sum: string().required().when('accountId', (data, schema) => {
-              const account = accountDict[data];
-              if (account) {
-                const currency = currencyDict[account.currency_code];
-                if (currency) {
-                  return numberWithDecimalPlacesSchema(currency.decimal_places_number, true);
-                }
-              }
-              return schema;
+          operations: array(
+            object().shape({
+              isPositive: bool().required(),
+              accountId: string().required(),
+              sum: string()
+                .required()
+                .when('accountId', (data, schema) => {
+                  const account = accountDict[data];
+                  if (account) {
+                    const currency = currencyDict[account.currency_code];
+                    if (currency) {
+                      return numberWithDecimalPlacesSchema(currency.decimal_places_number, true);
+                    }
+                  }
+                  return schema;
+                }),
             }),
-          }))
-            .min(1),
+          ).min(1),
           categoryId: string(),
         })}
         validateOnChange={false}
         validateOnBlur
       >
-        {({
-          errors, values, handleChange, validateField, setFieldValue,
-        }) => (
+        {({ errors, values, handleChange, validateField, setFieldValue }) => (
           <Form>
             <Modal.Header close={close}>
               {template ? 'Edit Template' : 'Create Template'}
             </Modal.Header>
             <Modal.Content>
-              <FormField
-                label="Name"
-                name="name"
-                value={values.name}
-                onChange={handleChange}
-              />
+              <FormField label="Name" name="name" value={values.name} onChange={handleChange} />
 
               <div className="flex items-center my-2 gap-3">
                 <label className="block w-1/3" htmlFor="categoryId">
@@ -172,7 +148,7 @@ const SetTemplate: FC<SetTemplateProps> = ({
                   options={categoryOptions}
                   isClearable
                   name="categoryId"
-                  value={categoryOptions.find((option) => (option.value === values.categoryId))}
+                  value={categoryOptions.find((option) => option.value === values.categoryId)}
                   onChange={(newValue: any) => setFieldValue('categoryId', newValue?.value)}
                 />
               </div>
@@ -189,10 +165,9 @@ const SetTemplate: FC<SetTemplateProps> = ({
                           <Button
                             color={operation.isPositive ? 'green' : 'red'}
                             className="!p-1"
-                            onClick={() => setFieldValue(
-                              `operations.${index}.isPositive`,
-                              !operation.isPositive,
-                            )}
+                            onClick={() =>
+                              setFieldValue(`operations.${index}.isPositive`, !operation.isPositive)
+                            }
                           >
                             {operation.isPositive ? <Icon.Plus /> : <Icon.Minus />}
                           </Button>
@@ -202,13 +177,13 @@ const SetTemplate: FC<SetTemplateProps> = ({
                             placeholder="Account"
                             options={accountOptions}
                             name="accountId"
-                            value={accountOptions.find((option) => (
-                              option.value === values.operations[index].accountId
-                            ))}
-                            onBlur={() => validateField(`operations.${index}.accountId`)}
-                            onChange={(newValue: any) => (
-                              setFieldValue(`operations.${index}.accountId`, newValue?.value)
+                            value={accountOptions.find(
+                              (option) => option.value === values.operations[index].accountId,
                             )}
+                            onBlur={() => validateField(`operations.${index}.accountId`)}
+                            onChange={(newValue: any) =>
+                              setFieldValue(`operations.${index}.accountId`, newValue?.value)
+                            }
                             withError={(() => {
                               const error = errors.operations?.[index];
                               if (!error || typeof error === 'string') return false;

@@ -1,10 +1,5 @@
 import classNames from 'classnames';
-import {
-  FC,
-  ReactNode,
-  useReducer,
-  useRef,
-} from 'react';
+import { FC, ReactNode, useReducer, useRef } from 'react';
 import { NavLink, useResolvedPath, useLocation } from 'react-router-dom';
 
 import Icon from '../Generic/Icon';
@@ -17,13 +12,7 @@ interface SidebarCategoryProps {
   notExist?: boolean;
 }
 
-const SidebarCategory: FC<SidebarCategoryProps> = ({
-  icon,
-  label,
-  link,
-  children,
-  notExist,
-}) => {
+const SidebarCategory: FC<SidebarCategoryProps> = ({ icon, label, link, children, notExist }) => {
   const [isOpen, toggleIsOpen] = useReducer((state) => !state, false);
   const elementsWrapperRef = useRef<HTMLDivElement>(null);
 
@@ -44,11 +33,7 @@ const SidebarCategory: FC<SidebarCategoryProps> = ({
           {label}
         </NavLink>
         {children && (
-          <button
-            type="button"
-            className="px-3 block"
-            onClick={toggleIsOpen}
-          >
+          <button type="button" className="px-3 block" onClick={toggleIsOpen}>
             <Icon.ChevronLeft className={classNames('transition-all', isOpen && '-rotate-90')} />
           </button>
         )}
@@ -58,9 +43,7 @@ const SidebarCategory: FC<SidebarCategoryProps> = ({
         className="overflow-hidden transition-all"
         style={{ height: isOpen ? elementsWrapperRef.current?.clientHeight : 0 }}
       >
-        <div ref={elementsWrapperRef}>
-          {children}
-        </div>
+        <div ref={elementsWrapperRef}>{children}</div>
       </div>
     </div>
   );

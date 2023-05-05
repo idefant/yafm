@@ -30,16 +30,10 @@ export const transactionSlice = createSlice({
       state.templates = templates;
     },
     clearTransactions: () => ({ ...initialState }),
-    createTransaction(
-      state,
-      { payload: transaction }: PayloadAction<Omit<TTransaction, 'id'>>,
-    ) {
+    createTransaction(state, { payload: transaction }: PayloadAction<Omit<TTransaction, 'id'>>) {
       state.transactions.unshift({ id: genId(), ...transaction });
     },
-    editTransaction(
-      state,
-      { payload: updatedTransaction }: PayloadAction<TTransaction>,
-    ) {
+    editTransaction(state, { payload: updatedTransaction }: PayloadAction<TTransaction>) {
       const index = state.transactions.findIndex(
         (transaction) => transaction.id === updatedTransaction.id,
       );
@@ -48,31 +42,19 @@ export const transactionSlice = createSlice({
       }
     },
     deleteTransaction(state, { payload: id }: PayloadAction<string>) {
-      state.transactions = state.transactions.filter(
-        (transaction) => transaction.id !== id,
-      );
+      state.transactions = state.transactions.filter((transaction) => transaction.id !== id);
     },
-    createTemplate(
-      state,
-      { payload: template }: PayloadAction<Omit<TTemplate, 'id'>>,
-    ) {
+    createTemplate(state, { payload: template }: PayloadAction<Omit<TTemplate, 'id'>>) {
       state.templates.unshift({ id: genId(), ...template });
     },
-    editTemplate(
-      state,
-      { payload: updatedTemplate }: PayloadAction<TTemplate>,
-    ) {
-      const index = state.templates.findIndex(
-        (template) => template.id === updatedTemplate.id,
-      );
+    editTemplate(state, { payload: updatedTemplate }: PayloadAction<TTemplate>) {
+      const index = state.templates.findIndex((template) => template.id === updatedTemplate.id);
       if (index !== -1) {
         state.templates[index] = updatedTemplate;
       }
     },
     deleteTemplate(state, { payload: id }: PayloadAction<string>) {
-      state.templates = state.templates.filter(
-        (template) => template.id !== id,
-      );
+      state.templates = state.templates.filter((template) => template.id !== id);
     },
   },
 });

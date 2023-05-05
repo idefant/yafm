@@ -11,20 +11,8 @@ interface ButtonLinkProps {
   children?: ReactNode;
 }
 
-const ButtonLink: FC<ButtonLinkProps> = ({
-  children,
-  color,
-  className,
-  to,
-}) => (
-  <Link
-    to={to}
-    className={classNames(
-      color && buttonColors[color],
-      'btn',
-      className,
-    )}
-  >
+const ButtonLink: FC<ButtonLinkProps> = ({ children, color, className, to }) => (
+  <Link to={to} className={classNames(color && buttonColors[color], 'btn', className)}>
     {children}
   </Link>
 );

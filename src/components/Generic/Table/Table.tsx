@@ -64,53 +64,51 @@ const Table = <T extends Record<string, any>>({
         </tr>
       </thead>
       <tbody>
-        {!(data?.length || dataGroups?.length)
-          ? (
-            <tr>
-              <td colSpan={visibleColumns.length}>
-                <div className="my-8 text-slate-200">
-                  <Icon.Search className="mx-auto w-12 h-12" />
-                  <div className="text-lg text-center">No Data</div>
-                </div>
-              </td>
-            </tr>
-          )
-          : (
-            <>
-              {data?.map((row, index) => (
-                <TableRow
-                  row={row}
-                  index={index}
-                  visibleColumns={visibleColumns}
-                  getClassName={className?.row}
-                  isTranslucentRow={isTranslucentRow}
-                  key={getKey(row)}
-                />
-              ))}
-              {dataGroups?.map((dataGroup) => (
-                <Fragment key={dataGroup.key}>
-                  <tr className="border-t-2 border-gray-500">
-                    <th
-                      colSpan={columns.length}
-                      className={classNames('bg-stone-700 py-0 px-4', className?.groupName)}
-                    >
-                      {dataGroup.name}
-                    </th>
-                  </tr>
-                  {dataGroup.data.map((row, index) => (
-                    <TableRow
-                      row={row}
-                      index={index}
-                      visibleColumns={visibleColumns}
-                      getClassName={className?.row}
-                      isTranslucentRow={isTranslucentRow}
-                      key={getKey(row)}
-                    />
-                  ))}
-                </Fragment>
-              ))}
-            </>
-          )}
+        {!(data?.length || dataGroups?.length) ? (
+          <tr>
+            <td colSpan={visibleColumns.length}>
+              <div className="my-8 text-slate-200">
+                <Icon.Search className="mx-auto w-12 h-12" />
+                <div className="text-lg text-center">No Data</div>
+              </div>
+            </td>
+          </tr>
+        ) : (
+          <>
+            {data?.map((row, index) => (
+              <TableRow
+                row={row}
+                index={index}
+                visibleColumns={visibleColumns}
+                getClassName={className?.row}
+                isTranslucentRow={isTranslucentRow}
+                key={getKey(row)}
+              />
+            ))}
+            {dataGroups?.map((dataGroup) => (
+              <Fragment key={dataGroup.key}>
+                <tr className="border-t-2 border-gray-500">
+                  <th
+                    colSpan={columns.length}
+                    className={classNames('bg-stone-700 py-0 px-4', className?.groupName)}
+                  >
+                    {dataGroup.name}
+                  </th>
+                </tr>
+                {dataGroup.data.map((row, index) => (
+                  <TableRow
+                    row={row}
+                    index={index}
+                    visibleColumns={visibleColumns}
+                    getClassName={className?.row}
+                    isTranslucentRow={isTranslucentRow}
+                    key={getKey(row)}
+                  />
+                ))}
+              </Fragment>
+            ))}
+          </>
+        )}
       </tbody>
     </table>
   );
@@ -126,7 +124,7 @@ interface TableRowProps<T> {
 }
 /* eslint-enable no-unused-vars */
 
-const TableRow = <T, >({
+const TableRow = <T extends Record<string, any>>({
   row,
   index,
   visibleColumns,
@@ -139,19 +137,19 @@ const TableRow = <T, >({
   }
 
   return (
-    <tr className={classNames(
-      'border-t-2 border-gray-500',
-      isTranslucentRow?.(row) && 'opacity-60',
-      getClassName?.(row),
-    )}
+    <tr
+      className={classNames(
+        'border-t-2 border-gray-500',
+        isTranslucentRow?.(row) && 'opacity-60',
+        getClassName?.(row),
+      )}
     >
       {visibleColumns.map((column) => (
         <td key={column.key} className={classNames('px-4 py-3', column.cellClassName)}>
           {(column.render
             ? column.render({ record: row, index })
-            : row[column.key as keyof T] as any)
-          ?? column.default
-          ?? <TableDefaultText />}
+            : (row[column.key as keyof T] as any)) ??
+            column.default ?? <TableDefaultText />}
         </td>
       ))}
     </tr>

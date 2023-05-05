@@ -1,16 +1,14 @@
-import {
-  AES, algo, enc, HmacSHA256, lib, PBKDF2,
-} from 'crypto-js';
+import { AES, algo, enc, HmacSHA256, lib, PBKDF2 } from 'crypto-js';
 
-const getHmac = (data: lib.WordArray, pass: lib.WordArray) => (
-  HmacSHA256(enc.Hex.stringify(data), pass).toString()
-);
+const getHmac = (data: lib.WordArray, pass: lib.WordArray) =>
+  HmacSHA256(enc.Hex.stringify(data), pass).toString();
 
-export const pass2key = (pass: string | lib.WordArray, salt: lib.WordArray) => PBKDF2(pass, salt, {
-  hasher: algo.SHA256,
-  keySize: 256 / 32,
-  iterations: 1000,
-});
+export const pass2key = (pass: string | lib.WordArray, salt: lib.WordArray) =>
+  PBKDF2(pass, salt, {
+    hasher: algo.SHA256,
+    keySize: 256 / 32,
+    iterations: 1000,
+  });
 
 export const aesDecrypt = (
   cipher: string,
@@ -35,6 +33,9 @@ export const aesEncrypt = (plaintext: string, pass: string) => {
   const cipher = AES.encrypt(message, key, { iv }).toString();
   const hmac = getHmac(message, key);
   return {
-    cipher, iv: iv.toString(), hmac, salt: salt.toString(),
+    cipher,
+    iv: iv.toString(),
+    hmac,
+    salt: salt.toString(),
   };
 };

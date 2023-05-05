@@ -13,13 +13,7 @@ interface CheckboxProps {
   children?: ReactNode;
 }
 
-const Checkbox: FC<CheckboxProps> = ({
-  children,
-  checked,
-  onChange,
-  name,
-  id = genRanHex(8),
-}) => (
+const Checkbox: FC<CheckboxProps> = ({ children, checked, onChange, name, id = genRanHex(8) }) => (
   <div className="form-check">
     <input
       className={classNames(
@@ -32,10 +26,7 @@ const Checkbox: FC<CheckboxProps> = ({
       onChange={onChange}
       name={name}
     />
-    <label
-      className="form-check-label inline-block"
-      htmlFor={id}
-    >
+    <label className="form-check-label inline-block" htmlFor={id}>
       {children}
     </label>
   </div>

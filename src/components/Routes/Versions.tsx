@@ -18,12 +18,8 @@ import Table, { TColumn, TableAction } from '../Generic/Table';
 dayjs.extend(customParseFormat);
 
 const Versions: FC = () => {
-  const { isVersioningEnabled, vaultUrl } = useAppSelector(
-    (state) => state.app,
-  );
-  const [versions, setVersions] = useState<
-    { filename: string; date: string }[]
-  >([]);
+  const { isVersioningEnabled, vaultUrl } = useAppSelector((state) => state.app);
+  const [versions, setVersions] = useState<{ filename: string; date: string }[]>([]);
 
   useAsyncEff(async () => {
     const response = await getVersionListRequest(vaultUrl);
@@ -74,10 +70,7 @@ const Versions: FC = () => {
           <Link to={`/decrypt/${record.filename}`} className="p-2">
             <Icon.Unlock className="w-7 h-7" />
           </Link>
-          <TableAction
-            onClick={() => downloadVersion(record.filename)}
-            icon={Icon.Download}
-          />
+          <TableAction onClick={() => downloadVersion(record.filename)} icon={Icon.Download} />
         </div>
       ),
     },

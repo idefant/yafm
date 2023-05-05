@@ -1,6 +1,6 @@
 import resolvePath from './pathResolver';
 
-const group = <T, >(arr: T[], path: string) => {
+const group = <T>(arr: T[], path: string) => {
   const group: Record<string | number, T[]> = {};
 
   arr.forEach((elem) => {

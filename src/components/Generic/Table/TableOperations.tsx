@@ -32,13 +32,13 @@ const TableOperations: FC<TableOperationsProps> = ({ operations, isPositive }) =
 
         return (
           <div key={index}>
-            <div className={classNames('font-bold', isPositive ? 'text-green-500' : 'text-red-500')}>
+            <div
+              className={classNames('font-bold', isPositive ? 'text-green-500' : 'text-red-500')}
+            >
               {formatPrice(coefficient * outcome.sum, currency.decimal_places_number)}
               <span className="pl-2.5">{currency.code}</span>
             </div>
-            <div className="text-sm text-gray-300">
-              {account.name}
-            </div>
+            <div className="text-sm text-gray-300">{account.name}</div>
           </div>
         );
       })}

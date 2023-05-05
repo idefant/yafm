@@ -1,10 +1,4 @@
-import {
-  Chart as ChartJS,
-  ArcElement,
-  Tooltip,
-  Legend,
-  ChartData,
-} from 'chart.js';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, ChartData } from 'chart.js';
 import classNames from 'classnames';
 import dayjs from 'dayjs';
 import { FC, useMemo, useState } from 'react';
@@ -17,10 +11,7 @@ import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
 import useModal from '../../hooks/useModal';
 import { deleteAccount } from '../../store/reducers/accountSlice';
 import { setIsUnsaved } from '../../store/reducers/appSlice';
-import {
-  selectCurrencyDict,
-  selectFilteredAccounts,
-} from '../../store/selectors';
+import { selectCurrencyDict, selectFilteredAccounts } from '../../store/selectors';
 import { TAccount, TCalculatedAccount } from '../../types/accountType';
 import { TCurrency } from '../../types/currencyType';
 import SetAccount from '../Account/SetAccount';
@@ -45,16 +36,13 @@ const Accounts: FC = () => {
 
   const baseCurrencyCode = 'btc';
 
-  const accountDict = accounts.reduce(
-    (dict: { [key: string]: TCalculatedAccount[] }, account) => {
-      const categoryId = account.category_id || '';
-      // eslint-disable-next-line no-param-reassign
-      if (!(categoryId in dict)) dict[categoryId] = [];
-      dict[categoryId].push(account);
-      return dict;
-    },
-    {},
-  );
+  const accountDict = accounts.reduce((dict: { [key: string]: TCalculatedAccount[] }, account) => {
+    const categoryId = account.category_id || '';
+    // eslint-disable-next-line no-param-reassign
+    if (!(categoryId in dict)) dict[categoryId] = [];
+    dict[categoryId].push(account);
+    return dict;
+  }, {});
 
   const [openedAccount, setOpenedAccount] = useState<TAccount>();
 
@@ -95,9 +83,7 @@ const Accounts: FC = () => {
     [balances],
   );
 
-  const accountsWithoutCategory = accounts.filter(
-    (account) => !account.category_id,
-  );
+  const accountsWithoutCategory = accounts.filter((account) => !account.category_id);
 
   const accountsWithCategory = categories
     .filter((category) => accountDict[category.id])
@@ -105,8 +91,8 @@ const Accounts: FC = () => {
       key: category.id,
       name: (
         <div className="flex justify-center gap-3 items-center">
-          {category.is_hide && (<Icon.Lock className="w-[22px] h-[22px]" />)}
-          {category.is_archive && (<Icon.Archive className="w-[22px] h-[22px]" />)}
+          {category.is_hide && <Icon.Lock className="w-[22px] h-[22px]" />}
+          {category.is_archive && <Icon.Archive className="w-[22px] h-[22px]" />}
           {category.name}
         </div>
       ),
@@ -130,21 +116,20 @@ const Accounts: FC = () => {
     [balances],
   );
 
-  const currencyBalancesDict = useMemo(() => (
-    balances.reduce((dict: { [curCode: string]: TBalance }, currency) => {
-      // eslint-disable-next-line no-param-reassign
-      dict[currency.code] = currency;
-      return dict;
-    }, {})
-  ), [balances]);
-
-  const checkAccountIsUsed = (accountId: string) => (
-    [...transactions, ...templates].some(
-      ({ operations }) => (
-        operations.map((operation) => operation.account_id).includes(accountId)
-      ),
-    )
+  const currencyBalancesDict = useMemo(
+    () =>
+      balances.reduce((dict: { [curCode: string]: TBalance }, currency) => {
+        // eslint-disable-next-line no-param-reassign
+        dict[currency.code] = currency;
+        return dict;
+      }, {}),
+    [balances],
   );
+
+  const checkAccountIsUsed = (accountId: string) =>
+    [...transactions, ...templates].some(({ operations }) =>
+      operations.map((operation) => operation.account_id).includes(accountId),
+    );
 
   const confirmDelete = (account: TAccount) => {
     if (checkAccountIsUsed(account.id)) {
@@ -188,10 +173,7 @@ const Accounts: FC = () => {
               record.balance < 0 && 'text-red-500 font-bold',
             )}
           >
-            {formatPrice(
-              record.balance,
-              currency.decimal_places_number,
-            )}
+            {formatPrice(record.balance, currency.decimal_places_number)}
             <span className="pl-3">{currency.code}</span>
           </div>
         );
@@ -200,11 +182,12 @@ const Accounts: FC = () => {
     {
       title: 'Last Activity',
       key: 'last_activity',
-      render: ({ record }) => (
-        record.last_activity
-          ? <TableDate date={dayjs(record.last_activity)} />
-          : <div className="text-center">Never</div>
-      ),
+      render: ({ record }) =>
+        record.last_activity ? (
+          <TableDate date={dayjs(record.last_activity)} />
+        ) : (
+          <div className="text-center">Never</div>
+        ),
     },
     {
       title: <Icon.Lock className="w-[22px] h-[22px]" />,
@@ -256,10 +239,8 @@ const Accounts: FC = () => {
                       tooltip: {
                         callbacks: {
                           label: (tooltipItem) => {
-                            const {
-                              formattedBalance,
-                              idealBalance,
-                            } = currencyBalancesDict[tooltipItem.label];
+                            const { formattedBalance, idealBalance } =
+                              currencyBalancesDict[tooltipItem.label];
                             const percentage = ((idealBalance / totalAmount) * 100).toFixed(2);
                             return `${tooltipItem.label}: ${formattedBalance} - ${percentage}%`;
                           },
@@ -291,11 +272,7 @@ const Accounts: FC = () => {
         </Card>
       </div>
 
-      <SetAccount
-        isOpen={accountModal.isOpen}
-        close={accountModal.close}
-        account={openedAccount}
-      />
+      <SetAccount isOpen={accountModal.isOpen} close={accountModal.close} account={openedAccount} />
     </>
   );
 };

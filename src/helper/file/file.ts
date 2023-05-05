@@ -1,8 +1,4 @@
-export const exportFile = (
-  data: string,
-  filename: string,
-  filetype?: string,
-) => {
+export const exportFile = (data: string, filename: string, filetype?: string) => {
   const blob = new Blob([data], { type: filetype });
   const link = document.createElement('a');
   link.href = URL.createObjectURL(blob);

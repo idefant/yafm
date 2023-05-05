@@ -1,10 +1,5 @@
 import classNames from 'classnames';
-import {
-  ChangeEvent,
-  FC,
-  FocusEventHandler,
-  HTMLInputTypeAttribute,
-} from 'react';
+import { ChangeEvent, FC, FocusEventHandler, HTMLInputTypeAttribute } from 'react';
 
 interface FormFieldProps {
   label: string;

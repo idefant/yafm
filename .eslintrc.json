@@ -12,8 +12,9 @@
     "plugin:react-hooks/recommended",
     "plugin:jsx-a11y/recommended",
     "plugin:import/recommended",
+    "plugin:react/jsx-runtime",
     "airbnb",
-    "plugin:react/jsx-runtime"
+    "plugin:prettier/recommended"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
@@ -24,13 +25,12 @@
     "sourceType": "module",
     "project": "./tsconfig.json"
   },
-  "plugins": [
-    "react",
-    "@typescript-eslint"
-  ],
+  "plugins": ["react", "@typescript-eslint", "prettier"],
   "rules": {
+    "consistent-return": "off",
+    "no-useless-return": "off",
     "react/jsx-indent-props": "warn",
-    "object-curly-newline": "warn",
+    "object-curly-newline": "off",
     "arrow-body-style": "warn",
     "space-infix-ops": "warn",
     "no-unused-vars": "warn",
@@ -42,21 +42,13 @@
     "no-trailing-spaces": "warn",
     "no-multiple-empty-lines": "warn",
     "no-shadow": "off",
-    "indent": "warn",
+    "indent": "off",
     "eol-last": "warn",
     "semi": "warn",
     "max-len": "warn",
     "object-curly-spacing": "warn",
     "no-use-before-define": "off",
-    "no-param-reassign": [
-      "warn",
-      {
-        "props": true,
-        "ignorePropertyModificationsFor": [
-          "state"
-        ]
-      }
-    ],
+    "no-param-reassign": "off",
     "react/no-array-index-key": "off",
     "react/prop-types": "off",
     "react/react-in-jsx-scope": "off",
@@ -74,12 +66,7 @@
     "react/jsx-filename-extension": [
       1,
       {
-        "extensions": [
-          ".tsx",
-          ".ts",
-          ".js",
-          ".jsx"
-        ]
+        "extensions": [".tsx", ".ts", ".js", ".jsx"]
       }
     ],
     "react-hooks/exhaustive-deps": [
@@ -89,6 +76,8 @@
       }
     ],
     "jsx-a11y/label-has-associated-control": "off",
+    "jsx-a11y/no-static-element-interactions": "off",
+    "jsx-a11y/click-events-have-key-events": "off",
     "import/no-extraneous-dependencies": "off",
     "import/prefer-default-export": "off",
     "import/order": [
@@ -121,10 +110,7 @@
         "tsx": "never"
       }
     ],
-    "@typescript-eslint/object-curly-spacing": [
-      "warn",
-      "always"
-    ],
+    "@typescript-eslint/object-curly-spacing": ["warn", "always"],
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/semi": "warn",
     "@typescript-eslint/space-infix-ops": [

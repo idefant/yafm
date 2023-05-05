@@ -1,9 +1,4 @@
-import {
-  DependencyList,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { DependencyList, useEffect, useRef, useState } from 'react';
 
 interface useIntervalProps {
   callback: () => void;
@@ -43,7 +38,7 @@ const useInterval = ({
       clearInterval(intervalTimerId);
       clearTimeout(timeoutTimerId);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isWorking, savedCallback, interval, delay, ...deps]);
 
   const start = () => setIsWorking(true);

@@ -29,9 +29,7 @@ const SettingBackup: FC = () => {
     exportFile(
       JSON.stringify({
         ...infoData,
-        data: values.useEncryption
-          ? aesEncrypt(JSON.stringify(data), password)
-          : data,
+        data: values.useEncryption ? aesEncrypt(JSON.stringify(data), password) : data,
       }),
       values.useEncryption ? 'backup-enc.json' : 'backup-decr.json',
     );

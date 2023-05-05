@@ -1,9 +1,4 @@
-import {
-  object,
-  string,
-  number,
-  array,
-} from 'yup';
+import { object, string, number, array } from 'yup';
 
 export const transferSchema = object({
   account_id: string().required(),

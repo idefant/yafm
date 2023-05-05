@@ -20,11 +20,11 @@ const CalendarButton: FC<CalendarButtonProps> = ({ date, setDate }) => (
     locale="ru"
     showTimeSelect
     timeIntervals={30}
-    customInput={(
+    customInput={
       <button className="p-1" type="button">
         <Icon.Calendar />
       </button>
-      )}
+    }
     wrapperClassName="!w-fit"
   />
 );

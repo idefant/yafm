@@ -64,9 +64,7 @@ const Modal: FC<ModalProps> & ModalExtensions = ({
           onClick={close}
           aria-hidden="true"
         >
-          <div
-            className={classNames('mx-auto my-7', widthClassnames[width])}
-          >
+          <div className={classNames('mx-auto my-7', widthClassnames[width])}>
             <Container
               className="bg-slate-800 rounded-lg border border-slate-100/30"
               onClick={(e) => e.stopPropagation()}

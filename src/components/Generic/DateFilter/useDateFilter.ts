@@ -18,7 +18,10 @@ const useDateFilter = (defaultOptions: Partial<TDateFilterOptions> = {}): TDateF
   const [periodType, setPeriodType] = useState<TPeriod>(defaultOptions.periodType ?? 'month');
 
   return {
-    date, setDate, periodType, setPeriodType,
+    date,
+    setDate,
+    periodType,
+    setPeriodType,
   };
 };
 

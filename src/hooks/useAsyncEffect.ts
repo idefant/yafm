@@ -23,7 +23,7 @@ const useAsyncEff = (effect: TEffect, deps?: React.DependencyList) => {
     })();
 
     return destructor.current;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
 };
 

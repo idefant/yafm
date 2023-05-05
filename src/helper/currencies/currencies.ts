@@ -13,18 +13,14 @@ export const formatPrice = (value: number, digits: number, options?: FormatPrice
   const mergedOptions = { useGrouping: true, useAtomicUnit: true, ...options };
   const numDegree = mergedOptions.useAtomicUnit ? digits : 0;
   const priceNum = withDigits(value, numDegree);
-  return priceNum.toLocaleString(
-    'en',
-    {
-      maximumFractionDigits: digits,
-      useGrouping: mergedOptions.useGrouping,
-    },
-  );
+  return priceNum.toLocaleString('en', {
+    maximumFractionDigits: digits,
+    useGrouping: mergedOptions.useGrouping,
+  });
 };
 
-export const parseInputPrice = (text: string, digits = 0) => (
-  Math.round(withoutDigits(parseFloat(text.replace(',', '.')), digits))
-);
+export const parseInputPrice = (text: string, digits = 0) =>
+  Math.round(withoutDigits(parseFloat(text.replace(',', '.')), digits));
 
 export const checkValidPrice = (value: string, digits: number) => {
   const regex = new RegExp(`^\\d+(\\.|,)?\\d{0,${digits}}$`);
@@ -43,18 +39,17 @@ export const convertPrice = (
   const currencyDict = selectCurrencyDict(state);
 
   if (
-    !prices
-    || !(from in prices)
-    || !(to in prices)
-    || !(from.toUpperCase() in currencyDict)
-    || !(to.toUpperCase() in currencyDict)
+    !prices ||
+    !(from in prices) ||
+    !(to in prices) ||
+    !(from.toUpperCase() in currencyDict) ||
+    !(to.toUpperCase() in currencyDict)
   ) {
     return 0;
   }
 
-  const getDecimalPlaces = (curCode: string) => (
-    currencyDict[curCode.toUpperCase()].decimal_places_number
-  );
+  const getDecimalPlaces = (curCode: string) =>
+    currencyDict[curCode.toUpperCase()].decimal_places_number;
 
   const numberDegree = mergedOptions.useAtomicUnit
     ? getDecimalPlaces(to) - getDecimalPlaces(from)

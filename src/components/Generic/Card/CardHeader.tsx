@@ -6,7 +6,10 @@ const CardHeader: FC<React.HTMLAttributes<HTMLDivElement>> = ({
   className,
   ...props
 }) => (
-  <div className={classNames('text-xl font-bold py-3 px-5 border-b-2 border-b-gray-500', className)} {...props}>
+  <div
+    className={classNames('text-xl font-bold py-3 px-5 border-b-2 border-b-gray-500', className)}
+    {...props}
+  >
     {children}
   </div>
 );

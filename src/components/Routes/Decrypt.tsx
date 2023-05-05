@@ -126,9 +126,7 @@ const Decrypt: FC = () => {
     <>Loading...</>
   ) : (
     <>
-      <EntranceTitle>
-        {isNew ? 'Create Base' : 'Decrypt Base'}
-      </EntranceTitle>
+      <EntranceTitle>{isNew ? 'Create Base' : 'Decrypt Base'}</EntranceTitle>
 
       <form onSubmit={formik.handleSubmit}>
         <div className="flex gap-3 mb-3">
@@ -140,9 +138,7 @@ const Decrypt: FC = () => {
           <div className="flex gap-3 mb-3">
             <div className="w-1/3">Version:</div>
             <div className="w-2/3 flex gap-x-4 gap-y-1.5 flex-wrap items-center">
-              {versionId
-                ? dayjs(cipherData?.created_at).format('DD.MM.YYYY (HH:mm)')
-                : 'Last'}
+              {versionId ? dayjs(cipherData?.created_at).format('DD.MM.YYYY (HH:mm)') : 'Last'}
             </div>
           </div>
         )}
@@ -169,11 +165,7 @@ const Decrypt: FC = () => {
               </ButtonLink>
             )}
 
-            <ButtonLink
-              to="/upload"
-              className="text-sm !px-2.5 !py-1.5 rounded-lg"
-              color="green"
-            >
+            <ButtonLink to="/upload" className="text-sm !px-2.5 !py-1.5 rounded-lg" color="green">
               Upload Version
             </ButtonLink>
 

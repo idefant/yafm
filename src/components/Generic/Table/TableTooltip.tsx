@@ -16,11 +16,7 @@ const TableTooltip: FC<TableTooltipProps> = ({ id, children }) => {
       <div data-tip data-for={id} className="px-3">
         <Icon.Info className="w-7 h-7" />
       </div>
-      <ReactTooltip
-        id={id}
-        effect="solid"
-        className="max-w-sm"
-      >
+      <ReactTooltip id={id} effect="solid" className="max-w-sm">
         {children}
       </ReactTooltip>
     </>

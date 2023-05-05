@@ -18,12 +18,7 @@ interface SetCategoryProps {
   categoryType: TCategoryType;
 }
 
-const SetCategory: FC<SetCategoryProps> = ({
-  isOpen,
-  close,
-  category,
-  categoryType,
-}) => {
+const SetCategory: FC<SetCategoryProps> = ({ isOpen, close, category, categoryType }) => {
   type TForm = { name: string; isHide: boolean; isArchive: boolean };
 
   const dispatch = useAppDispatch();
@@ -85,9 +80,7 @@ const SetCategory: FC<SetCategoryProps> = ({
       onExited={onExited}
       onSubmit={formik.handleSubmit}
     >
-      <Modal.Header close={close}>
-        {category ? 'Edit Category' : 'Create Category'}
-      </Modal.Header>
+      <Modal.Header close={close}>{category ? 'Edit Category' : 'Create Category'}</Modal.Header>
       <Modal.Content>
         <FormField
           label="Name"
@@ -100,11 +93,7 @@ const SetCategory: FC<SetCategoryProps> = ({
 
         {category && (
           <>
-            <Checkbox
-              checked={formik.values.isHide}
-              onChange={formik.handleChange}
-              name="isHide"
-            >
+            <Checkbox checked={formik.values.isHide} onChange={formik.handleChange} name="isHide">
               Hide
             </Checkbox>
             <Checkbox

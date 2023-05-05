@@ -17,7 +17,11 @@ import { getHistoryBalancesByChanges, withDigits } from '../../../helper/currenc
 import { average } from '../../../helper/math';
 import { TDateRates } from '../../../helper/requests/exratesRequests';
 import { useAppSelector } from '../../../hooks/reduxHooks';
-import { selectAccountDict, selectCurrencyDict, selectTransactions } from '../../../store/selectors';
+import {
+  selectAccountDict,
+  selectCurrencyDict,
+  selectTransactions,
+} from '../../../store/selectors';
 import Card from '../../Generic/Card';
 import { TDateFilterOptions } from '../../Generic/DateFilter/useDateFilter';
 
@@ -27,7 +31,8 @@ interface DashboardBalanceHistoryChartProps {
 }
 
 const DashboardBalanceHistoryChart: FC<DashboardBalanceHistoryChartProps> = ({
-  filterData, rates,
+  filterData,
+  rates,
 }) => {
   const transactions = useAppSelector(selectTransactions);
   const accountDict = useAppSelector(selectAccountDict);
@@ -39,16 +44,21 @@ const DashboardBalanceHistoryChart: FC<DashboardBalanceHistoryChartProps> = ({
   const endPeriodDate = startPeriodDate.add(1, periodType);
   const daysInPeriod = endPeriodDate.diff(startPeriodDate, 'day');
 
-  const filteredTransactions = useMemo(() => (
-    transactions.filter((transaction) => {
-      const date = dayjs(transaction.datetime);
-      return date.isAfter(startPeriodDate) && date.isBefore(endPeriodDate);
-    })
-  ), [endPeriodDate, startPeriodDate, transactions]);
+  const filteredTransactions = useMemo(
+    () =>
+      transactions.filter((transaction) => {
+        const date = dayjs(transaction.datetime);
+        return date.isAfter(startPeriodDate) && date.isBefore(endPeriodDate);
+      }),
+    [endPeriodDate, startPeriodDate, transactions],
+  );
 
   const daysList = useMemo(() => {
     const periodTypeAction = {
-      month: () => [...Array(date.daysInMonth())].map((_, i) => startPeriodDate.add(i, 'day').format('DD.MM.YYYY')),
+      month: () =>
+        [...Array(date.daysInMonth())].map((_, i) =>
+          startPeriodDate.add(i, 'day').format('DD.MM.YYYY'),
+        ),
       year: () => [...Array(12)].map((_, i) => startPeriodDate.add(i, 'month').format('MM.YYYY')),
     };
 
@@ -68,11 +78,10 @@ const DashboardBalanceHistoryChart: FC<DashboardBalanceHistoryChartProps> = ({
       }, Object.fromEntries(defaultCurrencies.map((currency) => [currency.code, 0])));
 
     return Object.fromEntries(
-      Object.entries(transactionsBefore)
-        .map(([code, sum]) => {
-          const currency = currencyDict[code];
-          return [code, withDigits(sum, currency.decimal_places_number)];
-        }),
+      Object.entries(transactionsBefore).map(([code, sum]) => {
+        const currency = currencyDict[code];
+        return [code, withDigits(sum, currency.decimal_places_number)];
+      }),
     );
   }, [accountDict, currencyDict, startPeriodDate, transactions]);
 
@@ -80,9 +89,9 @@ const DashboardBalanceHistoryChart: FC<DashboardBalanceHistoryChartProps> = ({
     const daysToToday = dayjs().diff(date.endOf(periodType), 'day');
     const daysCount = Math.max(0, daysInPeriod + Math.min(0, daysToToday));
 
-    const changes: Record<string, number>[] = [...Array(daysCount)].map(() => (
-      Object.fromEntries(defaultCurrencies.map((currency) => [currency.code, 0]))
-    ));
+    const changes: Record<string, number>[] = [...Array(daysCount)].map(() =>
+      Object.fromEntries(defaultCurrencies.map((currency) => [currency.code, 0])),
+    );
 
     filteredTransactions.forEach((transaction) => {
       transaction.operations.forEach((operation) => {
@@ -104,24 +113,27 @@ const DashboardBalanceHistoryChart: FC<DashboardBalanceHistoryChartProps> = ({
     startPeriodDate,
   ]);
 
-  const currencyBalanceHistory = useMemo(() => (
-    getHistoryBalancesByChanges(startBalance, balanceChanges)
-  ), [balanceChanges, startBalance]);
+  const currencyBalanceHistory = useMemo(
+    () => getHistoryBalancesByChanges(startBalance, balanceChanges),
+    [balanceChanges, startBalance],
+  );
 
-  const totalBalanceHistory = useMemo(() => (
-    currencyBalanceHistory.map((sumGroup, i) => {
-      if (!rates) return 0;
+  const totalBalanceHistory = useMemo(
+    () =>
+      currencyBalanceHistory.map((sumGroup, i) => {
+        if (!rates) return 0;
 
-      let totalSum = 0;
-      Object.entries(sumGroup).forEach(([code, sum]) => {
-        const dayRates = rates[startPeriodDate.add(i, 'day').format('YYYY-MM-DD')];
-        if (dayRates) {
-          totalSum += (sum * dayRates.RUB) / dayRates[code];
-        }
-      });
-      return totalSum;
-    })
-  ), [rates, startPeriodDate, currencyBalanceHistory]);
+        let totalSum = 0;
+        Object.entries(sumGroup).forEach(([code, sum]) => {
+          const dayRates = rates[startPeriodDate.add(i, 'day').format('YYYY-MM-DD')];
+          if (dayRates) {
+            totalSum += (sum * dayRates.RUB) / dayRates[code];
+          }
+        });
+        return totalSum;
+      }),
+    [rates, startPeriodDate, currencyBalanceHistory],
+  );
 
   const groupedBalanceHistory = useMemo(() => {
     if (periodType === 'month') return totalBalanceHistory;
