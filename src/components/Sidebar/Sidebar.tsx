@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import { FC } from 'react';
 
 import { useAppSelector } from '../../hooks/reduxHooks';
-import Icon from '../Generic/Icon';
+import Icon from '../../UI/Icon';
 
 import SidebarCategory from './SirebarCategory';
 

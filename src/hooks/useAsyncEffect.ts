@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 
-import noop from '../helper/noop';
+import noop from '../utils/noop';
 
 /* eslint-disable no-unused-vars */
 type TDestructor = () => void;

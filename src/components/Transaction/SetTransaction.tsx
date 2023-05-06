@@ -4,8 +4,6 @@ import { FC, useState } from 'react';
 import { array, bool, object, string } from 'yup';
 import 'react-datepicker/dist/react-datepicker.css';
 
-import { parseInputPrice, formatPrice } from '../../helper/currencies';
-import { compareObjByStr } from '../../helper/string';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
 import useModal from '../../hooks/useModal';
 import { numberWithDecimalPlacesSchema } from '../../schema';
@@ -17,14 +15,16 @@ import {
   selectCurrencyDict,
 } from '../../store/selectors';
 import { TTemplate, TTransaction } from '../../types/transactionType';
-import Button from '../Generic/Button/Button';
-import CalendarButton from '../Generic/Form/CalendarButton';
-import DatePicker from '../Generic/Form/DatePicker';
-import FormField, { FormFieldInput } from '../Generic/Form/FormField';
-import Select from '../Generic/Form/Select';
-import Textarea from '../Generic/Form/Textarea';
-import Icon from '../Generic/Icon';
-import Modal from '../Generic/Modal';
+import Button from '../../UI/Button';
+import CalendarButton from '../../UI/Form/CalendarButton';
+import DatePicker from '../../UI/Form/DatePicker';
+import FormField, { FormFieldInput } from '../../UI/Form/FormField';
+import Select from '../../UI/Form/Select';
+import Textarea from '../../UI/Form/Textarea';
+import Icon from '../../UI/Icon';
+import Modal from '../../UI/Modal';
+import { parseInputPrice, formatPrice } from '../../utils/currencies';
+import { compareObjByStr } from '../../utils/string';
 import ChooseTemplate from '../Template/ChooseTemplate';
 
 interface SetTransactionProps {

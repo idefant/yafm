@@ -1,6 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
-import { getInfoRequest } from '../../helper/requests/infoRequest';
+import { getInfoRequest } from '../../utils/requests/infoRequest';
 
 export const fetchVaultInfo = createAsyncThunk(
   'app/fetchVaultInfo',

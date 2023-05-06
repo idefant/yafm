@@ -6,10 +6,10 @@ import { useAppDispatch } from '../../hooks/reduxHooks';
 import { setIsUnsaved } from '../../store/reducers/appSlice';
 import { createCategory, editCategory } from '../../store/reducers/categorySlice';
 import { TCategory, TCategoryType } from '../../types/categoryType';
-import Button from '../Generic/Button/Button';
-import Checkbox from '../Generic/Form/Checkbox';
-import FormField from '../Generic/Form/FormField';
-import Modal from '../Generic/Modal';
+import Button from '../../UI/Button';
+import Checkbox from '../../UI/Form/Checkbox';
+import FormField from '../../UI/Form/FormField';
+import Modal from '../../UI/Modal';
 
 interface SetCategoryProps {
   isOpen: boolean;

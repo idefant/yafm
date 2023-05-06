@@ -6,8 +6,8 @@ import { BrowserRouter } from 'react-router-dom';
 import { PersistGate } from 'redux-persist/integration/react';
 
 import './index.css';
-import App from './components/App';
-import { store, persistor } from './store/store';
+import App from './App';
+import { store, persistor } from './store';
 
 Chart.defaults.animation = { duration: 600 };
 

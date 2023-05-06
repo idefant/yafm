@@ -2,18 +2,18 @@ import { Form, Formik } from 'formik';
 import { FC, useMemo } from 'react';
 import { boolean, object, string } from 'yup';
 
-import { compareObjByStr } from '../../helper/string';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
 import { createAccount, editAccount } from '../../store/reducers/accountSlice';
 import { setIsUnsaved } from '../../store/reducers/appSlice';
 import { selectFilteredAccountCategories } from '../../store/selectors';
 import { TAccount } from '../../types/accountType';
 import { TCurrency } from '../../types/currencyType';
-import Button from '../Generic/Button/Button';
-import Checkbox from '../Generic/Form/Checkbox';
-import FormField from '../Generic/Form/FormField';
-import Select, { TSelectOption } from '../Generic/Form/Select';
-import Modal from '../Generic/Modal';
+import Button from '../../UI/Button';
+import Checkbox from '../../UI/Form/Checkbox';
+import FormField from '../../UI/Form/FormField';
+import Select, { TSelectOption } from '../../UI/Form/Select';
+import Modal from '../../UI/Modal';
+import { compareObjByStr } from '../../utils/string';
 
 interface SetAccountProps {
   account?: TAccount;

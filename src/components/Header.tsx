@@ -3,17 +3,16 @@ import React, { FC } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
-import { aesEncrypt } from '../helper/crypto';
-import { setBaseRequest } from '../helper/requests/versionRequests';
-import { getSyncData } from '../helper/sync';
 import { useAppDispatch, useAppSelector } from '../hooks/reduxHooks';
 import { clearAccounts } from '../store/reducers/accountSlice';
 import { lockBase, setArchiveMode, setIsUnsaved, setSafeMode } from '../store/reducers/appSlice';
 import { clearCategories } from '../store/reducers/categorySlice';
 import { clearCurrencyData } from '../store/reducers/currencySlice';
 import { clearTransactions } from '../store/reducers/transactionSlice';
-
-import Icon from './Generic/Icon';
+import Icon from '../UI/Icon';
+import { aesEncrypt } from '../utils/crypto';
+import { setBaseRequest } from '../utils/requests/versionRequests';
+import { getSyncData } from '../utils/sync';
 
 const Header: FC = () => {
   const navigate = useNavigate();
