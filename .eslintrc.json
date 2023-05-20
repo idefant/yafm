@@ -110,6 +110,7 @@
         "tsx": "never"
       }
     ],
+    "@typescript-eslint/ban-ts-comment": "off",
     "@typescript-eslint/object-curly-spacing": ["warn", "always"],
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/semi": "warn",

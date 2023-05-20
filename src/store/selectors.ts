@@ -63,6 +63,14 @@ export const selectArchivedAccountCategoryIds = createSelector(
     new Set(categories.filter((category) => category.is_archive).map((category) => category.id)),
 );
 
+export const selectAccountCategoryDict = createSelector([selectAccountCategories], (categories) => {
+  const dict: { [id: string]: TCategory } = {};
+  categories.forEach((category) => {
+    dict[category.id] = category;
+  });
+  return dict;
+});
+
 export const selectAccountsWithBalance = createSelector(
   [selectAccounts, selectTransactions],
   (accounts, transactions) => {

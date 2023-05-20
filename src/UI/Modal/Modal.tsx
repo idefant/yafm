@@ -13,7 +13,7 @@ interface ModalProps {
   close?: () => void;
   onExited?: () => void;
   onEnter?: () => void;
-  onSubmit?: any;
+  onEntering?: () => void;
   width?: 'middle' | 'big' | 'biggest';
   children?: ReactNode;
 }
@@ -30,10 +30,9 @@ const Modal: FC<ModalProps> & ModalExtensions = ({
   close,
   onExited,
   onEnter,
-  onSubmit,
+  onEntering,
   width = 'middle',
 }) => {
-  const Container = (onSubmit ? 'form' : 'div') as keyof JSX.IntrinsicElements;
   const [isActiveFocusTrap, setIsActiveFocusTrap] = useState(false);
 
   const widthClassnames = {
@@ -49,29 +48,31 @@ const Modal: FC<ModalProps> & ModalExtensions = ({
       mountOnEnter
       unmountOnExit
       classNames={{
-        enterActive: '!opacity-100',
-        enterDone: '!opacity-100',
-        exitActive: '!opacity-0',
+        enter: '!block',
+        enterActive: '!opacity-100 !block',
+        enterDone: '!opacity-100 !block',
+        exit: '!block',
+        exitActive: '!opacity-0 !block',
       }}
       onExit={() => setIsActiveFocusTrap(false)}
       onExited={onExited}
       onEnter={onEnter}
+      onEntering={onEntering}
       onEntered={() => setIsActiveFocusTrap(true)}
     >
       <FocusTrap focusTrapOptions={{ onDeactivate: close }} active={isActiveFocusTrap}>
         <div
-          className="opacity-0 fixed inset-0 bg-slate-800/70 transition ease-in-out duration-200 overflow-auto z-50"
+          className="hidden opacity-0 fixed inset-0 bg-slate-800/70 transition ease-in-out duration-200 overflow-auto z-50"
           onClick={close}
           aria-hidden="true"
         >
           <div className={classNames('mx-auto my-7', widthClassnames[width])}>
-            <Container
+            <div
               className="bg-slate-800 rounded-lg border border-slate-100/30"
               onClick={(e) => e.stopPropagation()}
-              onSubmit={onSubmit}
             >
               {children}
-            </Container>
+            </div>
           </div>
         </div>
       </FocusTrap>

@@ -3,7 +3,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import { FC } from 'react';
 import ReactDatePicker, { registerLocale } from 'react-datepicker';
 
-import Icon from '../Icon';
+import Icon from './Icon';
 
 interface CalendarButtonProps {
   date: Dayjs;

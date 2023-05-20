@@ -1,7 +1,8 @@
+import { yupResolver } from '@hookform/resolvers/yup';
 import classNames from 'classnames';
 import dayjs from 'dayjs';
-import { useFormik } from 'formik';
 import { ChangeEvent, FC, useState } from 'react';
+import { FormProvider, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { bool, mixed, object, string, ValidationError } from 'yup';
@@ -15,37 +16,42 @@ import { TCipher } from '../types/cipher';
 import Button, { buttonColors } from '../UI/Button';
 import GoBackButton from '../UI/Button/GoBackButton';
 import EntranceTitle from '../UI/EntranceTitle';
-import FormField from '../UI/Form/FormField';
+import Form from '../UI/Form';
 import { aesDecrypt } from '../utils/crypto';
 import { readFileContent } from '../utils/file';
+import yup from '../utils/form/schema';
 import { checkBaseIntegrity } from '../utils/sync';
+
+type TFileData = { created_at: string } & (
+  | { data: TCipher; is_encrypted: true }
+  | { data: any; is_encrypted: false }
+);
+
+type TForm = {
+  password: string;
+};
+
+const formSchema = yup.object({
+  password: yup.string().required(),
+});
 
 const Upload: FC = () => {
   const vaultUrl = useAppSelector((state) => state.app.vaultUrl);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  type TFileData = { created_at: string } & (
-    | { data: TCipher; is_encrypted: true }
-    | { data: any; is_encrypted: false }
-  );
+  const methods = useForm<TForm>({ resolver: yupResolver(formSchema) });
+  const { handleSubmit } = methods;
 
   const [fileData, setFileData] = useState<TFileData>();
 
-  type TForm = { password: string };
-
   const getPlainData = (values: TForm) => {
     if (!fileData) return;
-
     if (!fileData.is_encrypted) return fileData.data;
 
-    const plaintext = aesDecrypt(
-      fileData.data.cipher,
-      values.password,
-      fileData.data.iv,
-      fileData.data.hmac,
-      fileData.data.salt,
-    );
+    const { cipher, iv, hmac, salt } = fileData.data;
+    const plaintext = aesDecrypt(cipher, values.password, iv, hmac, salt);
+
     if (!plaintext) {
       Swal.fire({ title: 'Wrong password', icon: 'error' });
       return;
@@ -54,7 +60,7 @@ const Upload: FC = () => {
     return JSON.parse(plaintext);
   };
 
-  const submitForm = async (values: TForm) => {
+  const onSubmit = async (values: TForm) => {
     const data = getPlainData(values);
     if (!data) return;
 
@@ -80,14 +86,6 @@ const Upload: FC = () => {
     dispatch(setIsUnsaved(true));
     navigate('/');
   };
-
-  const formik = useFormik({
-    initialValues: { password: '' },
-    onSubmit: submitForm,
-    validationSchema: object({ password: string().required() }),
-    validateOnChange: false,
-    validateOnBlur: true,
-  });
 
   const uploadBackup = (event: ChangeEvent<HTMLInputElement>) => {
     const input = event.target;
@@ -133,62 +131,62 @@ const Upload: FC = () => {
       <GoBackButton />
       <EntranceTitle>Upload Base</EntranceTitle>
 
-      <form onSubmit={formik.handleSubmit}>
-        <div className="flex gap-3 mb-5">
-          <div className="w-1/3">Server URL: </div>
-          <div className="w-2/3">{vaultUrl}</div>
-        </div>
+      <FormProvider {...methods}>
+        <Form onSubmit={handleSubmit(onSubmit)}>
+          <div className="flex gap-3 mb-5">
+            <div className="w-1/3">Server URL: </div>
+            <div className="w-2/3">{vaultUrl}</div>
+          </div>
 
-        <div className="flex gap-3 mb-4">
-          <div className="w-1/3">Base:</div>
-          <div className="w-2/3 flex gap-x-4 gap-y-1.5 flex-wrap items-center">
-            <div>
-              <input
-                type="file"
-                id="upload-enc-backup"
-                className="hidden"
-                onChange={uploadBackup}
-              />
-              <label
-                className={classNames('btn !py-1.5', buttonColors.green)}
-                htmlFor="upload-enc-backup"
-              >
-                Upload Base
-              </label>
+          <div className="flex gap-3 mb-4">
+            <div className="w-1/3">Base:</div>
+            <div className="w-2/3 flex gap-x-4 gap-y-1.5 flex-wrap items-center">
+              <div>
+                <input
+                  type="file"
+                  id="upload-enc-backup"
+                  className="hidden"
+                  onChange={uploadBackup}
+                />
+                <label
+                  className={classNames('btn !py-1.5', buttonColors.green)}
+                  htmlFor="upload-enc-backup"
+                >
+                  Upload Base
+                </label>
+              </div>
             </div>
           </div>
-        </div>
 
-        {fileData && (
-          <>
-            <div className="flex gap-3 mb-3">
-              <div className="w-1/3">Created at:</div>
-              <div className="w-2/3">{dayjs(fileData.created_at).format('DD.MM.YYYY (HH:mm)')}</div>
-            </div>
+          {fileData && (
+            <>
+              <div className="flex gap-3 mb-3">
+                <div className="w-1/3">Created at:</div>
+                <div className="w-2/3">
+                  {dayjs(fileData.created_at).format('DD.MM.YYYY (HH:mm)')}
+                </div>
+              </div>
 
-            <div className="flex gap-3 mb-3">
-              <div className="w-1/3">Properties:</div>
-              <div className="w-2/3">{fileData.is_encrypted ? 'Encrypted' : 'Plaintext'}</div>
-            </div>
+              <div className="flex gap-3 mb-3">
+                <div className="w-1/3">Properties:</div>
+                <div className="w-2/3">{fileData.is_encrypted ? 'Encrypted' : 'Plaintext'}</div>
+              </div>
 
-            <FormField
-              label={fileData.is_encrypted ? 'Password:' : 'New Password'}
-              value={formik.values.password}
-              name="password"
-              onChange={formik.handleChange}
-              type="password"
-              onBlur={() => formik.validateField('password')}
-              withError={Boolean(formik.errors.password)}
-            />
+              <Form.Password
+                name="password"
+                label={fileData.is_encrypted ? 'Password:' : 'New Password'}
+                autoFocus
+              />
 
-            <div className="mx-auto mt-8 flex justify-center gap-6">
-              <Button type="submit" color="green" className="block">
-                Open
-              </Button>
-            </div>
-          </>
-        )}
-      </form>
+              <div className="mx-auto mt-8 flex justify-center gap-6">
+                <Button type="submit" color="green" className="block">
+                  Open
+                </Button>
+              </div>
+            </>
+          )}
+        </Form>
+      </FormProvider>
     </>
   );
 };

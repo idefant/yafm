@@ -24,6 +24,8 @@ const Icon = {
   Tag: Icons.TagIcon,
   Setting: Icons.SettingIcon,
   Search: Icons.SearchIcon,
+  Eye: Icons.EyeIcon,
+  EyeOff: Icons.EyeOffIcon,
 };
 
 export default Icon;

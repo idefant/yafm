@@ -7,7 +7,7 @@ interface FormatPriceOptions {
 }
 
 export const withDigits = (sum: number, digits: number) => sum * 10 ** -digits;
-export const withoutDigits = (sum: number, digits: number) => sum * 10 ** digits;
+export const withoutDigits = (sum: number, digits: number) => Math.round(sum * 10 ** digits);
 
 export const formatPrice = (value: number, digits: number, options?: FormatPriceOptions) => {
   const mergedOptions = { useGrouping: true, useAtomicUnit: true, ...options };

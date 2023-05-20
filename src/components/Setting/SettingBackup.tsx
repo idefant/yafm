@@ -1,23 +1,34 @@
+import { yupResolver } from '@hookform/resolvers/yup';
 import dayjs from 'dayjs';
-import { useFormik } from 'formik';
 import { FC } from 'react';
+import { FormProvider, useForm } from 'react-hook-form';
 
 import { useAppSelector } from '../../hooks/reduxHooks';
 import Button from '../../UI/Button';
 import Card from '../../UI/Card';
-import Checkbox from '../../UI/Form/Checkbox';
+import Form from '../../UI/Form';
 import { aesEncrypt } from '../../utils/crypto';
 import { exportFile } from '../../utils/file';
+import yup from '../../utils/form/schema';
 import { getSyncData } from '../../utils/sync';
 
+type TForm = {
+  useEncryption: boolean;
+};
+
+const formSchema = yup
+  .object({
+    useEncryption: yup.bool(),
+  })
+  .required();
+
 const SettingBackup: FC = () => {
+  const methods = useForm<TForm>({ resolver: yupResolver(formSchema) });
+  const { handleSubmit } = methods;
+
   const password = useAppSelector((state) => state.app.password);
 
-  type TForm = {
-    useEncryption: boolean;
-  };
-
-  const downloadBackup = (values: TForm) => {
+  const onSubmit = (values: TForm) => {
     if (!password) return;
 
     const data = getSyncData();
@@ -35,34 +46,23 @@ const SettingBackup: FC = () => {
     );
   };
 
-  const formik = useFormik<TForm>({
-    initialValues: { useEncryption: true },
-    onSubmit: downloadBackup,
-  });
-
   return (
     <Card>
       <Card.Header>Backup</Card.Header>
 
-      <form onSubmit={formik.handleSubmit}>
-        <Card.Body>
-          <div className="flex gap-8 items-center">
-            <Checkbox
-              id="useEncryption"
-              checked={formik.values.useEncryption}
-              onChange={formik.handleChange}
-            >
-              Use encryption
-            </Checkbox>
-          </div>
-        </Card.Body>
+      <FormProvider {...methods}>
+        <Form onSubmit={handleSubmit(onSubmit)}>
+          <Card.Body>
+            <Form.Checkbox name="useEncryption">Use encryption</Form.Checkbox>
+          </Card.Body>
 
-        <Card.Footer>
-          <Button color="green" type="submit" className="!py-1.5">
-            Download
-          </Button>
-        </Card.Footer>
-      </form>
+          <Card.Footer>
+            <Button color="green" type="submit" className="!py-1.5">
+              Download
+            </Button>
+          </Card.Footer>
+        </Form>
+      </FormProvider>
     </Card>
   );
 };
