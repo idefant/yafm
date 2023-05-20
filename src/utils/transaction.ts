@@ -43,7 +43,6 @@ export const getTransactionsSum = (transactions: TTransaction[], rates?: TDateRa
       const account = accountDict[operation.account_id];
       const currency = currencyDict[account.currency_code];
       const sum = withDigits(operation.sum, currency.decimal_places_number);
-      // eslint-disable-next-line no-param-reassign
       acc += (sum * dayRates.RUB) / dayRates[account.currency_code];
     });
     return acc;

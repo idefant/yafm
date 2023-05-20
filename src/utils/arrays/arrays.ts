@@ -1,4 +1,4 @@
-/* eslint-disable no-unused-vars, no-param-reassign */
+/* eslint-disable no-unused-vars */
 export const sumObjectsProp = <T>(arr: T[], callbackfn: (value: T) => number) =>
   arr.reduce((acc, value) => acc + callbackfn(value), 0);
 

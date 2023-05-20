@@ -18,7 +18,6 @@ const FormSelect: FC<FormSelectProps> = ({ name, options, ...props }) => {
 
   const optionFinder = (options: any, value: string): any => {
     if (!options) return null;
-    // eslint-disable-next-line no-restricted-syntax
     for (const c of options) {
       if (!c.options) {
         if (c.value === value) return c;

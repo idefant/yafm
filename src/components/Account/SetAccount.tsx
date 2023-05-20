@@ -74,7 +74,6 @@ const SetAccount: FC<SetAccountProps> = ({ isOpen, close, account }) => {
           value: currency.code,
           label: currency.name,
         };
-        // eslint-disable-next-line no-param-reassign
         if (!(currency.type in optGroups)) optGroups[currency.type] = [];
         optGroups[currency.type].push(option);
         return optGroups;

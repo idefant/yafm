@@ -27,6 +27,7 @@
   },
   "plugins": ["react", "@typescript-eslint", "prettier"],
   "rules": {
+    "no-restricted-syntax": "off",
     "consistent-return": "off",
     "no-useless-return": "off",
     "react/jsx-indent-props": "warn",

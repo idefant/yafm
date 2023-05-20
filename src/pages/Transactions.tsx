@@ -88,7 +88,6 @@ const Transactions: FC = () => {
       .sort((a, b) => b.datetime - a.datetime)
       .reduce((groups: { [date: string]: TTransaction[] }, transaction) => {
         const date = dayjs(transaction.datetime).format('DD.MM.YYYY');
-        // eslint-disable-next-line no-param-reassign
         if (!(date in groups)) groups[date] = [];
         groups[date].push(transaction);
         return groups;

@@ -38,7 +38,6 @@ const Accounts: FC = () => {
 
   const accountDict = accounts.reduce((dict: { [key: string]: TCalculatedAccount[] }, account) => {
     const categoryId = account.category_id || '';
-    // eslint-disable-next-line no-param-reassign
     if (!(categoryId in dict)) dict[categoryId] = [];
     dict[categoryId].push(account);
     return dict;
@@ -119,7 +118,6 @@ const Accounts: FC = () => {
   const currencyBalancesDict = useMemo(
     () =>
       balances.reduce((dict: { [curCode: string]: TBalance }, currency) => {
-        // eslint-disable-next-line no-param-reassign
         dict[currency.code] = currency;
         return dict;
       }, {}),

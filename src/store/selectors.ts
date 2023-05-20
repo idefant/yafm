@@ -1,4 +1,3 @@
-/* eslint-disable no-param-reassign */
 import { createSelector } from '@reduxjs/toolkit';
 
 import { TAccount } from '../types/accountType';

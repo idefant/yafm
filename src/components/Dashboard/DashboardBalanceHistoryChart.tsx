@@ -67,7 +67,6 @@ const DashboardBalanceHistoryChart: FC<DashboardBalanceHistoryChartProps> = ({
       .reduce((acc: Record<string, number>, transaction) => {
         transaction.operations.forEach((operation) => {
           const account = accountDict[operation.account_id];
-          // eslint-disable-next-line no-param-reassign
           acc[account.currency_code] += operation.sum;
         });
         return acc;
