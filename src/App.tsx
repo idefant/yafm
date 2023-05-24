@@ -13,7 +13,6 @@ import Transactions from './pages/Transactions';
 import Upload from './pages/Upload';
 import Versions from './pages/Versions';
 import { fetchVaultInfo } from './store/actionCreators/appActionCreator';
-import { fetchFnG, fetchPrices } from './store/actionCreators/currencyActionCreator';
 import { setVaultUrl } from './store/reducers/appSlice';
 import CabinetTemplate from './templates/CabinetTemplate';
 import EntranceTemplate from './templates/EntranceTemplate';
@@ -21,7 +20,6 @@ import { isValidUrl } from './utils/url';
 
 const App: FC = () => {
   const {
-    currency: { prices },
     app: { isUnsaved, password, vaultUrl, isVaultWorking },
   } = useAppSelector((state) => state);
   const dispatch = useAppDispatch();
@@ -30,13 +28,6 @@ const App: FC = () => {
   useEffect(() => {
     window.onbeforeunload = () => (isUnsaved ? false : undefined);
   }, [isUnsaved]);
-
-  useEffect(() => {
-    if (password && !prices) {
-      dispatch(fetchPrices());
-      dispatch(fetchFnG());
-    }
-  }, [dispatch, prices, password]);
 
   useEffect(() => {
     if (isVaultWorking !== undefined) return;

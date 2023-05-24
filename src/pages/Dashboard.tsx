@@ -1,38 +1,35 @@
-import { FC, useState } from 'react';
+import { FC } from 'react';
 
+import { useFetchLastRatesQuery, useFetchRatesByPeriodQuery } from '../api/exratesApi';
 import { DashboardBalanceHistoryChart, DashboardCategoryChart } from '../components/Dashboard';
 import { useAppSelector } from '../hooks/reduxHooks';
-import useAsyncEff from '../hooks/useAsyncEffect';
 import Card from '../UI/Card';
 import DateFilter, { useDateFilter } from '../UI/DateFilter';
 import { Title } from '../UI/Title';
 import { convertPrice, formatPrice } from '../utils/currencies';
-import { getRatesBySimplePeriod, TDateRates } from '../utils/requests/exratesRequests';
+
+const dateQuery = {
+  month: 'YYYY-MM',
+  year: 'YYYY',
+};
 
 const Dashboard: FC = () => {
-  const { fng, prices, currencies } = useAppSelector((state) => state.currency);
+  const { currencies } = useAppSelector((state) => state.currency);
+  const { data: prices } = useFetchLastRatesQuery();
   const baseCurrencyCode = 'rub';
 
   const filterData = useDateFilter();
   const { date, periodType } = filterData;
-  const [rates, setRates] = useState<TDateRates>();
-
-  useAsyncEff(async () => {
-    setRates({});
-    const dateQuery = {
-      month: 'YYYY-MM',
-      year: 'YYYY',
-    };
-    const res = await getRatesBySimplePeriod(date.format(dateQuery[periodType]));
-    setRates(res.data);
-  }, [date, periodType]);
+  const { data: rates } = useFetchRatesByPeriodQuery(date.format(dateQuery[periodType]));
 
   const data = currencies
     .filter((currency) => currency.code.toLowerCase() !== baseCurrencyCode)
     .map((currency) => ({
       code: currency.code,
       price: formatPrice(
-        convertPrice(currency.code.toLowerCase(), baseCurrencyCode, 1, { useAtomicUnit: false }),
+        convertPrice(currency.code.toLowerCase(), baseCurrencyCode, 1, prices?.rates || {}, {
+          useAtomicUnit: false,
+        }),
         currency.decimal_places_number,
         { useAtomicUnit: false },
       ),
@@ -42,7 +39,7 @@ const Dashboard: FC = () => {
     <>
       <Title>Dashboard</Title>
       <div className="flex gap-4 items-start">
-        {fng && (
+        {/* {fng && (
           <Card>
             <Card.Header>Fear &#38; Greed Index</Card.Header>
             <Card.Body className="flex gap-6 font-bold text-xl items-center justify-center my-2">
@@ -76,7 +73,7 @@ const Dashboard: FC = () => {
               ))}
             </Card.Body>
           </Card>
-        )}
+        )} */}
       </div>
 
       <Card>

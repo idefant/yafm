@@ -5,6 +5,7 @@ import { FC, useMemo, useState } from 'react';
 import { Pie } from 'react-chartjs-2';
 import Swal from 'sweetalert2';
 
+import { useFetchLastRatesQuery } from '../api/exratesApi';
 import { SetAccount } from '../components/Account';
 import { useAppDispatch, useAppSelector } from '../hooks/reduxHooks';
 import useModal from '../hooks/useModal';
@@ -33,6 +34,7 @@ const Accounts: FC = () => {
   const accounts = useAppSelector(selectFilteredAccounts);
   const currencyDict = useAppSelector(selectCurrencyDict);
   const dispatch = useAppDispatch();
+  const { data: prices } = useFetchLastRatesQuery();
 
   const baseCurrencyCode = 'btc';
 
@@ -65,7 +67,12 @@ const Accounts: FC = () => {
     return currencies
       .map((currency) => {
         const balance = currencySum[currency.code];
-        const idealBalance = convertPrice(currency.code.toLowerCase(), baseCurrencyCode, balance);
+        const idealBalance = convertPrice(
+          currency.code.toLowerCase(),
+          baseCurrencyCode,
+          balance,
+          prices?.rates || {},
+        );
         const formattedBalance = formatPrice(balance, currency.decimal_places_number);
         return {
           ...currency,
@@ -75,7 +82,7 @@ const Accounts: FC = () => {
         };
       })
       .filter((account) => account.balance);
-  }, [currencies, accounts]);
+  }, [accounts, currencies, prices]);
 
   const totalAmount = useMemo(
     () => sumObjectsProp(balances, (elem) => elem.idealBalance),

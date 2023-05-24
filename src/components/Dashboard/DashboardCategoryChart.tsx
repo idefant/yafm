@@ -6,10 +6,10 @@ import { Pie } from 'react-chartjs-2';
 import colors from '../../data/color';
 import { useAppSelector } from '../../hooks/reduxHooks';
 import { selectTransactionCategoryDict, selectTransactions } from '../../store/selectors';
+import { TDateRates } from '../../types/exratesType';
 import Card from '../../UI/Card';
 import { TDateFilterOptions } from '../../UI/DateFilter/useDateFilter';
 import group from '../../utils/group';
-import { TDateRates } from '../../utils/requests/exratesRequests';
 import { getTransactionsGroupedByType, getTransactionsSum } from '../../utils/transaction';
 
 interface DashboardCategoryChartProps {

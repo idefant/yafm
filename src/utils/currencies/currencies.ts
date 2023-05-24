@@ -1,5 +1,6 @@
 import { store } from '../../store';
 import { selectCurrencyDict } from '../../store/selectors';
+import { TRates } from '../../types/exratesType';
 
 interface FormatPriceOptions {
   useGrouping?: boolean;
@@ -31,11 +32,11 @@ export const convertPrice = (
   from: string,
   to: string,
   amount: number,
+  prices: TRates,
   options?: { useAtomicUnit?: boolean },
 ) => {
   const mergedOptions = { useAtomicUnit: true, ...options };
   const state = store.getState();
-  const { prices } = state.currency;
   const currencyDict = selectCurrencyDict(state);
 
   if (

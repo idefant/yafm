@@ -3,6 +3,9 @@ import { combineReducers } from 'redux';
 import { persistReducer, persistStore } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
+import { exratesApi } from '../api/exratesApi';
+import { financeApi } from '../api/financeApi';
+
 import accountReducer from './reducers/accountSlice';
 import appReducer from './reducers/appSlice';
 import categoryReducer from './reducers/categorySlice';
@@ -21,14 +24,16 @@ export const rootReducer = combineReducers({
   account: accountReducer,
   transaction: transactionReducer,
   category: categoryReducer,
+  [exratesApi.reducerPath]: exratesApi.reducer,
+  [financeApi.reducerPath]: financeApi.reducer,
 });
 
 export const store = configureStore({
   reducer: rootReducer,
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({
-      serializableCheck: false,
-    }),
+    getDefaultMiddleware({ serializableCheck: false })
+      .concat(exratesApi.middleware)
+      .concat(financeApi.middleware),
 });
 
 export const persistor = persistStore(store);

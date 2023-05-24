@@ -2,10 +2,10 @@ import dayjs from 'dayjs';
 
 import { store } from '../store';
 import { selectAccountDict, selectCurrencyDict } from '../store/selectors';
+import { TDateRates } from '../types/exratesType';
 import { TOperation, TTransaction, TTransactionType } from '../types/transactionType';
 
 import { withDigits } from './currencies';
-import { TDateRates } from './requests/exratesRequests';
 
 export const getTransactionType = (operations: TOperation[]): TTransactionType => {
   if (operations.every((operation) => operation.sum > 0)) return 'income';
