@@ -2,6 +2,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { FC, useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 import { useRegisterMutation } from '../api/userApi';
 import Button from '../UI/Button';
@@ -33,7 +34,10 @@ const Register: FC = () => {
 
   useEffect(() => {
     if (!error) return;
-    alert((error as any)?.data?.message || 'Что-то пошло не так');
+    Swal.fire({
+      title: (error as any)?.data?.message || 'Что-то пошло не так',
+      icon: 'error',
+    });
   }, [error]);
 
   return (
