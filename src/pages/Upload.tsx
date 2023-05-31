@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { bool, mixed, object, string, ValidationError } from 'yup';
 
-import { useAppDispatch, useAppSelector } from '../hooks/reduxHooks';
+import { useAppDispatch } from '../hooks/reduxHooks';
 import { setAccounts } from '../store/reducers/accountSlice';
 import { setIsUnsaved, setPassword } from '../store/reducers/appSlice';
 import { setCategories } from '../store/reducers/categorySlice';
@@ -36,7 +36,6 @@ const formSchema = yup.object({
 });
 
 const Upload: FC = () => {
-  const vaultUrl = useAppSelector((state) => state.app.vaultUrl);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
@@ -133,11 +132,6 @@ const Upload: FC = () => {
 
       <FormProvider {...methods}>
         <Form onSubmit={handleSubmit(onSubmit)}>
-          <div className="flex gap-3 mb-5">
-            <div className="w-1/3">Server URL: </div>
-            <div className="w-2/3">{vaultUrl}</div>
-          </div>
-
           <div className="flex gap-3 mb-4">
             <div className="w-1/3">Base:</div>
             <div className="w-2/3 flex gap-x-4 gap-y-1.5 flex-wrap items-center">

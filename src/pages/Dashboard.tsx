@@ -16,18 +16,18 @@ const dateQuery = {
 const Dashboard: FC = () => {
   const { currencies } = useAppSelector((state) => state.currency);
   const { data: prices } = useFetchLastRatesQuery();
-  const baseCurrencyCode = 'rub';
+  const baseCurrencyCode = 'RUB';
 
   const filterData = useDateFilter();
   const { date, periodType } = filterData;
   const { data: rates } = useFetchRatesByPeriodQuery(date.format(dateQuery[periodType]));
 
-  const data = currencies
-    .filter((currency) => currency.code.toLowerCase() !== baseCurrencyCode)
+  const currencyPrices = currencies
+    .filter((currency) => currency.code !== baseCurrencyCode)
     .map((currency) => ({
       code: currency.code,
       price: formatPrice(
-        convertPrice(currency.code.toLowerCase(), baseCurrencyCode, 1, prices?.rates || {}, {
+        convertPrice(currency.code, baseCurrencyCode, 1, prices?.rates || {}, {
           useAtomicUnit: false,
         }),
         currency.decimal_places_number,
@@ -57,13 +57,13 @@ const Dashboard: FC = () => {
               </a>
             </Card.Footer>
           </Card>
-        )}
+        )} */}
 
-        {prices && (
+        {/* {prices && (
           <Card>
             <Card.Header>Exchange Rates</Card.Header>
             <Card.Body className="text-lg">
-              {data.map((currency) => (
+              {currencyPrices.map((currency) => (
                 <div className="flex justify-between gap-6" key={currency.code}>
                   <div>{currency.code}:</div>
                   <div>

@@ -1,4 +1,6 @@
 import { Chart } from 'chart.js';
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
@@ -12,6 +14,8 @@ import { store, persistor } from './store';
 import 'react-datepicker/dist/react-datepicker.css';
 
 Chart.defaults.animation = { duration: 600 };
+
+dayjs.extend(customParseFormat);
 
 ReactDOM.render(
   <React.StrictMode>

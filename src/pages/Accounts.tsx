@@ -36,7 +36,7 @@ const Accounts: FC = () => {
   const dispatch = useAppDispatch();
   const { data: prices } = useFetchLastRatesQuery();
 
-  const baseCurrencyCode = 'btc';
+  const baseCurrencyCode = 'BTC';
 
   const accountDict = accounts.reduce((dict: { [key: string]: TCalculatedAccount[] }, account) => {
     const categoryId = account.category_id || '';
@@ -68,7 +68,7 @@ const Accounts: FC = () => {
       .map((currency) => {
         const balance = currencySum[currency.code];
         const idealBalance = convertPrice(
-          currency.code.toLowerCase(),
+          currency.code,
           baseCurrencyCode,
           balance,
           prices?.rates || {},
