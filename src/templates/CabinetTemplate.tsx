@@ -2,7 +2,9 @@ import { FC } from 'react';
 import { Outlet } from 'react-router-dom';
 
 import { useDeleteAccountMutation, useFetchInfoQuery } from '../api/userApi';
+import { ChangePasswordModal } from '../components/Cabinet';
 import { useAppDispatch } from '../hooks/reduxHooks';
+import useModal from '../hooks/useModal';
 import { logout } from '../store/reducers/userSlice';
 import Button, { ButtonLink } from '../UI/Button';
 
@@ -11,6 +13,8 @@ const CabinetTemplate: FC = () => {
 
   const { data: user } = useFetchInfoQuery(undefined, { refetchOnMountOrArgChange: true });
   const [deleteAccount] = useDeleteAccountMutation();
+
+  const changePasswordModal = useModal();
 
   return (
     <div className="flex justify-center gap-4">
@@ -34,7 +38,7 @@ const CabinetTemplate: FC = () => {
           </>
         )}
         <hr className="m-4" />
-        <Button color="gray" className="block w-full mb-2">
+        <Button color="gray" className="block w-full mb-2" onClick={changePasswordModal.open}>
           Change password
         </Button>
         <Button color="gray" className="block w-full mb-2" onClick={() => dispatch(logout())}>
@@ -47,6 +51,8 @@ const CabinetTemplate: FC = () => {
       <div className="max-w-lg w-[512px] my-16 border rounded-2xl border-slate-100/30 bg-slate-900 p-4">
         <Outlet />
       </div>
+
+      <ChangePasswordModal isOpen={changePasswordModal.isOpen} close={changePasswordModal.close} />
     </div>
   );
 };
