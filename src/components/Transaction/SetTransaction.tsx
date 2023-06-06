@@ -171,10 +171,10 @@ const SetTransaction: FC<SetTransactionProps> = ({
 
   const onEntering = () => {
     reset({
-      name: transaction?.name || '',
-      description: transaction?.description || '',
+      name: trans?.name || '',
+      description: trans?.description || '',
       operations: initialOperations || defaultOperations,
-      categoryId: transaction?.category_id || '',
+      categoryId: trans?.category_id || '',
     });
     setDate(dayjs(transaction?.datetime));
   };
