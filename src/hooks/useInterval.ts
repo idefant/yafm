@@ -1,15 +1,50 @@
-import { useEffect, useRef } from 'react';
+import { DependencyList, useEffect, useRef, useState } from 'react';
 
-const useInterval = (callback: () => void, delay = 1000) => {
+interface useIntervalProps {
+  callback: () => void;
+  isWorking?: boolean;
+  interval?: number;
+  delay?: number;
+  deps?: DependencyList;
+}
+
+const useInterval = ({
+  callback,
+  isWorking: isWorkingDefault = false,
+  interval = 10,
+  delay = 0,
+  deps = [],
+}: useIntervalProps) => {
+  const [isWorking, setIsWorking] = useState(isWorkingDefault);
   const savedCallback = useRef(callback);
 
   useEffect(() => {
-    if (delay < 0) return undefined;
+    savedCallback.current = callback;
+  }, [callback]);
 
-    savedCallback.current();
-    const id = setInterval(() => savedCallback.current(), delay);
-    return () => clearInterval(id);
-  }, [delay]);
+  useEffect(() => {
+    let intervalTimerId: number | undefined;
+    let timeoutTimerId: number | undefined;
+
+    if (isWorking) {
+      savedCallback.current();
+
+      timeoutTimerId = window.setTimeout(() => {
+        intervalTimerId = window.setInterval(savedCallback.current, interval);
+      }, delay);
+    }
+
+    return () => {
+      clearInterval(intervalTimerId);
+      clearTimeout(timeoutTimerId);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isWorking, savedCallback, interval, delay, ...deps]);
+
+  const start = () => setIsWorking(true);
+  const stop = () => setIsWorking(false);
+
+  return { start, stop };
 };
 
 export default useInterval;

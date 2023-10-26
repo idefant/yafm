@@ -1,106 +1,73 @@
-import { FC, useState } from 'react';
+import { FC } from 'react';
 
-import { MinusIcon, PlusIcon, RepeatIcon } from '../../assets/svg';
 import { useAppSelector } from '../../hooks/reduxHooks';
-import { selectFilteredTemplates } from '../../store/selectors';
-import { TTemplate, TTransactionType } from '../../types/transactionType';
-import ActionButton from '../Generic/Button/ActionButton';
-import Modal, { ModalContent, ModalHeader } from '../Generic/Modal';
-import Table, {
-  THead, TR, TH, TBody,
-} from '../Generic/Table';
-
-import ChooseTemplateItem from './ChooseTemplateItem';
+import { selectFilteredTemplates, selectTransactionCategoryDict } from '../../store/selectors';
+import { TTemplate } from '../../types/transactionType';
+import Icon from '../../UI/Icon';
+import Modal from '../../UI/Modal';
+import Table, { TColumn, TableOperations, TableTooltip } from '../../UI/Table';
 
 interface ChooseTemplateProps {
   isOpen: boolean;
   close: () => void;
   // eslint-disable-next-line no-unused-vars
-  setTransaction: (template: TTemplate, transactionType: TTransactionType) => void;
-  transactionType: TTransactionType;
+  setTransaction: (template: TTemplate) => void;
 }
 
-const ChooseTemplate: FC<ChooseTemplateProps> = ({
-  isOpen,
-  close,
-  setTransaction,
-  transactionType: startTransactionType,
-}) => {
+const ChooseTemplate: FC<ChooseTemplateProps> = ({ isOpen, close, setTransaction }) => {
   const templates = useAppSelector(selectFilteredTemplates);
+  const categoryDict = useAppSelector(selectTransactionCategoryDict);
 
-  const [transactionType, setTransactionType] = useState<TTransactionType>('outcome');
-
-  const displayedTemplates = templates.filter(
-    (template) => template.type === transactionType,
-  );
-
-  const onEnter = () => {
-    setTransactionType(startTransactionType);
+  const chooseTemplate = (template: TTemplate) => {
+    setTransaction(template);
+    close();
   };
 
+  const tableColumns: TColumn<TTemplate>[] = [
+    {
+      key: 'choose',
+      render: ({ record }) => (
+        <button onClick={() => chooseTemplate(record)} type="button">
+          <Icon.Circle />
+        </button>
+      ),
+    },
+    {
+      title: 'Name',
+      key: 'name',
+    },
+    {
+      title: 'Category',
+      key: 'category',
+      cellClassName: 'text-center',
+      render: ({ record }) => record.category_id && categoryDict[record.category_id].name,
+    },
+    {
+      title: 'Outcome',
+      key: 'outcome',
+      render: ({ record }) => <TableOperations operations={record.operations} isPositive={false} />,
+    },
+    {
+      title: 'Income',
+      key: 'income',
+      render: ({ record }) => <TableOperations operations={record.operations} isPositive />,
+    },
+    {
+      title: <Icon.Info className="w-6 h-6 mx-auto" />,
+      key: 'description',
+      width: 'min',
+      render: ({ record }) => (
+        <TableTooltip id={`template_${record.id}`}>{record.description}</TableTooltip>
+      ),
+    },
+  ];
+
   return (
-    <Modal isOpen={isOpen} close={close} width="biggest" onEnter={onEnter}>
-      <ModalHeader close={close}>Choose Template</ModalHeader>
-      <ModalContent>
-        <div className="flex justify-center gap-6">
-          <ActionButton
-            onClick={() => setTransactionType('outcome')}
-            color="red"
-            active={transactionType === 'outcome'}
-            shadow={transactionType === 'outcome'}
-          >
-            <MinusIcon className="w-7 h-7" />
-          </ActionButton>
-
-          <ActionButton
-            onClick={() => setTransactionType('income')}
-            color="green"
-            active={transactionType === 'income'}
-            shadow={transactionType === 'income'}
-          >
-            <PlusIcon className="w-7 h-7" />
-          </ActionButton>
-
-          <ActionButton
-            onClick={() => setTransactionType('exchange')}
-            active={transactionType === 'exchange'}
-            shadow={transactionType === 'exchange'}
-          >
-            <RepeatIcon className="w-7 h-7" />
-          </ActionButton>
-        </div>
-
-        {displayedTemplates.length === 0 ? (
-          <div className="font-sans text-3xl text-center mt-8 mb-3">
-            ¯\_(ツ)_/¯
-          </div>
-        ) : (
-          <Table>
-            <THead>
-              <TR>
-                <TH />
-                <TH>Name</TH>
-                <TH>Category</TH>
-                <TH>Outcome</TH>
-                <TH>Income</TH>
-                <TH />
-              </TR>
-            </THead>
-            <TBody>
-              {displayedTemplates.map((template) => (
-                <ChooseTemplateItem
-                  template={template}
-                  key={template.id}
-                  choose={() => {
-                    setTransaction(template, transactionType);
-                    close();
-                  }}
-                />
-              ))}
-            </TBody>
-          </Table>
-        )}
-      </ModalContent>
+    <Modal isOpen={isOpen} close={close} width="biggest">
+      <Modal.Header close={close}>Choose Template</Modal.Header>
+      <Modal.Content>
+        <Table columns={tableColumns} data={templates} className={{ table: 'w-full' }} />
+      </Modal.Content>
     </Modal>
   );
 };

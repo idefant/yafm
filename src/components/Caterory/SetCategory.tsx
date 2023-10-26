@@ -1,15 +1,15 @@
-import { useFormik } from 'formik';
+import { yupResolver } from '@hookform/resolvers/yup';
 import { FC } from 'react';
-import { boolean, object, string } from 'yup';
+import { FormProvider, useForm } from 'react-hook-form';
 
 import { useAppDispatch } from '../../hooks/reduxHooks';
 import { setIsUnsaved } from '../../store/reducers/appSlice';
 import { createCategory, editCategory } from '../../store/reducers/categorySlice';
 import { TCategory, TCategoryType } from '../../types/categoryType';
-import Button from '../Generic/Button/Button';
-import Checkbox from '../Generic/Form/Checkbox';
-import FormField from '../Generic/Form/FormField';
-import Modal, { ModalContent, ModalFooter, ModalHeader } from '../Generic/Modal';
+import Button from '../../UI/Button';
+import Form from '../../UI/Form';
+import Modal from '../../UI/Modal';
+import yup from '../../utils/form/schema';
 
 interface SetCategoryProps {
   isOpen: boolean;
@@ -18,13 +18,23 @@ interface SetCategoryProps {
   categoryType: TCategoryType;
 }
 
-const SetCategory: FC<SetCategoryProps> = ({
-  isOpen,
-  close,
-  category,
-  categoryType,
-}) => {
-  type TForm = { name: string; isHide: boolean; isArchive: boolean };
+type TForm = {
+  name: string;
+  isHide: boolean;
+  isArchive: boolean;
+};
+
+const formSchema = yup
+  .object({
+    name: yup.string().required(),
+    isHide: yup.bool(),
+    isArchive: yup.bool(),
+  })
+  .required();
+
+const SetCategory: FC<SetCategoryProps> = ({ isOpen, close, category, categoryType }) => {
+  const methods = useForm<TForm>({ resolver: yupResolver(formSchema) });
+  const { handleSubmit, reset } = methods;
 
   const dispatch = useAppDispatch();
 
@@ -49,82 +59,43 @@ const SetCategory: FC<SetCategoryProps> = ({
     close();
   };
 
-  const formik = useFormik({
-    initialValues: {
-      name: '',
-      isHide: false,
-      isArchive: false,
-    },
-    onSubmit,
-    validationSchema: object({
-      name: string().required(),
-      isHide: boolean(),
-      isArchive: boolean(),
-    }),
-    validateOnChange: false,
-    validateOnBlur: true,
-  });
-
   const onEnter = () => {
-    formik.setValues({
+    reset({
       name: category?.name || '',
       isArchive: category?.is_archive || false,
       isHide: category?.is_hide || false,
     });
   };
 
-  const onExited = () => {
-    formik.resetForm();
-  };
+  const onExited = () => reset();
 
   return (
-    <Modal
-      isOpen={isOpen}
-      close={close}
-      onEnter={onEnter}
-      onExited={onExited}
-      onSubmit={formik.handleSubmit}
-    >
-      <ModalHeader close={close}>
-        {category ? 'Edit Category' : 'Create Category'}
-      </ModalHeader>
-      <ModalContent>
-        <FormField
-          label="Name"
-          name="name"
-          value={formik.values.name}
-          onChange={formik.handleChange}
-          onBlur={() => formik.validateField('name')}
-          withError={Boolean(formik.errors.name)}
-        />
+    <Modal isOpen={isOpen} close={close} onEnter={onEnter} onExited={onExited}>
+      <FormProvider {...methods}>
+        <Form onSubmit={handleSubmit(onSubmit)}>
+          <Modal.Header close={close}>
+            {category ? 'Edit Category' : 'Create Category'}
+          </Modal.Header>
+          <Modal.Content>
+            <Form.Input label="Name" name="name" />
 
-        {category && (
-          <>
-            <Checkbox
-              checked={formik.values.isHide}
-              onChange={formik.handleChange}
-              name="isHide"
-            >
-              Hide
-            </Checkbox>
-            <Checkbox
-              checked={formik.values.isArchive}
-              onChange={formik.handleChange}
-              name="isArchive"
-            >
-              Archive
-            </Checkbox>
-          </>
-        )}
-      </ModalContent>
-      <ModalFooter>
-        <Button color="green" type="submit">
-          Save
-        </Button>
-        <Button color="gray" onClick={close}>
-          Cancel
-        </Button>
-      </ModalFooter>
+            {category && (
+              <>
+                <Form.Checkbox name="isHide">Hide</Form.Checkbox>
+                <Form.Checkbox name="isArchive">Archive</Form.Checkbox>
+              </>
+            )}
+          </Modal.Content>
+          <Modal.Footer>
+            <Button color="green" type="submit">
+              Save
+            </Button>
+            <Button color="gray" onClick={close}>
+              Cancel
+            </Button>
+          </Modal.Footer>
+        </Form>
+      </FormProvider>
     </Modal>
   );
 };

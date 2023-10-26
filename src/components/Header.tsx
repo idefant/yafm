@@ -1,51 +1,40 @@
 import classNames from 'classnames';
-import FocusTrap from 'focus-trap-react';
-import React, { FC, useState } from 'react';
-import { useNavigate, NavLink } from 'react-router-dom';
+import React, { FC } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
-import {
-  ArchiveIcon, LockIcon, ShieldIcon, UploadIcon,
-} from '../assets/svg';
-import { aesEncrypt } from '../helper/crypto';
-import { setBaseRequest } from '../helper/requests/versionRequests';
-import { getSyncData } from '../helper/sync';
+import { useCreateBaseMutation } from '../api/baseApi';
 import { useAppDispatch, useAppSelector } from '../hooks/reduxHooks';
 import { clearAccounts } from '../store/reducers/accountSlice';
-import {
-  lockBase,
-  setArchiveMode,
-  setIsUnsaved,
-  setSafeMode,
-} from '../store/reducers/appSlice';
+import { lockBase, setArchiveMode, setIsUnsaved, setSafeMode } from '../store/reducers/appSlice';
 import { clearCategories } from '../store/reducers/categorySlice';
 import { clearCurrencyData } from '../store/reducers/currencySlice';
 import { clearTransactions } from '../store/reducers/transactionSlice';
-
-import Hamburger from './Hamburger';
+import Icon from '../UI/Icon';
+import { aesEncrypt } from '../utils/crypto';
+import { getSyncData } from '../utils/sync';
 
 const Header: FC = () => {
   const navigate = useNavigate();
 
-  const {
-    app: {
-      safeMode, archiveMode, isUnsaved, vaultUrl, password,
-    },
-  } = useAppSelector((state) => state);
+  const [createBase] = useCreateBaseMutation();
+
+  const { safeMode, archiveMode, isUnsaved, password, openedModalsCount } = useAppSelector(
+    (state) => state.app,
+  );
   const dispatch = useAppDispatch();
 
-  const [isOpen, setIsOpen] = useState(false);
-  const toggle = () => setIsOpen(!isOpen);
-
   const sync = async () => {
-    if (!vaultUrl || !password) return;
+    if (!password) return;
 
     const data = aesEncrypt(JSON.stringify(getSyncData()), password);
-    const response = await setBaseRequest(data, vaultUrl);
-    if (!response) return;
-
-    dispatch(setIsUnsaved(false));
-    Swal.fire({ title: 'Synchronization is successful', icon: 'success' });
+    createBase(data)
+      .unwrap()
+      .then(() => {
+        dispatch(setIsUnsaved(false));
+        Swal.fire({ title: 'Synchronization is successful', icon: 'success' });
+      })
+      .catch(() => Swal.fire({ title: 'Something went wrong', icon: 'error' }));
   };
 
   const lock = () => {
@@ -81,89 +70,38 @@ const Header: FC = () => {
   };
 
   return (
-    <FocusTrap active={isOpen}>
-      <nav className="">
-        <div className="relative flex items-center justify-between flex-wrap bg-gray-800 px-6 py-4 gap-10">
-          <div className="text-white text-xl font-bold">YAFM</div>
-          <div className="flex-grow items-center w-auto gap-4 hidden md:flex">
-            <HeaderItem href="/" title="Main" />
-            <HeaderItem
-              href="/transactions"
-              title="Transactions"
-              items={[
-                { title: 'Categories', href: '/transactions/categories' },
-                { title: 'Templates', href: '/transactions/templates' },
-              ]}
-            />
-            <HeaderItem
-              href="/accounts"
-              title="Accounts"
-              items={[{ title: 'Categories', href: '/accounts/categories' }]}
-            />
-            <HeaderItem href="/setting" title="Setting" />
-          </div>
-          <div className="flex gap-2 md:gap-6 items-center">
-            <HeaderIconButton
-              onClick={safeMode ? disableSafeMode : enableSafeMode}
-              className={classNames(safeMode && 'opacity-40')}
-            >
-              <ShieldIcon />
-            </HeaderIconButton>
+    <div
+      className={classNames(
+        'flex items-center justify-between bg-slate-900 py-3 sticky top-0 z-10 border-b border-b-slate-300/30',
+        openedModalsCount && 'blur',
+      )}
+    >
+      <div className="text-white text-2xl text-center font-bold w-60">YAFM</div>
 
-            <HeaderIconButton
-              onClick={() => dispatch(setArchiveMode(!archiveMode))}
-              className={classNames(!archiveMode && 'opacity-40')}
-            >
-              <ArchiveIcon />
-            </HeaderIconButton>
-
-            <HeaderIconButton
-              onClick={sync}
-              className={classNames(!isUnsaved && 'opacity-40')}
-            >
-              <UploadIcon />
-            </HeaderIconButton>
-
-            <HeaderIconButton onClick={lock}>
-              <LockIcon className="text-white" />
-            </HeaderIconButton>
-
-            <Hamburger
-              isOpen={isOpen}
-              toggle={toggle}
-              className="block md:hidden ml-2"
-            />
-          </div>
-        </div>
-
-        <div
-          className={classNames(
-            'bg-slate-800/95 fixed inset-0 mt-[64px] px-8 py-5 overflow-y-auto',
-            isOpen ? 'block sm:hidden' : 'hidden',
-          )}
+      <div className="flex px-6 gap-2 md:gap-6 items-center">
+        <HeaderIconButton
+          onClick={safeMode ? disableSafeMode : enableSafeMode}
+          className={classNames(safeMode && 'opacity-40')}
         >
-          <ul>
-            <MobileHeaderItem href="/" title="Main" toggle={toggle} />
-            <MobileHeaderItem
-              href="/transactions"
-              title="Transactions"
-              items={[
-                { title: 'Categories', href: '/transactions/categories' },
-                { title: 'Templates', href: '/transactions/templates' },
-              ]}
-              toggle={toggle}
-            />
-            <MobileHeaderItem
-              href="/accounts"
-              title="Accounts"
-              items={[{ title: 'Categories', href: '/accounts/categories' }]}
-              toggle={toggle}
-            />
-            <MobileHeaderItem href="/setting" title="Setting" toggle={toggle} />
-          </ul>
-        </div>
-      </nav>
-    </FocusTrap>
+          <Icon.Shield />
+        </HeaderIconButton>
+
+        <HeaderIconButton
+          onClick={() => dispatch(setArchiveMode(!archiveMode))}
+          className={classNames(!archiveMode && 'opacity-40')}
+        >
+          <Icon.Archive />
+        </HeaderIconButton>
+
+        <HeaderIconButton onClick={sync} className={classNames(!isUnsaved && 'opacity-40')}>
+          <Icon.Upload />
+        </HeaderIconButton>
+
+        <HeaderIconButton onClick={lock}>
+          <Icon.Lock className="text-white" />
+        </HeaderIconButton>
+      </div>
+    </div>
   );
 };
 
@@ -176,79 +114,6 @@ const HeaderIconButton: FC<React.ButtonHTMLAttributes<HTMLButtonElement>> = ({
     type="button"
     {...props}
   />
-);
-
-interface HeaderItemProps {
-  title: string;
-  href: string;
-  items?: {
-    title: string;
-    href: string;
-  }[];
-  toggle?: () => void;
-}
-
-const MobileHeaderItem: FC<HeaderItemProps> = ({
-  title,
-  href,
-  items,
-  toggle,
-}) => (
-  <li>
-    <NavLink
-      to={href}
-      className={({ isActive }) => [
-        'block lg:inline-block py-2 text-xl',
-        isActive ? 'text-white' : 'text-gray-400 hover:text-white',
-      ].join(' ')}
-      onClick={toggle}
-    >
-      {title}
-    </NavLink>
-    {items && items.length !== 0 && (
-    <ul className="px-5 py-2 text-lg pt-0 pl-8">
-      {items.map((item) => (
-        <li className="py-1.5" key={item.href}>
-          <NavLink
-            to={item.href}
-            className={({ isActive }) => (isActive ? 'text-white' : 'text-gray-400 hover:text-white')}
-            onClick={toggle}
-          >
-            {item.title}
-          </NavLink>
-        </li>
-      ))}
-    </ul>
-    )}
-  </li>
-);
-
-const HeaderItem: FC<HeaderItemProps> = ({ title, href, items }) => (
-  <div className="group relative">
-    <NavLink
-      to={href}
-      className={({ isActive }) => [
-        'block lg:inline-block py-2',
-        isActive ? 'text-white' : 'text-gray-400 hover:text-white',
-      ].join(' ')}
-    >
-      {title}
-    </NavLink>
-    {items && items.length !== 0 && (
-    <ul className="hidden absolute bg-gray-700 px-5 py-2 rounded-md group-hover:block border-gray-900 border-2">
-      {items.map((item) => (
-        <li className="py-1.5" key={item.href}>
-          <NavLink
-            to={item.href}
-            className={({ isActive }) => (isActive ? 'text-white' : 'text-gray-300 hover:text-white')}
-          >
-            {item.title}
-          </NavLink>
-        </li>
-      ))}
-    </ul>
-    )}
-  </div>
 );
 
 export default Header;

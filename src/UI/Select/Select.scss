@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.select {
+  &__control {
+    @apply bg-slate-700 border-slate-100/30 rounded-md #{!important};
+
+    &--is-focused {
+      @apply outline-none border-slate-100/60 shadow shadow-slate-100/50 #{!important};
+    }
+  }
+
+  &__option {
+    @apply py-1 px-3 #{!important};
+
+    &--is-focused {
+      @apply bg-slate-600 #{!important};
+    }
+
+    &--is-selected {
+      @apply bg-slate-700 font-bold #{!important};
+    }
+  }
+
+  &__single-value {
+    @apply text-slate-200 #{!important};
+  }
+
+  &__input-container {
+    @apply text-slate-300 #{!important};
+  }
+
+  &__menu {
+    @apply bg-slate-900 border border-slate-100/50 rounded-md #{!important};
+  }
+
+  &__multi-value {
+    @apply bg-slate-900 border border-slate-500 rounded-md #{!important};
+
+    &__label {
+      @apply text-white #{!important};
+    }
+  }
+}
+
+.withError {
+  .select__control {
+    @apply transition-shadow;
+
+    box-shadow: 0 0 0 3px #ff0000c5;
+  }
+}

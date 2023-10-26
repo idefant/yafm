@@ -1,1 +1,1 @@
-export type TPeriod = 'year' | 'quarter' | 'month';
+export type TPeriod = 'year' | 'month';

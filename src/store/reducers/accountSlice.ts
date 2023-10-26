@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { genId } from '../../helper/random';
 import { TAccount } from '../../types/accountType';
+import { genId } from '../../utils/random';
 
 type AccountState = {
   accounts: TAccount[];
@@ -19,19 +19,14 @@ export const accountSlice = createSlice({
       state.accounts = accounts;
     },
     clearAccounts: () => ({ ...initialState }),
-    createAccount(
-      state,
-      { payload: account }: PayloadAction<Omit<TAccount, 'id'>>,
-    ) {
+    createAccount(state, { payload: account }: PayloadAction<Omit<TAccount, 'id'>>) {
       state.accounts.push({ id: genId(), ...account });
     },
     editAccount(
       state,
       { payload: updatedAccount }: PayloadAction<Omit<TAccount, 'currency_code'>>,
     ) {
-      const index = state.accounts.findIndex(
-        (account) => account.id === updatedAccount.id,
-      );
+      const index = state.accounts.findIndex((account) => account.id === updatedAccount.id);
       if (index !== -1) {
         state.accounts[index] = {
           ...state.accounts[index],
@@ -45,12 +40,7 @@ export const accountSlice = createSlice({
   },
 });
 
-export const {
-  setAccounts,
-  clearAccounts,
-  createAccount,
-  editAccount,
-  deleteAccount,
-} = accountSlice.actions;
+export const { setAccounts, clearAccounts, createAccount, editAccount, deleteAccount } =
+  accountSlice.actions;
 
 export default accountSlice.reducer;

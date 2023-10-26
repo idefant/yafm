@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { genId } from '../../helper/random';
 import { TCategory, TCategoryType } from '../../types/categoryType';
+import { genId } from '../../utils/random';
 
 type CategoryState = {
   accounts: TCategory[];
@@ -50,32 +50,21 @@ export const categorySlice = createSlice({
         categoryType: TCategoryType;
       }>,
     ) {
-      const index = state[categoryType].findIndex(
-        (category) => category.id === updatedCategory.id,
-      );
+      const index = state[categoryType].findIndex((category) => category.id === updatedCategory.id);
       if (index !== -1) {
         state[categoryType][index] = updatedCategory;
       }
     },
     deleteCategory(
       state,
-      {
-        payload: { id, categoryType },
-      }: PayloadAction<{ id: string; categoryType: TCategoryType }>,
+      { payload: { id, categoryType } }: PayloadAction<{ id: string; categoryType: TCategoryType }>,
     ) {
-      state[categoryType] = state[categoryType].filter(
-        (account) => account.id !== id,
-      );
+      state[categoryType] = state[categoryType].filter((account) => account.id !== id);
     },
   },
 });
 
-export const {
-  setCategories,
-  clearCategories,
-  createCategory,
-  editCategory,
-  deleteCategory,
-} = categorySlice.actions;
+export const { setCategories, clearCategories, createCategory, editCategory, deleteCategory } =
+  categorySlice.actions;
 
 export default categorySlice.reducer;
