@@ -4,8 +4,6 @@
     "es2021": true
   },
   "extends": [
-    "react-app",
-    "react-app/jest",
     "eslint:recommended",
     "plugin:react/recommended",
     "plugin:@typescript-eslint/recommended",
@@ -76,6 +74,7 @@
         "additionalHooks": "useAsyncEff"
       }
     ],
+    "jsx-a11y/no-noninteractive-element-interactions": "off",
     "jsx-a11y/label-has-associated-control": "off",
     "jsx-a11y/no-static-element-interactions": "off",
     "jsx-a11y/click-events-have-key-events": "off",
@@ -108,10 +107,12 @@
         "js": "never",
         "jsx": "never",
         "ts": "never",
-        "tsx": "never"
+        "tsx": "never",
+        "svg": "never"
       }
     ],
-    "@typescript-eslint/ban-ts-comment": "off",
+    "@typescript-eslint/no-unused-vars": "off",
+    "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/object-curly-spacing": ["warn", "always"],
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/semi": "warn",
@@ -137,6 +138,14 @@
       }
     ]
   },
+  "overrides": [
+    {
+      "files": ["*.ts", "*.tsx"],
+      "rules": {
+        "no-undef": "off"
+      }
+    }
+  ],
   "globals": {
     "React": true,
     "JSX": true

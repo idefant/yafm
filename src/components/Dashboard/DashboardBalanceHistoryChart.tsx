@@ -64,13 +64,16 @@ const DashboardBalanceHistoryChart: FC<DashboardBalanceHistoryChartProps> = ({
   const startBalance = useMemo(() => {
     const transactionsBefore = transactions
       .filter((transaction) => dayjs(transaction.datetime).isBefore(startPeriodDate))
-      .reduce((acc: Record<string, number>, transaction) => {
-        transaction.operations.forEach((operation) => {
-          const account = accountDict[operation.account_id];
-          acc[account.currency_code] += operation.sum;
-        });
-        return acc;
-      }, Object.fromEntries(defaultCurrencies.map((currency) => [currency.code, 0])));
+      .reduce(
+        (acc: Record<string, number>, transaction) => {
+          transaction.operations.forEach((operation) => {
+            const account = accountDict[operation.account_id];
+            acc[account.currency_code] += operation.sum;
+          });
+          return acc;
+        },
+        Object.fromEntries(defaultCurrencies.map((currency) => [currency.code, 0])),
+      );
 
     return Object.fromEntries(
       Object.entries(transactionsBefore).map(([code, sum]) => {

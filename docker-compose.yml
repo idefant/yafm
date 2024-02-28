@@ -1,0 +1,12 @@
+version: '3.7'
+services:
+  yafm-frontend:
+    container_name: yafm-frontend
+    build: ./
+    ports:
+      - ${FRONTEND_PORT:-80}:80
+    env_file:
+      - .env
+    stdin_open: true
+    tty: true
+    restart: always

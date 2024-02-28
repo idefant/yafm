@@ -8,7 +8,6 @@ declare module 'yup' {
 }
 /* eslint-enable no-unused-vars */
 
-// @ts-ignore
 yup.addMethod<yup.StringSchema>(
   yup.string,
   'repeatPassword',

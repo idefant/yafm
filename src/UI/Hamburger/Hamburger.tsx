@@ -14,6 +14,7 @@ const Hamburger: FC<HamburgerProps> = ({ isOpen, toggle, className }) => (
     className={classNames('hamburger', isOpen && 'open', className)}
     onClick={toggle}
     type="button"
+    aria-label="toggle hamburger"
   >
     <span />
     <span />

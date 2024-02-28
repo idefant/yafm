@@ -25,7 +25,7 @@ type FetchInfoResult = {
 export const userApi = createApi({
   reducerPath: 'api/main/user',
   baseQuery: fetchBaseQuery({
-    baseUrl: process.env.REACT_APP_API,
+    baseUrl: import.meta.env.VITE_API,
     prepareHeaders: (headers, { getState, endpoint }) => {
       const token = (getState() as RootState).user.user?.access_token;
       if (token && ['fetchInfo', 'changePassword', 'deleteAccount'].includes(endpoint)) {

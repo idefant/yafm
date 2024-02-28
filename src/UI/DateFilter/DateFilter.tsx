@@ -29,6 +29,7 @@ const DateFilter: FC<DateFilterProps> = ({ options }) => {
         onClick={() => setDate(date.subtract(1, periodType))}
         className="p-2 bg-slate-700 border border-slate-100/30 rounded-full"
         type="button"
+        aria-label="previous"
       >
         <Icon.ChevronLeft />
       </button>
@@ -40,6 +41,7 @@ const DateFilter: FC<DateFilterProps> = ({ options }) => {
         onClick={() => setDate(date.add(1, periodType))}
         className="p-2 bg-slate-700 border border-slate-100/30 rounded-full"
         type="button"
+        aria-label="next"
       >
         <Icon.ChevronRight />
       </button>

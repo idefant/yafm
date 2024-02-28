@@ -27,7 +27,7 @@ const ChooseTemplate: FC<ChooseTemplateProps> = ({ isOpen, close, setTransaction
     {
       key: 'choose',
       render: ({ record }) => (
-        <button onClick={() => chooseTemplate(record)} type="button">
+        <button onClick={() => chooseTemplate(record)} type="button" aria-label="choose template">
           <Icon.Circle />
         </button>
       ),

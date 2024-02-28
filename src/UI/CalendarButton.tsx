@@ -21,7 +21,7 @@ const CalendarButton: FC<CalendarButtonProps> = ({ date, setDate }) => (
     showTimeSelect
     timeIntervals={30}
     customInput={
-      <button className="p-1" type="button">
+      <button className="p-1" type="button" aria-label="choose date">
         <Icon.Calendar />
       </button>
     }

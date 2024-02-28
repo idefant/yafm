@@ -33,7 +33,7 @@ const SidebarCategory: FC<SidebarCategoryProps> = ({ icon, label, link, children
           {label}
         </NavLink>
         {children && (
-          <button type="button" className="px-3 block" onClick={toggleIsOpen}>
+          <button type="button" className="px-3 block" onClick={toggleIsOpen} aria-label="toggle">
             <Icon.ChevronLeft className={classNames('transition-all', isOpen && '-rotate-90')} />
           </button>
         )}

@@ -6,7 +6,7 @@ interface TableActionProps {
 }
 
 const TableAction: FC<TableActionProps> = ({ onClick, icon: Icon }) => (
-  <button className="p-2" onClick={onClick} type="button">
+  <button className="p-2" onClick={onClick} type="button" aria-label="table action">
     <Icon className="w-7 h-7" />
   </button>
 );

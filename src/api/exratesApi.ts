@@ -5,7 +5,7 @@ import { TDateRates, TRates } from '../types/exratesType';
 export const exratesApi = createApi({
   reducerPath: 'api/main/exrates',
   baseQuery: fetchBaseQuery({
-    baseUrl: process.env.REACT_APP_EXRATES_API,
+    baseUrl: import.meta.env.VITE_EXRATES_API,
   }),
   endpoints: (builder) => ({
     fetchLastRates: builder.query<{ date: string; rates: TRates }, void>({

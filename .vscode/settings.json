@@ -7,7 +7,7 @@
   "css.validate": false,
   "less.validate": false,
   "editor.codeActionsOnSave": {
-    "source.fixAll.stylelint": true
+    "source.fixAll.stylelint": "explicit"
   },
   "stylelint.validate": ["css", "scss"],
   "editor.formatOnSave": true,

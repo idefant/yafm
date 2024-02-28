@@ -1,2 +1,10 @@
-build
 node_modules
+dist
+.husky
+.vscode
+.eslintrc.json
+.eslintignore
+.prettierrc
+.prettiergnore
+.stylelintrc.json
+.stylelintignore

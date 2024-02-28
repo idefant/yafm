@@ -7,7 +7,7 @@ import { TTimestamp } from '../types/timestamp';
 export const baseApi = createApi({
   reducerPath: 'api/main/base',
   baseQuery: fetchBaseQuery({
-    baseUrl: process.env.REACT_APP_API,
+    baseUrl: import.meta.env.VITE_API,
     prepareHeaders: (headers, { getState, endpoint }) => {
       const token = (getState() as RootState).user.user?.access_token;
       if (token && ['createBase'].includes(endpoint)) {
