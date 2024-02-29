@@ -1,6 +1,6 @@
 import { FC, ReactNode } from 'react';
 
-import Icon from '../Icon';
+import Icon from '#ui/Icon';
 
 interface ModalHeaderProps {
   close?: () => void;

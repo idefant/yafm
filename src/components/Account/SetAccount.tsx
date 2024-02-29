@@ -2,18 +2,18 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { FC, useMemo } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
-import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
-import { createAccount, editAccount } from '../../store/reducers/accountSlice';
-import { setIsUnsaved } from '../../store/reducers/appSlice';
-import { selectFilteredAccountCategories } from '../../store/selectors';
-import { TAccount } from '../../types/accountType';
-import { TCurrency } from '../../types/currencyType';
-import Button from '../../ui/Button';
-import Form from '../../ui/Form';
-import Modal from '../../ui/Modal';
-import { TSelectOption } from '../../ui/Select';
-import yup from '../../utils/form/schema';
-import { compareObjByStr } from '../../utils/string';
+import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
+import { editAccount, createAccount } from '#store/reducers/accountSlice';
+import { setIsUnsaved } from '#store/reducers/appSlice';
+import { selectFilteredAccountCategories } from '#store/selectors';
+import { TAccount } from '#types/accountType';
+import { TCurrency } from '#types/currencyType';
+import Button from '#ui/Button';
+import Form from '#ui/Form';
+import Modal from '#ui/Modal';
+import { TSelectOption } from '#ui/Select';
+import yup from '#utils/form/schema';
+import { compareObjByStr } from '#utils/string';
 
 interface SetAccountProps {
   account?: TAccount;

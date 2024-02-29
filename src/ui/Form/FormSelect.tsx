@@ -1,8 +1,8 @@
 import { ComponentProps, FC } from 'react';
 import { Controller, FieldError, useFormContext } from 'react-hook-form';
 
-import { getPropValue } from '../../utils/pathResolver';
-import Select from '../Select';
+import Select from '#ui/Select';
+import { getPropValue } from '#utils/pathResolver';
 
 interface FormSelectProps extends ComponentProps<typeof Select> {
   name: string;

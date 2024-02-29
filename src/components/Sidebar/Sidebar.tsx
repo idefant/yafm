@@ -1,10 +1,10 @@
 import classNames from 'classnames';
 import { FC } from 'react';
 
-import { useAppSelector } from '../../hooks/reduxHooks';
-import Icon from '../../ui/Icon';
+import { useAppSelector } from '#hooks/reduxHooks';
+import Icon from '#ui/Icon';
 
-import SidebarCategory from './SirebarCategory';
+import SidebarCategory from './SidebarCategory';
 
 const Sidebar: FC = () => {
   const { openedModalsCount } = useAppSelector((state) => state.app);

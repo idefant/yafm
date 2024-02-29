@@ -1,12 +1,12 @@
 import { FC } from 'react';
 import { Outlet } from 'react-router-dom';
 
-import { useDeleteAccountMutation, useFetchInfoQuery } from '../api/userApi';
-import { ChangePasswordModal } from '../components/Cabinet';
-import { useAppDispatch } from '../hooks/reduxHooks';
-import useModal from '../hooks/useModal';
-import { logout } from '../store/reducers/userSlice';
-import Button, { ButtonLink } from '../ui/Button';
+import { useDeleteAccountMutation, useFetchInfoQuery } from '#api/userApi';
+import { ChangePasswordModal } from '#components/Cabinet';
+import { useAppDispatch } from '#hooks/reduxHooks';
+import useModal from '#hooks/useModal';
+import { logout } from '#store/reducers/userSlice';
+import Button, { ButtonLink } from '#ui/Button';
 
 const CabinetTemplate: FC = () => {
   const dispatch = useAppDispatch();

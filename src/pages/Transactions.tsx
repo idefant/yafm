@@ -2,26 +2,26 @@ import dayjs from 'dayjs';
 import { FC, useMemo, useState } from 'react';
 import Swal from 'sweetalert2';
 
-import { SetTransaction } from '../components/Transaction';
-import { useAppDispatch, useAppSelector } from '../hooks/reduxHooks';
-import useModal from '../hooks/useModal';
-import { setIsUnsaved } from '../store/reducers/appSlice';
-import { deleteTransaction } from '../store/reducers/transactionSlice';
+import { SetTransaction } from '#components/Transaction';
+import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
+import useModal from '#hooks/useModal';
+import { setIsUnsaved } from '#store/reducers/appSlice';
+import { deleteTransaction } from '#store/reducers/transactionSlice';
 import {
-  selectFilteredAccounts,
-  selectFilteredTransactionCategories,
   selectFilteredTransactions,
   selectTransactionCategoryDict,
-} from '../store/selectors';
-import { TTransaction } from '../types/transactionType';
-import Button from '../ui/Button';
-import Card from '../ui/Card';
-import DateFilter, { useDateFilter } from '../ui/DateFilter';
-import Icon from '../ui/Icon';
-import Select, { TSelectOption } from '../ui/Select';
-import Table, { TColumn, TableAction, TableOperations, TableTooltip, TableDate } from '../ui/Table';
-import { Title } from '../ui/Title';
-import { compareObjByStr } from '../utils/string';
+  selectFilteredTransactionCategories,
+  selectFilteredAccounts,
+} from '#store/selectors';
+import { TTransaction } from '#types/transactionType';
+import Button from '#ui/Button';
+import Card from '#ui/Card';
+import DateFilter, { useDateFilter } from '#ui/DateFilter';
+import Icon from '#ui/Icon';
+import Select, { TSelectOption } from '#ui/Select';
+import Table, { TColumn, TableDate, TableOperations, TableTooltip, TableAction } from '#ui/Table';
+import { Title } from '#ui/Title';
+import { compareObjByStr } from '#utils/string';
 
 const Transactions: FC = () => {
   const transactions = useAppSelector(selectFilteredTransactions);

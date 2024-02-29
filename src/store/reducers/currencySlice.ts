@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-import { defaultCurrencies } from '../../data/defaultCurrencies';
-import { TCurrency } from '../../types/currencyType';
+import { defaultCurrencies } from '#data/defaultCurrencies';
+import { TCurrency } from '#types/currencyType';
 
 type CurrencyState = {
   currencies: TCurrency[];

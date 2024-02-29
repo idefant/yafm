@@ -3,16 +3,15 @@ import dayjs from 'dayjs';
 import { FC } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
+import { useAppSelector } from '#hooks/reduxHooks';
+import Button from '#ui/Button';
+import Card from '#ui/Card';
+import Form from '#ui/Form';
+import { aesEncrypt } from '#utils/crypto';
+import { exportFile } from '#utils/file';
+import yup from '#utils/form/schema';
 import Gzip from '#utils/gzip';
-
-import { useAppSelector } from '../../hooks/reduxHooks';
-import Button from '../../ui/Button';
-import Card from '../../ui/Card';
-import Form from '../../ui/Form';
-import { aesEncrypt } from '../../utils/crypto';
-import { exportFile } from '../../utils/file';
-import yup from '../../utils/form/schema';
-import { getSyncData } from '../../utils/sync';
+import { getSyncData } from '#utils/sync';
 
 type TForm = {
   useEncryption: boolean;

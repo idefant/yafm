@@ -1,8 +1,8 @@
 import { ComponentProps, FC } from 'react';
 import { FieldError, FieldValues, RegisterOptions, useFormContext } from 'react-hook-form';
 
-import { getPropValue } from '../../utils/pathResolver';
-import PasswordInput from '../PasswordInput';
+import PasswordInput from '#ui/PasswordInput';
+import { getPropValue } from '#utils/pathResolver';
 
 interface FormPasswordProps extends Omit<ComponentProps<typeof PasswordInput>, 'error'> {
   name: string;

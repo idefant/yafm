@@ -5,20 +5,19 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
+import { useFetchInfoQuery } from '#api/userApi';
+import { useAppDispatch } from '#hooks/reduxHooks';
+import { setAccounts } from '#store/reducers/accountSlice';
+import { setPassword } from '#store/reducers/appSlice';
+import { setCategories } from '#store/reducers/categorySlice';
+import { setTransactions } from '#store/reducers/transactionSlice';
+import Button from '#ui/Button';
+import EntranceTitle from '#ui/EntranceTitle';
+import Form from '#ui/Form';
+import { aesDecrypt } from '#utils/crypto';
+import yup from '#utils/form/schema';
 import Gzip from '#utils/gzip';
-
-import { useFetchInfoQuery } from '../api/userApi';
-import { useAppDispatch } from '../hooks/reduxHooks';
-import { setAccounts } from '../store/reducers/accountSlice';
-import { setPassword } from '../store/reducers/appSlice';
-import { setCategories } from '../store/reducers/categorySlice';
-import { setTransactions } from '../store/reducers/transactionSlice';
-import Button from '../ui/Button';
-import EntranceTitle from '../ui/EntranceTitle';
-import Form from '../ui/Form';
-import { aesDecrypt } from '../utils/crypto';
-import yup from '../utils/form/schema';
-import { checkBaseIntegrity } from '../utils/sync';
+import { checkBaseIntegrity } from '#utils/sync';
 
 type TForm = {
   password: string;

@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import { FC, ReactNode, useReducer, useRef } from 'react';
 import { NavLink, useResolvedPath, useLocation } from 'react-router-dom';
 
-import Icon from '../../ui/Icon';
+import Icon from '#ui/Icon';
 
 interface SidebarCategoryProps {
   icon: ReactNode;

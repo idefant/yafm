@@ -1,7 +1,7 @@
 import { ComponentProps, FC } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 
-import Textarea from '../Textarea';
+import Textarea from '#ui/Textarea';
 
 interface FormTextareaProps extends ComponentProps<typeof Textarea> {
   name: string;

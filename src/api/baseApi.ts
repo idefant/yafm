@@ -1,8 +1,8 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-import { RootState } from '../store';
-import { TCipher } from '../types/cipher';
-import { TTimestamp } from '../types/timestamp';
+import { RootState } from '#store';
+import { TCipher } from '#types/cipher';
+import { TTimestamp } from '#types/timestamp';
 
 export const baseApi = createApi({
   reducerPath: 'api/main/base',

@@ -12,14 +12,14 @@ import dayjs from 'dayjs';
 import { FC, useMemo } from 'react';
 import { Line } from 'react-chartjs-2';
 
-import { defaultCurrencies } from '../../data/defaultCurrencies';
-import { useAppSelector } from '../../hooks/reduxHooks';
-import { selectAccountDict, selectCurrencyDict, selectTransactions } from '../../store/selectors';
-import { TDateRates } from '../../types/exratesType';
-import Card from '../../ui/Card';
-import { TDateFilterOptions } from '../../ui/DateFilter/useDateFilter';
-import { getHistoryBalancesByChanges, withDigits } from '../../utils/currencies';
-import { average } from '../../utils/math';
+import { defaultCurrencies } from '#data/defaultCurrencies';
+import { useAppSelector } from '#hooks/reduxHooks';
+import { selectTransactions, selectAccountDict, selectCurrencyDict } from '#store/selectors';
+import { TDateRates } from '#types/exratesType';
+import Card from '#ui/Card';
+import { TDateFilterOptions } from '#ui/DateFilter/useDateFilter';
+import { withDigits, getHistoryBalancesByChanges } from '#utils/currencies';
+import { average } from '#utils/math';
 
 interface DashboardBalanceHistoryChartProps {
   filterData: TDateFilterOptions;

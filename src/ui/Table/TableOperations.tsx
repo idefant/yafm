@@ -1,10 +1,10 @@
 import classNames from 'classnames';
 import { FC } from 'react';
 
-import { useAppSelector } from '../../hooks/reduxHooks';
-import { selectAccountDict, selectCurrencyDict } from '../../store/selectors';
-import { TOperation } from '../../types/transactionType';
-import { formatPrice } from '../../utils/currencies';
+import { useAppSelector } from '#hooks/reduxHooks';
+import { selectAccountDict, selectCurrencyDict } from '#store/selectors';
+import { TOperation } from '#types/transactionType';
+import { formatPrice } from '#utils/currencies';
 
 import TableDefaultText from './TableDefaultText';
 

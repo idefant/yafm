@@ -3,18 +3,17 @@ import React, { FC } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
+import { useCreateBaseMutation } from '#api/baseApi';
+import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
+import { clearAccounts } from '#store/reducers/accountSlice';
+import { setIsUnsaved, lockBase, setSafeMode, setArchiveMode } from '#store/reducers/appSlice';
+import { clearCategories } from '#store/reducers/categorySlice';
+import { clearCurrencyData } from '#store/reducers/currencySlice';
+import { clearTransactions } from '#store/reducers/transactionSlice';
+import Icon from '#ui/Icon';
+import { aesEncrypt } from '#utils/crypto';
 import Gzip from '#utils/gzip';
-
-import { useCreateBaseMutation } from '../api/baseApi';
-import { useAppDispatch, useAppSelector } from '../hooks/reduxHooks';
-import { clearAccounts } from '../store/reducers/accountSlice';
-import { lockBase, setArchiveMode, setIsUnsaved, setSafeMode } from '../store/reducers/appSlice';
-import { clearCategories } from '../store/reducers/categorySlice';
-import { clearCurrencyData } from '../store/reducers/currencySlice';
-import { clearTransactions } from '../store/reducers/transactionSlice';
-import Icon from '../ui/Icon';
-import { aesEncrypt } from '../utils/crypto';
-import { getSyncData } from '../utils/sync';
+import { getSyncData } from '#utils/sync';
 
 const Header: FC = () => {
   const navigate = useNavigate();

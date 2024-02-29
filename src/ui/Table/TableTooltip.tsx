@@ -1,7 +1,7 @@
 import { FC, ReactNode } from 'react';
 import ReactTooltip from 'react-tooltip';
 
-import Icon from '../Icon';
+import Icon from '#ui/Icon';
 
 interface TableTooltipProps {
   id: string;

@@ -1,11 +1,11 @@
 import { FC } from 'react';
 
-import { useAppSelector } from '../../hooks/reduxHooks';
-import { selectFilteredTemplates, selectTransactionCategoryDict } from '../../store/selectors';
-import { TTemplate } from '../../types/transactionType';
-import Icon from '../../ui/Icon';
-import Modal from '../../ui/Modal';
-import Table, { TColumn, TableOperations, TableTooltip } from '../../ui/Table';
+import { useAppSelector } from '#hooks/reduxHooks';
+import { selectFilteredTemplates, selectTransactionCategoryDict } from '#store/selectors';
+import { TTemplate } from '#types/transactionType';
+import Icon from '#ui/Icon';
+import Modal from '#ui/Modal';
+import Table, { TColumn, TableOperations, TableTooltip } from '#ui/Table';
 
 interface ChooseTemplateProps {
   isOpen: boolean;

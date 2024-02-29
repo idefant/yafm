@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { TTemplate, TTransaction } from '../../types/transactionType';
-import { genId } from '../../utils/random';
+import { TTemplate, TTransaction } from '#types/transactionType';
+import { genId } from '#utils/random';
 
 type TransactionState = {
   transactions: TTransaction[];

@@ -1,12 +1,12 @@
 import { FC } from 'react';
 
-import { useFetchLastRatesQuery, useFetchRatesByPeriodQuery } from '../api/exratesApi';
-import { DashboardBalanceHistoryChart, DashboardCategoryChart } from '../components/Dashboard';
-import { useAppSelector } from '../hooks/reduxHooks';
-import Card from '../ui/Card';
-import DateFilter, { useDateFilter } from '../ui/DateFilter';
-import { Title } from '../ui/Title';
-import { convertPrice, formatPrice } from '../utils/currencies';
+import { useFetchLastRatesQuery, useFetchRatesByPeriodQuery } from '#api/exratesApi';
+import { DashboardBalanceHistoryChart, DashboardCategoryChart } from '#components/Dashboard';
+import { useAppSelector } from '#hooks/reduxHooks';
+import Card from '#ui/Card';
+import DateFilter, { useDateFilter } from '#ui/DateFilter';
+import { Title } from '#ui/Title';
+import { formatPrice, convertPrice } from '#utils/currencies';
 
 const dateQuery = {
   month: 'YYYY-MM',

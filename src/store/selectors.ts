@@ -1,8 +1,8 @@
 import { createSelector } from '@reduxjs/toolkit';
 
-import { TAccount } from '../types/accountType';
-import { TCategory } from '../types/categoryType';
-import { TCurrency } from '../types/currencyType';
+import { TAccount } from '#types/accountType';
+import { TCategory } from '#types/categoryType';
+import { TCurrency } from '#types/currencyType';
 
 import { RootState } from './store';
 

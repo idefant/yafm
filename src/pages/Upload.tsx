@@ -7,22 +7,21 @@ import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { bool, mixed, object, string, ValidationError } from 'yup';
 
+import { useAppDispatch } from '#hooks/reduxHooks';
+import { setAccounts } from '#store/reducers/accountSlice';
+import { setPassword, setIsUnsaved } from '#store/reducers/appSlice';
+import { setCategories } from '#store/reducers/categorySlice';
+import { setTransactions } from '#store/reducers/transactionSlice';
+import { TCipher } from '#types/cipher';
+import Button, { buttonColors } from '#ui/Button';
+import GoBackButton from '#ui/Button/GoBackButton';
+import EntranceTitle from '#ui/EntranceTitle';
+import Form from '#ui/Form';
+import { aesDecrypt } from '#utils/crypto';
+import { readFileContent } from '#utils/file';
+import yup from '#utils/form/schema';
 import Gzip from '#utils/gzip';
-
-import { useAppDispatch } from '../hooks/reduxHooks';
-import { setAccounts } from '../store/reducers/accountSlice';
-import { setIsUnsaved, setPassword } from '../store/reducers/appSlice';
-import { setCategories } from '../store/reducers/categorySlice';
-import { setTransactions } from '../store/reducers/transactionSlice';
-import { TCipher } from '../types/cipher';
-import Button, { buttonColors } from '../ui/Button';
-import GoBackButton from '../ui/Button/GoBackButton';
-import EntranceTitle from '../ui/EntranceTitle';
-import Form from '../ui/Form';
-import { aesDecrypt } from '../utils/crypto';
-import { readFileContent } from '../utils/file';
-import yup from '../utils/form/schema';
-import { checkBaseIntegrity } from '../utils/sync';
+import { checkBaseIntegrity } from '#utils/sync';
 
 type TFileData = { created_at: string } & (
   | { data: TCipher; is_encrypted: true }

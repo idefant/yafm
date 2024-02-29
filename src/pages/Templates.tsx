@@ -1,18 +1,18 @@
 import { FC, useState } from 'react';
 import Swal from 'sweetalert2';
 
-import { SetTemplate } from '../components/Template';
-import { useAppDispatch, useAppSelector } from '../hooks/reduxHooks';
-import useModal from '../hooks/useModal';
-import { setIsUnsaved } from '../store/reducers/appSlice';
-import { deleteTemplate } from '../store/reducers/transactionSlice';
-import { selectFilteredTemplates, selectTransactionCategoryDict } from '../store/selectors';
-import { TTemplate } from '../types/transactionType';
-import Button from '../ui/Button';
-import Card from '../ui/Card';
-import Icon from '../ui/Icon';
-import Table, { TColumn, TableAction, TableOperations, TableTooltip } from '../ui/Table';
-import { Title } from '../ui/Title';
+import { SetTemplate } from '#components/Template';
+import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
+import useModal from '#hooks/useModal';
+import { setIsUnsaved } from '#store/reducers/appSlice';
+import { deleteTemplate } from '#store/reducers/transactionSlice';
+import { selectFilteredTemplates, selectTransactionCategoryDict } from '#store/selectors';
+import { TTemplate } from '#types/transactionType';
+import Button from '#ui/Button';
+import Card from '#ui/Card';
+import Icon from '#ui/Icon';
+import Table, { TColumn, TableOperations, TableTooltip, TableAction } from '#ui/Table';
+import { Title } from '#ui/Title';
 
 const Templates: FC = () => {
   const templates = useAppSelector(selectFilteredTemplates);

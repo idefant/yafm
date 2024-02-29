@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-import { userApi } from '../../api/userApi';
-import { TToken } from '../../types/userType';
+import { userApi } from '#api/userApi';
+import { TToken } from '#types/userType';
 
 type UserState = {
   user?: TToken;

@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-import { TDateRates, TRates } from '../types/exratesType';
+import { TDateRates, TRates } from '#types/exratesType';
 
 export const exratesApi = createApi({
   reducerPath: 'api/main/exrates',

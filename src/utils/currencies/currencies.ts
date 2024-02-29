@@ -1,6 +1,6 @@
-import { store } from '../../store';
-import { selectCurrencyDict } from '../../store/selectors';
-import { TRates } from '../../types/exratesType';
+import { store } from '#store';
+import { selectCurrencyDict } from '#store/selectors';
+import { TRates } from '#types/exratesType';
 
 interface FormatPriceOptions {
   useGrouping?: boolean;

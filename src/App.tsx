@@ -1,21 +1,21 @@
 import { FC, useEffect } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
-import { useAppSelector } from './hooks/reduxHooks';
-import Accounts from './pages/Accounts';
-import Categories from './pages/Categories';
-import Dashboard from './pages/Dashboard';
-import Decrypt from './pages/Decrypt';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Setting from './pages/Setting';
-import Templates from './pages/Templates';
-import Transactions from './pages/Transactions';
-import Upload from './pages/Upload';
-import Versions from './pages/Versions';
-import BaseTemplate from './templates/BaseTemplate';
-import CabinetTemplate from './templates/CabinetTemplate';
-import UnauthorizedTemplate from './templates/UnauthorizedTemplate';
+import { useAppSelector } from '#hooks/reduxHooks';
+import Accounts from '#pages/Accounts';
+import Categories from '#pages/Categories';
+import Dashboard from '#pages/Dashboard';
+import Decrypt from '#pages/Decrypt';
+import Login from '#pages/Login';
+import Register from '#pages/Register';
+import Setting from '#pages/Setting';
+import Templates from '#pages/Templates';
+import Transactions from '#pages/Transactions';
+import Upload from '#pages/Upload';
+import Versions from '#pages/Versions';
+import BaseTemplate from '#templates/BaseTemplate';
+import CabinetTemplate from '#templates/CabinetTemplate';
+import UnauthorizedTemplate from '#templates/UnauthorizedTemplate';
 
 const App: FC = () => {
   const {

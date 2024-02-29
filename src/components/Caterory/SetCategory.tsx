@@ -2,14 +2,14 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { FC } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
-import { useAppDispatch } from '../../hooks/reduxHooks';
-import { setIsUnsaved } from '../../store/reducers/appSlice';
-import { createCategory, editCategory } from '../../store/reducers/categorySlice';
-import { TCategory, TCategoryType } from '../../types/categoryType';
-import Button from '../../ui/Button';
-import Form from '../../ui/Form';
-import Modal from '../../ui/Modal';
-import yup from '../../utils/form/schema';
+import { useAppDispatch } from '#hooks/reduxHooks';
+import { setIsUnsaved } from '#store/reducers/appSlice';
+import { createCategory, editCategory } from '#store/reducers/categorySlice';
+import { TCategory, TCategoryType } from '#types/categoryType';
+import Button from '#ui/Button';
+import Form from '#ui/Form';
+import Modal from '#ui/Modal';
+import yup from '#utils/form/schema';
 
 interface SetCategoryProps {
   isOpen: boolean;

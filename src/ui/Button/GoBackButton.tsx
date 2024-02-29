@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import Icon from '../Icon';
+import Icon from '#ui/Icon';
 
 const GoBackButton: FC = () => {
   const navigate = useNavigate();

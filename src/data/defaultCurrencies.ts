@@ -1,4 +1,4 @@
-import { TCurrency } from '../types/currencyType';
+import { TCurrency } from '#types/currencyType';
 
 export const defaultCurrencies: TCurrency[] = [
   {

@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import { Fragment, ReactNode } from 'react';
 
-import Icon from '../Icon';
+import Icon from '#ui/Icon';
 
 import TableDefaultText from './TableDefaultText';
 

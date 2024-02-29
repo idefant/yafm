@@ -3,10 +3,10 @@ import { combineReducers } from 'redux';
 import { persistReducer, persistStore } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
-import { baseApi } from '../api/baseApi';
-import { exratesApi } from '../api/exratesApi';
-import { financeApi } from '../api/financeApi';
-import { userApi } from '../api/userApi';
+import { baseApi } from '#api/baseApi';
+import { exratesApi } from '#api/exratesApi';
+import { financeApi } from '#api/financeApi';
+import { userApi } from '#api/userApi';
 
 import accountReducer from './reducers/accountSlice';
 import appReducer from './reducers/appSlice';

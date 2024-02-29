@@ -5,22 +5,22 @@ import { FC, useMemo, useState } from 'react';
 import { Pie } from 'react-chartjs-2';
 import Swal from 'sweetalert2';
 
-import { useFetchLastRatesQuery } from '../api/exratesApi';
-import { SetAccount } from '../components/Account';
-import { useAppDispatch, useAppSelector } from '../hooks/reduxHooks';
-import useModal from '../hooks/useModal';
-import { deleteAccount } from '../store/reducers/accountSlice';
-import { setIsUnsaved } from '../store/reducers/appSlice';
-import { selectCurrencyDict, selectFilteredAccounts } from '../store/selectors';
-import { TAccount, TCalculatedAccount } from '../types/accountType';
-import { TCurrency } from '../types/currencyType';
-import Button from '../ui/Button';
-import Card from '../ui/Card';
-import Icon from '../ui/Icon';
-import Table, { TColumn, TableAction, TableDate } from '../ui/Table';
-import { Title } from '../ui/Title';
-import { groupSum, sumObjectsProp } from '../utils/arrays';
-import { convertPrice, formatPrice } from '../utils/currencies';
+import { useFetchLastRatesQuery } from '#api/exratesApi';
+import { SetAccount } from '#components/Account';
+import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
+import useModal from '#hooks/useModal';
+import { deleteAccount } from '#store/reducers/accountSlice';
+import { setIsUnsaved } from '#store/reducers/appSlice';
+import { selectFilteredAccounts, selectCurrencyDict } from '#store/selectors';
+import { TCalculatedAccount, TAccount } from '#types/accountType';
+import { TCurrency } from '#types/currencyType';
+import Button from '#ui/Button';
+import Card from '#ui/Card';
+import Icon from '#ui/Icon';
+import Table, { TColumn, TableDate, TableAction } from '#ui/Table';
+import { Title } from '#ui/Title';
+import { groupSum, sumObjectsProp } from '#utils/arrays';
+import { convertPrice, formatPrice } from '#utils/currencies';
 
 const Accounts: FC = () => {
   const accountModal = useModal();

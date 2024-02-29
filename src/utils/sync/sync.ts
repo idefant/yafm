@@ -1,12 +1,12 @@
 import { array, object, ValidationError } from 'yup';
 
-import { accountSchema } from '../../schema/accountSchema';
-import { categorySchema } from '../../schema/categorySchema';
-import { templateSchema, transactionSchema } from '../../schema/transactionSchema';
-import { store } from '../../store';
-import { TAccount } from '../../types/accountType';
-import { TCategory } from '../../types/categoryType';
-import { TTemplate, TTransaction } from '../../types/transactionType';
+import { accountSchema } from '#schema/accountSchema';
+import { categorySchema } from '#schema/categorySchema';
+import { templateSchema, transactionSchema } from '#schema/transactionSchema';
+import { store } from '#store';
+import { TAccount } from '#types/accountType';
+import { TCategory } from '#types/categoryType';
+import { TTemplate, TTransaction } from '#types/transactionType';
 
 export const getSyncData = () => {
   const {

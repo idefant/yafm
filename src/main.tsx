@@ -7,8 +7,9 @@ import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import { PersistGate } from 'redux-persist/integration/react';
 
+import { persistor, store } from '#store';
+
 import App from './App';
-import { store, persistor } from './store';
 
 import 'react-datepicker/dist/react-datepicker.css';
 import './index.css';

@@ -1,8 +1,8 @@
 import { ComponentProps, FC } from 'react';
 import { FieldError, useFormContext } from 'react-hook-form';
 
-import { getPropValue } from '../../utils/pathResolver';
-import TextInput from '../TextInput';
+import TextInput from '#ui/TextInput';
+import { getPropValue } from '#utils/pathResolver';
 
 interface FormInputProps extends Omit<ComponentProps<typeof TextInput>, 'error'> {
   name: string;

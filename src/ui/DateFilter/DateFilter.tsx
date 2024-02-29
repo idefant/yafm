@@ -1,7 +1,7 @@
 import { FC } from 'react';
 
-import Icon from '../Icon';
-import Select from '../Select';
+import Icon from '#ui/Icon';
+import Select from '#ui/Select';
 
 import { TDateFilter } from './useDateFilter';
 

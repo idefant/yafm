@@ -1,9 +1,9 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-import { RootState } from '../store';
-import { TCipher } from '../types/cipher';
-import { TTimestamp } from '../types/timestamp';
-import { TToken } from '../types/userType';
+import { RootState } from '#store';
+import { TCipher } from '#types/cipher';
+import { TTimestamp } from '#types/timestamp';
+import { TToken } from '#types/userType';
 
 type LoginProps = {
   username: string;

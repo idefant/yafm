@@ -1,9 +1,9 @@
 import dayjs from 'dayjs';
 
-import { store } from '../store';
-import { selectAccountDict, selectCurrencyDict } from '../store/selectors';
-import { TDateRates } from '../types/exratesType';
-import { TOperation, TTransaction, TTransactionType } from '../types/transactionType';
+import { store } from '#store';
+import { selectAccountDict, selectCurrencyDict } from '#store/selectors';
+import { TDateRates } from '#types/exratesType';
+import { TOperation, TTransaction, TTransactionType } from '#types/transactionType';
 
 import { withDigits } from './currencies';
 

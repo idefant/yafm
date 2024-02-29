@@ -1,7 +1,7 @@
 import dayjs, { Dayjs } from 'dayjs';
 import { useState } from 'react';
 
-import { TPeriod } from '../../types/periodType';
+import { TPeriod } from '#types/periodType';
 
 export type TDateFilterOptions = {
   date: Dayjs;

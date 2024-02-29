@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { TCategory, TCategoryType } from '../../types/categoryType';
-import { genId } from '../../utils/random';
+import { TCategory, TCategoryType } from '#types/categoryType';
+import { genId } from '#utils/random';
 
 type CategoryState = {
   accounts: TCategory[];

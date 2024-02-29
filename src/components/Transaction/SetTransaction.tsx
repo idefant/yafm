@@ -3,27 +3,23 @@ import dayjs from 'dayjs';
 import { FC, useState } from 'react';
 import { FormProvider, useFieldArray, useForm, useWatch } from 'react-hook-form';
 
-import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
-import useModal from '../../hooks/useModal';
-import { numberWithDecimalPlacesSchema } from '../../schema';
-import { setIsUnsaved } from '../../store/reducers/appSlice';
-import { createTransaction, editTransaction } from '../../store/reducers/transactionSlice';
-import {
-  selectAccountDict,
-  selectFilteredAccounts,
-  selectCurrencyDict,
-} from '../../store/selectors';
-import { TTemplate, TTransaction } from '../../types/transactionType';
-import Button from '../../ui/Button';
-import CalendarButton from '../../ui/CalendarButton';
-import DatePicker from '../../ui/DatePicker';
-import Form from '../../ui/Form';
-import Icon from '../../ui/Icon';
-import Modal from '../../ui/Modal';
-import { withDigits, withoutDigits } from '../../utils/currencies';
-import yup from '../../utils/form/schema';
-import { compareObjByStr } from '../../utils/string';
-import ChooseTemplate from '../Template/ChooseTemplate';
+import { ChooseTemplate } from '#components/Template';
+import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
+import useModal from '#hooks/useModal';
+import { numberWithDecimalPlacesSchema } from '#schema';
+import { setIsUnsaved } from '#store/reducers/appSlice';
+import { editTransaction, createTransaction } from '#store/reducers/transactionSlice';
+import { selectFilteredAccounts, selectAccountDict, selectCurrencyDict } from '#store/selectors';
+import { TTransaction, TTemplate } from '#types/transactionType';
+import Button from '#ui/Button';
+import CalendarButton from '#ui/CalendarButton';
+import DatePicker from '#ui/DatePicker';
+import Form from '#ui/Form';
+import Icon from '#ui/Icon';
+import Modal from '#ui/Modal';
+import { withoutDigits, withDigits } from '#utils/currencies';
+import yup from '#utils/form/schema';
+import { compareObjByStr } from '#utils/string';
 
 interface SetTransactionProps {
   transaction?: TTransaction;

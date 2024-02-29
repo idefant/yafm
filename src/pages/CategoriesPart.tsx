@@ -1,21 +1,21 @@
 import { FC, useState } from 'react';
 import Swal from 'sweetalert2';
 
-import { SetCategory } from '../components/Caterory';
-import { useAppDispatch, useAppSelector } from '../hooks/reduxHooks';
-import useModal from '../hooks/useModal';
-import { setIsUnsaved } from '../store/reducers/appSlice';
-import { deleteCategory } from '../store/reducers/categorySlice';
+import { SetCategory } from '#components/Caterory';
+import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
+import useModal from '#hooks/useModal';
+import { setIsUnsaved } from '#store/reducers/appSlice';
+import { deleteCategory } from '#store/reducers/categorySlice';
 import {
   selectFilteredAccountCategories,
   selectFilteredTransactionCategories,
-} from '../store/selectors';
-import { TCategory, TCategoryType } from '../types/categoryType';
-import Button from '../ui/Button';
-import Card from '../ui/Card';
-import Icon from '../ui/Icon';
-import Table, { TColumn, TableAction } from '../ui/Table';
-import { compareObjByStr } from '../utils/string';
+} from '#store/selectors';
+import { TCategoryType, TCategory } from '#types/categoryType';
+import Button from '#ui/Button';
+import Card from '#ui/Card';
+import Icon from '#ui/Icon';
+import Table, { TColumn, TableAction } from '#ui/Table';
+import { compareObjByStr } from '#utils/string';
 
 interface CategoriesPartProps {
   categoryType: TCategoryType;

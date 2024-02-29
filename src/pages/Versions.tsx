@@ -2,13 +2,13 @@ import dayjs from 'dayjs';
 import { FC } from 'react';
 import { Link } from 'react-router-dom';
 
-import { useFetchInfoQuery } from '../api/userApi';
-import { TCipher } from '../types/cipher';
-import { TTimestamp } from '../types/timestamp';
-import GoBackButton from '../ui/Button/GoBackButton';
-import EntranceTitle from '../ui/EntranceTitle';
-import Icon from '../ui/Icon';
-import Table, { TColumn } from '../ui/Table';
+import { useFetchInfoQuery } from '#api/userApi';
+import { TCipher } from '#types/cipher';
+import { TTimestamp } from '#types/timestamp';
+import GoBackButton from '#ui/Button/GoBackButton';
+import EntranceTitle from '#ui/EntranceTitle';
+import Icon from '#ui/Icon';
+import Table, { TColumn } from '#ui/Table';
 
 const Versions: FC = () => {
   const { data: user } = useFetchInfoQuery(undefined, { refetchOnMountOrArgChange: true });

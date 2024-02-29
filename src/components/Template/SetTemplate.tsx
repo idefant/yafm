@@ -2,24 +2,24 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { FC } from 'react';
 import { FormProvider, useFieldArray, useForm, useWatch } from 'react-hook-form';
 
-import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
-import { numberWithDecimalPlacesSchema } from '../../schema';
-import { setIsUnsaved } from '../../store/reducers/appSlice';
-import { createTemplate, editTemplate } from '../../store/reducers/transactionSlice';
+import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
+import { numberWithDecimalPlacesSchema } from '#schema';
+import { setIsUnsaved } from '#store/reducers/appSlice';
+import { editTemplate, createTemplate } from '#store/reducers/transactionSlice';
 import {
+  selectCurrencyDict,
   selectFilteredAccounts,
   selectAccountDict,
   selectFilteredTransactionCategories,
-  selectCurrencyDict,
-} from '../../store/selectors';
-import { TTemplate } from '../../types/transactionType';
-import Button from '../../ui/Button';
-import Form from '../../ui/Form';
-import Icon from '../../ui/Icon';
-import Modal from '../../ui/Modal';
-import { withDigits, withoutDigits } from '../../utils/currencies';
-import yup from '../../utils/form/schema';
-import { compareObjByStr } from '../../utils/string';
+} from '#store/selectors';
+import { TTemplate } from '#types/transactionType';
+import Button from '#ui/Button';
+import Form from '#ui/Form';
+import Icon from '#ui/Icon';
+import Modal from '#ui/Modal';
+import { withoutDigits, withDigits } from '#utils/currencies';
+import yup from '#utils/form/schema';
+import { compareObjByStr } from '#utils/string';
 
 interface SetTemplateProps {
   template?: TTemplate;

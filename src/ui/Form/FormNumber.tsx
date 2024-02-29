@@ -2,8 +2,8 @@ import { ComponentProps, FC } from 'react';
 import { Controller, FieldError, useFormContext } from 'react-hook-form';
 import { NumericFormat, NumericFormatProps } from 'react-number-format';
 
-import { getPropValue } from '../../utils/pathResolver';
-import TextInput from '../TextInput';
+import TextInput from '#ui/TextInput';
+import { getPropValue } from '#utils/pathResolver';
 
 type FormNumberProps = NumericFormatProps & ComponentProps<typeof TextInput> & { name: string };
 

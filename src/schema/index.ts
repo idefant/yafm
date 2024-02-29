@@ -1,6 +1,6 @@
 import { string } from 'yup';
 
-import { checkValidPrice } from '../utils/currencies';
+import { checkValidPrice } from '#utils/currencies';
 
 export const numberWithDecimalPlacesSchema = (decimalPlaces: number, required = false) =>
   string().test((value = '') => {

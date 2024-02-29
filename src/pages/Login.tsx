@@ -4,11 +4,11 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
-import { useLoginMutation } from '../api/userApi';
-import Button from '../ui/Button';
-import EntranceTitle from '../ui/EntranceTitle';
-import Form from '../ui/Form';
-import yup from '../utils/form/schema';
+import { useLoginMutation } from '#api/userApi';
+import Button from '#ui/Button';
+import EntranceTitle from '#ui/EntranceTitle';
+import Form from '#ui/Form';
+import yup from '#utils/form/schema';
 
 type TForm = {
   username: string;

@@ -3,11 +3,11 @@ import { FC } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import Swal from 'sweetalert2';
 
-import { useChangePasswordMutation, useFetchInfoQuery } from '../../api/userApi';
-import Button from '../../ui/Button';
-import Form from '../../ui/Form';
-import Modal from '../../ui/Modal';
-import yup from '../../utils/form/schema';
+import { useChangePasswordMutation, useFetchInfoQuery } from '#api/userApi';
+import Button from '#ui/Button';
+import Form from '#ui/Form';
+import Modal from '#ui/Modal';
+import yup from '#utils/form/schema';
 
 interface ChangePasswordModalProps {
   isOpen: boolean;

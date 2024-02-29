@@ -3,12 +3,12 @@ import { FC } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import Swal from 'sweetalert2';
 
-import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
-import { setPassword } from '../../store/reducers/appSlice';
-import Button from '../../ui/Button';
-import Card from '../../ui/Card';
-import Form from '../../ui/Form';
-import yup from '../../utils/form/schema';
+import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
+import { setPassword } from '#store/reducers/appSlice';
+import Button from '#ui/Button';
+import Card from '#ui/Card';
+import Form from '#ui/Form';
+import yup from '#utils/form/schema';
 
 type TForm = {
   oldPassword: string;

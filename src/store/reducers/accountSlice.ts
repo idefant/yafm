@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { TAccount } from '../../types/accountType';
-import { genId } from '../../utils/random';
+import { TAccount } from '#types/accountType';
+import { genId } from '#utils/random';
 
 type AccountState = {
   accounts: TAccount[];

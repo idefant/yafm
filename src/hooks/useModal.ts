@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { decrementOpenedModalsCount, incrementOpenedModalsCount } from '../store/reducers/appSlice';
+import { decrementOpenedModalsCount, incrementOpenedModalsCount } from '#store/reducers/appSlice';
 
 import { useAppDispatch, useAppSelector } from './reduxHooks';
 

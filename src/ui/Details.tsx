@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import { FC, ReactNode, useReducer, useRef, useState } from 'react';
 
-import useInterval from '../hooks/useInterval';
+import useInterval from '#hooks/useInterval';
 
 import Icon from './Icon';
 

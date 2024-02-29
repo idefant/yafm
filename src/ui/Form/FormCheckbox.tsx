@@ -1,8 +1,8 @@
 import { ComponentProps, FC } from 'react';
 import { FieldError, useFormContext } from 'react-hook-form';
 
-import { getPropValue } from '../../utils/pathResolver';
-import Checkbox from '../Checkbox';
+import Checkbox from '#ui/Checkbox';
+import { getPropValue } from '#utils/pathResolver';
 
 interface FormCheckboxProps extends ComponentProps<typeof Checkbox> {
   name: string;
