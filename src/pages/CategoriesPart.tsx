@@ -11,10 +11,10 @@ import {
   selectFilteredTransactionCategories,
 } from '../store/selectors';
 import { TCategory, TCategoryType } from '../types/categoryType';
-import Button from '../UI/Button';
-import Card from '../UI/Card';
-import Icon from '../UI/Icon';
-import Table, { TColumn, TableAction } from '../UI/Table';
+import Button from '../ui2/Button';
+import Card from '../ui2/Card';
+import Icon from '../ui2/Icon';
+import Table, { TColumn, TableAction } from '../ui2/Table';
 import { compareObjByStr } from '../utils/string';
 
 interface CategoriesPartProps {

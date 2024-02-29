@@ -4,9 +4,9 @@ import { FormProvider, useForm } from 'react-hook-form';
 import Swal from 'sweetalert2';
 
 import { useChangePasswordMutation, useFetchInfoQuery } from '../../api/userApi';
-import Button from '../../UI/Button';
-import Form from '../../UI/Form';
-import Modal from '../../UI/Modal';
+import Button from '../../ui2/Button';
+import Form from '../../ui2/Form';
+import Modal from '../../ui2/Modal';
 import yup from '../../utils/form/schema';
 
 interface ChangePasswordModalProps {

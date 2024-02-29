@@ -6,7 +6,7 @@ import { ChangePasswordModal } from '../components/Cabinet';
 import { useAppDispatch } from '../hooks/reduxHooks';
 import useModal from '../hooks/useModal';
 import { logout } from '../store/reducers/userSlice';
-import Button, { ButtonLink } from '../UI/Button';
+import Button, { ButtonLink } from '../ui2/Button';
 
 const CabinetTemplate: FC = () => {
   const dispatch = useAppDispatch();

@@ -6,9 +6,9 @@ import { useAppDispatch } from '../../hooks/reduxHooks';
 import { setIsUnsaved } from '../../store/reducers/appSlice';
 import { createCategory, editCategory } from '../../store/reducers/categorySlice';
 import { TCategory, TCategoryType } from '../../types/categoryType';
-import Button from '../../UI/Button';
-import Form from '../../UI/Form';
-import Modal from '../../UI/Modal';
+import Button from '../../ui2/Button';
+import Form from '../../ui2/Form';
+import Modal from '../../ui2/Modal';
 import yup from '../../utils/form/schema';
 
 interface SetCategoryProps {

@@ -14,12 +14,12 @@ import {
   selectCurrencyDict,
 } from '../../store/selectors';
 import { TTemplate, TTransaction } from '../../types/transactionType';
-import Button from '../../UI/Button';
-import CalendarButton from '../../UI/CalendarButton';
-import DatePicker from '../../UI/DatePicker';
-import Form from '../../UI/Form';
-import Icon from '../../UI/Icon';
-import Modal from '../../UI/Modal';
+import Button from '../../ui2/Button';
+import CalendarButton from '../../ui2/CalendarButton';
+import DatePicker from '../../ui2/DatePicker';
+import Form from '../../ui2/Form';
+import Icon from '../../ui2/Icon';
+import Modal from '../../ui2/Modal';
 import { withDigits, withoutDigits } from '../../utils/currencies';
 import yup from '../../utils/form/schema';
 import { compareObjByStr } from '../../utils/string';

@@ -12,7 +12,7 @@ import { lockBase, setArchiveMode, setIsUnsaved, setSafeMode } from '../store/re
 import { clearCategories } from '../store/reducers/categorySlice';
 import { clearCurrencyData } from '../store/reducers/currencySlice';
 import { clearTransactions } from '../store/reducers/transactionSlice';
-import Icon from '../UI/Icon';
+import Icon from '../ui2/Icon';
 import { aesEncrypt } from '../utils/crypto';
 import { getSyncData } from '../utils/sync';
 

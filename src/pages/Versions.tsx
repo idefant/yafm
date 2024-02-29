@@ -5,10 +5,10 @@ import { Link } from 'react-router-dom';
 import { useFetchInfoQuery } from '../api/userApi';
 import { TCipher } from '../types/cipher';
 import { TTimestamp } from '../types/timestamp';
-import GoBackButton from '../UI/Button/GoBackButton';
-import EntranceTitle from '../UI/EntranceTitle';
-import Icon from '../UI/Icon';
-import Table, { TColumn } from '../UI/Table';
+import GoBackButton from '../ui2/Button/GoBackButton';
+import EntranceTitle from '../ui2/EntranceTitle';
+import Icon from '../ui2/Icon';
+import Table, { TColumn } from '../ui2/Table';
 
 const Versions: FC = () => {
   const { data: user } = useFetchInfoQuery(undefined, { refetchOnMountOrArgChange: true });

@@ -14,11 +14,11 @@ import { setIsUnsaved } from '../store/reducers/appSlice';
 import { selectCurrencyDict, selectFilteredAccounts } from '../store/selectors';
 import { TAccount, TCalculatedAccount } from '../types/accountType';
 import { TCurrency } from '../types/currencyType';
-import Button from '../UI/Button';
-import Card from '../UI/Card';
-import Icon from '../UI/Icon';
-import Table, { TColumn, TableAction, TableDate } from '../UI/Table';
-import { Title } from '../UI/Title';
+import Button from '../ui2/Button';
+import Card from '../ui2/Card';
+import Icon from '../ui2/Icon';
+import Table, { TColumn, TableAction, TableDate } from '../ui2/Table';
+import { Title } from '../ui2/Title';
 import { groupSum, sumObjectsProp } from '../utils/arrays';
 import { convertPrice, formatPrice } from '../utils/currencies';
 

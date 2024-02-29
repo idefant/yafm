@@ -3,9 +3,9 @@ import { FC } from 'react';
 import { useFetchLastRatesQuery, useFetchRatesByPeriodQuery } from '../api/exratesApi';
 import { DashboardBalanceHistoryChart, DashboardCategoryChart } from '../components/Dashboard';
 import { useAppSelector } from '../hooks/reduxHooks';
-import Card from '../UI/Card';
-import DateFilter, { useDateFilter } from '../UI/DateFilter';
-import { Title } from '../UI/Title';
+import Card from '../ui2/Card';
+import DateFilter, { useDateFilter } from '../ui2/DateFilter';
+import { Title } from '../ui2/Title';
 import { convertPrice, formatPrice } from '../utils/currencies';
 
 const dateQuery = {

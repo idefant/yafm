@@ -5,9 +5,9 @@ import Swal from 'sweetalert2';
 
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
 import { setPassword } from '../../store/reducers/appSlice';
-import Button from '../../UI/Button';
-import Card from '../../UI/Card';
-import Form from '../../UI/Form';
+import Button from '../../ui2/Button';
+import Card from '../../ui2/Card';
+import Form from '../../ui2/Form';
 import yup from '../../utils/form/schema';
 
 type TForm = {
