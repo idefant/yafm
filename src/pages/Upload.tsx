@@ -7,6 +7,8 @@ import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { bool, mixed, object, string, ValidationError } from 'yup';
 
+import Gzip from '#utils/gzip';
+
 import { useAppDispatch } from '../hooks/reduxHooks';
 import { setAccounts } from '../store/reducers/accountSlice';
 import { setIsUnsaved, setPassword } from '../store/reducers/appSlice';
@@ -44,12 +46,12 @@ const Upload: FC = () => {
 
   const [fileData, setFileData] = useState<TFileData>();
 
-  const getPlainData = (values: TForm) => {
+  const getPlainData = async (values: TForm) => {
     if (!fileData) return;
     if (!fileData.is_encrypted) return fileData.data;
 
     const { cipher, iv, hmac, salt } = fileData.data;
-    const plaintext = aesDecrypt(cipher, values.password, iv, hmac, salt);
+    const plaintext = await Gzip.decompress(aesDecrypt(cipher, values.password, iv, hmac, salt));
 
     if (!plaintext) {
       Swal.fire({ title: 'Wrong password', icon: 'error' });
@@ -60,7 +62,7 @@ const Upload: FC = () => {
   };
 
   const onSubmit = async (values: TForm) => {
-    const data = getPlainData(values);
+    const data = await getPlainData(values);
     if (!data) return;
 
     const validatedStatus = await checkBaseIntegrity(data);

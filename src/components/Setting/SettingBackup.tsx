@@ -3,6 +3,8 @@ import dayjs from 'dayjs';
 import { FC } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
+import Gzip from '#utils/gzip';
+
 import { useAppSelector } from '../../hooks/reduxHooks';
 import Button from '../../UI/Button';
 import Card from '../../UI/Card';
@@ -28,7 +30,7 @@ const SettingBackup: FC = () => {
 
   const password = useAppSelector((state) => state.app.password);
 
-  const onSubmit = (values: TForm) => {
+  const onSubmit = async (values: TForm) => {
     if (!password) return;
 
     const data = getSyncData();
@@ -37,13 +39,17 @@ const SettingBackup: FC = () => {
       is_encrypted: values.useEncryption,
     };
 
-    exportFile(
-      JSON.stringify({
-        ...infoData,
-        data: values.useEncryption ? aesEncrypt(JSON.stringify(data), password) : data,
-      }),
-      values.useEncryption ? 'backup-enc.json' : 'backup-decr.json',
-    );
+    if (values.useEncryption) {
+      exportFile(
+        JSON.stringify({
+          ...infoData,
+          data: aesEncrypt(await Gzip.compress(JSON.stringify(data)), password),
+        }),
+        'backup-enc.json',
+      );
+    } else {
+      exportFile(JSON.stringify({ ...infoData, data }), 'backup-decr.json');
+    }
   };
 
   return (

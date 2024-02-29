@@ -5,6 +5,8 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
+import Gzip from '#utils/gzip';
+
 import { useFetchInfoQuery } from '../api/userApi';
 import { useAppDispatch } from '../hooks/reduxHooks';
 import { setAccounts } from '../store/reducers/accountSlice';
@@ -50,7 +52,9 @@ const Decrypt: FC = () => {
     }
     const base = user.bases[0];
 
-    const plaintext = aesDecrypt(base.cipher, values.password, base.iv, base.hmac, base.salt);
+    const plaintext = await Gzip.decompress(
+      aesDecrypt(base.cipher, values.password, base.iv, base.hmac, base.salt),
+    );
 
     if (plaintext) {
       const data = JSON.parse(plaintext);

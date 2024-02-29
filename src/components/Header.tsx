@@ -3,6 +3,8 @@ import React, { FC } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
+import Gzip from '#utils/gzip';
+
 import { useCreateBaseMutation } from '../api/baseApi';
 import { useAppDispatch, useAppSelector } from '../hooks/reduxHooks';
 import { clearAccounts } from '../store/reducers/accountSlice';
@@ -27,7 +29,7 @@ const Header: FC = () => {
   const sync = async () => {
     if (!password) return;
 
-    const data = aesEncrypt(JSON.stringify(getSyncData()), password);
+    const data = aesEncrypt(await Gzip.compress(JSON.stringify(getSyncData())), password);
     createBase(data)
       .unwrap()
       .then(() => {
