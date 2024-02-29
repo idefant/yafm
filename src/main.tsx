@@ -11,6 +11,10 @@ import { persistor, store } from '#store';
 
 import App from './App';
 
+import '@fontsource/source-sans-pro/400.css';
+import '@fontsource/source-sans-pro/600.css';
+import '@fontsource/source-sans-pro/700.css';
+
 import 'react-datepicker/dist/react-datepicker.css';
 import './index.css';
 
