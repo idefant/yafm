@@ -8,10 +8,10 @@ import { setIsUnsaved } from '../../store/reducers/appSlice';
 import { selectFilteredAccountCategories } from '../../store/selectors';
 import { TAccount } from '../../types/accountType';
 import { TCurrency } from '../../types/currencyType';
-import Button from '../../ui2/Button';
-import Form from '../../ui2/Form';
-import Modal from '../../ui2/Modal';
-import { TSelectOption } from '../../ui2/Select';
+import Button from '../../ui/Button';
+import Form from '../../ui/Form';
+import Modal from '../../ui/Modal';
+import { TSelectOption } from '../../ui/Select';
 import yup from '../../utils/form/schema';
 import { compareObjByStr } from '../../utils/string';
 

@@ -5,9 +5,9 @@ import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
 import { useRegisterMutation } from '../api/userApi';
-import Button from '../ui2/Button';
-import EntranceTitle from '../ui2/EntranceTitle';
-import Form from '../ui2/Form';
+import Button from '../ui/Button';
+import EntranceTitle from '../ui/EntranceTitle';
+import Form from '../ui/Form';
 import yup from '../utils/form/schema';
 
 type TForm = {

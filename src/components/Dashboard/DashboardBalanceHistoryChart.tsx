@@ -16,8 +16,8 @@ import { defaultCurrencies } from '../../data/defaultCurrencies';
 import { useAppSelector } from '../../hooks/reduxHooks';
 import { selectAccountDict, selectCurrencyDict, selectTransactions } from '../../store/selectors';
 import { TDateRates } from '../../types/exratesType';
-import Card from '../../ui2/Card';
-import { TDateFilterOptions } from '../../ui2/DateFilter/useDateFilter';
+import Card from '../../ui/Card';
+import { TDateFilterOptions } from '../../ui/DateFilter/useDateFilter';
 import { getHistoryBalancesByChanges, withDigits } from '../../utils/currencies';
 import { average } from '../../utils/math';
 

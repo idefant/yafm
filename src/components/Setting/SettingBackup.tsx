@@ -6,9 +6,9 @@ import { FormProvider, useForm } from 'react-hook-form';
 import Gzip from '#utils/gzip';
 
 import { useAppSelector } from '../../hooks/reduxHooks';
-import Button from '../../ui2/Button';
-import Card from '../../ui2/Card';
-import Form from '../../ui2/Form';
+import Button from '../../ui/Button';
+import Card from '../../ui/Card';
+import Form from '../../ui/Form';
 import { aesEncrypt } from '../../utils/crypto';
 import { exportFile } from '../../utils/file';
 import yup from '../../utils/form/schema';

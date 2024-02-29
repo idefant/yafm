@@ -8,11 +8,11 @@ import { setIsUnsaved } from '../store/reducers/appSlice';
 import { deleteTemplate } from '../store/reducers/transactionSlice';
 import { selectFilteredTemplates, selectTransactionCategoryDict } from '../store/selectors';
 import { TTemplate } from '../types/transactionType';
-import Button from '../ui2/Button';
-import Card from '../ui2/Card';
-import Icon from '../ui2/Icon';
-import Table, { TColumn, TableAction, TableOperations, TableTooltip } from '../ui2/Table';
-import { Title } from '../ui2/Title';
+import Button from '../ui/Button';
+import Card from '../ui/Card';
+import Icon from '../ui/Icon';
+import Table, { TColumn, TableAction, TableOperations, TableTooltip } from '../ui/Table';
+import { Title } from '../ui/Title';
 
 const Templates: FC = () => {
   const templates = useAppSelector(selectFilteredTemplates);

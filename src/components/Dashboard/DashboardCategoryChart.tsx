@@ -7,8 +7,8 @@ import colors from '../../data/color';
 import { useAppSelector } from '../../hooks/reduxHooks';
 import { selectTransactionCategoryDict, selectTransactions } from '../../store/selectors';
 import { TDateRates } from '../../types/exratesType';
-import Card from '../../ui2/Card';
-import { TDateFilterOptions } from '../../ui2/DateFilter/useDateFilter';
+import Card from '../../ui/Card';
+import { TDateFilterOptions } from '../../ui/DateFilter/useDateFilter';
 import group from '../../utils/group';
 import { getTransactionsGroupedByType, getTransactionsSum } from '../../utils/transaction';
 

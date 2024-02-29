@@ -14,19 +14,13 @@ import {
   selectTransactionCategoryDict,
 } from '../store/selectors';
 import { TTransaction } from '../types/transactionType';
-import Button from '../ui2/Button';
-import Card from '../ui2/Card';
-import DateFilter, { useDateFilter } from '../ui2/DateFilter';
-import Icon from '../ui2/Icon';
-import Select, { TSelectOption } from '../ui2/Select';
-import Table, {
-  TColumn,
-  TableAction,
-  TableOperations,
-  TableTooltip,
-  TableDate,
-} from '../ui2/Table';
-import { Title } from '../ui2/Title';
+import Button from '../ui/Button';
+import Card from '../ui/Card';
+import DateFilter, { useDateFilter } from '../ui/DateFilter';
+import Icon from '../ui/Icon';
+import Select, { TSelectOption } from '../ui/Select';
+import Table, { TColumn, TableAction, TableOperations, TableTooltip, TableDate } from '../ui/Table';
+import { Title } from '../ui/Title';
 import { compareObjByStr } from '../utils/string';
 
 const Transactions: FC = () => {

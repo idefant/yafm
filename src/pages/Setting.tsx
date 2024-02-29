@@ -1,7 +1,7 @@
 import { FC } from 'react';
 
 import { SettingBackup, SettingChangePassword } from '../components/Setting';
-import { Title } from '../ui2/Title';
+import { Title } from '../ui/Title';
 
 const Setting: FC = () => (
   <>

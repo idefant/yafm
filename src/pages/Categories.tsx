@@ -1,6 +1,6 @@
 import { FC } from 'react';
 
-import { Title } from '../ui2/Title';
+import { Title } from '../ui/Title';
 
 import CategoriesPart from './CategoriesPart';
 
