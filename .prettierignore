@@ -10,6 +10,7 @@ src/types/api-schema.d.ts
 
 # production
 /dist
+/dev-dist
 
 # misc
 .DS_Store
