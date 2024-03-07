@@ -2,7 +2,7 @@ import { object, string, number, array } from 'yup';
 
 export const transferSchema = object({
   account_id: string().required(),
-  sum: number().required().integer(),
+  sum: string().required(),
 });
 
 export const transactionSchema = object().shape({

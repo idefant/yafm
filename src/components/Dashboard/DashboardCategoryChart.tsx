@@ -5,12 +5,17 @@ import { Pie } from 'react-chartjs-2';
 
 import colors from '#data/color';
 import { useAppSelector } from '#hooks/reduxHooks';
-import { selectTransactions, selectTransactionCategoryDict } from '#store/selectors';
+import {
+  selectTransactions,
+  selectTransactionCategoryDict,
+  selectAccountDict,
+} from '#store/selectors';
 import { TDateRates } from '#types/exratesType';
 import Card from '#ui/Card';
 import { TDateFilterOptions } from '#ui/DateFilter/useDateFilter';
 import group from '#utils/group';
-import { getTransactionsGroupedByType, getTransactionsSum } from '#utils/transaction';
+import money from '#utils/money';
+import { getTransactionsGroupedByType } from '#utils/transaction';
 
 interface DashboardCategoryChartProps {
   filterData: TDateFilterOptions;
@@ -22,6 +27,7 @@ const DashboardCategoryChart: FC<DashboardCategoryChartProps> = ({ filterData, r
 
   const transactions = useAppSelector(selectTransactions);
   const categoryDict = useAppSelector(selectTransactionCategoryDict);
+  const accountDict = useAppSelector(selectAccountDict);
 
   const { date, periodType } = filterData;
 
@@ -41,31 +47,59 @@ const DashboardCategoryChart: FC<DashboardCategoryChartProps> = ({ filterData, r
 
   const incomesChartData = useMemo(() => {
     const categorySums = Object.entries(group(transactionsGroupedByType.income, 'category_id'))
-      .map(([categoryId, transactions]) => ({
-        id: categoryId,
-        sum: getTransactionsSum(transactions, rates),
-      }))
-      .sort((a, b) => b.sum - a.sum);
+      .map(([categoryId, transactions]) => {
+        const sum = transactions.reduce(
+          (acc, transaction) => {
+            const dayRates = rates?.[dayjs(transaction.datetime).format('YYYY-MM-DD')];
+            transaction.operations.forEach((operation) => {
+              acc.add(operation.sum, accountDict[operation.account_id].currency_code, dayRates);
+            });
+            return acc;
+          },
+          money(0, 'RUB'),
+        ).value;
+
+        return {
+          id: categoryId,
+          sum,
+        };
+      })
+      .sort((a, b) => b.sum.minus(a.sum).toNumber());
 
     return {
       dataset: categorySums.map(({ sum }) => sum),
       labels: categorySums.map(({ id }) => categoryDict[id]?.name || ''),
     };
-  }, [categoryDict, rates, transactionsGroupedByType.income]);
+  }, [accountDict, categoryDict, rates, transactionsGroupedByType.income]);
 
   const outcomesChartData = useMemo(() => {
     const categorySums = Object.entries(group(transactionsGroupedByType.outcome, 'category_id'))
-      .map(([categoryId, transactions]) => ({
-        id: categoryId,
-        sum: -getTransactionsSum(transactions, rates),
-      }))
-      .sort((a, b) => b.sum - a.sum);
+      .map(([categoryId, transactions]) => {
+        const sum = transactions
+          .reduce(
+            (acc, transaction) => {
+              const dayRates = rates?.[dayjs(transaction.datetime).format('YYYY-MM-DD')];
+              transaction.operations.forEach((operation) => {
+                acc.add(operation.sum, accountDict[operation.account_id].currency_code, dayRates);
+              });
+              return acc;
+            },
+            money(0, 'RUB'),
+          )
+          .value.abs();
+
+        return {
+          id: categoryId,
+          sum,
+        };
+      })
+      .sort((a, b) => b.sum.minus(a.sum).toNumber());
 
     return {
       dataset: categorySums.map(({ sum }) => sum),
       labels: categorySums.map(({ id }) => categoryDict[id]?.name || ''),
     };
-  }, [categoryDict, rates, transactionsGroupedByType.outcome]);
+  }, [accountDict, categoryDict, rates, transactionsGroupedByType.outcome]);
 
   return (
     <div className="grid grid-cols-2 gap-4 items-start">

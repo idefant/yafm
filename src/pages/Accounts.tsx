@@ -1,3 +1,4 @@
+import BigNumber from 'bignumber.js';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, ChartData } from 'chart.js';
 import classNames from 'classnames';
 import dayjs from 'dayjs';
@@ -13,14 +14,13 @@ import { deleteAccount } from '#store/reducers/accountSlice';
 import { setIsUnsaved } from '#store/reducers/appSlice';
 import { selectFilteredAccounts, selectCurrencyDict } from '#store/selectors';
 import { TCalculatedAccount, TAccount } from '#types/accountType';
-import { TCurrency } from '#types/currencyType';
 import Button from '#ui/Button';
 import Card from '#ui/Card';
 import Icon from '#ui/Icon';
 import Table, { TColumn, TableDate, TableAction } from '#ui/Table';
 import { Title } from '#ui/Title';
-import { groupSum, sumObjectsProp } from '#utils/arrays';
-import { convertPrice, formatPrice } from '#utils/currencies';
+import group from '#utils/group';
+import money from '#utils/money';
 
 const Accounts: FC = () => {
   const accountModal = useModal();
@@ -38,12 +38,7 @@ const Accounts: FC = () => {
 
   const baseCurrencyCode = 'BTC';
 
-  const accountDict = accounts.reduce((dict: { [key: string]: TCalculatedAccount[] }, account) => {
-    const categoryId = account.category_id || '';
-    if (!(categoryId in dict)) dict[categoryId] = [];
-    dict[categoryId].push(account);
-    return dict;
-  }, {});
+  const accountDict = group(accounts, 'category_id');
 
   const [openedAccount, setOpenedAccount] = useState<TAccount>();
 
@@ -52,41 +47,27 @@ const Accounts: FC = () => {
     accountModal.open();
   };
 
-  type TBalance = TCurrency & {
-    balance: number;
-    idealBalance: number;
-    formattedBalance: string;
-  };
-
-  const balances: TBalance[] = useMemo(() => {
-    const currencySum = groupSum(accounts, (elem) => ({
-      key: elem.currency_code,
-      num: elem.balance,
-    }));
+  const currenciesWithBalance = useMemo(() => {
+    const currencyBalanceDict = accounts.reduce((acc: Record<string, BigNumber>, account) => {
+      acc[account.currency_code] =
+        account.currency_code in acc
+          ? acc[account.currency_code].plus(account.balance)
+          : BigNumber(account.balance);
+      return acc;
+    }, {});
 
     return currencies
       .map((currency) => {
-        const balance = currencySum[currency.code];
-        const idealBalance = convertPrice(
-          currency.code,
-          baseCurrencyCode,
-          balance,
-          prices?.rates || {},
-        );
-        const formattedBalance = formatPrice(balance, currency.decimal_places_number);
-        return {
-          ...currency,
-          balance,
-          formattedBalance,
-          idealBalance,
-        };
+        const balance = currencyBalanceDict[currency.code];
+        const baseBalance = money(balance, currency.code, prices?.rates).to(baseCurrencyCode).value;
+        return { ...currency, balance, baseBalance };
       })
       .filter((account) => account.balance);
-  }, [accounts, currencies, prices]);
+  }, [accounts, currencies, prices?.rates]);
 
   const totalAmount = useMemo(
-    () => sumObjectsProp(balances, (elem) => elem.idealBalance),
-    [balances],
+    () => BigNumber.sum(...currenciesWithBalance.map(({ baseBalance }) => baseBalance)),
+    [currenciesWithBalance],
   );
 
   const accountsWithoutCategory = accounts.filter((account) => !account.category_id);
@@ -111,24 +92,20 @@ const Accounts: FC = () => {
 
   const data: ChartData<'pie', any, string> = useMemo(
     () => ({
-      labels: balances.map((currency) => currency.code),
+      labels: currenciesWithBalance.map((currency) => currency.code),
       datasets: [
         {
-          data: balances.map((currency) => currency.idealBalance),
-          backgroundColor: balances.map((currency) => currency.color),
+          data: currenciesWithBalance.map((currency) => currency.baseBalance),
+          backgroundColor: currenciesWithBalance.map((currency) => currency.color),
         },
       ],
     }),
-    [balances],
+    [currenciesWithBalance],
   );
 
   const currencyBalancesDict = useMemo(
-    () =>
-      balances.reduce((dict: { [curCode: string]: TBalance }, currency) => {
-        dict[currency.code] = currency;
-        return dict;
-      }, {}),
-    [balances],
+    () => Object.fromEntries(currenciesWithBalance.map((balance) => [balance.code, balance])),
+    [currenciesWithBalance],
   );
 
   const checkAccountIsUsed = (accountId: string) =>
@@ -174,11 +151,11 @@ const Accounts: FC = () => {
         return (
           <div
             className={classNames(
-              record.balance > 0 && 'text-green-500 font-bold',
-              record.balance < 0 && 'text-red-500 font-bold',
+              BigNumber(record.balance).isPositive() && 'text-green-500 font-bold',
+              BigNumber(record.balance).isNegative() && 'text-red-500 font-bold',
             )}
           >
-            {formatPrice(record.balance, currency.decimal_places_number)}
+            {money(record.balance).format()}
             <span className="pl-3">{currency.code}</span>
           </div>
         );
@@ -230,7 +207,7 @@ const Accounts: FC = () => {
           <Card.Header>Capital</Card.Header>
           <Card.Body>
             <div className="max-w-[300px] mx-auto">
-              {balances.length > 0 && (
+              {currenciesWithBalance.length > 0 && (
                 <Pie
                   data={data}
                   options={{
@@ -244,9 +221,13 @@ const Accounts: FC = () => {
                       tooltip: {
                         callbacks: {
                           label: (tooltipItem) => {
-                            const { formattedBalance, idealBalance } =
+                            const { balance, baseBalance } =
                               currencyBalancesDict[tooltipItem.label];
-                            const percentage = ((idealBalance / totalAmount) * 100).toFixed(2);
+                            const percentage = baseBalance
+                              .div(totalAmount)
+                              .multipliedBy(100)
+                              .toFixed(2);
+                            const formattedBalance = money(balance).format();
                             return `${tooltipItem.label}: ${formattedBalance} - ${percentage}%`;
                           },
                         },

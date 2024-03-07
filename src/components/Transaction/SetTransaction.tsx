@@ -1,4 +1,5 @@
 import { yupResolver } from '@hookform/resolvers/yup';
+import BigNumber from 'bignumber.js';
 import dayjs from 'dayjs';
 import { FC, useState } from 'react';
 import { FormProvider, useFieldArray, useForm, useWatch } from 'react-hook-form';
@@ -17,7 +18,6 @@ import DatePicker from '#ui/DatePicker';
 import Form from '#ui/Form';
 import Icon from '#ui/Icon';
 import Modal from '#ui/Modal';
-import { withoutDigits, withDigits } from '#utils/currencies';
 import yup from '#utils/form/schema';
 import { compareObjByStr } from '#utils/string';
 
@@ -105,18 +105,11 @@ const SetTransaction: FC<SetTransactionProps> = ({
       name: values.name || undefined,
       description: values.description || undefined,
       category_id: values.categoryId || undefined,
-      operations: values.operations.map((operation) => {
-        const account = accountDict[operation.accountId as string];
-        const currency = currencyDict[account.currency_code];
-        return {
-          account_id: operation.accountId as string,
-          sum:
-            withoutDigits(operation.sum, currency.decimal_places_number) *
-            (operation.isPositive ? 1 : -1),
-        };
-      }),
+      operations: values.operations.map((operation) => ({
+        account_id: operation.accountId as string,
+        sum: (operation.sum * (operation.isPositive ? 1 : -1)).toString(),
+      })),
     };
-
     dispatch(
       transaction
         ? editTransaction({ ...transaction, ...transactionData })
@@ -129,16 +122,12 @@ const SetTransaction: FC<SetTransactionProps> = ({
   const getTemplateData = (template: TTemplate) => {
     const operations = template.operations
       .slice()
-      .sort((a, b) => b.sum - a.sum)
-      .map((operation) => {
-        const account = accountDict[operation.account_id];
-        const currency = currencyDict[account.currency_code];
-        return {
-          accountId: operation.account_id,
-          sum: withDigits(Math.abs(operation.sum), currency.decimal_places_number),
-          isPositive: operation.sum > 0,
-        };
-      });
+      .sort((a, b) => BigNumber(b.sum).minus(a.sum).toNumber())
+      .map((operation) => ({
+        accountId: operation.account_id,
+        sum: BigNumber(operation.sum).abs().toNumber(),
+        isPositive: BigNumber(operation.sum).isPositive(),
+      }));
 
     return {
       name: template.name || '',
@@ -152,16 +141,12 @@ const SetTransaction: FC<SetTransactionProps> = ({
 
   const initialOperations = trans?.operations
     .slice()
-    .sort((a, b) => b.sum - a.sum)
-    .map((operation) => {
-      const account = accountDict[operation.account_id];
-      const currency = currencyDict[account.currency_code];
-      return {
-        accountId: operation.account_id,
-        sum: withDigits(Math.abs(operation.sum), currency.decimal_places_number),
-        isPositive: operation.sum > 0,
-      };
-    });
+    .sort((a, b) => BigNumber(b.sum).minus(a.sum).toNumber())
+    .map((operation) => ({
+      accountId: operation.account_id,
+      sum: BigNumber(operation.sum).abs().toNumber(),
+      isPositive: BigNumber(operation.sum).isPositive(),
+    }));
 
   const defaultOperations = [{ accountId: '', sum: undefined, isPositive: false }];
 

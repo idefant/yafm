@@ -5,7 +5,7 @@ export type TTransactionType = 'income' | 'outcome' | 'exchange';
 
 export type TOperation = {
   account_id: string;
-  sum: number;
+  sum: string;
 };
 
 export type TOperationExtended = TOperation & {

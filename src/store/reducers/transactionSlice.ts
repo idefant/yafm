@@ -21,10 +21,7 @@ export const transactionSlice = createSlice({
       state,
       {
         payload: { transactions, templates },
-      }: PayloadAction<{
-        transactions: TTransaction[];
-        templates: TTemplate[];
-      }>,
+      }: PayloadAction<{ transactions: TTransaction[]; templates: TTemplate[] }>,
     ) {
       state.transactions = transactions;
       state.templates = templates;

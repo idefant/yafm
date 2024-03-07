@@ -1,4 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit';
+import BigNumber from 'bignumber.js';
 
 import { TAccount } from '#types/accountType';
 import { TCategory } from '#types/categoryType';
@@ -73,17 +74,19 @@ export const selectAccountCategoryDict = createSelector([selectAccountCategories
 export const selectAccountsWithBalance = createSelector(
   [selectAccounts, selectTransactions],
   (accounts, transactions) => {
-    const accountBalancesDict = Object.fromEntries(accounts.map(({ id }) => [id, 0]));
-
-    transactions.forEach((transaction) => {
-      transaction.operations.forEach((operation) => {
-        accountBalancesDict[operation.account_id] += operation.sum;
-      });
-    });
+    const accountBalancesDict = transactions.reduce(
+      (acc, transaction) => {
+        transaction.operations.forEach((operation) => {
+          acc[operation.account_id] = acc[operation.account_id].plus(operation.sum);
+        });
+        return acc;
+      },
+      Object.fromEntries(accounts.map(({ id }) => [id, BigNumber(0)])),
+    );
 
     return accounts.map((account) => ({
       ...account,
-      balance: accountBalancesDict[account.id],
+      balance: accountBalancesDict[account.id].toString(),
     }));
   },
 );

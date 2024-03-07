@@ -8,6 +8,6 @@ export type TAccount = {
 };
 
 export type TCalculatedAccount = TAccount & {
-  balance: number;
+  balance: string;
   last_activity?: number;
 };

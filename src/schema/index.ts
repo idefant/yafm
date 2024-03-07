@@ -1,12 +1,10 @@
 import { string } from 'yup';
 
-import { checkValidPrice } from '#utils/currencies';
-
 export const numberWithDecimalPlacesSchema = (decimalPlaces: number, required = false) =>
   string().test((value = '') => {
     const croppedValue = value.replaceAll(' ', '');
     return (
-      checkValidPrice(croppedValue, decimalPlaces) &&
+      new RegExp(`^\\d+(\\.|,)?\\d{0,${decimalPlaces}}$`).test(croppedValue) &&
       (required ? parseFloat(croppedValue) > 0 : true)
     );
   });

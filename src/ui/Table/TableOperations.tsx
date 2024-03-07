@@ -1,10 +1,11 @@
+import BigNumber from 'bignumber.js';
 import classNames from 'classnames';
 import { FC } from 'react';
 
 import { useAppSelector } from '#hooks/reduxHooks';
 import { selectAccountDict, selectCurrencyDict } from '#store/selectors';
 import { TOperation } from '#types/transactionType';
-import { formatPrice } from '#utils/currencies';
+import money from '#utils/money';
 
 import TableDefaultText from './TableDefaultText';
 
@@ -17,8 +18,9 @@ const TableOperations: FC<TableOperationsProps> = ({ operations, isPositive }) =
   const currencyDict = useAppSelector(selectCurrencyDict);
   const accountDict = useAppSelector(selectAccountDict);
 
-  const coefficient = isPositive ? 1 : -1;
-  const filteredOperations = operations.filter((operation) => operation.sum * coefficient > 0);
+  const filteredOperations = operations.filter((operation) =>
+    isPositive ? BigNumber(operation.sum).isPositive() : BigNumber(operation.sum).isNegative(),
+  );
 
   if (!filteredOperations.length) {
     return <TableDefaultText />;
@@ -35,7 +37,7 @@ const TableOperations: FC<TableOperationsProps> = ({ operations, isPositive }) =
             <div
               className={classNames('font-bold', isPositive ? 'text-green-500' : 'text-red-500')}
             >
-              {formatPrice(coefficient * outcome.sum, currency.decimal_places_number)}
+              {money(BigNumber(outcome.sum).abs()).format()}
               <span className="pl-2.5">{currency.code}</span>
             </div>
             <div className="text-sm text-gray-300">{account.name}</div>
