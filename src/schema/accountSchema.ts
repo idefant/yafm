@@ -5,6 +5,5 @@ export const accountSchema = object().shape({
   name: string().required(),
   currency_code: string().required(),
   category_id: string(),
-  is_hide: boolean(),
   is_archive: boolean(),
 });
