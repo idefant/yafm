@@ -13,12 +13,12 @@ import dayjs from 'dayjs';
 import { FC, useMemo } from 'react';
 import { Line } from 'react-chartjs-2';
 
-import { defaultCurrencies } from '#data/defaultCurrencies';
 import { useAppSelector } from '#hooks/reduxHooks';
-import { selectTransactions, selectAccountDict } from '#store/selectors';
+import { selectAllTransactionsCombined, selectCurrenciesIds } from '#store/selectors';
 import { TDateRates } from '#types/exratesType';
 import Card from '#ui/Card';
 import { TDateFilterOptions } from '#ui/DateFilter/useDateFilter';
+import { createKeysDict } from '#utils/createKeysDict';
 import money from '#utils/money';
 
 interface DashboardBalanceHistoryChartProps {
@@ -30,8 +30,8 @@ const DashboardBalanceHistoryChart: FC<DashboardBalanceHistoryChartProps> = ({
   filterData,
   rates,
 }) => {
-  const transactions = useAppSelector(selectTransactions);
-  const accountDict = useAppSelector(selectAccountDict);
+  const transactions = useAppSelector(selectAllTransactionsCombined);
+  const currenciesIds = useAppSelector(selectCurrenciesIds);
 
   const { date, periodType } = filterData;
 
@@ -41,10 +41,9 @@ const DashboardBalanceHistoryChart: FC<DashboardBalanceHistoryChartProps> = ({
 
   const filteredTransactions = useMemo(
     () =>
-      transactions.filter((transaction) => {
-        const date = dayjs(transaction.datetime);
-        return date.isAfter(startPeriodDate) && date.isBefore(endPeriodDate);
-      }),
+      transactions.filter((transaction) =>
+        dayjs(transaction.datetime).isBetween(startPeriodDate, endPeriodDate, 'day', '[)'),
+      ),
     [endPeriodDate, startPeriodDate, transactions],
   );
 
@@ -67,34 +66,32 @@ const DashboardBalanceHistoryChart: FC<DashboardBalanceHistoryChartProps> = ({
         .reduce(
           (acc, transaction) => {
             transaction.operations.forEach((operation) => {
-              const account = accountDict[operation.account_id];
-              acc[account.currency_code] = acc[account.currency_code].plus(operation.sum);
+              const currencyCode = operation.account.currency_code;
+              acc[currencyCode] = acc[currencyCode].plus(operation.sum);
             });
             return acc;
           },
-          Object.fromEntries(defaultCurrencies.map((currency) => [currency.code, BigNumber(0)])),
+          createKeysDict(currenciesIds, BigNumber(0)),
         ),
-    [accountDict, startPeriodDate, transactions],
+    [currenciesIds, startPeriodDate, transactions],
   );
 
   const balanceChanges = useMemo(() => {
     const daysToToday = dayjs().diff(date.endOf(periodType), 'day');
     const daysCount = Math.max(0, daysInPeriod + Math.min(0, daysToToday));
 
-    const changes = [...Array(daysCount)].map(() =>
-      Object.fromEntries(defaultCurrencies.map((currency) => [currency.code, BigNumber(0)])),
-    );
+    const changes = [...Array(daysCount)].map(() => createKeysDict(currenciesIds, BigNumber(0)));
 
     filteredTransactions.forEach((transaction) => {
       transaction.operations.forEach((operation) => {
-        const account = accountDict[operation.account_id];
+        const currencyCode = operation.account.currency_code;
         const change = changes[dayjs(transaction.datetime).diff(startPeriodDate, 'day')];
-        change[account.currency_code] = change[account.currency_code].plus(operation.sum);
+        change[currencyCode] = change[currencyCode].plus(operation.sum);
       });
     });
 
     return changes;
-  }, [accountDict, date, daysInPeriod, filteredTransactions, periodType, startPeriodDate]);
+  }, [currenciesIds, date, daysInPeriod, filteredTransactions, periodType, startPeriodDate]);
 
   const currencyBalanceHistory = useMemo(() => {
     const currentBalance = { ...startBalance };

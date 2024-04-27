@@ -8,8 +8,8 @@ export const getTransactionType = (operations: TOperation[]): TTransactionType =
   return 'exchange';
 };
 
-export const getTransactionsGroupedByType = (transactions: TTransaction[]) => {
-  const groupedTransactions: Record<TTransactionType, TTransaction[]> = {
+export const getTransactionsGroupedByType = <T extends TTransaction>(transactions: T[]) => {
+  const groupedTransactions: Record<TTransactionType, T[]> = {
     income: [],
     outcome: [],
     exchange: [],

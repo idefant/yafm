@@ -6,14 +6,13 @@ import { SetTransaction } from '#components/Transaction';
 import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
 import useModal from '#hooks/useModal';
 import { setIsUnsaved } from '#store/reducers/appSlice';
-import { deleteTransaction } from '#store/reducers/transactionSlice';
+import { transactionDeleted } from '#store/reducers/transactionsSlice';
 import {
-  selectFilteredTransactions,
-  selectTransactionCategoryDict,
-  selectFilteredTransactionCategories,
-  selectFilteredAccounts,
+  selectAllTransactionsCombined,
+  selectVisibleAccounts,
+  selectVisibleTransactionCategories,
 } from '#store/selectors';
-import { TTransaction } from '#types/transactionType';
+import { TTransaction, TTransactionCombined } from '#types/transactionType';
 import Button from '#ui/Button';
 import Card from '#ui/Card';
 import DateFilter, { useDateFilter } from '#ui/DateFilter';
@@ -21,13 +20,13 @@ import Icon from '#ui/Icon';
 import Select, { TSelectOption } from '#ui/Select';
 import Table, { TColumn, TableDate, TableOperations, TableTooltip, TableAction } from '#ui/Table';
 import { Title } from '#ui/Title';
+import { groupBy } from '#utils/groupBy';
 import { compareObjByStr } from '#utils/string';
 
 const Transactions: FC = () => {
-  const transactions = useAppSelector(selectFilteredTransactions);
-  const categoryDict = useAppSelector(selectTransactionCategoryDict);
-  const categories = useAppSelector(selectFilteredTransactionCategories);
-  const accounts = useAppSelector(selectFilteredAccounts);
+  const categories = useAppSelector(selectVisibleTransactionCategories);
+  const accounts = useAppSelector(selectVisibleAccounts);
+  const transactions = useAppSelector(selectAllTransactionsCombined);
   const dispatch = useAppDispatch();
 
   const [selectedCategories, setSelectedCategories] = useState<TSelectOption[]>([]);
@@ -70,7 +69,7 @@ const Transactions: FC = () => {
   };
 
   const transactionGroups = useMemo(() => {
-    const transactionGroups = transactions
+    const filteredTransactions = transactions
       .filter((transaction) => {
         const datetime = dayjs(transaction.datetime);
         return datetime > date.startOf(periodType) && datetime < date.endOf(periodType);
@@ -85,18 +84,20 @@ const Transactions: FC = () => {
           selectedAccountsIds.has(operation.account_id),
         );
       })
-      .sort((a, b) => b.datetime - a.datetime)
-      .reduce((groups: { [date: string]: TTransaction[] }, transaction) => {
-        const date = dayjs(transaction.datetime).format('DD.MM.YYYY');
-        if (!(date in groups)) groups[date] = [];
-        groups[date].push(transaction);
-        return groups;
-      }, {});
+      .sort((a, b) => b.datetime - a.datetime);
 
-    return Object.entries(transactionGroups).map(([name, data]) => ({ name, data, key: name }));
+    const transactionGroups = groupBy(filteredTransactions, (transaction) =>
+      dayjs(transaction.datetime).format('DD.MM.YYYY'),
+    );
+
+    return Object.entries(transactionGroups).map(([date, transactions]) => ({
+      name: date,
+      data: transactions,
+      key: date,
+    }));
   }, [date, periodType, selectedAccountsIds, selectedCategoryIds, transactions]);
 
-  const confirmDelete = (transaction: TTransaction) => {
+  const confirmDelete = (transaction: TTransactionCombined) => {
     Swal.fire({
       title: 'Delete transaction',
       icon: 'error',
@@ -106,13 +107,13 @@ const Transactions: FC = () => {
       confirmButtonText: 'Delete',
     }).then((result) => {
       if (result.isConfirmed) {
-        dispatch(deleteTransaction(transaction.id));
+        dispatch(transactionDeleted(transaction.id));
         dispatch(setIsUnsaved(true));
       }
     });
   };
 
-  const tableColumns: TColumn<TTransaction>[] = [
+  const tableColumns: TColumn<TTransactionCombined>[] = [
     {
       title: 'Name',
       key: 'name',
@@ -124,9 +125,8 @@ const Transactions: FC = () => {
     },
     {
       title: 'Category',
-      key: 'category',
+      key: 'category.name',
       cellClassName: 'text-center',
-      render: ({ record }) => record.category_id && categoryDict[record.category_id].name,
     },
     {
       title: 'Outcome',
@@ -142,9 +142,7 @@ const Transactions: FC = () => {
       title: <Icon.Info className="w-6 h-6 mx-auto" />,
       key: 'description',
       width: 'min',
-      render: ({ record }) => (
-        <TableTooltip id={`tr_${record.id}`}>{record.description}</TableTooltip>
-      ),
+      render: ({ record }) => <TableTooltip>{record.description}</TableTooltip>,
     },
     {
       key: 'actions',

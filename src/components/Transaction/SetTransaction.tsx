@@ -9,9 +9,13 @@ import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
 import useModal from '#hooks/useModal';
 import { numberWithDecimalPlacesSchema } from '#schema';
 import { setIsUnsaved } from '#store/reducers/appSlice';
-import { editTransaction, createTransaction } from '#store/reducers/transactionSlice';
-import { selectFilteredAccounts, selectAccountDict, selectCurrencyDict } from '#store/selectors';
-import { TTransaction, TTemplate } from '#types/transactionType';
+import { transactionAdded, transactionUpdated } from '#store/reducers/transactionsSlice';
+import {
+  selectAllAccountsCombined,
+  selectAllAccountsCombinedEntities,
+  selectAllTransactionCategories,
+} from '#store/selectors';
+import { TTransaction, TTransactionTemplate } from '#types/transactionType';
 import Button from '#ui/Button';
 import CalendarButton from '#ui/CalendarButton';
 import DatePicker from '#ui/DatePicker';
@@ -19,6 +23,7 @@ import Form from '#ui/Form';
 import Icon from '#ui/Icon';
 import Modal from '#ui/Modal';
 import yup from '#utils/form/schema';
+import { genId } from '#utils/random';
 import { compareObjByStr } from '#utils/string';
 
 interface SetTransactionProps {
@@ -45,10 +50,9 @@ const SetTransaction: FC<SetTransactionProps> = ({
   transaction,
   copiedTransaction,
 }) => {
-  const accounts = useAppSelector(selectFilteredAccounts);
-  const accountDict = useAppSelector(selectAccountDict);
-  const categories = useAppSelector((state) => state.category.transactions);
-  const currencyDict = useAppSelector(selectCurrencyDict);
+  const accounts = useAppSelector(selectAllAccountsCombined);
+  const accountsEntities = useAppSelector(selectAllAccountsCombinedEntities);
+  const categories = useAppSelector(selectAllTransactionCategories);
   const dispatch = useAppDispatch();
 
   const formSchema = yup.object({
@@ -64,14 +68,9 @@ const SetTransaction: FC<SetTransactionProps> = ({
             .positive()
             .required()
             .when('accountId', ([accountId], schema) => {
-              const account = accountDict[accountId];
-              if (account) {
-                const currency = currencyDict[account.currency_code];
-                if (currency) {
-                  return numberWithDecimalPlacesSchema(currency.decimal_places_number, true);
-                }
-              }
-              return schema;
+              const account = accountsEntities[accountId];
+              if (!account) return schema;
+              return numberWithDecimalPlacesSchema(account.currency.decimal_places_number, true);
             }),
         }),
       )
@@ -90,7 +89,7 @@ const SetTransaction: FC<SetTransactionProps> = ({
 
   const accountOptions = accounts
     .sort((a, b) => compareObjByStr(a, b, (e) => e.name))
-    .map((account) => ({ value: account.id, label: account.name }));
+    .map((account) => ({ value: account.id, label: account.name, is_archive: account.is_archive }));
 
   const categoryOptions = [...categories]
     .sort((a, b) => compareObjByStr(a, b, (e) => e.name))
@@ -110,16 +109,17 @@ const SetTransaction: FC<SetTransactionProps> = ({
         sum: (operation.sum * (operation.isPositive ? 1 : -1)).toString(),
       })),
     };
+
     dispatch(
       transaction
-        ? editTransaction({ ...transaction, ...transactionData })
-        : createTransaction(transactionData),
+        ? transactionUpdated({ id: transaction.id, changes: transactionData })
+        : transactionAdded({ id: genId(), ...transactionData }),
     );
     dispatch(setIsUnsaved(true));
     close();
   };
 
-  const getTemplateData = (template: TTemplate) => {
+  const getTemplateData = (template: TTransactionTemplate) => {
     const operations = template.operations
       .slice()
       .sort((a, b) => BigNumber(b.sum).minus(a.sum).toNumber())
@@ -197,9 +197,9 @@ const SetTransaction: FC<SetTransactionProps> = ({
             {fields.map((operation, i) => {
               const operationWatcher = operationsWatcher[i];
               const account = operationWatcher?.accountId
-                ? accountDict[operationWatcher.accountId]
+                ? accountsEntities[operationWatcher.accountId]
                 : undefined;
-              const currency = account ? currencyDict[account.currency_code] : undefined;
+              const currency = account?.currency;
 
               return (
                 <div className="flex items-center my-2 gap-3" key={operation.id}>
@@ -218,6 +218,10 @@ const SetTransaction: FC<SetTransactionProps> = ({
                     placeholder="Account"
                     options={accountOptions}
                     name={`operations.${i}.accountId`}
+                    filterOption={(option, inputValue) => {
+                      if ((option.data as any).is_archive) return false;
+                      return option.label.toLowerCase().includes(inputValue.toLowerCase());
+                    }}
                   />
                   <div className="w-1/2 flex gap-4 items-center">
                     <Form.Number

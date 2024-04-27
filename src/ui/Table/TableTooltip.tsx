@@ -1,14 +1,14 @@
-import { FC, ReactNode } from 'react';
+import { FC, ReactNode, useId } from 'react';
 import ReactTooltip from 'react-tooltip';
 
 import Icon from '#ui/Icon';
 
 interface TableTooltipProps {
-  id: string;
   children?: ReactNode;
 }
 
-const TableTooltip: FC<TableTooltipProps> = ({ id, children }) => {
+const TableTooltip: FC<TableTooltipProps> = ({ children }) => {
+  const id = useId();
   if (!children) return null;
 
   return (

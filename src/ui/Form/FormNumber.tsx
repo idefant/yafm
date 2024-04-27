@@ -3,7 +3,7 @@ import { Controller, FieldError, useFormContext } from 'react-hook-form';
 import { NumericFormat, NumericFormatProps } from 'react-number-format';
 
 import TextInput from '#ui/TextInput';
-import { getPropValue } from '#utils/pathResolver';
+import { getProp } from '#utils/getProp';
 
 type FormNumberProps = NumericFormatProps & ComponentProps<typeof TextInput> & { name: string };
 
@@ -13,7 +13,7 @@ const FormNumber: FC<FormNumberProps> = ({ name, ...props }) => {
     formState: { errors },
   } = useFormContext();
 
-  const error: FieldError | undefined = getPropValue(errors, name);
+  const error: FieldError | undefined = getProp(errors, name);
 
   return (
     <Controller

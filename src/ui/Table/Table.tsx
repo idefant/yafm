@@ -2,6 +2,7 @@ import classNames from 'classnames';
 import { Fragment, ReactNode } from 'react';
 
 import Icon from '#ui/Icon';
+import { getProp } from '#utils/getProp';
 
 import TableDefaultText from './TableDefaultText';
 
@@ -146,9 +147,7 @@ const TableRow = <T extends Record<string, any>>({
     >
       {visibleColumns.map((column) => (
         <td key={column.key} className={classNames('px-4 py-3', column.cellClassName)}>
-          {(column.render
-            ? column.render({ record: row, index })
-            : (row[column.key as keyof T] as any)) ??
+          {(column.render ? column.render({ record: row, index }) : getProp(row, column.key)) ??
             column.default ?? <TableDefaultText />}
         </td>
       ))}

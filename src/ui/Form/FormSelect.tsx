@@ -2,7 +2,7 @@ import { ComponentProps, FC } from 'react';
 import { Controller, FieldError, useFormContext } from 'react-hook-form';
 
 import Select from '#ui/Select';
-import { getPropValue } from '#utils/pathResolver';
+import { getProp } from '#utils/getProp';
 
 interface FormSelectProps extends ComponentProps<typeof Select> {
   name: string;
@@ -14,7 +14,7 @@ const FormSelect: FC<FormSelectProps> = ({ name, options, ...props }) => {
     formState: { errors },
   } = useFormContext();
 
-  const error: FieldError | undefined = getPropValue(errors, name)?.value;
+  const error: FieldError | undefined = getProp(errors, name)?.value;
 
   const optionFinder = (options: any, value: string): any => {
     if (!options) return null;

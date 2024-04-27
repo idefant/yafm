@@ -1,18 +1,18 @@
 import { yupResolver } from '@hookform/resolvers/yup';
-import { FC, useMemo } from 'react';
+import { FC } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
 import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
-import { editAccount, createAccount } from '#store/reducers/accountSlice';
+import { accountAdded, accountUpdated } from '#store/reducers/accountsSlice';
 import { setIsUnsaved } from '#store/reducers/appSlice';
-import { selectFilteredAccountCategories } from '#store/selectors';
+import { selectCurrencies, selectVisibleAccountCategories } from '#store/selectors';
 import { TAccount } from '#types/accountType';
-import { TCurrency } from '#types/currencyType';
 import Button from '#ui/Button';
 import Form from '#ui/Form';
 import Modal from '#ui/Modal';
-import { TSelectOption } from '#ui/Select';
 import yup from '#utils/form/schema';
+import { groupBy } from '#utils/groupBy';
+import { genId } from '#utils/random';
 import { compareObjByStr } from '#utils/string';
 
 interface SetAccountProps {
@@ -25,7 +25,6 @@ type TForm = {
   name: string;
   currencyCode: string | null;
   categoryId: string | null;
-  isHide: boolean;
   isArchive: boolean;
 };
 
@@ -33,13 +32,12 @@ const formSchema = yup.object({
   name: yup.string().required(),
   currencyCode: yup.string().required(),
   categoryId: yup.string().nullable(),
-  isHide: yup.boolean(),
   isArchive: yup.boolean(),
 });
 
 const SetAccount: FC<SetAccountProps> = ({ isOpen, close, account }) => {
-  const { currencies } = useAppSelector((state) => state.currency);
-  const categories = useAppSelector(selectFilteredAccountCategories);
+  const currencies = useAppSelector(selectCurrencies);
+  const categories = useAppSelector(selectVisibleAccountCategories);
   const dispatch = useAppDispatch();
 
   const methods = useForm<TForm>({ resolver: yupResolver(formSchema) });
@@ -49,40 +47,24 @@ const SetAccount: FC<SetAccountProps> = ({ isOpen, close, account }) => {
     const accountData = {
       name: values.name,
       category_id: values.categoryId || undefined,
-      is_hide: values.isHide || undefined,
       is_archive: values.isArchive || undefined,
     };
 
-    if (account) {
-      dispatch(editAccount({ ...account, ...accountData }));
-    } else {
-      dispatch(
-        createAccount({
-          ...accountData,
-          currency_code: values.currencyCode || '',
-        }),
-      );
-    }
+    dispatch(
+      account
+        ? accountUpdated({ id: account.id, changes: accountData })
+        : accountAdded({ id: genId(), currency_code: values.currencyCode || '', ...accountData }),
+    );
     dispatch(setIsUnsaved(true));
     close();
   };
 
-  const currencyOptGroups = useMemo(() => {
-    const objGroups = currencies.reduce(
-      (optGroups: { [type: string]: TSelectOption[] }, currency: TCurrency) => {
-        const option = {
-          value: currency.code,
-          label: currency.name,
-        };
-        if (!(currency.type in optGroups)) optGroups[currency.type] = [];
-        optGroups[currency.type].push(option);
-        return optGroups;
-      },
-      {},
-    );
-
-    return Object.entries(objGroups).map(([label, options]) => ({ label, options }));
-  }, [currencies]);
+  const currencyOptGroups = Object.entries(groupBy(currencies, 'type')).map(
+    ([currencyType, currencies]) => ({
+      label: currencyType,
+      options: currencies.map((currency) => ({ value: currency.code, label: currency.name })),
+    }),
+  );
 
   const categoryOptions = categories
     .sort((a, b) => compareObjByStr(a, b, (e) => e.name))
@@ -93,7 +75,6 @@ const SetAccount: FC<SetAccountProps> = ({ isOpen, close, account }) => {
       name: account?.name || '',
       currencyCode: account?.currency_code || null,
       categoryId: account?.category_id || null,
-      isHide: account?.is_hide || false,
       isArchive: account?.is_archive || false,
     });
   };
@@ -130,12 +111,7 @@ const SetAccount: FC<SetAccountProps> = ({ isOpen, close, account }) => {
               />
             </div>
 
-            {account && (
-              <>
-                <Form.Checkbox name="isHide">Hide</Form.Checkbox>
-                <Form.Checkbox name="isArchive">Archive</Form.Checkbox>
-              </>
-            )}
+            {account && <Form.Checkbox name="isArchive">Archive</Form.Checkbox>}
           </Modal.Content>
           <Modal.Footer>
             <Button color="green" type="submit">

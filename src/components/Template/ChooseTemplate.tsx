@@ -1,8 +1,8 @@
 import { FC } from 'react';
 
 import { useAppSelector } from '#hooks/reduxHooks';
-import { selectFilteredTemplates, selectTransactionCategoryDict } from '#store/selectors';
-import { TTemplate } from '#types/transactionType';
+import { selectAllTransactionTemplatesCombined } from '#store/selectors';
+import { TTransactionTemplate, TTransactionTemplateCombined } from '#types/transactionType';
 import Icon from '#ui/Icon';
 import Modal from '#ui/Modal';
 import Table, { TColumn, TableOperations, TableTooltip } from '#ui/Table';
@@ -11,19 +11,18 @@ interface ChooseTemplateProps {
   isOpen: boolean;
   close: () => void;
   // eslint-disable-next-line no-unused-vars
-  setTransaction: (template: TTemplate) => void;
+  setTransaction: (template: TTransactionTemplate) => void;
 }
 
 const ChooseTemplate: FC<ChooseTemplateProps> = ({ isOpen, close, setTransaction }) => {
-  const templates = useAppSelector(selectFilteredTemplates);
-  const categoryDict = useAppSelector(selectTransactionCategoryDict);
+  const templates = useAppSelector(selectAllTransactionTemplatesCombined);
 
-  const chooseTemplate = (template: TTemplate) => {
+  const chooseTemplate = (template: TTransactionTemplate) => {
     setTransaction(template);
     close();
   };
 
-  const tableColumns: TColumn<TTemplate>[] = [
+  const tableColumns: TColumn<TTransactionTemplateCombined>[] = [
     {
       key: 'choose',
       render: ({ record }) => (
@@ -40,7 +39,7 @@ const ChooseTemplate: FC<ChooseTemplateProps> = ({ isOpen, close, setTransaction
       title: 'Category',
       key: 'category',
       cellClassName: 'text-center',
-      render: ({ record }) => record.category_id && categoryDict[record.category_id].name,
+      render: ({ record }) => record.category?.name,
     },
     {
       title: 'Outcome',
@@ -56,9 +55,7 @@ const ChooseTemplate: FC<ChooseTemplateProps> = ({ isOpen, close, setTransaction
       title: <Icon.Info className="w-6 h-6 mx-auto" />,
       key: 'description',
       width: 'min',
-      render: ({ record }) => (
-        <TableTooltip id={`template_${record.id}`}>{record.description}</TableTooltip>
-      ),
+      render: ({ record }) => <TableTooltip>{record.description}</TableTooltip>,
     },
   ];
 

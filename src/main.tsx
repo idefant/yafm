@@ -1,6 +1,7 @@
 import { Chart } from 'chart.js';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import isBetween from 'dayjs/plugin/isBetween';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
@@ -21,6 +22,7 @@ import './index.css';
 Chart.defaults.animation = { duration: 600 };
 
 dayjs.extend(customParseFormat);
+dayjs.extend(isBetween);
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

@@ -7,11 +7,15 @@ import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { bool, mixed, object, string, ValidationError } from 'yup';
 
+import { defaultCurrencies } from '#data/defaultCurrencies';
 import { useAppDispatch } from '#hooks/reduxHooks';
-import { setAccounts } from '#store/reducers/accountSlice';
+import { accountCategoriesReceived } from '#store/reducers/accountCategoriesSlice';
+import { accountsReceived } from '#store/reducers/accountsSlice';
 import { setPassword, setIsUnsaved } from '#store/reducers/appSlice';
-import { setCategories } from '#store/reducers/categorySlice';
-import { setTransactions } from '#store/reducers/transactionSlice';
+import { currenciesReceived } from '#store/reducers/currenciesSlice';
+import { transactionCategoriesReceived } from '#store/reducers/transactionCategoriesSlice';
+import { transactionsReceived } from '#store/reducers/transactionsSlice';
+import { transactionTemplatesReceived } from '#store/reducers/transactionTemplatesSlice';
 import { TCipher } from '#types/cipher';
 import Button, { buttonColors } from '#ui/Button';
 import GoBackButton from '#ui/Button/GoBackButton';
@@ -75,14 +79,12 @@ const Upload: FC = () => {
     }
 
     dispatch(setPassword(values.password));
-    dispatch(setAccounts(data.accounts));
-    dispatch(
-      setTransactions({
-        transactions: data.transactions,
-        templates: data.templates,
-      }),
-    );
-    dispatch(setCategories(data.categories));
+    dispatch(currenciesReceived(defaultCurrencies));
+    dispatch(accountsReceived(data.accounts));
+    dispatch(accountCategoriesReceived(data.categories.accounts));
+    dispatch(transactionsReceived(data.transactions));
+    dispatch(transactionCategoriesReceived(data.categories.transactions));
+    dispatch(transactionTemplatesReceived(data.templates));
     dispatch(setIsUnsaved(true));
     navigate('/');
   };

@@ -8,11 +8,13 @@ import { exratesApi } from '#api/exratesApi';
 import { financeApi } from '#api/financeApi';
 import { userApi } from '#api/userApi';
 
-import accountReducer from './reducers/accountSlice';
+import accountCategoriesReducer from './reducers/accountCategoriesSlice';
+import accountsReducer from './reducers/accountsSlice';
 import appReducer from './reducers/appSlice';
-import categoryReducer from './reducers/categorySlice';
-import currencyReducer from './reducers/currencySlice';
-import transactionReducer from './reducers/transactionSlice';
+import currenciesReducer from './reducers/currenciesSlice';
+import transactionCategoriesReducer from './reducers/transactionCategoriesSlice';
+import transactionsReducer from './reducers/transactionsSlice';
+import transactionTemplatesReducer from './reducers/transactionTemplatesSlice';
 import userReducer from './reducers/userSlice';
 
 const persistConfigApp = {
@@ -29,11 +31,13 @@ const persistConfigUser = {
 
 export const rootReducer = combineReducers({
   app: persistReducer(persistConfigApp, appReducer),
-  currency: currencyReducer,
-  account: accountReducer,
-  transaction: transactionReducer,
-  category: categoryReducer,
   user: persistReducer(persistConfigUser, userReducer),
+  currencies: currenciesReducer,
+  accounts: accountsReducer,
+  accountCategories: accountCategoriesReducer,
+  transactions: transactionsReducer,
+  transactionCategories: transactionCategoriesReducer,
+  transactionTemplates: transactionTemplatesReducer,
   [exratesApi.reducerPath]: exratesApi.reducer,
   [financeApi.reducerPath]: financeApi.reducer,
   [userApi.reducerPath]: userApi.reducer,

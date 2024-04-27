@@ -4,28 +4,29 @@ import { accountSchema } from '#schema/accountSchema';
 import { categorySchema } from '#schema/categorySchema';
 import { templateSchema, transactionSchema } from '#schema/transactionSchema';
 import { store } from '#store';
+import {
+  selectAllAccountCategories,
+  selectAllAccounts,
+  selectAllTransactionTemplates,
+  selectAllTransactionCategories,
+  selectAllTransactions,
+} from '#store/selectors';
 import { TAccount } from '#types/accountType';
 import { TCategory } from '#types/categoryType';
-import { TTemplate, TTransaction } from '#types/transactionType';
+import { TTransactionTemplate, TTransaction } from '#types/transactionType';
 
 export const getSyncData = () => {
-  const {
-    account: { accounts },
-    transaction: { transactions, templates },
-    category,
-  } = store.getState();
+  const state = store.getState();
 
-  const data = {
-    accounts,
-    transactions,
+  return {
+    accounts: selectAllAccounts(state),
+    transactions: selectAllTransactions(state),
     categories: {
-      accounts: category.accounts,
-      transactions: category.transactions,
+      accounts: selectAllAccountCategories(state),
+      transactions: selectAllTransactionCategories(state),
     },
-    templates,
+    templates: selectAllTransactionTemplates(state),
   };
-
-  return data;
 };
 
 const schema = object().shape({
@@ -41,7 +42,7 @@ const schema = object().shape({
 export const checkBaseIntegrity = async (data: {
   accounts: TAccount[];
   transactions: TTransaction[];
-  templates: TTemplate[];
+  templates: TTransactionTemplate[];
   categories: { accounts: TCategory[]; transactions: TCategory[] };
 }) => {
   const error = await schema

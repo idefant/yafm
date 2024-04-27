@@ -6,6 +6,9 @@ import path from 'path';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
+  server: {
+    open: true,
+  },
   build: {
     sourcemap: 'hidden',
   },

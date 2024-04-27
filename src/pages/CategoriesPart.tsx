@@ -4,35 +4,42 @@ import Swal from 'sweetalert2';
 import { SetCategory } from '#components/Caterory';
 import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
 import useModal from '#hooks/useModal';
+import { accountCategoryDeleted } from '#store/reducers/accountCategoriesSlice';
 import { setIsUnsaved } from '#store/reducers/appSlice';
-import { deleteCategory } from '#store/reducers/categorySlice';
+import { transactionCategoryDeleted } from '#store/reducers/transactionCategoriesSlice';
 import {
-  selectFilteredAccountCategories,
-  selectFilteredTransactionCategories,
+  selectAllAccounts,
+  selectAllTransactionTemplates,
+  selectAllTransactions,
+  selectVisibleAccountCategories,
+  selectVisibleTransactionCategories,
 } from '#store/selectors';
 import { TCategoryType, TCategory } from '#types/categoryType';
 import Button from '#ui/Button';
 import Card from '#ui/Card';
 import Icon from '#ui/Icon';
 import Table, { TColumn, TableAction } from '#ui/Table';
-import { compareObjByStr } from '#utils/string';
 
 interface CategoriesPartProps {
   categoryType: TCategoryType;
 }
 
-const CategoriesPart: FC<CategoriesPartProps> = ({ categoryType }) => {
-  const categorySelectorDict = {
-    accounts: selectFilteredAccountCategories,
-    transactions: selectFilteredTransactionCategories,
-  };
+const selectCategoryDict = {
+  accounts: selectVisibleAccountCategories,
+  transactions: selectVisibleTransactionCategories,
+};
 
-  const categories = useAppSelector(categorySelectorDict[categoryType]);
-  const {
-    account: { accounts },
-    transaction: { transactions, templates },
-    app: { safeMode, archiveMode },
-  } = useAppSelector((state) => state);
+const categoryDeletedDict = {
+  accounts: accountCategoryDeleted,
+  transactions: transactionCategoryDeleted,
+};
+
+const CategoriesPart: FC<CategoriesPartProps> = ({ categoryType }) => {
+  const categories = useAppSelector(selectCategoryDict[categoryType]);
+  const accounts = useAppSelector(selectAllAccounts);
+  const transactions = useAppSelector(selectAllTransactions);
+  const templates = useAppSelector(selectAllTransactionTemplates);
+  const archiveMode = useAppSelector((state) => state.app.archiveMode);
   const dispatch = useAppDispatch();
 
   const categoryModal = useModal();
@@ -42,10 +49,6 @@ const CategoriesPart: FC<CategoriesPartProps> = ({ categoryType }) => {
     setOpenedCategory(category);
     categoryModal.open();
   };
-
-  const sortedCategories = [...categories]
-    .sort((a, b) => compareObjByStr(a, b, (e) => e.name))
-    .sort((a, b) => +(a.is_archive || false) - +(b.is_archive || false));
 
   const checkCategoryIsUsed = (categoryId: string) => {
     if (categoryType === 'transactions') {
@@ -81,7 +84,7 @@ const CategoriesPart: FC<CategoriesPartProps> = ({ categoryType }) => {
         confirmButtonText: 'Delete',
       }).then((result) => {
         if (result.isConfirmed) {
-          dispatch(deleteCategory({ id: category.id, categoryType }));
+          dispatch(categoryDeletedDict[categoryType](category.id));
           dispatch(setIsUnsaved(true));
         }
       });
@@ -92,13 +95,6 @@ const CategoriesPart: FC<CategoriesPartProps> = ({ categoryType }) => {
     {
       title: 'Name',
       key: 'name',
-    },
-    {
-      title: <Icon.Lock className="w-[22px] h-[22px]" />,
-      key: 'is_hide',
-      render: ({ record }) => record.is_hide && <Icon.Lock className="w-[22px] h-[22px]" />,
-      default: '',
-      hidden: safeMode,
     },
     {
       title: <Icon.Archive className="w-[22px] h-[22px]" />,
@@ -134,7 +130,7 @@ const CategoriesPart: FC<CategoriesPartProps> = ({ categoryType }) => {
 
           <Table
             columns={tableColumns}
-            data={sortedCategories}
+            data={categories}
             isTranslucentRow={(record) => record.is_archive}
             className={{ table: 'w-full' }}
           />

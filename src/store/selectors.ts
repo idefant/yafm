@@ -1,184 +1,199 @@
-import { createSelector } from '@reduxjs/toolkit';
+import { Dictionary, createSelector } from '@reduxjs/toolkit';
 import BigNumber from 'bignumber.js';
 
-import { TAccount } from '#types/accountType';
-import { TCategory } from '#types/categoryType';
-import { TCurrency } from '#types/currencyType';
+import { TAccountCombined } from '#types/accountType';
+import { TTransactionCombined, TTransactionTemplateCombined } from '#types/transactionType';
+import { createKeysDict } from '#utils/createKeysDict';
+import { getEntities } from '#utils/getEntities';
+import { groupBy } from '#utils/groupBy';
+import { objMap } from '#utils/objMap';
+import { sum } from '#utils/sum';
 
+import { accountCategoriesAdapter } from './reducers/accountCategoriesSlice';
+import { accountsAdapter } from './reducers/accountsSlice';
+import { currenciesAdapter } from './reducers/currenciesSlice';
+import { transactionCategoriesAdapter } from './reducers/transactionCategoriesSlice';
+import { transactionsAdapter } from './reducers/transactionsSlice';
+import { transactionTemplatesAdapter } from './reducers/transactionTemplatesSlice';
 import { RootState } from './store';
 
-export const selectSafeMode = (state: RootState) => state.app.safeMode;
 export const selectArchiveMode = (state: RootState) => state.app.archiveMode;
-export const selectIsUnsaved = (state: RootState) => state.app.isUnsaved;
-export const selectAccountCategories = (state: RootState) => state.category.accounts;
-export const selectTransactionCategories = (state: RootState) => state.category.transactions;
-export const selectAccounts = (state: RootState) => state.account.accounts;
-export const selectCurrencies = (state: RootState) => state.currency.currencies;
-export const selectTransactions = (state: RootState) =>
-  [...state.transaction.transactions].sort((a, b) => b.datetime - a.datetime);
-export const selectTemplates = (state: RootState) => state.transaction.templates;
 
-export const selectFilteredAccountCategories = createSelector(
-  [selectSafeMode, selectArchiveMode, selectAccountCategories],
-  (safeMode, archiveMode, categories) =>
-    categories.filter(
-      (category) => !(safeMode && category.is_hide) && !(!archiveMode && category.is_archive),
-    ),
+// ..........................
+// ===== Entity Adapter =====
+// ''''''''''''''''''''''''''
+const currenciesSelectors = currenciesAdapter.getSelectors<RootState>((state) => state.currencies);
+const accountsSelectors = accountsAdapter.getSelectors<RootState>((state) => state.accounts);
+const accountCategoriesSelectors = accountCategoriesAdapter.getSelectors<RootState>(
+  (state) => state.accountCategories,
+);
+const transactionCategoriesSelectors = transactionCategoriesAdapter.getSelectors<RootState>(
+  (state) => state.transactionCategories,
+);
+const transactionsSelectors = transactionsAdapter.getSelectors<RootState>(
+  (state) => state.transactions,
+);
+const transactionTemplatesSelectors = transactionTemplatesAdapter.getSelectors<RootState>(
+  (state) => state.transactionTemplates,
 );
 
-export const selectFilteredTransactionCategories = createSelector(
-  [selectSafeMode, selectArchiveMode, selectTransactionCategories],
-  (safeMode, archiveMode, categories) =>
-    categories.filter(
-      (category) => !(safeMode && category.is_hide) && !(!archiveMode && category.is_archive),
-    ),
+// ......................
+// ===== Currencies =====
+// ''''''''''''''''''''''
+export const selectCurrencies = currenciesSelectors.selectAll;
+
+export const selectCurrenciesIds = currenciesSelectors.selectIds;
+
+// ..............................
+// ===== Account Categories =====
+// ''''''''''''''''''''''''''''''
+export const selectAllAccountCategories = accountCategoriesSelectors.selectAll;
+
+export const selectVisibleAccountCategories = createSelector(
+  [accountCategoriesSelectors.selectAll, selectArchiveMode],
+  (categories, archiveMode) => categories.filter((category) => archiveMode || !category.is_archive),
 );
 
-export const selectTransactionCategoryDict = createSelector(
-  [selectTransactionCategories],
-  (categories) => {
-    const dict: { [id: string]: TCategory } = {};
-    categories.forEach((category) => {
-      dict[category.id] = category;
-    });
-    return dict;
-  },
-);
+// ....................
+// ===== Accounts =====
+// ''''''''''''''''''''
+export const selectAllAccounts = accountsSelectors.selectAll;
 
-export const selectHiddenTransactionCategoryIds = createSelector(
-  [selectTransactionCategories],
-  (categories) =>
-    new Set(categories.filter((category) => category.is_hide).map((category) => category.id)),
-);
-
-export const selectHiddenAccountCategoryIds = createSelector(
-  [selectAccountCategories],
-  (categories) =>
-    new Set(categories.filter((category) => category.is_hide).map((category) => category.id)),
-);
-
-export const selectArchivedAccountCategoryIds = createSelector(
-  [selectAccountCategories],
-  (categories) =>
-    new Set(categories.filter((category) => category.is_archive).map((category) => category.id)),
-);
-
-export const selectAccountCategoryDict = createSelector([selectAccountCategories], (categories) => {
-  const dict: { [id: string]: TCategory } = {};
-  categories.forEach((category) => {
-    dict[category.id] = category;
-  });
-  return dict;
-});
-
-export const selectAccountsWithBalance = createSelector(
-  [selectAccounts, selectTransactions],
-  (accounts, transactions) => {
-    const accountBalancesDict = transactions.reduce(
-      (acc, transaction) => {
-        transaction.operations.forEach((operation) => {
-          acc[operation.account_id] = acc[operation.account_id].plus(operation.sum);
-        });
-        return acc;
-      },
-      Object.fromEntries(accounts.map(({ id }) => [id, BigNumber(0)])),
-    );
-
-    return accounts.map((account) => ({
+export const selectAllAccountsCombined = createSelector(
+  [
+    selectAllAccounts,
+    accountCategoriesSelectors.selectEntities,
+    currenciesSelectors.selectEntities,
+  ],
+  (accounts, categoriesEntities, currenciesEntities) =>
+    accounts.map((account) => ({
       ...account,
-      balance: accountBalancesDict[account.id].toString(),
-    }));
+      category: account.category_id ? categoriesEntities[account.category_id] : undefined,
+      currency: currenciesEntities[account.currency_code]!,
+    })) as TAccountCombined[],
+);
+
+export const selectAllAccountsCombinedEntities = createSelector(
+  [selectAllAccountsCombined],
+  (accounts) => getEntities(accounts, 'id'),
+);
+
+export const selectVisibleAccounts = createSelector(
+  [accountsSelectors.selectAll, selectArchiveMode],
+  (accounts, archiveMode) => accounts.filter((account) => archiveMode || !account.is_archive),
+);
+
+export const selectVisibleAccountsCombined = createSelector(
+  [
+    selectVisibleAccounts,
+    accountCategoriesSelectors.selectEntities,
+    currenciesSelectors.selectEntities,
+  ],
+  (accounts, categoriesEntities, currenciesEntities) =>
+    accounts.map((account) => ({
+      ...account,
+      category: account.category_id ? categoriesEntities[account.category_id] : undefined,
+      currency: currenciesEntities[account.currency_code]!,
+    })) as TAccountCombined[],
+);
+
+// ..................................
+// ===== Transaction Categories =====
+// ''''''''''''''''''''''''''''''''''
+export const selectAllTransactionCategories = transactionCategoriesSelectors.selectAll;
+
+export const selectAllTransactionCategoriesEntities = transactionCategoriesSelectors.selectEntities;
+
+export const selectVisibleTransactionCategories = createSelector(
+  [transactionCategoriesSelectors.selectAll, selectArchiveMode],
+  (categories, archiveMode) => categories.filter((category) => archiveMode || !category.is_archive),
+);
+
+// ........................
+// ===== Transactions =====
+// ''''''''''''''''''''''''
+export const selectAllTransactions = transactionsSelectors.selectAll;
+
+export const selectAllTransactionsCombined = createSelector(
+  [
+    transactionsSelectors.selectAll,
+    transactionCategoriesSelectors.selectEntities,
+    selectAllAccountsCombinedEntities,
+  ],
+  (transactions, categoriesEntities, accountsEntities) =>
+    transactions.map((transaction) => ({
+      ...transaction,
+      category: transaction.category_id ? categoriesEntities[transaction.category_id] : undefined,
+      operations: transaction.operations.map((operation) => ({
+        ...operation,
+        account: accountsEntities[operation.account_id]!,
+      })),
+    })) as TTransactionCombined[],
+);
+
+// .................................
+// ===== Transaction Templates =====
+// '''''''''''''''''''''''''''''''''
+export const selectAllTransactionTemplates = transactionTemplatesSelectors.selectAll;
+
+export const selectAllTransactionTemplatesCombined = createSelector(
+  [
+    transactionTemplatesSelectors.selectAll,
+    transactionCategoriesSelectors.selectEntities,
+    selectAllAccountsCombinedEntities,
+  ],
+  (templates, categoriesEntities, accountsEntities) =>
+    templates.map((template) => ({
+      ...template,
+      category: template.category_id ? categoriesEntities[template.category_id] : undefined,
+      operations: template.operations.map((operation) => ({
+        ...operation,
+        account: accountsEntities[operation.account_id]!,
+      })),
+    })) as TTransactionTemplateCombined[],
+);
+
+// ....................
+// ===== Balances =====
+// ''''''''''''''''''''
+export const selectAccountsBalanceDict = createSelector(
+  [accountsSelectors.selectIds, transactionsSelectors.selectAll],
+  (accountsIds, transactions) => {
+    const accountsBalanceDict = createKeysDict(accountsIds, BigNumber(0));
+    transactions.forEach((transaction) => {
+      transaction.operations.forEach((operation) => {
+        accountsBalanceDict[operation.account_id] = accountsBalanceDict[operation.account_id].plus(
+          operation.sum,
+        );
+      });
+    });
+    return accountsBalanceDict as Dictionary<BigNumber>;
   },
 );
 
-export const selectAccountDict = createSelector([selectAccountsWithBalance], (accounts) => {
-  const dict: { [id: string]: TAccount } = {};
-  accounts.forEach((account) => {
-    dict[account.id] = account;
-  });
-  return dict;
-});
-
-export const selectHiddenAccountIds = createSelector(
-  [selectAccountsWithBalance, selectHiddenAccountCategoryIds],
-  (accounts, hiddenCategoryIds) =>
-    new Set(
-      accounts
-        .filter(
-          (account) =>
-            account.is_hide || (account.category_id && hiddenCategoryIds.has(account.category_id)),
-        )
-        .map((account) => account.id),
-    ),
+export const selectCurrenciesBalanceDict = createSelector(
+  [selectAccountsBalanceDict, accountsSelectors.selectAll],
+  (accountsBalanceDict, accounts) =>
+    objMap(groupBy(accounts, 'currency_code'), (currencyCode, accounts) => [
+      currencyCode,
+      sum(accounts.map((account) => accountsBalanceDict[account.id]!)),
+    ]),
 );
 
-export const selectCurrencyDict = createSelector([selectCurrencies], (currencies) => {
-  const dict: { [code: string]: TCurrency } = {};
-  currencies.forEach((currency) => {
-    dict[currency.code] = currency;
-  });
-  return dict;
-});
-
-export const selectFilteredTransactions = createSelector(
-  [selectSafeMode, selectHiddenTransactionCategoryIds, selectHiddenAccountIds, selectTransactions],
-  (safeMode, hiddenCategoryIds, hiddenAccountIds, transactions) =>
-    transactions.filter((transaction) => {
-      if (!safeMode) return true;
-      if (transaction.category_id && hiddenCategoryIds.has(transaction.category_id)) return false;
-
-      return !transaction.operations.some((operation) =>
-        hiddenAccountIds.has(operation.account_id),
-      );
-    }),
-);
-
-export const selectAccountsLastActivity = createSelector(
-  [selectFilteredTransactions],
-  (transactions) =>
-    transactions.reduce((acc: Record<string, number>, transaction) => {
+// ...........................
+// ===== Last Activities =====
+// '''''''''''''''''''''''''''
+export const selectAccountsLastActivityDict = createSelector(
+  [accountsSelectors.selectIds, transactionsSelectors.selectAll],
+  (accountsIds, transactions) => {
+    const accountsLastActivityDict = createKeysDict(accountsIds, undefined as number | undefined);
+    transactions.forEach((transaction) => {
       transaction.operations.forEach((operation) => {
-        if (!(operation.account_id in acc)) {
-          acc[operation.account_id] = transaction.datetime;
+        if ((accountsLastActivityDict[operation.account_id] || 0) < transaction.datetime) {
+          accountsLastActivityDict[operation.account_id] = transaction.datetime;
         }
       });
-      return acc;
-    }, {}),
-);
-
-export const selectFilteredAccounts = createSelector(
-  [
-    selectSafeMode,
-    selectArchiveMode,
-    selectAccountsWithBalance,
-    selectHiddenAccountCategoryIds,
-    selectArchivedAccountCategoryIds,
-    selectAccountsLastActivity,
-  ],
-  (safeMode, archiveMode, accounts, hiddenCategoryIds, archivedCategoryIds, accountsLastActivity) =>
-    accounts
-      .filter((account) => {
-        const isHidden = safeMode && account.is_hide;
-        const isArchived = !archiveMode && account.is_archive;
-        const isCategoryHidden =
-          safeMode && account.category_id && hiddenCategoryIds.has(account.category_id);
-        const isCategoryArchived =
-          !archiveMode && account.category_id && archivedCategoryIds.has(account.category_id);
-        return !(isHidden || isArchived || isCategoryHidden || isCategoryArchived);
-      })
-      .map((account) => ({
-        ...account,
-        last_activity: accountsLastActivity?.[account.id],
-      })),
-);
-
-export const selectFilteredTemplates = createSelector(
-  [selectSafeMode, selectHiddenTransactionCategoryIds, selectHiddenAccountIds, selectTemplates],
-  (safeMode, hiddenCategoryIds, hiddenAccountIds, templates) =>
-    templates.filter((template) => {
-      if (!safeMode) return true;
-      if (template.category_id && hiddenCategoryIds.has(template.category_id)) return false;
-
-      return !template.operations.some((operation) => hiddenAccountIds.has(operation.account_id));
-    }),
+    });
+    return accountsLastActivityDict;
+  },
 );

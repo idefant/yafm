@@ -1,12 +1,12 @@
 import classNames from 'classnames';
-import React, { InputHTMLAttributes } from 'react';
+import { InputHTMLAttributes, forwardRef } from 'react';
 
 interface TextInputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string | boolean;
 }
 
-const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
+const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
   ({ label, className, error, ...props }, ref) => {
     const hasError = typeof error === 'string' || !!error;
 

@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { InputHTMLAttributes } from 'react';
+import { InputHTMLAttributes, forwardRef } from 'react';
 import { useBoolean } from 'usehooks-ts';
 
 import Icon from './Icon';
@@ -9,7 +9,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   error?: string | boolean;
 }
 
-const PasswordInput = React.forwardRef<HTMLInputElement, InputProps>(
+const PasswordInput = forwardRef<HTMLInputElement, InputProps>(
   ({ label, className, error, ...props }, ref) => {
     const isVisiblePassword = useBoolean();
     const inputType = isVisiblePassword.value ? 'text' : 'password';

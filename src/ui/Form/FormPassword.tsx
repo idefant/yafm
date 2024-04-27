@@ -2,7 +2,7 @@ import { ComponentProps, FC } from 'react';
 import { FieldError, FieldValues, RegisterOptions, useFormContext } from 'react-hook-form';
 
 import PasswordInput from '#ui/PasswordInput';
-import { getPropValue } from '#utils/pathResolver';
+import { getProp } from '#utils/getProp';
 
 interface FormPasswordProps extends Omit<ComponentProps<typeof PasswordInput>, 'error'> {
   name: string;
@@ -15,7 +15,7 @@ const FormPassword: FC<FormPasswordProps> = ({ name, options, ...props }) => {
     formState: { errors },
   } = useFormContext();
 
-  const error: FieldError | undefined = getPropValue(errors, name);
+  const error: FieldError | undefined = getProp(errors, name);
 
   return (
     <PasswordInput

@@ -31,3 +31,5 @@ export const defaultCurrencies: TCurrency[] = [
     color: '#f7931a',
   },
 ];
+
+export const baseCurrencyCode = 'RUB';

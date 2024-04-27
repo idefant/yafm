@@ -6,23 +6,26 @@ import { FormProvider, useFieldArray, useForm, useWatch } from 'react-hook-form'
 import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
 import { numberWithDecimalPlacesSchema } from '#schema';
 import { setIsUnsaved } from '#store/reducers/appSlice';
-import { editTemplate, createTemplate } from '#store/reducers/transactionSlice';
 import {
-  selectCurrencyDict,
-  selectFilteredAccounts,
-  selectAccountDict,
-  selectFilteredTransactionCategories,
+  transactionTemplateAdded,
+  transactionTemplateUpdated,
+} from '#store/reducers/transactionTemplatesSlice';
+import {
+  selectAllAccountsCombined,
+  selectAllAccountsCombinedEntities,
+  selectAllTransactionCategories,
 } from '#store/selectors';
-import { TTemplate } from '#types/transactionType';
+import { TTransactionTemplate } from '#types/transactionType';
 import Button from '#ui/Button';
 import Form from '#ui/Form';
 import Icon from '#ui/Icon';
 import Modal from '#ui/Modal';
 import yup from '#utils/form/schema';
+import { genId } from '#utils/random';
 import { compareObjByStr } from '#utils/string';
 
 interface SetTemplateProps {
-  template?: TTemplate;
+  template?: TTransactionTemplate;
   isOpen: boolean;
   close: () => void;
 }
@@ -39,10 +42,9 @@ type TForm = {
 };
 
 const SetTemplate: FC<SetTemplateProps> = ({ isOpen, close, template }) => {
-  const currencyDict = useAppSelector(selectCurrencyDict);
-  const accounts = useAppSelector(selectFilteredAccounts);
-  const accountDict = useAppSelector(selectAccountDict);
-  const categories = useAppSelector(selectFilteredTransactionCategories);
+  const accounts = useAppSelector(selectAllAccountsCombined);
+  const accountsEntities = useAppSelector(selectAllAccountsCombinedEntities);
+  const categories = useAppSelector(selectAllTransactionCategories);
   const dispatch = useAppDispatch();
 
   const formSchema = yup.object({
@@ -58,14 +60,9 @@ const SetTemplate: FC<SetTemplateProps> = ({ isOpen, close, template }) => {
             .positive()
             .required()
             .when('accountId', ([accountId], schema) => {
-              const account = accountDict[accountId];
-              if (account) {
-                const currency = currencyDict[account.currency_code];
-                if (currency) {
-                  return numberWithDecimalPlacesSchema(currency.decimal_places_number, true);
-                }
-              }
-              return schema;
+              const account = accountsEntities[accountId];
+              if (!account) return schema;
+              return numberWithDecimalPlacesSchema(account.currency.decimal_places_number, true);
             }),
         }),
       )
@@ -84,7 +81,7 @@ const SetTemplate: FC<SetTemplateProps> = ({ isOpen, close, template }) => {
 
   const accountOptions = accounts
     .sort((a, b) => compareObjByStr(a, b, (e) => e.name))
-    .map((account) => ({ value: account.id, label: account.name }));
+    .map((account) => ({ value: account.id, label: account.name, is_archive: account.is_archive }));
 
   const categoryOptions = categories
     .sort((a, b) => compareObjByStr(a, b, (e) => e.name))
@@ -102,7 +99,9 @@ const SetTemplate: FC<SetTemplateProps> = ({ isOpen, close, template }) => {
     };
 
     dispatch(
-      template ? editTemplate({ ...template, ...templateData }) : createTemplate(templateData),
+      template
+        ? transactionTemplateUpdated({ id: template.id, changes: templateData })
+        : transactionTemplateAdded({ id: genId(), ...templateData }),
     );
     dispatch(setIsUnsaved(true));
     close();
@@ -156,9 +155,9 @@ const SetTemplate: FC<SetTemplateProps> = ({ isOpen, close, template }) => {
             {fields.map((operation, i) => {
               const operationWatcher = operationsWatcher[i];
               const account = operationWatcher?.accountId
-                ? accountDict[operationWatcher.accountId]
+                ? accountsEntities[operationWatcher.accountId]
                 : undefined;
-              const currency = account ? currencyDict[account.currency_code] : undefined;
+              const currency = account?.currency;
 
               return (
                 <div className="flex items-center my-2 gap-3" key={operation.id}>
@@ -177,6 +176,10 @@ const SetTemplate: FC<SetTemplateProps> = ({ isOpen, close, template }) => {
                     placeholder="Account"
                     options={accountOptions}
                     name={`operations.${i}.accountId`}
+                    filterOption={(option, inputValue) => {
+                      if ((option.data as any).is_archive) return false;
+                      return option.label.toLowerCase().includes(inputValue.toLowerCase());
+                    }}
                   />
                   <div className="w-1/2 flex gap-4 items-center">
                     <Form.Number

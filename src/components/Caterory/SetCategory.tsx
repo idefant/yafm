@@ -3,13 +3,21 @@ import { FC } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
 import { useAppDispatch } from '#hooks/reduxHooks';
+import {
+  accountCategoryAdded,
+  accountCategoryUpdated,
+} from '#store/reducers/accountCategoriesSlice';
 import { setIsUnsaved } from '#store/reducers/appSlice';
-import { createCategory, editCategory } from '#store/reducers/categorySlice';
+import {
+  transactionCategoryAdded,
+  transactionCategoryUpdated,
+} from '#store/reducers/transactionCategoriesSlice';
 import { TCategory, TCategoryType } from '#types/categoryType';
 import Button from '#ui/Button';
 import Form from '#ui/Form';
 import Modal from '#ui/Modal';
 import yup from '#utils/form/schema';
+import { genId } from '#utils/random';
 
 interface SetCategoryProps {
   isOpen: boolean;
@@ -20,17 +28,25 @@ interface SetCategoryProps {
 
 type TForm = {
   name: string;
-  isHide: boolean;
   isArchive: boolean;
 };
 
 const formSchema = yup
   .object({
     name: yup.string().required(),
-    isHide: yup.bool(),
     isArchive: yup.bool(),
   })
   .required();
+
+const categoryAddedDict = {
+  accounts: accountCategoryAdded,
+  transactions: transactionCategoryAdded,
+};
+
+const categoryUpdated = {
+  accounts: accountCategoryUpdated,
+  transactions: transactionCategoryUpdated,
+};
 
 const SetCategory: FC<SetCategoryProps> = ({ isOpen, close, category, categoryType }) => {
   const methods = useForm<TForm>({ resolver: yupResolver(formSchema) });
@@ -41,19 +57,13 @@ const SetCategory: FC<SetCategoryProps> = ({ isOpen, close, category, categoryTy
   const onSubmit = (values: TForm) => {
     const categoryData = {
       name: values.name,
-      is_hide: values.isHide || undefined,
       is_archive: values.isArchive || undefined,
     };
 
     if (!category) {
-      dispatch(createCategory({ category: categoryData, categoryType }));
+      dispatch(categoryAddedDict[categoryType]({ id: genId(), ...categoryData }));
     } else {
-      dispatch(
-        editCategory({
-          updatedCategory: { ...category, ...categoryData },
-          categoryType,
-        }),
-      );
+      dispatch(categoryUpdated[categoryType]({ id: category.id, changes: categoryData }));
     }
     dispatch(setIsUnsaved(true));
     close();
@@ -63,7 +73,6 @@ const SetCategory: FC<SetCategoryProps> = ({ isOpen, close, category, categoryTy
     reset({
       name: category?.name || '',
       isArchive: category?.is_archive || false,
-      isHide: category?.is_hide || false,
     });
   };
 
@@ -79,12 +88,7 @@ const SetCategory: FC<SetCategoryProps> = ({ isOpen, close, category, categoryTy
           <Modal.Content>
             <Form.Input label="Name" name="name" />
 
-            {category && (
-              <>
-                <Form.Checkbox name="isHide">Hide</Form.Checkbox>
-                <Form.Checkbox name="isArchive">Archive</Form.Checkbox>
-              </>
-            )}
+            {category && <Form.Checkbox name="isArchive">Archive</Form.Checkbox>}
           </Modal.Content>
           <Modal.Footer>
             <Button color="green" type="submit">

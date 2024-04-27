@@ -2,7 +2,7 @@ import { ComponentProps, FC } from 'react';
 import { FieldError, useFormContext } from 'react-hook-form';
 
 import TextInput from '#ui/TextInput';
-import { getPropValue } from '#utils/pathResolver';
+import { getProp } from '#utils/getProp';
 
 interface FormInputProps extends Omit<ComponentProps<typeof TextInput>, 'error'> {
   name: string;
@@ -14,7 +14,7 @@ const FormInput: FC<FormInputProps> = ({ name, onChange, ...props }) => {
     formState: { errors },
   } = useFormContext();
 
-  const error: FieldError | undefined = getPropValue(errors, name);
+  const error: FieldError | undefined = getProp(errors, name);
 
   return (
     <TextInput

@@ -5,9 +5,9 @@ import { SetTemplate } from '#components/Template';
 import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
 import useModal from '#hooks/useModal';
 import { setIsUnsaved } from '#store/reducers/appSlice';
-import { deleteTemplate } from '#store/reducers/transactionSlice';
-import { selectFilteredTemplates, selectTransactionCategoryDict } from '#store/selectors';
-import { TTemplate } from '#types/transactionType';
+import { transactionTemplateDeleted } from '#store/reducers/transactionTemplatesSlice';
+import { selectAllTransactionTemplatesCombined } from '#store/selectors';
+import { TTransactionTemplate } from '#types/transactionType';
 import Button from '#ui/Button';
 import Card from '#ui/Card';
 import Icon from '#ui/Icon';
@@ -15,19 +15,18 @@ import Table, { TColumn, TableOperations, TableTooltip, TableAction } from '#ui/
 import { Title } from '#ui/Title';
 
 const Templates: FC = () => {
-  const templates = useAppSelector(selectFilteredTemplates);
-  const categoryDict = useAppSelector(selectTransactionCategoryDict);
+  const templates = useAppSelector(selectAllTransactionTemplatesCombined);
   const dispatch = useAppDispatch();
 
   const templateModal = useModal();
-  const [openedTemplate, setOpenedTemplate] = useState<TTemplate>();
+  const [openedTemplate, setOpenedTemplate] = useState<TTransactionTemplate>();
 
-  const openTemplate = (template?: TTemplate) => {
+  const openTemplate = (template?: TTransactionTemplate) => {
     setOpenedTemplate(template);
     templateModal.open();
   };
 
-  const confirmDelete = (template: TTemplate) => {
+  const confirmDelete = (template: TTransactionTemplate) => {
     Swal.fire({
       title: 'Delete template',
       icon: 'error',
@@ -37,22 +36,21 @@ const Templates: FC = () => {
       confirmButtonText: 'Delete',
     }).then((result) => {
       if (result.isConfirmed) {
-        dispatch(deleteTemplate(template.id));
+        dispatch(transactionTemplateDeleted(template.id));
         dispatch(setIsUnsaved(true));
       }
     });
   };
 
-  const tableColumns: TColumn<TTemplate>[] = [
+  const tableColumns: TColumn<(typeof templates)[number]>[] = [
     {
       title: 'Name',
       key: 'name',
     },
     {
       title: 'Category',
-      key: 'category',
+      key: 'category.name',
       cellClassName: 'text-center',
-      render: ({ record }) => record.category_id && categoryDict[record.category_id].name,
     },
     {
       title: 'Outcome',
@@ -68,9 +66,7 @@ const Templates: FC = () => {
       title: <Icon.Info className="w-6 h-6 mx-auto" />,
       key: 'description',
       width: 'min',
-      render: ({ record }) => (
-        <TableTooltip id={`tr_${record.id}`}>{record.description}</TableTooltip>
-      ),
+      render: ({ record }) => <TableTooltip>{record.description}</TableTooltip>,
     },
     {
       key: 'actions',
