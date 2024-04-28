@@ -22,6 +22,7 @@ const Sidebar: FC = () => {
         <SidebarCategory label="Transactions" link="/transactions" icon={<Icon.Repeat />} />
         <SidebarCategory label="Templates" link="/templates" icon={<Icon.Copy />} />
         <SidebarCategory label="Categories" link="/categories" icon={<Icon.Tag />} />
+        <SidebarCategory label="Currencies" link="/currencies" icon={<Icon.Dollar />} />
         <SidebarCategory label="Settings" link="/setting" icon={<Icon.Setting />} />
       </nav>
     </aside>

@@ -4,6 +4,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { useAppSelector } from '#hooks/reduxHooks';
 import Accounts from '#pages/Accounts';
 import Categories from '#pages/Categories';
+import Currencies from '#pages/Currencies';
 import Dashboard from '#pages/Dashboard';
 import Decrypt from '#pages/Decrypt';
 import Login from '#pages/Login';
@@ -56,8 +57,9 @@ const App: FC = () => {
             <Route path="/transactions" element={<Transactions />} />
             <Route path="/accounts" element={<Accounts />} />
             <Route path="/setting" element={<Setting />} />
-            <Route path="templates" element={<Templates />} />
+            <Route path="/templates" element={<Templates />} />
             <Route path="/categories" element={<Categories />} />
+            <Route path="/currencies" element={<Currencies />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Route>
         ))}

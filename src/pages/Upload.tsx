@@ -7,12 +7,11 @@ import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { bool, mixed, object, string, ValidationError } from 'yup';
 
-import { defaultCurrencies } from '#data/defaultCurrencies';
 import { useAppDispatch } from '#hooks/reduxHooks';
 import { accountCategoriesReceived } from '#store/reducers/accountCategoriesSlice';
 import { accountsReceived } from '#store/reducers/accountsSlice';
 import { setPassword, setIsUnsaved } from '#store/reducers/appSlice';
-import { currenciesReceived } from '#store/reducers/currenciesSlice';
+import { currenciesReceived, setBaseCurrency } from '#store/reducers/currenciesSlice';
 import { transactionCategoriesReceived } from '#store/reducers/transactionCategoriesSlice';
 import { transactionsReceived } from '#store/reducers/transactionsSlice';
 import { transactionTemplatesReceived } from '#store/reducers/transactionTemplatesSlice';
@@ -79,7 +78,8 @@ const Upload: FC = () => {
     }
 
     dispatch(setPassword(values.password));
-    dispatch(currenciesReceived(defaultCurrencies));
+    dispatch(currenciesReceived(data.currencies));
+    dispatch(setBaseCurrency(data.baseCurrencyCode));
     dispatch(accountsReceived(data.accounts));
     dispatch(accountCategoriesReceived(data.categories.accounts));
     dispatch(transactionsReceived(data.transactions));

@@ -26,6 +26,8 @@ const Icon = {
   Search: Icons.SearchIcon,
   Eye: Icons.EyeIcon,
   EyeOff: Icons.EyeOffIcon,
+  Dollar: Icons.DollarIcon,
+  Star: Icons.StarIcon,
 };
 
 export default Icon;

@@ -6,7 +6,6 @@ import Swal from 'sweetalert2';
 import { useFetchLastRatesQuery } from '#api/exratesApi';
 import { SetAccount } from '#components/Account';
 import AccountsPie from '#components/Account/AccountsPie';
-import { baseCurrencyCode } from '#data/defaultCurrencies';
 import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
 import useModal from '#hooks/useModal';
 import { accountDeleted } from '#store/reducers/accountsSlice';
@@ -30,6 +29,7 @@ import money from '#utils/money';
 
 const Accounts: FC = () => {
   const { archiveMode } = useAppSelector((state) => state.app);
+  const { baseCurrencyCode } = useAppSelector((state) => state.currencies);
   const accounts = useAppSelector(selectVisibleAccountsCombined);
   const transactions = useAppSelector(selectAllTransactionsCombined);
   const templates = useAppSelector(selectAllTransactionTemplates);
@@ -37,6 +37,7 @@ const Accounts: FC = () => {
   const accountsBalanceDict = useAppSelector(selectAccountsBalanceDict);
   const accountsLastActivityDict = useAppSelector(selectAccountsLastActivityDict);
   const dispatch = useAppDispatch();
+
   const { data: prices } = useFetchLastRatesQuery();
 
   const accountModal = useModal();
@@ -60,7 +61,7 @@ const Accounts: FC = () => {
         ).to(baseCurrencyCode).value,
         lastActivity: accountsLastActivityDict[account.id],
       })),
-    [accounts, accountsBalanceDict, prices?.rates, accountsLastActivityDict],
+    [accounts, accountsBalanceDict, prices?.rates, baseCurrencyCode, accountsLastActivityDict],
   );
 
   const { accountsWithoutCategory, accountsGroupedByCategory } = useMemo(() => {
@@ -90,13 +91,12 @@ const Accounts: FC = () => {
     return { accountsWithoutCategory, accountsGroupedByCategory };
   }, [accountsWithBalance, archiveMode, categories]);
 
-  const checkAccountIsUsed = (accountId: string) =>
-    [...transactions, ...templates].some(({ operations }) =>
-      operations.map((operation) => operation.account_id).includes(accountId),
+  const confirmDelete = (account: TAccount) => {
+    const isAccountUsed = [...transactions, ...templates].some(({ operations }) =>
+      operations.map((operation) => operation.account_id).includes(account.id),
     );
 
-  const confirmDelete = (account: TAccount) => {
-    if (checkAccountIsUsed(account.id)) {
+    if (isAccountUsed) {
       Swal.fire({
         title: 'Unable to delete account',
         text: 'There are transactions or templates using this account',

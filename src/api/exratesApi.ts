@@ -8,6 +8,12 @@ export const exratesApi = createApi({
     baseUrl: import.meta.env.VITE_EXRATES_API,
   }),
   endpoints: (builder) => ({
+    fetchCurrencies: builder.query<Record<string, string>, void>({
+      query: () => ({
+        url: '/currencies',
+        method: 'GET',
+      }),
+    }),
     fetchLastRates: builder.query<{ date: string; rates: TRates }, void>({
       query: () => ({
         url: '/last',
@@ -23,4 +29,5 @@ export const exratesApi = createApi({
   }),
 });
 
-export const { useFetchRatesByPeriodQuery, useFetchLastRatesQuery } = exratesApi;
+export const { useFetchCurrenciesQuery, useFetchRatesByPeriodQuery, useFetchLastRatesQuery } =
+  exratesApi;

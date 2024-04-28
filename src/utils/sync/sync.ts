@@ -1,7 +1,8 @@
-import { array, object, ValidationError } from 'yup';
+import { array, object, string, ValidationError } from 'yup';
 
 import { accountSchema } from '#schema/accountSchema';
 import { categorySchema } from '#schema/categorySchema';
+import { currencySchema } from '#schema/currencySchema';
 import { templateSchema, transactionSchema } from '#schema/transactionSchema';
 import { store } from '#store';
 import {
@@ -10,10 +11,13 @@ import {
   selectAllTransactionTemplates,
   selectAllTransactionCategories,
   selectAllTransactions,
+  selectCurrencies,
 } from '#store/selectors';
 import { TAccount } from '#types/accountType';
 import { TCategory } from '#types/categoryType';
+import { TCurrency } from '#types/currencyType';
 import { TTransactionTemplate, TTransaction } from '#types/transactionType';
+import { getProp } from '#utils/getProp';
 
 export const getSyncData = () => {
   const state = store.getState();
@@ -26,24 +30,32 @@ export const getSyncData = () => {
       transactions: selectAllTransactionCategories(state),
     },
     templates: selectAllTransactionTemplates(state),
+    currencies: selectCurrencies(state),
+    baseCurrencyCode: state.currencies.baseCurrencyCode,
   };
 };
 
-const schema = object().shape({
-  accounts: array().of(accountSchema),
-  transactions: array().of(transactionSchema),
-  templates: array().of(templateSchema),
-  categories: object({
-    accounts: array().of(categorySchema),
-    transactions: array().of(categorySchema),
-  }),
-});
+const schema = object()
+  .shape({
+    accounts: array().of(accountSchema).required(),
+    transactions: array().of(transactionSchema).required(),
+    templates: array().of(templateSchema).required(),
+    categories: object({
+      accounts: array().of(categorySchema).required(),
+      transactions: array().of(categorySchema).required(),
+    }).required(),
+    currencies: array().of(currencySchema).required(),
+    baseCurrencyCode: string().required(),
+  })
+  .required();
 
 export const checkBaseIntegrity = async (data: {
   accounts: TAccount[];
   transactions: TTransaction[];
   templates: TTransactionTemplate[];
   categories: { accounts: TCategory[]; transactions: TCategory[] };
+  currencies: TCurrency[];
+  baseCurrencyCode: string;
 }) => {
   const error = await schema
     .validate(data)
@@ -54,35 +66,41 @@ export const checkBaseIntegrity = async (data: {
     return error;
   }
 
-  const getIds = (categories: { id: string }[]) => categories.map((category) => category.id);
+  const getKeys = <T>(items: T[], key: string) =>
+    new Set(items.map((item) => getProp(item, key) as string));
 
-  const categoryAccountIds = new Set(getIds(data.categories.accounts));
-  if (data.categories.accounts.length !== categoryAccountIds.size) {
+  const hasUniqueKeys = <T>(items: T[], key: string) => getKeys(items, key).size !== items.length;
+
+  if (hasUniqueKeys(data.categories.accounts, 'id')) {
     return { error: 'Account category IDs are not unique' };
   }
-
-  const categoryTransactionIds = new Set(getIds(data.categories.transactions));
-  if (data.categories.transactions.length !== categoryTransactionIds.size) {
+  if (hasUniqueKeys(data.categories.transactions, 'id')) {
     return { error: 'Transaction category IDs are not unique' };
   }
-
-  const accountIds = new Set(getIds(data.accounts));
-  if (data.accounts.length !== accountIds.size) {
+  if (hasUniqueKeys(data.accounts, 'id')) {
     return { error: 'Account IDs are not unique' };
   }
-
-  const transactionIds = new Set(getIds(data.transactions));
-  if (data.transactions.length !== transactionIds.size) {
+  if (hasUniqueKeys(data.transactions, 'id')) {
     return { error: 'Transaction IDs are not unique' };
   }
-
-  const templateIds = new Set(getIds(data.templates));
-  if (data.templates.length !== templateIds.size) {
+  if (hasUniqueKeys(data.templates, 'id')) {
     return { error: 'Template IDs are not unique' };
   }
 
+  const categoryAccountIds = getKeys(data.categories.accounts, 'id');
+  const categoryTransactionIds = getKeys(data.categories.transactions, 'id');
+  const accountIds = getKeys(data.accounts, 'id');
+  const currencyCodes = getKeys(data.currencies, 'code');
+
+  if (!currencyCodes.has(data.baseCurrencyCode)) {
+    return { error: `Unknown base currency (${data.baseCurrencyCode})` };
+  }
+
   const messages: string[] = [];
-  data.accounts.forEach(({ category_id: categoryId }) => {
+  data.accounts.forEach(({ category_id: categoryId, currency_code: currencyCode }) => {
+    if (!currencyCodes.has(currencyCode)) {
+      messages.push(`There is no currency with code=${currencyCode}`);
+    }
     if (categoryId && !categoryAccountIds.has(categoryId)) {
       messages.push(`There is no account category with id=${categoryId}`);
     }

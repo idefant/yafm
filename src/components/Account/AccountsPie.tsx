@@ -3,7 +3,6 @@ import { FC, useMemo } from 'react';
 import { Pie } from 'react-chartjs-2';
 
 import { useFetchLastRatesQuery } from '#api/exratesApi';
-import { baseCurrencyCode } from '#data/defaultCurrencies';
 import { useAppSelector } from '#hooks/reduxHooks';
 import { selectCurrencies, selectCurrenciesBalanceDict } from '#store/selectors';
 import { getEntities } from '#utils/getEntities';
@@ -15,6 +14,8 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 const AccountsPie: FC = () => {
   const currencies = useAppSelector(selectCurrencies);
   const currenciesBalanceDict = useAppSelector(selectCurrenciesBalanceDict);
+  const { baseCurrencyCode } = useAppSelector((state) => state.currencies);
+
   const { data: prices } = useFetchLastRatesQuery();
 
   const currenciesWithBalance = useMemo(
@@ -31,7 +32,7 @@ const AccountsPie: FC = () => {
           ).to(baseCurrencyCode).value,
         }))
         .filter((currency) => !currency.baseBalance.isZero()),
-    [currencies, currenciesBalanceDict, prices?.rates],
+    [baseCurrencyCode, currencies, currenciesBalanceDict, prices?.rates],
   );
 
   const currencyBalancesDict = getEntities(currenciesWithBalance, 'code');

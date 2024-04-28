@@ -6,12 +6,15 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
 import { useFetchInfoQuery } from '#api/userApi';
-import { defaultCurrencies } from '#data/defaultCurrencies';
 import { useAppDispatch } from '#hooks/reduxHooks';
 import { accountCategoriesReceived } from '#store/reducers/accountCategoriesSlice';
 import { accountsReceived } from '#store/reducers/accountsSlice';
 import { setPassword } from '#store/reducers/appSlice';
-import { currenciesReceived } from '#store/reducers/currenciesSlice';
+import {
+  currenciesReceived,
+  setBaseCurrency,
+  setDefaultCurrencies,
+} from '#store/reducers/currenciesSlice';
 import { transactionCategoriesReceived } from '#store/reducers/transactionCategoriesSlice';
 import { transactionsReceived } from '#store/reducers/transactionsSlice';
 import { transactionTemplatesReceived } from '#store/reducers/transactionTemplatesSlice';
@@ -51,6 +54,7 @@ const Decrypt: FC = () => {
   const onSubmit = async (values: TForm) => {
     if (isNew) {
       dispatch(setPassword(values.password));
+      dispatch(setDefaultCurrencies());
       return;
     }
     const base = user.bases[0];
@@ -72,7 +76,8 @@ const Decrypt: FC = () => {
       }
 
       dispatch(setPassword(values.password));
-      dispatch(currenciesReceived(defaultCurrencies));
+      dispatch(currenciesReceived(data.currencies));
+      dispatch(setBaseCurrency(data.baseCurrencyCode));
       dispatch(accountsReceived(data.accounts));
       dispatch(accountCategoriesReceived(data.categories.accounts));
       dispatch(transactionsReceived(data.transactions));
