@@ -32,6 +32,7 @@ const DashboardBalanceHistoryChart: FC<DashboardBalanceHistoryChartProps> = ({
 }) => {
   const transactions = useAppSelector(selectAllTransactionsCombined);
   const currenciesIds = useAppSelector(selectCurrenciesIds);
+  const { baseCurrencyCode } = useAppSelector((state) => state.currencies);
 
   const { date, periodType } = filterData;
 
@@ -107,14 +108,14 @@ const DashboardBalanceHistoryChart: FC<DashboardBalanceHistoryChartProps> = ({
   const totalBalanceHistory = useMemo(
     () =>
       currencyBalanceHistory.map((sumGroup, i) => {
-        let totalSum = money(0, 'RUB');
+        let totalSum = money(0, baseCurrencyCode);
         Object.entries(sumGroup).forEach(([code, sum]) => {
           const dayRates = rates?.[startPeriodDate.add(i, 'day').format('YYYY-MM-DD')];
           totalSum = totalSum.add(sum, code, dayRates);
         });
         return totalSum.value;
       }),
-    [rates, startPeriodDate, currencyBalanceHistory],
+    [currencyBalanceHistory, baseCurrencyCode, rates, startPeriodDate],
   );
 
   const groupedBalanceHistory = useMemo(() => {
@@ -166,7 +167,8 @@ const DashboardBalanceHistoryChart: FC<DashboardBalanceHistoryChartProps> = ({
             plugins: {
               tooltip: {
                 callbacks: {
-                  label: (tooltipItem) => `Capital: ${tooltipItem.formattedValue} RUB`,
+                  label: (tooltipItem) =>
+                    `Capital: ${tooltipItem.formattedValue} ${baseCurrencyCode}`,
                 },
               },
             },

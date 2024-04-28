@@ -27,6 +27,7 @@ interface DashboardCategoryChartProps {
 const DashboardCategoryChart: FC<DashboardCategoryChartProps> = ({ filterData, rates }) => {
   const transactions = useAppSelector(selectAllTransactionsCombined);
   const categoriesEntities = useAppSelector(selectAllTransactionCategoriesEntities);
+  const { baseCurrencyCode } = useAppSelector((state) => state.currencies);
 
   const { date, periodType } = filterData;
 
@@ -54,7 +55,7 @@ const DashboardCategoryChart: FC<DashboardCategoryChartProps> = ({ filterData, r
                 });
                 return acc;
               },
-              money(0, 'RUB'),
+              money(0, baseCurrencyCode),
             )
             .value.abs();
 
@@ -67,7 +68,7 @@ const DashboardCategoryChart: FC<DashboardCategoryChartProps> = ({ filterData, r
         labels: categorySums.map(({ id }) => categoriesEntities[id]?.name || ''),
       };
     },
-    [categoriesEntities, rates, transactionsGroupedByType],
+    [baseCurrencyCode, categoriesEntities, rates, transactionsGroupedByType],
   );
 
   const incomesChartData = getChartData('income');
@@ -94,7 +95,7 @@ const DashboardCategoryChart: FC<DashboardCategoryChartProps> = ({ filterData, r
                 tooltip: {
                   callbacks: {
                     label: (tooltipItem) =>
-                      `${tooltipItem.label}: ${tooltipItem.formattedValue} RUB`,
+                      `${tooltipItem.label}: ${tooltipItem.formattedValue} ${baseCurrencyCode}`,
                   },
                 },
               },
@@ -122,7 +123,7 @@ const DashboardCategoryChart: FC<DashboardCategoryChartProps> = ({ filterData, r
                 tooltip: {
                   callbacks: {
                     label: (tooltipItem) =>
-                      `${tooltipItem.label}: ${tooltipItem.formattedValue} RUB`,
+                      `${tooltipItem.label}: ${tooltipItem.formattedValue} ${baseCurrencyCode}`,
                   },
                 },
               },
