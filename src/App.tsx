@@ -7,8 +7,6 @@ import Categories from '#pages/Categories';
 import Currencies from '#pages/Currencies';
 import Dashboard from '#pages/Dashboard';
 import Decrypt from '#pages/Decrypt';
-import Login from '#pages/Login';
-import Register from '#pages/Register';
 import Setting from '#pages/Setting';
 import Templates from '#pages/Templates';
 import Transactions from '#pages/Transactions';
@@ -16,13 +14,9 @@ import Upload from '#pages/Upload';
 import Versions from '#pages/Versions';
 import BaseTemplate from '#templates/BaseTemplate';
 import CabinetTemplate from '#templates/CabinetTemplate';
-import UnauthorizedTemplate from '#templates/UnauthorizedTemplate';
 
 const App: FC = () => {
-  const {
-    app: { isUnsaved, password },
-    user: { user },
-  } = useAppSelector((state) => state);
+  const { isUnsaved, password } = useAppSelector((state) => state.app);
 
   useEffect(() => {
     window.onbeforeunload = () => (isUnsaved ? false : undefined);
@@ -30,39 +24,28 @@ const App: FC = () => {
 
   return (
     <Routes>
-      {!user && (
+      {!password ? (
         <>
-          <Route element={<UnauthorizedTemplate />}>
-            <Route path="/register" element={<Register />} />
-            <Route path="/login" element={<Login />} />
+          <Route element={<CabinetTemplate />}>
+            <Route path="/decrypt/last" element={<Decrypt />} />
+            <Route path="/decrypt/:versionId" element={<Decrypt />} />
+            <Route path="/versions" element={<Versions />} />
+            <Route path="/upload" element={<Upload />} />
           </Route>
-          <Route path="*" element={<Navigate to="/login" />} />
+          <Route path="*" element={<Navigate to="/decrypt/last" />} />
         </>
+      ) : (
+        <Route element={<BaseTemplate />}>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/transactions" element={<Transactions />} />
+          <Route path="/accounts" element={<Accounts />} />
+          <Route path="/setting" element={<Setting />} />
+          <Route path="/templates" element={<Templates />} />
+          <Route path="/categories" element={<Categories />} />
+          <Route path="/currencies" element={<Currencies />} />
+          <Route path="*" element={<Navigate to="/" />} />
+        </Route>
       )}
-
-      {user &&
-        (!password ? (
-          <>
-            <Route element={<CabinetTemplate />}>
-              <Route path="/decrypt/last" element={<Decrypt />} />
-              <Route path="/decrypt/:versionId" element={<Decrypt />} />
-              <Route path="/versions" element={<Versions />} />
-              <Route path="/upload" element={<Upload />} />
-            </Route>
-            <Route path="*" element={<Navigate to="/decrypt/last" />} />
-          </>
-        ) : (
-          <Route element={<BaseTemplate />}>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/transactions" element={<Transactions />} />
-            <Route path="/accounts" element={<Accounts />} />
-            <Route path="/setting" element={<Setting />} />
-            <Route path="/templates" element={<Templates />} />
-            <Route path="/categories" element={<Categories />} />
-            <Route path="/currencies" element={<Currencies />} />
-            <Route path="*" element={<Navigate to="/" />} />
-          </Route>
-        ))}
     </Routes>
   );
 };

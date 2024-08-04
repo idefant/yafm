@@ -4,13 +4,16 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 import isBetween from 'dayjs/plugin/isBetween';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { AuthProvider } from 'react-oidc-context';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import { PersistGate } from 'redux-persist/integration/react';
 
+import { onSigninCallback, userManager } from '#config/authConfig';
 import { persistor, store } from '#store';
 
 import App from './App';
+import { ProtectedApp } from './ProtectedApp';
 
 import '@fontsource/source-sans-pro/400.css';
 import '@fontsource/source-sans-pro/600.css';
@@ -27,11 +30,15 @@ dayjs.extend(isBetween);
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <Provider store={store}>
-      <PersistGate persistor={persistor}>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      </PersistGate>
+      <AuthProvider userManager={userManager} onSigninCallback={onSigninCallback}>
+        <PersistGate persistor={persistor}>
+          <BrowserRouter>
+            <ProtectedApp>
+              <App />
+            </ProtectedApp>
+          </BrowserRouter>
+        </PersistGate>
+      </AuthProvider>
     </Provider>
   </React.StrictMode>,
 );

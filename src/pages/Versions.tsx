@@ -2,18 +2,17 @@ import dayjs from 'dayjs';
 import { FC } from 'react';
 import { Link } from 'react-router-dom';
 
-import { useFetchInfoQuery } from '#api/userApi';
-import { TCipher } from '#types/cipher';
-import { TTimestamp } from '#types/timestamp';
+import { useFetchBaseListQuery } from '#api/baseApi';
+import { TBase } from '#types/baseType';
 import GoBackButton from '#ui/Button/GoBackButton';
 import EntranceTitle from '#ui/EntranceTitle';
 import Icon from '#ui/Icon';
 import Table, { TColumn } from '#ui/Table';
 
 const Versions: FC = () => {
-  const { data: user } = useFetchInfoQuery(undefined, { refetchOnMountOrArgChange: true });
+  const { data: bases } = useFetchBaseListQuery();
 
-  const tableColumns: TColumn<TCipher & TTimestamp & { id: string }>[] = [
+  const tableColumns: TColumn<TBase>[] = [
     {
       title: '#',
       key: 'id',
@@ -45,7 +44,7 @@ const Versions: FC = () => {
 
       <Table
         columns={tableColumns}
-        data={user?.bases}
+        data={bases}
         getKey={(record) => record.id}
         className={{ table: 'w-full' }}
       />

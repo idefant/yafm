@@ -1,30 +1,38 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-import { RootState } from '#store';
+import { TBase } from '#types/baseType';
 import { TCipher } from '#types/cipher';
-import { TTimestamp } from '#types/timestamp';
+import { getUser } from '#utils/auth';
 
 export const baseApi = createApi({
   reducerPath: 'api/main/base',
   baseQuery: fetchBaseQuery({
     baseUrl: import.meta.env.VITE_API,
-    prepareHeaders: (headers, { getState, endpoint }) => {
-      const token = (getState() as RootState).user.user?.access_token;
-      if (token && ['createBase'].includes(endpoint)) {
-        headers.set('Authorization', `Bearer ${token}`);
-      }
+    prepareHeaders: (headers) => {
+      const token = getUser()?.access_token;
+      headers.set('Authorization', `Bearer ${token}`);
       return headers;
     },
   }),
   endpoints: (builder) => ({
-    createBase: builder.mutation<TCipher & TTimestamp & { id: string }, TCipher>({
+    createBase: builder.mutation<TBase, TCipher>({
       query: (body) => ({
         url: '/base/',
         method: 'POST',
         body,
       }),
     }),
+    fetchBaseList: builder.query<TBase[], void>({
+      query: () => ({
+        url: '/base/',
+      }),
+    }),
+    fetchLatestBase: builder.query<TBase[], void>({
+      query: () => ({
+        url: '/base/latest',
+      }),
+    }),
   }),
 });
 
-export const { useCreateBaseMutation } = baseApi;
+export const { useCreateBaseMutation, useFetchBaseListQuery, useFetchLatestBaseQuery } = baseApi;

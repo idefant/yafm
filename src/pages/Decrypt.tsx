@@ -5,7 +5,7 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
-import { useFetchInfoQuery } from '#api/userApi';
+import { useFetchBaseListQuery } from '#api/baseApi';
 import { useAppDispatch } from '#hooks/reduxHooks';
 import { accountCategoriesReceived } from '#store/reducers/accountCategoriesSlice';
 import { accountsReceived } from '#store/reducers/accountsSlice';
@@ -40,7 +40,7 @@ const Decrypt: FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const { data: user, isLoading } = useFetchInfoQuery(undefined, {
+  const { data: bases, isLoading } = useFetchBaseListQuery(undefined, {
     refetchOnMountOrArgChange: true,
   });
 
@@ -49,7 +49,7 @@ const Decrypt: FC = () => {
 
   const { versionId } = useParams();
 
-  const isNew = !user?.bases.length;
+  const isNew = !bases?.length;
 
   const onSubmit = async (values: TForm) => {
     if (isNew) {
@@ -57,7 +57,7 @@ const Decrypt: FC = () => {
       dispatch(setDefaultCurrencies());
       return;
     }
-    const base = user.bases[0];
+    const base = bases[0];
 
     const plaintext = await Gzip.decompress(
       aesDecrypt(base.cipher, values.password, base.iv, base.hmac, base.salt),
@@ -90,7 +90,7 @@ const Decrypt: FC = () => {
     }
   };
 
-  const oldBase = user?.bases.find((base) => base.id === versionId);
+  const oldBase = bases?.find((base) => base.id === versionId);
 
   return isLoading ? (
     <>Loading...</>
