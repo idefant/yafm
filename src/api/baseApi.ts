@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-import { TBase } from '#types/baseType';
+import { TBaseEncrypted } from '#types/baseType';
 import { TCipher } from '#types/cipher';
 import { getUser } from '#utils/auth';
 
@@ -15,19 +15,19 @@ export const baseApi = createApi({
     },
   }),
   endpoints: (builder) => ({
-    createBase: builder.mutation<TBase, TCipher>({
+    createBase: builder.mutation<TBaseEncrypted, TCipher>({
       query: (body) => ({
         url: '/base/',
         method: 'POST',
         body,
       }),
     }),
-    fetchBaseList: builder.query<TBase[], void>({
+    fetchBaseList: builder.query<TBaseEncrypted[], void>({
       query: () => ({
         url: '/base/',
       }),
     }),
-    fetchLatestBase: builder.query<TBase[], void>({
+    fetchLatestBase: builder.query<TBaseEncrypted[], void>({
       query: () => ({
         url: '/base/latest',
       }),

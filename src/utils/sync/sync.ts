@@ -13,10 +13,7 @@ import {
   selectAllTransactions,
   selectCurrencies,
 } from '#store/selectors';
-import { TAccount } from '#types/accountType';
-import { TCategory } from '#types/categoryType';
-import { TCurrency } from '#types/currencyType';
-import { TTransactionTemplate, TTransaction } from '#types/transactionType';
+import { TBase } from '#types/baseType';
 import { getProp } from '#utils/getProp';
 
 export const getSyncData = () => {
@@ -49,14 +46,7 @@ const schema = object()
   })
   .required();
 
-export const checkBaseIntegrity = async (data: {
-  accounts: TAccount[];
-  transactions: TTransaction[];
-  templates: TTransactionTemplate[];
-  categories: { accounts: TCategory[]; transactions: TCategory[] };
-  currencies: TCurrency[];
-  baseCurrencyCode: string;
-}) => {
+export const checkBaseIntegrity = async (data: TBase) => {
   const error = await schema
     .validate(data)
     .then(() => undefined)
@@ -69,21 +59,25 @@ export const checkBaseIntegrity = async (data: {
   const getKeys = <T>(items: T[], key: string) =>
     new Set(items.map((item) => getProp(item, key) as string));
 
-  const hasUniqueKeys = <T>(items: T[], key: string) => getKeys(items, key).size !== items.length;
+  const hasNonUniqueKeys = <T>(items: T[], key: string) =>
+    getKeys(items, key).size !== items.length;
 
-  if (hasUniqueKeys(data.categories.accounts, 'id')) {
+  if (hasNonUniqueKeys(data.currencies, 'code')) {
+    return { error: 'Currency codes are not unique' };
+  }
+  if (hasNonUniqueKeys(data.categories.accounts, 'id')) {
     return { error: 'Account category IDs are not unique' };
   }
-  if (hasUniqueKeys(data.categories.transactions, 'id')) {
+  if (hasNonUniqueKeys(data.categories.transactions, 'id')) {
     return { error: 'Transaction category IDs are not unique' };
   }
-  if (hasUniqueKeys(data.accounts, 'id')) {
+  if (hasNonUniqueKeys(data.accounts, 'id')) {
     return { error: 'Account IDs are not unique' };
   }
-  if (hasUniqueKeys(data.transactions, 'id')) {
+  if (hasNonUniqueKeys(data.transactions, 'id')) {
     return { error: 'Transaction IDs are not unique' };
   }
-  if (hasUniqueKeys(data.templates, 'id')) {
+  if (hasNonUniqueKeys(data.templates, 'id')) {
     return { error: 'Template IDs are not unique' };
   }
 

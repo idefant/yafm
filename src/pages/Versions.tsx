@@ -3,7 +3,7 @@ import { FC } from 'react';
 import { Link } from 'react-router-dom';
 
 import { useFetchBaseListQuery } from '#api/baseApi';
-import { TBase } from '#types/baseType';
+import { TBaseEncrypted } from '#types/baseType';
 import GoBackButton from '#ui/Button/GoBackButton';
 import EntranceTitle from '#ui/EntranceTitle';
 import Icon from '#ui/Icon';
@@ -12,7 +12,7 @@ import Table, { TColumn } from '#ui/Table';
 const Versions: FC = () => {
   const { data: bases } = useFetchBaseListQuery();
 
-  const tableColumns: TColumn<TBase>[] = [
+  const tableColumns: TColumn<TBaseEncrypted>[] = [
     {
       title: '#',
       key: 'id',
