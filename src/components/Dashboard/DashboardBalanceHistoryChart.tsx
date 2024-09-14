@@ -15,7 +15,7 @@ import { Line } from 'react-chartjs-2';
 
 import { useAppSelector } from '#hooks/reduxHooks';
 import { selectAllTransactionsCombined, selectCurrenciesIds } from '#store/selectors';
-import { TDateRates } from '#types/exratesType';
+import { components } from '#types/exrates-api-schema';
 import Card from '#ui/Card';
 import { TDateFilterOptions } from '#ui/DateFilter/useDateFilter';
 import { createKeysDict } from '#utils/createKeysDict';
@@ -23,7 +23,7 @@ import money from '#utils/money';
 
 interface DashboardBalanceHistoryChartProps {
   filterData: TDateFilterOptions;
-  rates?: TDateRates;
+  rates?: components['schemas']['DateRates'];
 }
 
 const DashboardBalanceHistoryChart: FC<DashboardBalanceHistoryChartProps> = ({

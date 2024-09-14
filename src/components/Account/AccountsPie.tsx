@@ -16,7 +16,7 @@ const AccountsPie: FC = () => {
   const currenciesBalanceDict = useAppSelector(selectCurrenciesBalanceDict);
   const { baseCurrencyCode } = useAppSelector((state) => state.currencies);
 
-  const { data: prices } = useFetchLastRatesQuery();
+  const { data: prices } = useFetchLastRatesQuery({});
 
   const currenciesWithBalance = useMemo(
     () =>

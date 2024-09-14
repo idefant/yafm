@@ -1,7 +1,7 @@
 node_modules
 dist
 dev-dist
-src/types/api-schema.d.ts
+src/types/exrates-api-schema.d.ts
 vite.config.ts
 tailwind.config.js
 postcss.config.js

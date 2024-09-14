@@ -14,7 +14,9 @@ const dateQuery = {
 const Dashboard: FC = () => {
   const filterData = useDateFilter();
   const { date, periodType } = filterData;
-  const { data: rates } = useFetchRatesByPeriodQuery(date.format(dateQuery[periodType]));
+  const { data: rates } = useFetchRatesByPeriodQuery({
+    period: date.format(dateQuery[periodType]),
+  });
 
   return (
     <>

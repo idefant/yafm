@@ -38,7 +38,7 @@ const Accounts: FC = () => {
   const accountsLastActivityDict = useAppSelector(selectAccountsLastActivityDict);
   const dispatch = useAppDispatch();
 
-  const { data: prices } = useFetchLastRatesQuery();
+  const { data: prices } = useFetchLastRatesQuery({});
 
   const accountModal = useModal();
 

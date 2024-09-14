@@ -1,15 +1,15 @@
 import BigNumber from 'bignumber.js';
 
-import { TRates } from '#types/exratesType';
+type Rates = Record<string, number>;
 
 class Money {
   value: BigNumber;
 
   currency?: string;
 
-  private rates?: TRates;
+  private rates?: Rates;
 
-  constructor(value: BigNumber | number | string, currency?: string, rates?: TRates) {
+  constructor(value: BigNumber | number | string, currency?: string, rates?: Rates) {
     this.value = BigNumber(value);
     this.currency = currency;
     this.rates = rates;
@@ -55,9 +55,9 @@ class Money {
   }
 
   static sum(
-    items: { value: BigNumber | number | string; currency?: string; rates?: TRates }[],
+    items: { value: BigNumber | number | string; currency?: string; rates?: Rates }[],
     currency?: string,
-    rates?: TRates,
+    rates?: Rates,
   ) {
     return items.reduce(
       (acc, item) => acc.add(item.value, item.currency, item.rates),

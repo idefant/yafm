@@ -9,7 +9,7 @@ import {
   selectAllTransactionCategoriesEntities,
   selectAllTransactionsCombined,
 } from '#store/selectors';
-import { TDateRates } from '#types/exratesType';
+import { components } from '#types/exrates-api-schema';
 import { TTransactionType } from '#types/transactionType';
 import Card from '#ui/Card';
 import { TDateFilterOptions } from '#ui/DateFilter/useDateFilter';
@@ -21,7 +21,7 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 
 interface DashboardCategoryChartProps {
   filterData: TDateFilterOptions;
-  rates?: TDateRates;
+  rates?: components['schemas']['DateRates'];
 }
 
 const DashboardCategoryChart: FC<DashboardCategoryChartProps> = ({ filterData, rates }) => {
