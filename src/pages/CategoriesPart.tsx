@@ -2,7 +2,7 @@ import { FC, useState } from 'react';
 import Swal from 'sweetalert2';
 
 import { useCreateCommitMutation } from '#api/mainApi';
-import { SetCategory } from '#components/Caterory';
+import { SetCategory } from '#components/Category';
 import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
 import useModal from '#hooks/useModal';
 import { accountCategoryDeleted } from '#store/reducers/accountCategoriesSlice';
