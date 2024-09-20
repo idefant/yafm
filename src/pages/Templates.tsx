@@ -1,10 +1,10 @@
 import { FC, useState } from 'react';
 import Swal from 'sweetalert2';
 
+import { useCreateCommitMutation } from '#api/mainApi';
 import { SetTemplate } from '#components/Template';
 import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
 import useModal from '#hooks/useModal';
-import { setIsUnsaved } from '#store/reducers/appSlice';
 import { transactionTemplateDeleted } from '#store/reducers/transactionTemplatesSlice';
 import { selectAllTransactionTemplatesCombined } from '#store/selectors';
 import { TTransactionTemplate } from '#types/transactionType';
@@ -13,10 +13,13 @@ import Card from '#ui/Card';
 import Icon from '#ui/Icon';
 import Table, { TColumn, TableOperations, TableTooltip, TableAction } from '#ui/Table';
 import { Title } from '#ui/Title';
+import { committer } from '#utils/committer';
 
 const Templates: FC = () => {
   const templates = useAppSelector(selectAllTransactionTemplatesCombined);
   const dispatch = useAppDispatch();
+
+  const [createCommit] = useCreateCommitMutation();
 
   const templateModal = useModal();
   const [openedTemplate, setOpenedTemplate] = useState<TTransactionTemplate>();
@@ -34,10 +37,15 @@ const Templates: FC = () => {
       showCancelButton: true,
       cancelButtonText: 'Cancel',
       confirmButtonText: 'Delete',
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
         dispatch(transactionTemplateDeleted(template.id));
-        dispatch(setIsUnsaved(true));
+        createCommit(
+          await committer({
+            method: 'delete_transaction_template',
+            data: { id: template.id },
+          }).encrypt(),
+        );
       }
     });
   };

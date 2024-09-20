@@ -1,11 +1,11 @@
 import { FC, useState } from 'react';
 import Swal from 'sweetalert2';
 
+import { useCreateCommitMutation } from '#api/mainApi';
 import { SetCategory } from '#components/Caterory';
 import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
 import useModal from '#hooks/useModal';
 import { accountCategoryDeleted } from '#store/reducers/accountCategoriesSlice';
-import { setIsUnsaved } from '#store/reducers/appSlice';
 import { transactionCategoryDeleted } from '#store/reducers/transactionCategoriesSlice';
 import {
   selectAllAccounts,
@@ -19,6 +19,7 @@ import Button from '#ui/Button';
 import Card from '#ui/Card';
 import Icon from '#ui/Icon';
 import Table, { TColumn, TableAction } from '#ui/Table';
+import { committer } from '#utils/committer';
 
 interface CategoriesPartProps {
   categoryType: TCategoryType;
@@ -29,11 +30,6 @@ const selectCategoryDict = {
   transactions: selectVisibleTransactionCategories,
 };
 
-const categoryDeletedDict = {
-  accounts: accountCategoryDeleted,
-  transactions: transactionCategoryDeleted,
-};
-
 const CategoriesPart: FC<CategoriesPartProps> = ({ categoryType }) => {
   const categories = useAppSelector(selectCategoryDict[categoryType]);
   const accounts = useAppSelector(selectAllAccounts);
@@ -41,6 +37,8 @@ const CategoriesPart: FC<CategoriesPartProps> = ({ categoryType }) => {
   const templates = useAppSelector(selectAllTransactionTemplates);
   const archiveMode = useAppSelector((state) => state.app.archiveMode);
   const dispatch = useAppDispatch();
+
+  const [createCommit] = useCreateCommitMutation();
 
   const categoryModal = useModal();
   const [openedCategory, setOpenedCategory] = useState<TCategory>();
@@ -82,10 +80,22 @@ const CategoriesPart: FC<CategoriesPartProps> = ({ categoryType }) => {
         showCancelButton: true,
         cancelButtonText: 'Cancel',
         confirmButtonText: 'Delete',
-      }).then((result) => {
+      }).then(async (result) => {
         if (result.isConfirmed) {
-          dispatch(categoryDeletedDict[categoryType](category.id));
-          dispatch(setIsUnsaved(true));
+          if (categoryType === 'accounts') {
+            dispatch(accountCategoryDeleted(category.id));
+            committer({ method: 'delete_account_category', data: { id: category.id } }).encrypt();
+          }
+
+          if (categoryType === 'transactions') {
+            dispatch(transactionCategoryDeleted(category.id));
+            createCommit(
+              await committer({
+                method: 'delete_transaction_category',
+                data: { id: category.id },
+              }).encrypt(),
+            );
+          }
         }
       });
     }

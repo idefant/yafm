@@ -16,7 +16,7 @@ type FetchRatesByPeriodProps = ApiProps<FetchRatesByPeriod>;
 type FetchRatesByPeriodResult = ApiResult<FetchRatesByPeriod>;
 
 export const exratesApi = createApi({
-  reducerPath: 'api/main/exrates',
+  reducerPath: 'api/exrates',
   baseQuery: fetchBaseQuery({
     baseUrl: import.meta.env.VITE_EXRATES_API,
   }),

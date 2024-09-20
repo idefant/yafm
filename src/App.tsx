@@ -1,4 +1,4 @@
-import { FC, useEffect } from 'react';
+import { FC } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
 import { useAppSelector } from '#hooks/reduxHooks';
@@ -11,16 +11,11 @@ import Setting from '#pages/Setting';
 import Templates from '#pages/Templates';
 import Transactions from '#pages/Transactions';
 import Upload from '#pages/Upload';
-import Versions from '#pages/Versions';
 import BaseTemplate from '#templates/BaseTemplate';
 import CabinetTemplate from '#templates/CabinetTemplate';
 
 const App: FC = () => {
-  const { isUnsaved, password } = useAppSelector((state) => state.app);
-
-  useEffect(() => {
-    window.onbeforeunload = () => (isUnsaved ? false : undefined);
-  }, [isUnsaved]);
+  const { password } = useAppSelector((state) => state.app);
 
   return (
     <Routes>
@@ -28,8 +23,6 @@ const App: FC = () => {
         <>
           <Route element={<CabinetTemplate />}>
             <Route path="/decrypt/last" element={<Decrypt />} />
-            <Route path="/decrypt/:versionId" element={<Decrypt />} />
-            <Route path="/versions" element={<Versions />} />
             <Route path="/upload" element={<Upload />} />
           </Route>
           <Route path="*" element={<Navigate to="/decrypt/last" />} />

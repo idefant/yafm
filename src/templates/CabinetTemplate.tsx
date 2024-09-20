@@ -2,13 +2,10 @@ import { FC } from 'react';
 import { useAuth } from 'react-oidc-context';
 import { Outlet } from 'react-router-dom';
 
-import { useFetchBaseListQuery } from '#api/baseApi';
 import Button, { ButtonLink } from '#ui/Button';
 
 const CabinetTemplate: FC = () => {
   const { user, signoutRedirect } = useAuth();
-
-  const { data: bases } = useFetchBaseListQuery();
 
   return (
     <div className="flex justify-center gap-4">
@@ -34,16 +31,6 @@ const CabinetTemplate: FC = () => {
         <ButtonLink to="/upload" className="block w-full mb-2 text-center" color="green">
           Upload Version
         </ButtonLink>
-        {bases && bases.length > 1 && (
-          <>
-            <ButtonLink to="/versions" color="yellow" className="block w-full mb-2 text-center">
-              Choose old version
-            </ButtonLink>
-            <ButtonLink to="/last" color="gray" className="block w-full mb-2 text-center">
-              Open last version
-            </ButtonLink>
-          </>
-        )}
         <hr className="m-4" />
         <Button color="gray" className="block w-full mb-2" onClick={() => signoutRedirect()}>
           Logout

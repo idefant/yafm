@@ -3,9 +3,9 @@ import BigNumber from 'bignumber.js';
 import { FC } from 'react';
 import { FormProvider, useFieldArray, useForm, useWatch } from 'react-hook-form';
 
+import { useCreateCommitMutation } from '#api/mainApi';
 import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
 import { numberWithDecimalPlacesSchema } from '#schema';
-import { setIsUnsaved } from '#store/reducers/appSlice';
 import {
   transactionTemplateAdded,
   transactionTemplateUpdated,
@@ -20,6 +20,7 @@ import Button from '#ui/Button';
 import Form from '#ui/Form';
 import Icon from '#ui/Icon';
 import Modal from '#ui/Modal';
+import { committer } from '#utils/committer';
 import yup from '#utils/form/schema';
 import { genId } from '#utils/random';
 import { compareObjByStr } from '#utils/string';
@@ -46,6 +47,8 @@ const SetTemplate: FC<SetTemplateProps> = ({ isOpen, close, template }) => {
   const accountsEntities = useAppSelector(selectAllAccountsCombinedEntities);
   const categories = useAppSelector(selectAllTransactionCategories);
   const dispatch = useAppDispatch();
+
+  const [createCommit] = useCreateCommitMutation();
 
   const formSchema = yup.object({
     name: yup.string(),
@@ -87,7 +90,7 @@ const SetTemplate: FC<SetTemplateProps> = ({ isOpen, close, template }) => {
     .sort((a, b) => compareObjByStr(a, b, (e) => e.name))
     .map((category) => ({ value: category.id, label: category.name }));
 
-  const onSubmit = (values: TForm) => {
+  const onSubmit = async (values: TForm) => {
     const templateData = {
       name: values.name || undefined,
       description: values.description || undefined,
@@ -98,12 +101,21 @@ const SetTemplate: FC<SetTemplateProps> = ({ isOpen, close, template }) => {
       })),
     };
 
-    dispatch(
-      template
-        ? transactionTemplateUpdated({ id: template.id, changes: templateData })
-        : transactionTemplateAdded({ id: genId(), ...templateData }),
-    );
-    dispatch(setIsUnsaved(true));
+    if (template) {
+      dispatch(transactionTemplateUpdated({ id: template.id, changes: templateData }));
+      createCommit(
+        await committer({
+          method: 'update_transaction_template',
+          data: { id: template.id },
+        }).encrypt(),
+      );
+    } else {
+      const newTemplate = { id: genId(), ...templateData };
+      dispatch(transactionTemplateAdded(newTemplate));
+      createCommit(
+        await committer({ method: 'create_transaction_template', data: newTemplate }).encrypt(),
+      );
+    }
     close();
   };
 

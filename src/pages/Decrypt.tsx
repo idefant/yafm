@@ -1,30 +1,30 @@
 import { yupResolver } from '@hookform/resolvers/yup';
-import dayjs from 'dayjs';
 import { FC } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
-import { useFetchBaseListQuery } from '#api/baseApi';
+import { useCreateCommitMutation, useFetchCommitsQuery } from '#api/mainApi';
 import { useAppDispatch } from '#hooks/reduxHooks';
 import { accountCategoriesReceived } from '#store/reducers/accountCategoriesSlice';
 import { accountsReceived } from '#store/reducers/accountsSlice';
 import { setPassword } from '#store/reducers/appSlice';
 import {
   currenciesReceived,
+  defaultCurrencies,
   setBaseCurrency,
   setDefaultCurrencies,
 } from '#store/reducers/currenciesSlice';
 import { transactionCategoriesReceived } from '#store/reducers/transactionCategoriesSlice';
 import { transactionsReceived } from '#store/reducers/transactionsSlice';
 import { transactionTemplatesReceived } from '#store/reducers/transactionTemplatesSlice';
+import { updatedBaseMethods } from '#types/commitType';
 import Button from '#ui/Button';
 import EntranceTitle from '#ui/EntranceTitle';
 import Form from '#ui/Form';
-import { aesDecrypt } from '#utils/crypto';
+import { committer } from '#utils/committer';
+import { compileBase } from '#utils/compileBase';
 import yup from '#utils/form/schema';
-import Gzip from '#utils/gzip';
-import { checkBaseIntegrity } from '#utils/sync';
 
 type TForm = {
   password: string;
@@ -40,59 +40,90 @@ const Decrypt: FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const { data: bases, isLoading } = useFetchBaseListQuery(undefined, {
-    refetchOnMountOrArgChange: true,
-  });
+  const { data: commits, isLoading: isLoadingCommits } = useFetchCommitsQuery(
+    {},
+    { refetchOnMountOrArgChange: true },
+  );
+
+  const [createCommit] = useCreateCommitMutation();
 
   const methods = useForm<TForm>({ resolver: yupResolver(formSchema) });
   const { handleSubmit } = methods;
 
-  const { versionId } = useParams();
-
-  const isNew = !bases?.length;
+  const isNew = !commits?.length;
 
   const onSubmit = async (values: TForm) => {
     if (isNew) {
       dispatch(setPassword(values.password));
       dispatch(setDefaultCurrencies());
+
+      createCommit(
+        await committer({
+          method: 'init_base',
+          data: {
+            accounts: [],
+            transactions: [],
+            templates: [],
+            categories: {
+              accounts: [],
+              transactions: [],
+            },
+            currencies: defaultCurrencies,
+            baseCurrencyCode: '',
+          },
+        }).encrypt(),
+      );
+
       return;
     }
-    const base = bases[0];
 
-    const plaintext = await Gzip.decompress(
-      aesDecrypt(base.cipher, values.password, base.iv, base.hmac, base.salt),
-    );
+    const decryptedCommits = [];
 
-    if (plaintext) {
-      const data = JSON.parse(plaintext);
-      const validatedStatus = await checkBaseIntegrity(data);
-      if (validatedStatus) {
-        Swal.fire({
-          title: 'Validate Error',
-          text: validatedStatus.error,
-          icon: 'error',
-        });
+    for await (const commit of commits.toReversed()) {
+      const decryptedCommit = await committer.decrypt(commit, values.password);
+
+      if (!decryptedCommit) {
+        Swal.fire({ title: 'Wrong password', icon: 'error' });
         return;
       }
 
-      dispatch(setPassword(values.password));
-      dispatch(currenciesReceived(data.currencies));
-      dispatch(setBaseCurrency(data.baseCurrencyCode));
-      dispatch(accountsReceived(data.accounts));
-      dispatch(accountCategoriesReceived(data.categories.accounts));
-      dispatch(transactionsReceived(data.transactions));
-      dispatch(transactionCategoriesReceived(data.categories.transactions));
-      dispatch(transactionTemplatesReceived(data.templates));
+      // XXX: Тут должна быть проверка на целостность типа
+      const updatedBaseActionIndex = decryptedCommit.actions.findIndex((action) =>
+        updatedBaseMethods.some((method) => method === action.method),
+      );
 
-      navigate('/');
-    } else {
-      Swal.fire({ title: 'Wrong password', icon: 'error' });
+      if (updatedBaseActionIndex !== -1) {
+        decryptedCommits.push({
+          createdAt: decryptedCommit.date,
+          actions: decryptedCommit.actions.slice(updatedBaseActionIndex),
+        });
+        break;
+      }
+      decryptedCommits.push({
+        createdAt: decryptedCommit.date,
+        actions: decryptedCommit.actions,
+      });
     }
+
+    const base = compileBase(decryptedCommits.toReversed());
+    if (!base) {
+      Swal.fire({ title: 'Invalid base data', icon: 'error' });
+      return;
+    }
+
+    dispatch(setPassword(values.password));
+    dispatch(currenciesReceived(base.currencies));
+    dispatch(setBaseCurrency(base.baseCurrencyCode));
+    dispatch(accountsReceived(base.accounts));
+    dispatch(accountCategoriesReceived(base.categories.accounts));
+    dispatch(transactionsReceived(base.transactions));
+    dispatch(transactionCategoriesReceived(base.categories.transactions));
+    dispatch(transactionTemplatesReceived(base.templates));
+
+    navigate('/');
   };
 
-  const oldBase = bases?.find((base) => base.id === versionId);
-
-  return isLoading ? (
+  return isLoadingCommits ? (
     <>Loading...</>
   ) : (
     <>
@@ -100,17 +131,6 @@ const Decrypt: FC = () => {
 
       <FormProvider {...methods}>
         <Form onSubmit={handleSubmit(onSubmit)}>
-          {!isNew && (
-            <div className="flex gap-3 mb-3">
-              <div className="w-1/3">Base Version:</div>
-              <div className="w-2/3 flex gap-x-4 gap-y-1.5 flex-wrap items-center">
-                {versionId && oldBase
-                  ? dayjs(oldBase.createdAt).format('DD.MM.YYYY (HH:mm)')
-                  : 'Last'}
-              </div>
-            </div>
-          )}
-
           <Form.Password name="password" label={isNew ? 'New Password:' : 'Password:'} autoFocus />
 
           <div className="mx-auto mt-8 flex justify-center gap-6">

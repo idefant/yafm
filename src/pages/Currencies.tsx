@@ -2,10 +2,10 @@ import { FC, useState } from 'react';
 import Swal from 'sweetalert2';
 
 import { useFetchCurrenciesQuery } from '#api/exratesApi';
+import { useCreateCommitMutation } from '#api/mainApi';
 import { OpenedCurrency, SetCurrency } from '#components/Currency';
 import { useAppDispatch, useAppSelector } from '#hooks/reduxHooks';
 import useModal from '#hooks/useModal';
-import { setIsUnsaved } from '#store/reducers/appSlice';
 import { currencyDeleted } from '#store/reducers/currenciesSlice';
 import { selectAllAccounts, selectCurrencies, selectCurrenciesIds } from '#store/selectors';
 import { TCurrency } from '#types/currencyType';
@@ -13,6 +13,7 @@ import Card from '#ui/Card';
 import Icon from '#ui/Icon';
 import Table, { TColumn, TableAction } from '#ui/Table';
 import { Title } from '#ui/Title';
+import { committer } from '#utils/committer';
 
 const Currencies: FC = () => {
   const currencies = useAppSelector(selectCurrencies);
@@ -22,6 +23,7 @@ const Currencies: FC = () => {
   const dispatch = useAppDispatch();
 
   const { data: availableCurrencies } = useFetchCurrenciesQuery();
+  const [createCommit] = useCreateCommitMutation();
 
   const currencyModal = useModal();
 
@@ -57,10 +59,12 @@ const Currencies: FC = () => {
         showCancelButton: true,
         cancelButtonText: 'Cancel',
         confirmButtonText: 'Delete',
-      }).then((result) => {
+      }).then(async (result) => {
         if (result.isConfirmed) {
           dispatch(currencyDeleted(currency.code));
-          dispatch(setIsUnsaved(true));
+          createCommit(
+            await committer({ method: 'delete_currency', data: { code: currency.code } }).encrypt(),
+          );
         }
       });
     }

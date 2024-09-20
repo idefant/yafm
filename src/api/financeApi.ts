@@ -11,7 +11,7 @@ type FetchFnGIndexResult = {
 };
 
 export const financeApi = createApi({
-  reducerPath: 'api/main/finance',
+  reducerPath: 'api/finance',
   baseQuery: fetchBaseQuery(),
   endpoints: (builder) => ({
     fetchFnGIndex: builder.query<any, void>({

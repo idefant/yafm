@@ -1,43 +1,22 @@
 import classNames from 'classnames';
 import React, { FC } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Swal from 'sweetalert2';
 
-import { useCreateBaseMutation } from '#api/baseApi';
 import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
 import { accountCategoriesCleared } from '#store/reducers/accountCategoriesSlice';
 import { accountsCleared } from '#store/reducers/accountsSlice';
-import { setIsUnsaved, lockBase, setArchiveMode } from '#store/reducers/appSlice';
+import { lockBase, setArchiveMode } from '#store/reducers/appSlice';
 import { currenciesCleared } from '#store/reducers/currenciesSlice';
 import { transactionCategoriesCleared } from '#store/reducers/transactionCategoriesSlice';
 import { transactionsCleared } from '#store/reducers/transactionsSlice';
 import { transactionTemplatesCleared } from '#store/reducers/transactionTemplatesSlice';
 import Icon from '#ui/Icon';
-import { aesEncrypt } from '#utils/crypto';
-import Gzip from '#utils/gzip';
-import { getSyncData } from '#utils/sync';
 
 const Header: FC = () => {
   const navigate = useNavigate();
 
-  const [createBase] = useCreateBaseMutation();
-
-  const { archiveMode, isUnsaved, password, openedModalsCount } = useAppSelector(
-    (state) => state.app,
-  );
+  const { archiveMode, openedModalsCount } = useAppSelector((state) => state.app);
   const dispatch = useAppDispatch();
-
-  const sync = async () => {
-    if (!password) return;
-    const data = aesEncrypt(await Gzip.compress(JSON.stringify(getSyncData())), password);
-    createBase(data)
-      .unwrap()
-      .then(() => {
-        dispatch(setIsUnsaved(false));
-        Swal.fire({ title: 'Synchronization is successful', icon: 'success' });
-      })
-      .catch(() => Swal.fire({ title: 'Something went wrong', icon: 'error' }));
-  };
 
   const lock = () => {
     dispatch(currenciesCleared());
@@ -65,10 +44,6 @@ const Header: FC = () => {
           className={classNames(!archiveMode && 'opacity-40')}
         >
           <Icon.Archive />
-        </HeaderIconButton>
-
-        <HeaderIconButton onClick={sync} className={classNames(!isUnsaved && 'opacity-40')}>
-          <Icon.Upload />
         </HeaderIconButton>
 
         <HeaderIconButton onClick={lock}>

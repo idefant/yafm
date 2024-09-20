@@ -1,4 +1,4 @@
-export type TCipher = {
+export type TEncryptedData = {
   iv: string;
   hmac: string;
   cipher: string;

@@ -3,12 +3,15 @@ import { FC } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import Swal from 'sweetalert2';
 
+import { useCreateCommitMutation } from '#api/mainApi';
 import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
 import { setPassword } from '#store/reducers/appSlice';
 import Button from '#ui/Button';
 import Card from '#ui/Card';
 import Form from '#ui/Form';
+import { committer } from '#utils/committer';
 import yup from '#utils/form/schema';
+import { getSyncData } from '#utils/sync';
 
 type TForm = {
   oldPassword: string;
@@ -28,10 +31,12 @@ const SettingChangePassword: FC = () => {
   const password = useAppSelector((state) => state.app.password);
   const dispatch = useAppDispatch();
 
+  const [createCommit] = useCreateCommitMutation();
+
   const methods = useForm<TForm>({ resolver: yupResolver(formSchema) });
   const { handleSubmit, reset } = methods;
 
-  const onSubmit = (values: TForm) => {
+  const onSubmit = async (values: TForm) => {
     if (values.oldPassword !== password) {
       Swal.fire({ title: 'Wrong password', icon: 'error' });
       return;
@@ -42,6 +47,9 @@ const SettingChangePassword: FC = () => {
     }
 
     dispatch(setPassword(values.newPassword));
+    await createCommit(
+      await committer({ method: 'change_password', data: getSyncData() }).encrypt(),
+    );
     Swal.fire({ title: 'Password changed successfully', icon: 'success' });
     reset();
   };

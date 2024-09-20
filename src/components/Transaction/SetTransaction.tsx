@@ -4,11 +4,11 @@ import dayjs from 'dayjs';
 import { FC, useState } from 'react';
 import { FormProvider, useFieldArray, useForm, useWatch } from 'react-hook-form';
 
+import { useCreateCommitMutation } from '#api/mainApi';
 import { ChooseTemplate } from '#components/Template';
 import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
 import useModal from '#hooks/useModal';
 import { numberWithDecimalPlacesSchema } from '#schema';
-import { setIsUnsaved } from '#store/reducers/appSlice';
 import { transactionAdded, transactionUpdated } from '#store/reducers/transactionsSlice';
 import {
   selectAllAccountsCombined,
@@ -22,6 +22,7 @@ import DatePicker from '#ui/DatePicker';
 import Form from '#ui/Form';
 import Icon from '#ui/Icon';
 import Modal from '#ui/Modal';
+import { committer } from '#utils/committer';
 import yup from '#utils/form/schema';
 import { genId } from '#utils/random';
 import { compareObjByStr } from '#utils/string';
@@ -54,6 +55,8 @@ const SetTransaction: FC<SetTransactionProps> = ({
   const accountsEntities = useAppSelector(selectAllAccountsCombinedEntities);
   const categories = useAppSelector(selectAllTransactionCategories);
   const dispatch = useAppDispatch();
+
+  const [createCommit] = useCreateCommitMutation();
 
   const formSchema = yup.object({
     name: yup.string(),
@@ -98,7 +101,7 @@ const SetTransaction: FC<SetTransactionProps> = ({
   const [date, setDate] = useState(dayjs());
   const templateModal = useModal();
 
-  const onSubmit = (values: TForm) => {
+  const onSubmit = async (values: TForm) => {
     const transactionData = {
       datetime: +date,
       name: values.name || undefined,
@@ -110,12 +113,21 @@ const SetTransaction: FC<SetTransactionProps> = ({
       })),
     };
 
-    dispatch(
-      transaction
-        ? transactionUpdated({ id: transaction.id, changes: transactionData })
-        : transactionAdded({ id: genId(), ...transactionData }),
-    );
-    dispatch(setIsUnsaved(true));
+    if (transaction) {
+      dispatch(transactionUpdated({ id: transaction.id, changes: transactionData }));
+      createCommit(
+        await committer({
+          method: 'update_transaction',
+          data: { id: transaction.id, ...transactionData },
+        }).encrypt(),
+      );
+    } else {
+      const newTransaction = { id: genId(), ...transactionData };
+      dispatch(transactionAdded(newTransaction));
+      createCommit(
+        await committer({ method: 'create_transaction', data: newTransaction }).encrypt(),
+      );
+    }
     close();
   };
 

@@ -1,5 +1,7 @@
 import { AES, algo, enc, HmacSHA256, lib, PBKDF2 } from 'crypto-js';
 
+import { TEncryptedData } from '#types/cipher';
+
 const getHmac = (data: lib.WordArray, pass: lib.WordArray) =>
   HmacSHA256(enc.Hex.stringify(data), pass).toString();
 
@@ -10,17 +12,11 @@ export const pass2key = (pass: string | lib.WordArray, salt: lib.WordArray) =>
     iterations: 1000,
   });
 
-export const aesDecrypt = (
-  cipher: string,
-  pass: string,
-  ivHex: string,
-  hmac: string,
-  salt: string,
-) => {
+export const aesDecrypt = ({ iv, hmac, cipher, salt }: TEncryptedData, pass: string) => {
   const key = pass2key(pass, enc.Hex.parse(salt));
-  const iv = enc.Hex.parse(ivHex);
-  const message = AES.decrypt(cipher, key, { iv });
-  return getHmac(message, key) === hmac ? enc.Utf8.stringify(message) : '';
+  const ivWA = enc.Hex.parse(iv);
+  const message = AES.decrypt(cipher, key, { iv: ivWA });
+  return getHmac(message, key) === hmac ? enc.Utf8.stringify(message) : undefined;
 };
 
 export const generateRandomBytes = (bytesNumber: number) => lib.WordArray.random(bytesNumber);

@@ -1,10 +1,26 @@
+import { SetOptional } from 'type-fest';
+
 import { TAccount } from './accountType';
 import { TBase } from './baseType';
 import { TCategory } from './categoryType';
 import { TCurrency } from './currencyType';
 import { TTransaction, TTransactionTemplate } from './transactionType';
 
-export type CommitMethodDict = {
+type IsUndefined<T> = undefined extends T ? true : false;
+
+type IfUndefined<T, TypeIfUndefined = true, TypeIfNotUndefined = false> =
+  IsUndefined<T> extends true ? TypeIfUndefined : TypeIfNotUndefined;
+
+type SetNullableIfUndefined<T> = IfUndefined<T, T | null, T>;
+
+type OptionalToNull<T> = {
+  [K in keyof T]: SetNullableIfUndefined<T[K]>;
+};
+type SetOptionalWithout<T, K extends keyof T> = SetOptional<T, Exclude<keyof T, K>>;
+
+type SetUpdatable<T, K extends keyof T = never> = SetOptionalWithout<OptionalToNull<T>, K>;
+
+export type CommitActionDict = {
   // currency
   set_basic_currency: {
     code: string;
@@ -51,7 +67,30 @@ export type CommitMethodDict = {
   };
 
   // base
-  set_base: TBase;
+  init_base: TBase;
   import_base: TBase;
   change_password: TBase;
+};
+
+export const updatedBaseMethods = ['init_base', 'import_base', 'change_password'] as const;
+
+export type Transform = 'gzip';
+
+export type CommitAction = {
+  [K in keyof CommitActionDict]: {
+    method: K;
+    data: CommitActionDict[K];
+  };
+}[keyof CommitActionDict];
+
+export type CommitActionWithTransforms = CommitAction & { transforms?: Transform[]; data: any };
+
+export type Commit = {
+  actions: CommitAction[];
+  createdAt: Date;
+};
+
+export type CommitWithTransforms = {
+  actions: CommitActionWithTransforms[];
+  createdAt: Date;
 };

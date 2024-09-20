@@ -46,14 +46,13 @@ const schema = object()
   })
   .required();
 
-export const checkBaseIntegrity = async (data: TBase) => {
-  const error = await schema
-    .validate(data)
-    .then(() => undefined)
-    .catch((err: ValidationError) => ({ error: err.message }));
-
-  if (error) {
-    return error;
+export const checkBaseIntegrity = (data: TBase) => {
+  try {
+    schema.validateSync(data);
+  } catch (error) {
+    if (error instanceof ValidationError) {
+      return { error: error.message };
+    }
   }
 
   const getKeys = <T>(items: T[], key: string) =>

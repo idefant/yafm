@@ -44,7 +44,10 @@
     "indent": "off",
     "eol-last": "warn",
     "semi": "warn",
-    "max-len": "warn",
+    "max-len": [
+      "warn",
+      { "code": 100, "ignoreComments": true, "ignoreStrings": true, "ignoreTemplateLiterals": true }
+    ],
     "object-curly-spacing": "warn",
     "no-use-before-define": "off",
     "no-param-reassign": "off",

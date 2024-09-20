@@ -2,7 +2,7 @@ import { PayloadAction, createEntityAdapter, createSlice } from '@reduxjs/toolki
 
 import { TCurrency } from '#types/currencyType';
 
-const defaultCurrencies: TCurrency[] = [
+export const defaultCurrencies: TCurrency[] = [
   {
     code: 'RUB',
     name: 'Ruble',

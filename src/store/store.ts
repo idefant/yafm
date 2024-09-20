@@ -3,9 +3,9 @@ import { combineReducers } from 'redux';
 import { persistReducer, persistStore } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
-import { baseApi } from '#api/baseApi';
 import { exratesApi } from '#api/exratesApi';
 import { financeApi } from '#api/financeApi';
+import { mainApi } from '#api/mainApi';
 
 import accountCategoriesReducer from './reducers/accountCategoriesSlice';
 import accountsReducer from './reducers/accountsSlice';
@@ -31,7 +31,7 @@ export const rootReducer = combineReducers({
   transactionTemplates: transactionTemplatesReducer,
   [exratesApi.reducerPath]: exratesApi.reducer,
   [financeApi.reducerPath]: financeApi.reducer,
-  [baseApi.reducerPath]: baseApi.reducer,
+  [mainApi.reducerPath]: mainApi.reducer,
 });
 
 export const store = configureStore({
@@ -40,7 +40,7 @@ export const store = configureStore({
     getDefaultMiddleware({ serializableCheck: false })
       .concat(exratesApi.middleware)
       .concat(financeApi.middleware)
-      .concat(baseApi.middleware),
+      .concat(mainApi.middleware),
 });
 
 export const persistor = persistStore(store);

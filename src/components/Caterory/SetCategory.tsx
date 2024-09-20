@@ -2,12 +2,12 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { FC } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
+import { useCreateCommitMutation } from '#api/mainApi';
 import { useAppDispatch } from '#hooks/reduxHooks';
 import {
   accountCategoryAdded,
   accountCategoryUpdated,
 } from '#store/reducers/accountCategoriesSlice';
-import { setIsUnsaved } from '#store/reducers/appSlice';
 import {
   transactionCategoryAdded,
   transactionCategoryUpdated,
@@ -16,6 +16,7 @@ import { TCategory, TCategoryType } from '#types/categoryType';
 import Button from '#ui/Button';
 import Form from '#ui/Form';
 import Modal from '#ui/Modal';
+import { committer } from '#utils/committer';
 import yup from '#utils/form/schema';
 import { genId } from '#utils/random';
 
@@ -38,34 +39,54 @@ const formSchema = yup
   })
   .required();
 
-const categoryAddedDict = {
-  accounts: accountCategoryAdded,
-  transactions: transactionCategoryAdded,
-};
-
-const categoryUpdated = {
-  accounts: accountCategoryUpdated,
-  transactions: transactionCategoryUpdated,
-};
-
 const SetCategory: FC<SetCategoryProps> = ({ isOpen, close, category, categoryType }) => {
   const methods = useForm<TForm>({ resolver: yupResolver(formSchema) });
   const { handleSubmit, reset } = methods;
 
+  const [createCommit] = useCreateCommitMutation();
+
   const dispatch = useAppDispatch();
 
-  const onSubmit = (values: TForm) => {
+  const onSubmit = async (values: TForm) => {
     const categoryData = {
       name: values.name,
       is_archive: values.isArchive || undefined,
     };
 
     if (!category) {
-      dispatch(categoryAddedDict[categoryType]({ id: genId(), ...categoryData }));
+      const newCategory = { id: genId(), ...categoryData };
+      if (categoryType === 'accounts') {
+        dispatch(accountCategoryAdded(newCategory));
+        createCommit(
+          await committer({ method: 'create_account_category', data: newCategory }).encrypt(),
+        );
+      }
+      if (categoryType === 'transactions') {
+        dispatch(transactionCategoryAdded(newCategory));
+        createCommit(
+          await committer({ method: 'create_transaction_category', data: newCategory }).encrypt(),
+        );
+      }
     } else {
-      dispatch(categoryUpdated[categoryType]({ id: category.id, changes: categoryData }));
+      if (categoryType === 'accounts') {
+        dispatch(accountCategoryUpdated({ id: category.id, changes: categoryData }));
+        createCommit(
+          await committer({
+            method: 'update_account_category',
+            data: { id: category.id, ...categoryData },
+          }).encrypt(),
+        );
+      }
+      if (categoryType === 'transactions') {
+        dispatch(transactionCategoryUpdated({ id: category.id, changes: categoryData }));
+        createCommit(
+          await committer({
+            method: 'update_transaction_category',
+            data: { id: category.id, ...categoryData },
+          }).encrypt(),
+        );
+      }
     }
-    dispatch(setIsUnsaved(true));
     close();
   };
 

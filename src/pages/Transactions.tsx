@@ -2,10 +2,10 @@ import dayjs from 'dayjs';
 import { FC, useMemo, useState } from 'react';
 import Swal from 'sweetalert2';
 
+import { useCreateCommitMutation } from '#api/mainApi';
 import { SetTransaction } from '#components/Transaction';
 import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
 import useModal from '#hooks/useModal';
-import { setIsUnsaved } from '#store/reducers/appSlice';
 import { transactionDeleted } from '#store/reducers/transactionsSlice';
 import {
   selectAllTransactionsCombined,
@@ -20,6 +20,7 @@ import Icon from '#ui/Icon';
 import Select, { TSelectOption } from '#ui/Select';
 import Table, { TColumn, TableDate, TableOperations, TableTooltip, TableAction } from '#ui/Table';
 import { Title } from '#ui/Title';
+import { committer } from '#utils/committer';
 import { groupBy } from '#utils/groupBy';
 import { compareObjByStr } from '#utils/string';
 
@@ -28,6 +29,8 @@ const Transactions: FC = () => {
   const accounts = useAppSelector(selectVisibleAccounts);
   const transactions = useAppSelector(selectAllTransactionsCombined);
   const dispatch = useAppDispatch();
+
+  const [createCommit] = useCreateCommitMutation();
 
   const [selectedCategories, setSelectedCategories] = useState<TSelectOption[]>([]);
   const selectedCategoryIds = useMemo(
@@ -105,10 +108,12 @@ const Transactions: FC = () => {
       showCancelButton: true,
       cancelButtonText: 'Cancel',
       confirmButtonText: 'Delete',
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
         dispatch(transactionDeleted(transaction.id));
-        dispatch(setIsUnsaved(true));
+        createCommit(
+          await committer({ method: 'delete_transaction', data: { id: transaction.id } }).encrypt(),
+        );
       }
     });
   };

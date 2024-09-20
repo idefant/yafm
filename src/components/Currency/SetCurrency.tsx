@@ -2,13 +2,14 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { FC } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
+import { useCreateCommitMutation } from '#api/mainApi';
 import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
-import { setIsUnsaved } from '#store/reducers/appSlice';
 import { currencyAdded, currencyUpdated, setBaseCurrency } from '#store/reducers/currenciesSlice';
 import { TCurrency, TCurrencyType, currencyTypes } from '#types/currencyType';
 import Button from '#ui/Button';
 import Form from '#ui/Form';
 import Modal from '#ui/Modal';
+import { committer } from '#utils/committer';
 import yup from '#utils/form/schema';
 
 export type OpenedCurrency =
@@ -43,10 +44,12 @@ const SetCurrency: FC<SetCurrencyProps> = ({ isOpen, close, data }) => {
   const { baseCurrencyCode } = useAppSelector((state) => state.currencies);
   const dispatch = useAppDispatch();
 
+  const [createCommit] = useCreateCommitMutation();
+
   const methods = useForm<TForm>({ resolver: yupResolver(formSchema) });
   const { handleSubmit, reset } = methods;
 
-  const onSubmit = (values: TForm) => {
+  const onSubmit = async (values: TForm) => {
     if (!data) return;
 
     const currencyData = {
@@ -57,16 +60,27 @@ const SetCurrency: FC<SetCurrencyProps> = ({ isOpen, close, data }) => {
       symbol: values.symbol || data.currency.code,
     };
 
-    dispatch(
-      data.method === 'update'
-        ? currencyUpdated({ id: data.currency.code, changes: currencyData })
-        : currencyAdded({ code: data.currency.code, ...currencyData }),
-    );
+    const commit = committer();
+
+    if (data.method === 'update') {
+      dispatch(currencyUpdated({ id: data.currency.code, changes: currencyData }));
+      commit.add({
+        method: 'update_currency',
+        data: { code: data.currency.code, ...currencyData },
+      });
+    } else {
+      dispatch(currencyAdded({ code: data.currency.code, ...currencyData }));
+      commit.add({
+        method: 'create_currency',
+        data: { code: data.currency.code, ...currencyData },
+      });
+    }
 
     if (values.isBaseCurrency) {
       dispatch(setBaseCurrency(data.currency.code));
+      commit.add({ method: 'set_basic_currency', data: { code: data.currency.code } });
     }
-    dispatch(setIsUnsaved(true));
+    createCommit(await commit.encrypt());
     close();
   };
 

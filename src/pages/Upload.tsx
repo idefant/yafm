@@ -7,27 +7,29 @@ import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { bool, mixed, object, string, ValidationError } from 'yup';
 
+import { useCreateCommitMutation } from '#api/mainApi';
 import { useAppDispatch } from '#hooks/reduxHooks';
 import { accountCategoriesReceived } from '#store/reducers/accountCategoriesSlice';
 import { accountsReceived } from '#store/reducers/accountsSlice';
-import { setPassword, setIsUnsaved } from '#store/reducers/appSlice';
+import { setPassword } from '#store/reducers/appSlice';
 import { currenciesReceived, setBaseCurrency } from '#store/reducers/currenciesSlice';
 import { transactionCategoriesReceived } from '#store/reducers/transactionCategoriesSlice';
 import { transactionsReceived } from '#store/reducers/transactionsSlice';
 import { transactionTemplatesReceived } from '#store/reducers/transactionTemplatesSlice';
-import { TCipher } from '#types/cipher';
+import { TEncryptedData } from '#types/cipher';
 import Button, { buttonColors } from '#ui/Button';
 import GoBackButton from '#ui/Button/GoBackButton';
 import EntranceTitle from '#ui/EntranceTitle';
 import Form from '#ui/Form';
+import { committer } from '#utils/committer';
 import { aesDecrypt } from '#utils/crypto';
 import { readFileContent } from '#utils/file';
 import yup from '#utils/form/schema';
 import Gzip from '#utils/gzip';
-import { checkBaseIntegrity } from '#utils/sync';
+import { checkBaseIntegrity, getSyncData } from '#utils/sync';
 
 type TFileData = { created_at: string } & (
-  | { data: TCipher; is_encrypted: true }
+  | { data: TEncryptedData; is_encrypted: true }
   | { data: any; is_encrypted: false }
 );
 
@@ -43,6 +45,8 @@ const Upload: FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
+  const [createCommit] = useCreateCommitMutation();
+
   const methods = useForm<TForm>({ resolver: yupResolver(formSchema) });
   const { handleSubmit } = methods;
 
@@ -52,22 +56,20 @@ const Upload: FC = () => {
     if (!fileData) return;
     if (!fileData.is_encrypted) return fileData.data;
 
-    const { cipher, iv, hmac, salt } = fileData.data;
-    const plaintext = await Gzip.decompress(aesDecrypt(cipher, values.password, iv, hmac, salt));
-
+    const plaintext = aesDecrypt(fileData.data, values.password);
     if (!plaintext) {
       Swal.fire({ title: 'Wrong password', icon: 'error' });
       return;
     }
 
-    return JSON.parse(plaintext);
+    return JSON.parse(await Gzip.decompress(plaintext));
   };
 
   const onSubmit = async (values: TForm) => {
     const data = await getPlainData(values);
     if (!data) return;
 
-    const validatedStatus = await checkBaseIntegrity(data);
+    const validatedStatus = checkBaseIntegrity(data);
     if (validatedStatus) {
       Swal.fire({
         title: 'Validate Error',
@@ -85,7 +87,9 @@ const Upload: FC = () => {
     dispatch(transactionsReceived(data.transactions));
     dispatch(transactionCategoriesReceived(data.categories.transactions));
     dispatch(transactionTemplatesReceived(data.templates));
-    dispatch(setIsUnsaved(true));
+
+    createCommit(await committer({ method: 'import_base', data: getSyncData() }).encrypt());
+
     navigate('/');
   };
 

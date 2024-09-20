@@ -4,12 +4,12 @@ import { FC, useMemo, useState } from 'react';
 import Swal from 'sweetalert2';
 
 import { useFetchLastRatesQuery } from '#api/exratesApi';
+import { useCreateCommitMutation } from '#api/mainApi';
 import { SetAccount } from '#components/Account';
 import AccountsPie from '#components/Account/AccountsPie';
 import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
 import useModal from '#hooks/useModal';
 import { accountDeleted } from '#store/reducers/accountsSlice';
-import { setIsUnsaved } from '#store/reducers/appSlice';
 import {
   selectAccountsBalanceDict,
   selectAccountsLastActivityDict,
@@ -24,6 +24,7 @@ import Card from '#ui/Card';
 import Icon from '#ui/Icon';
 import Table, { TColumn, TableDate, TableAction } from '#ui/Table';
 import { Title } from '#ui/Title';
+import { committer } from '#utils/committer';
 import { groupBy } from '#utils/groupBy';
 import money from '#utils/money';
 
@@ -39,6 +40,7 @@ const Accounts: FC = () => {
   const dispatch = useAppDispatch();
 
   const { data: prices } = useFetchLastRatesQuery({});
+  const [createCommit] = useCreateCommitMutation();
 
   const accountModal = useModal();
 
@@ -110,10 +112,12 @@ const Accounts: FC = () => {
         showCancelButton: true,
         cancelButtonText: 'Cancel',
         confirmButtonText: 'Delete',
-      }).then((result) => {
+      }).then(async (result) => {
         if (result.isConfirmed) {
           dispatch(accountDeleted(account.id));
-          dispatch(setIsUnsaved(true));
+          createCommit(
+            await committer({ method: 'delete_account', data: { id: account.id } }).encrypt(),
+          );
         }
       });
     }
