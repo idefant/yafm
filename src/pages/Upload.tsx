@@ -48,7 +48,7 @@ const Upload: FC = () => {
   const [createCommit] = useCreateCommitMutation();
 
   const methods = useForm<TForm>({ resolver: yupResolver(formSchema) });
-  const { handleSubmit } = methods;
+  const { handleSubmit, reset } = methods;
 
   const [fileData, setFileData] = useState<TFileData>();
 
@@ -59,6 +59,7 @@ const Upload: FC = () => {
     const plaintext = aesDecrypt(fileData.data, values.password);
     if (!plaintext) {
       Swal.fire({ title: 'Wrong password', icon: 'error' });
+      reset({ password: '' });
       return;
     }
 

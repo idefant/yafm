@@ -39,6 +39,7 @@ const SettingChangePassword: FC = () => {
   const onSubmit = async (values: TForm) => {
     if (values.oldPassword !== password) {
       Swal.fire({ title: 'Wrong password', icon: 'error' });
+      reset({ oldPassword: '' });
       return;
     }
     if (values.newPassword !== values.repeatPassword) {

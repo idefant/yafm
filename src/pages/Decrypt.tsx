@@ -48,7 +48,7 @@ const Decrypt: FC = () => {
   const [createCommit] = useCreateCommitMutation();
 
   const methods = useForm<TForm>({ resolver: yupResolver(formSchema) });
-  const { handleSubmit } = methods;
+  const { handleSubmit, reset } = methods;
 
   const isNew = !commits?.length;
 
@@ -84,6 +84,7 @@ const Decrypt: FC = () => {
 
       if (!decryptedCommit) {
         Swal.fire({ title: 'Wrong password', icon: 'error' });
+        reset({ password: '' });
         return;
       }
 
