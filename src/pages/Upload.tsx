@@ -1,5 +1,6 @@
 import { yupResolver } from '@hookform/resolvers/yup';
 import classNames from 'classnames';
+import { enc } from 'crypto-js';
 import dayjs from 'dayjs';
 import { ChangeEvent, FC, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
@@ -11,7 +12,7 @@ import { useCreateCommitMutation } from '#api/mainApi';
 import { useAppDispatch } from '#hooks/reduxHooks';
 import { accountCategoriesReceived } from '#store/reducers/accountCategoriesSlice';
 import { accountsReceived } from '#store/reducers/accountsSlice';
-import { setPassword } from '#store/reducers/appSlice';
+import { unlockBase } from '#store/reducers/appSlice';
 import { currenciesReceived, setBaseCurrency } from '#store/reducers/currenciesSlice';
 import { transactionCategoriesReceived } from '#store/reducers/transactionCategoriesSlice';
 import { transactionsReceived } from '#store/reducers/transactionsSlice';
@@ -22,7 +23,7 @@ import GoBackButton from '#ui/Button/GoBackButton';
 import EntranceTitle from '#ui/EntranceTitle';
 import Form from '#ui/Form';
 import { committer } from '#utils/committer';
-import { aesDecrypt } from '#utils/crypto';
+import { aesDecrypt, generateSalt, pass2key } from '#utils/crypto';
 import { readFileContent } from '#utils/file';
 import yup from '#utils/form/schema';
 import Gzip from '#utils/gzip';
@@ -52,11 +53,13 @@ const Upload: FC = () => {
 
   const [fileData, setFileData] = useState<TFileData>();
 
-  const getPlainData = async (values: TForm) => {
+  const getPlainData = async (password: string) => {
     if (!fileData) return;
     if (!fileData.is_encrypted) return fileData.data;
 
-    const plaintext = aesDecrypt(fileData.data, values.password);
+    const encryptionKey = pass2key(password, enc.Hex.parse(fileData.data.salt));
+
+    const plaintext = aesDecrypt(fileData.data, encryptionKey);
     if (!plaintext) {
       Swal.fire({ title: 'Wrong password', icon: 'error' });
       reset({ password: '' });
@@ -67,8 +70,19 @@ const Upload: FC = () => {
   };
 
   const onSubmit = async (values: TForm) => {
-    const data = await getPlainData(values);
+    const salt = generateSalt();
+    const encryptionKey = pass2key(values.password, salt);
+
+    const data = await getPlainData(values.password);
     if (!data) return;
+
+    dispatch(
+      unlockBase({
+        password: values.password,
+        salt: salt.toString(),
+        encryptionKey: encryptionKey.toString(),
+      }),
+    );
 
     const validatedStatus = checkBaseIntegrity(data);
     if (validatedStatus) {
@@ -80,7 +94,6 @@ const Upload: FC = () => {
       return;
     }
 
-    dispatch(setPassword(values.password));
     dispatch(currenciesReceived(data.currencies));
     dispatch(setBaseCurrency(data.baseCurrencyCode));
     dispatch(accountsReceived(data.accounts));
@@ -89,7 +102,12 @@ const Upload: FC = () => {
     dispatch(transactionCategoriesReceived(data.categories.transactions));
     dispatch(transactionTemplatesReceived(data.templates));
 
-    createCommit(await committer({ method: 'import_base', data: getSyncData() }).encrypt());
+    createCommit(
+      await committer({
+        method: 'import_base',
+        data: getSyncData(),
+      }).encrypt(),
+    );
 
     navigate('/');
   };

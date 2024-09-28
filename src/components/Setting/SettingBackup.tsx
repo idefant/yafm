@@ -1,4 +1,5 @@
 import { yupResolver } from '@hookform/resolvers/yup';
+import { enc } from 'crypto-js';
 import dayjs from 'dayjs';
 import { FC } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
@@ -27,10 +28,10 @@ const SettingBackup: FC = () => {
   const methods = useForm<TForm>({ resolver: yupResolver(formSchema) });
   const { handleSubmit } = methods;
 
-  const password = useAppSelector((state) => state.app.password);
+  const crypto = useAppSelector((state) => state.app.crypto);
 
   const onSubmit = async (values: TForm) => {
-    if (!password) return;
+    if (!crypto) return;
 
     const data = getSyncData();
     const infoData = {
@@ -42,7 +43,13 @@ const SettingBackup: FC = () => {
       exportFile(
         JSON.stringify({
           ...infoData,
-          data: aesEncrypt(await Gzip.compress(JSON.stringify(data)), password),
+          data: {
+            ...aesEncrypt(
+              await Gzip.compress(JSON.stringify(data)),
+              enc.Hex.parse(crypto.encryptionKey),
+            ),
+            salt: crypto.salt,
+          },
         }),
         'backup-enc.json',
       );

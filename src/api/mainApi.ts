@@ -4,7 +4,7 @@ import { ApiProps, ApiResult } from '#types/apiType';
 import { paths } from '#types/main-api-schema';
 import { getUser } from '#utils/auth';
 
-type FetchCommits = paths['/commit']['get'];
+type FetchCommits = paths['/commit/actual']['get'];
 type FetchCommitsProps = ApiProps<FetchCommits>;
 type FetchCommitsResult = ApiResult<FetchCommits>;
 
@@ -25,7 +25,7 @@ export const mainApi = createApi({
   endpoints: (builder) => ({
     fetchCommits: builder.query<FetchCommitsResult, FetchCommitsProps>({
       query: (params) => ({
-        url: '/commit',
+        url: '/commit/actual',
         params,
       }),
     }),

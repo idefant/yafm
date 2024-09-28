@@ -52,6 +52,32 @@ export interface paths {
       };
     };
   };
+  "/commit/actual": {
+    /** Actual commit list */
+    get: {
+      parameters: {
+        query?: {
+          /**
+           * Format: date-time
+           * @example 2017-07-21T17:32:28Z
+           */
+          syncedAtFrom?: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": components["schemas"]["Commit"][];
+          };
+        };
+        500: {
+          content: {
+            "application/json": components["schemas"]["HttpException"];
+          };
+        };
+      };
+    };
+  };
 }
 
 export type webhooks = Record<string, never>;

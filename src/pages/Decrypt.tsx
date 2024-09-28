@@ -1,4 +1,5 @@
 import { yupResolver } from '@hookform/resolvers/yup';
+import { enc } from 'crypto-js';
 import { FC } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
@@ -8,7 +9,7 @@ import { useCreateCommitMutation, useFetchCommitsQuery } from '#api/mainApi';
 import { useAppDispatch } from '#hooks/reduxHooks';
 import { accountCategoriesReceived } from '#store/reducers/accountCategoriesSlice';
 import { accountsReceived } from '#store/reducers/accountsSlice';
-import { setPassword } from '#store/reducers/appSlice';
+import { unlockBase } from '#store/reducers/appSlice';
 import {
   currenciesReceived,
   defaultCurrencies,
@@ -24,6 +25,7 @@ import EntranceTitle from '#ui/EntranceTitle';
 import Form from '#ui/Form';
 import { committer } from '#utils/committer';
 import { compileBase } from '#utils/compileBase';
+import { generateSalt, pass2key } from '#utils/crypto';
 import yup from '#utils/form/schema';
 
 type TForm = {
@@ -54,7 +56,16 @@ const Decrypt: FC = () => {
 
   const onSubmit = async (values: TForm) => {
     if (isNew) {
-      dispatch(setPassword(values.password));
+      const salt = generateSalt();
+      const encryptionKey = pass2key(values.password, salt);
+
+      dispatch(
+        unlockBase({
+          password: values.password,
+          salt: salt.toString(),
+          encryptionKey: encryptionKey.toString(),
+        }),
+      );
       dispatch(setDefaultCurrencies());
 
       createCommit(
@@ -73,14 +84,16 @@ const Decrypt: FC = () => {
           },
         }).encrypt(),
       );
-
       return;
     }
 
     const decryptedCommits = [];
 
+    const { salt } = commits[0];
+    const encryptionKey = pass2key(values.password, enc.Hex.parse(salt)).toString();
+
     for await (const commit of commits.toReversed()) {
-      const decryptedCommit = await committer.decrypt(commit, values.password);
+      const decryptedCommit = await committer.decrypt(commit, encryptionKey);
 
       if (!decryptedCommit) {
         Swal.fire({ title: 'Wrong password', icon: 'error' });
@@ -112,7 +125,13 @@ const Decrypt: FC = () => {
       return;
     }
 
-    dispatch(setPassword(values.password));
+    dispatch(
+      unlockBase({
+        password: values.password,
+        salt,
+        encryptionKey,
+      }),
+    );
     dispatch(currenciesReceived(base.currencies));
     dispatch(setBaseCurrency(base.baseCurrencyCode));
     dispatch(accountsReceived(base.accounts));

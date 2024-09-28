@@ -2,7 +2,11 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 type AppState = {
   archiveMode: boolean;
-  password?: string;
+  crypto?: {
+    password: string;
+    salt: string;
+    encryptionKey: string;
+  };
   openedModalsCount: number;
 };
 
@@ -18,8 +22,8 @@ export const appSlice = createSlice({
     setArchiveMode(state, { payload: archiveMode }: PayloadAction<boolean>) {
       state.archiveMode = archiveMode;
     },
-    setPassword(state, { payload: pass }: PayloadAction<string>) {
-      state.password = pass;
+    unlockBase(state, { payload }: PayloadAction<Exclude<AppState['crypto'], undefined>>) {
+      state.crypto = payload;
     },
     lockBase: () => initialState,
     incrementOpenedModalsCount(state) {
@@ -33,7 +37,7 @@ export const appSlice = createSlice({
 
 export const {
   setArchiveMode,
-  setPassword,
+  unlockBase,
   lockBase,
   incrementOpenedModalsCount,
   decrementOpenedModalsCount,

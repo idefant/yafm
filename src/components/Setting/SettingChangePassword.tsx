@@ -5,11 +5,12 @@ import Swal from 'sweetalert2';
 
 import { useCreateCommitMutation } from '#api/mainApi';
 import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
-import { setPassword } from '#store/reducers/appSlice';
+import { unlockBase } from '#store/reducers/appSlice';
 import Button from '#ui/Button';
 import Card from '#ui/Card';
 import Form from '#ui/Form';
 import { committer } from '#utils/committer';
+import { generateSalt, pass2key } from '#utils/crypto';
 import yup from '#utils/form/schema';
 import { getSyncData } from '#utils/sync';
 
@@ -28,7 +29,7 @@ const formSchema = yup
   .required();
 
 const SettingChangePassword: FC = () => {
-  const password = useAppSelector((state) => state.app.password);
+  const password = useAppSelector((state) => state.app.crypto?.password);
   const dispatch = useAppDispatch();
 
   const [createCommit] = useCreateCommitMutation();
@@ -47,9 +48,21 @@ const SettingChangePassword: FC = () => {
       return;
     }
 
-    dispatch(setPassword(values.newPassword));
+    const salt = generateSalt();
+    const encryptionKey = pass2key(values.newPassword, salt);
+
+    dispatch(
+      unlockBase({
+        password: values.newPassword,
+        salt: salt.toString(),
+        encryptionKey: encryptionKey.toString(),
+      }),
+    );
     await createCommit(
-      await committer({ method: 'change_password', data: getSyncData() }).encrypt(),
+      await committer({
+        method: 'change_password',
+        data: getSyncData(),
+      }).encrypt(),
     );
     Swal.fire({ title: 'Password changed successfully', icon: 'success' });
     reset();
