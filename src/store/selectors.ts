@@ -44,6 +44,8 @@ export const selectCurrencies = currenciesSelectors.selectAll;
 
 export const selectCurrenciesIds = currenciesSelectors.selectIds;
 
+export const selectCurrencyById = currenciesSelectors.selectById;
+
 // ..............................
 // ===== Account Categories =====
 // ''''''''''''''''''''''''''''''
@@ -53,6 +55,8 @@ export const selectVisibleAccountCategories = createSelector(
   [accountCategoriesSelectors.selectAll, selectArchiveMode],
   (categories, archiveMode) => categories.filter((category) => archiveMode || !category.is_archive),
 );
+
+export const selectAccountCategoryById = accountCategoriesSelectors.selectById;
 
 // ....................
 // ===== Accounts =====
@@ -97,6 +101,8 @@ export const selectVisibleAccountsCombined = createSelector(
     })) as TAccountCombined[],
 );
 
+export const selectAccountById = accountsSelectors.selectById;
+
 // ..................................
 // ===== Transaction Categories =====
 // ''''''''''''''''''''''''''''''''''
@@ -108,6 +114,8 @@ export const selectVisibleTransactionCategories = createSelector(
   [transactionCategoriesSelectors.selectAll, selectArchiveMode],
   (categories, archiveMode) => categories.filter((category) => archiveMode || !category.is_archive),
 );
+
+export const selectTransactionCategoryById = transactionCategoriesSelectors.selectById;
 
 // ........................
 // ===== Transactions =====
@@ -131,6 +139,8 @@ export const selectAllTransactionsCombined = createSelector(
     })) as TTransactionCombined[],
 );
 
+export const selectTransactionById = transactionsSelectors.selectById;
+
 // .................................
 // ===== Transaction Templates =====
 // '''''''''''''''''''''''''''''''''
@@ -152,6 +162,8 @@ export const selectAllTransactionTemplatesCombined = createSelector(
       })),
     })) as TTransactionTemplateCombined[],
 );
+
+export const selectTransactionTemplateById = transactionTemplatesSelectors.selectById;
 
 // ....................
 // ===== Balances =====

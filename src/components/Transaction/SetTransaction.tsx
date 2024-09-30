@@ -9,11 +9,13 @@ import { ChooseTemplate } from '#components/Template';
 import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
 import useModal from '#hooks/useModal';
 import { numberWithDecimalPlacesSchema } from '#schema';
+import { store } from '#store';
 import { transactionAdded, transactionUpdated } from '#store/reducers/transactionsSlice';
 import {
   selectAllAccountsCombined,
   selectAllAccountsCombinedEntities,
   selectAllTransactionCategories,
+  selectTransactionById,
 } from '#store/selectors';
 import { TTransaction, TTransactionTemplate } from '#types/transactionType';
 import Button from '#ui/Button';
@@ -24,6 +26,7 @@ import Icon from '#ui/Icon';
 import Modal from '#ui/Modal';
 import { committer } from '#utils/committer';
 import yup from '#utils/form/schema';
+import { getChanges } from '#utils/getChanges';
 import { genId } from '#utils/random';
 import { compareObjByStr } from '#utils/string';
 
@@ -44,6 +47,14 @@ type TForm = {
   }[];
   categoryId: string | null;
 };
+
+const commitDataKeys: (keyof TTransaction)[] = [
+  'name',
+  'category_id',
+  'operations',
+  'description',
+  'datetime',
+];
 
 const SetTransaction: FC<SetTransactionProps> = ({
   isOpen,
@@ -114,11 +125,14 @@ const SetTransaction: FC<SetTransactionProps> = ({
     };
 
     if (transaction) {
-      dispatch(transactionUpdated({ id: transaction.id, changes: transactionData }));
+      const oldValue = selectTransactionById(store.getState(), transaction.id);
+      const changes = getChanges(oldValue, transactionData, commitDataKeys);
+
+      dispatch(transactionUpdated({ id: transaction.id, changes }));
       createCommit(
         await committer({
           method: 'update_transaction',
-          data: { id: transaction.id, ...transactionData },
+          data: { id: transaction.id, ...changes },
         }).encrypt(),
       );
     } else {

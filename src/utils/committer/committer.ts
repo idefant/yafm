@@ -12,8 +12,6 @@ import { crypt } from '#utils/crypt';
 import Gzip from '#utils/gzip';
 
 // XXX: Добавить метод push
-// XXX: Заменять undefined на null
-// XXX: Нужно делать проверку "было-стало" и очищать коммиты от ненужного
 
 const runTransforms = async (action: CommitAction, transforms: Transform[]) => {
   const newActionData = await transforms.reduce(async (acc, transform) => {

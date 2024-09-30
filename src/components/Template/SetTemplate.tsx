@@ -6,6 +6,7 @@ import { FormProvider, useFieldArray, useForm, useWatch } from 'react-hook-form'
 import { useCreateCommitMutation } from '#api/mainApi';
 import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
 import { numberWithDecimalPlacesSchema } from '#schema';
+import { store } from '#store';
 import {
   transactionTemplateAdded,
   transactionTemplateUpdated,
@@ -14,6 +15,7 @@ import {
   selectAllAccountsCombined,
   selectAllAccountsCombinedEntities,
   selectAllTransactionCategories,
+  selectTransactionTemplateById,
 } from '#store/selectors';
 import { TTransactionTemplate } from '#types/transactionType';
 import Button from '#ui/Button';
@@ -22,6 +24,7 @@ import Icon from '#ui/Icon';
 import Modal from '#ui/Modal';
 import { committer } from '#utils/committer';
 import yup from '#utils/form/schema';
+import { getChanges } from '#utils/getChanges';
 import { genId } from '#utils/random';
 import { compareObjByStr } from '#utils/string';
 
@@ -41,6 +44,13 @@ type TForm = {
   }[];
   categoryId: string | null;
 };
+
+const commitDataKeys: (keyof TTransactionTemplate)[] = [
+  'name',
+  'category_id',
+  'operations',
+  'description',
+];
 
 const SetTemplate: FC<SetTemplateProps> = ({ isOpen, close, template }) => {
   const accounts = useAppSelector(selectAllAccountsCombined);
@@ -102,11 +112,14 @@ const SetTemplate: FC<SetTemplateProps> = ({ isOpen, close, template }) => {
     };
 
     if (template) {
-      dispatch(transactionTemplateUpdated({ id: template.id, changes: templateData }));
+      const oldValue = selectTransactionTemplateById(store.getState(), template.id);
+      const changes = getChanges(oldValue, templateData, commitDataKeys);
+
+      dispatch(transactionTemplateUpdated({ id: template.id, changes }));
       createCommit(
         await committer({
           method: 'update_transaction_template',
-          data: { id: template.id },
+          data: { id: template.id, ...changes },
         }).encrypt(),
       );
     } else {

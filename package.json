@@ -27,6 +27,7 @@
     "crypto-js": "^4.1.1",
     "dayjs": "^1.11.3",
     "focus-trap-react": "^9.0.2",
+    "json-diff-ts": "^4.0.1",
     "oidc-client-ts": "^3.0.1",
     "react": "^18.2.0",
     "react-chartjs-2": "^4.3.0",

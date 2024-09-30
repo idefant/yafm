@@ -1,6 +1,7 @@
 import { TBase } from '#types/baseType';
 import { Commit, updatedBaseMethods } from '#types/commitType';
 import { mapMerge, remove } from '#utils/arrays';
+import { objMap } from '#utils/objMap';
 
 export const compileBase = (commits: Commit[]) => {
   if (!updatedBaseMethods.some((method) => method === commits[0].actions[0].method)) return;
@@ -16,7 +17,11 @@ export const compileBase = (commits: Commit[]) => {
           acc.currencies.push(action.data);
         }
         if (action.method === 'update_currency') {
-          mapMerge(acc.currencies, (currency) => currency.code === action.data.code, action.data);
+          mapMerge(
+            acc.currencies,
+            (currency) => currency.code === action.data.code,
+            objMap(action.data, (key, value) => [key, value ?? undefined]),
+          );
         }
         if (action.method === 'delete_currency') {
           remove(acc.currencies, (currency) => currency.code === action.data.code);
@@ -30,7 +35,7 @@ export const compileBase = (commits: Commit[]) => {
           mapMerge(
             acc.categories.accounts,
             (category) => category.id === action.data.id,
-            action.data,
+            objMap(action.data, (key, value) => [key, value ?? undefined]),
           );
         }
         if (action.method === 'delete_account_category') {
@@ -42,7 +47,11 @@ export const compileBase = (commits: Commit[]) => {
           acc.accounts.push(action.data);
         }
         if (action.method === 'update_account') {
-          mapMerge(acc.accounts, (account) => account.id === action.data.id, action.data);
+          mapMerge(
+            acc.accounts,
+            (account) => account.id === action.data.id,
+            objMap(action.data, (key, value) => [key, value ?? undefined]),
+          );
         }
         if (action.method === 'delete_account') {
           remove(acc.accounts, (account) => account.id === action.data.id);
@@ -56,7 +65,7 @@ export const compileBase = (commits: Commit[]) => {
           mapMerge(
             acc.categories.transactions,
             (category) => category.id === action.data.id,
-            action.data,
+            objMap(action.data, (key, value) => [key, value ?? undefined]),
           );
         }
         if (action.method === 'delete_transaction_category') {
@@ -68,7 +77,11 @@ export const compileBase = (commits: Commit[]) => {
           acc.templates.push(action.data);
         }
         if (action.method === 'update_transaction_template') {
-          mapMerge(acc.templates, (template) => template.id === action.data.id, action.data);
+          mapMerge(
+            acc.templates,
+            (template) => template.id === action.data.id,
+            objMap(action.data, (key, value) => [key, value ?? undefined]),
+          );
         }
         if (action.method === 'delete_transaction_template') {
           remove(acc.templates, (template) => template.id === action.data.id);
@@ -82,7 +95,7 @@ export const compileBase = (commits: Commit[]) => {
           mapMerge(
             acc.transactions,
             (transaction) => transaction.id === action.data.id,
-            action.data,
+            objMap(action.data, (key, value) => [key, value ?? undefined]),
           );
         }
         if (action.method === 'delete_transaction') {

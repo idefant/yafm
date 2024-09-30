@@ -4,6 +4,7 @@ import { FormProvider, useForm } from 'react-hook-form';
 
 import { useCreateCommitMutation } from '#api/mainApi';
 import { useAppDispatch } from '#hooks/reduxHooks';
+import { store } from '#store';
 import {
   accountCategoryAdded,
   accountCategoryUpdated,
@@ -12,12 +13,14 @@ import {
   transactionCategoryAdded,
   transactionCategoryUpdated,
 } from '#store/reducers/transactionCategoriesSlice';
+import { selectAccountCategoryById, selectTransactionCategoryById } from '#store/selectors';
 import { TCategory, TCategoryType } from '#types/categoryType';
 import Button from '#ui/Button';
 import Form from '#ui/Form';
 import Modal from '#ui/Modal';
 import { committer } from '#utils/committer';
 import yup from '#utils/form/schema';
+import { getChanges } from '#utils/getChanges';
 import { genId } from '#utils/random';
 
 interface SetCategoryProps {
@@ -38,6 +41,8 @@ const formSchema = yup
     isArchive: yup.bool(),
   })
   .required();
+
+const commitDataKeys: (keyof TCategory)[] = ['name', 'is_archive'];
 
 const SetCategory: FC<SetCategoryProps> = ({ isOpen, close, category, categoryType }) => {
   const methods = useForm<TForm>({ resolver: yupResolver(formSchema) });
@@ -69,20 +74,26 @@ const SetCategory: FC<SetCategoryProps> = ({ isOpen, close, category, categoryTy
       }
     } else {
       if (categoryType === 'accounts') {
-        dispatch(accountCategoryUpdated({ id: category.id, changes: categoryData }));
+        const oldValue = selectAccountCategoryById(store.getState(), category.id);
+        const changes = getChanges(oldValue, categoryData, commitDataKeys);
+
+        dispatch(accountCategoryUpdated({ id: category.id, changes }));
         createCommit(
           await committer({
             method: 'update_account_category',
-            data: { id: category.id, ...categoryData },
+            data: { id: category.id, ...changes },
           }).encrypt(),
         );
       }
       if (categoryType === 'transactions') {
-        dispatch(transactionCategoryUpdated({ id: category.id, changes: categoryData }));
+        const oldValue = selectTransactionCategoryById(store.getState(), category.id);
+        const changes = getChanges(oldValue, categoryData, commitDataKeys);
+
+        dispatch(transactionCategoryUpdated({ id: category.id, changes }));
         createCommit(
           await committer({
             method: 'update_transaction_category',
-            data: { id: category.id, ...categoryData },
+            data: { id: category.id, ...changes },
           }).encrypt(),
         );
       }

@@ -4,13 +4,16 @@ import { FormProvider, useForm } from 'react-hook-form';
 
 import { useCreateCommitMutation } from '#api/mainApi';
 import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
+import { store } from '#store';
 import { currencyAdded, currencyUpdated, setBaseCurrency } from '#store/reducers/currenciesSlice';
+import { selectCurrencyById } from '#store/selectors';
 import { TCurrency, TCurrencyType, currencyTypes } from '#types/currencyType';
 import Button from '#ui/Button';
 import Form from '#ui/Form';
 import Modal from '#ui/Modal';
 import { committer } from '#utils/committer';
 import yup from '#utils/form/schema';
+import { getChanges } from '#utils/getChanges';
 
 export type OpenedCurrency =
   | { method: 'create'; currency: { name: string; code: string } }
@@ -30,6 +33,14 @@ type TForm = {
   symbol: string;
   isBaseCurrency: boolean;
 };
+
+const commitDataKeys: (keyof TCurrency)[] = [
+  'name',
+  'symbol',
+  'decimal_places_number',
+  'type',
+  'color',
+];
 
 const formSchema = yup.object({
   name: yup.string().required(),
@@ -63,10 +74,13 @@ const SetCurrency: FC<SetCurrencyProps> = ({ isOpen, close, data }) => {
     const commit = committer();
 
     if (data.method === 'update') {
-      dispatch(currencyUpdated({ id: data.currency.code, changes: currencyData }));
+      const oldValue = selectCurrencyById(store.getState(), data.currency.code);
+      const changes = getChanges(oldValue, currencyData, commitDataKeys);
+
+      dispatch(currencyUpdated({ id: data.currency.code, changes }));
       commit.add({
         method: 'update_currency',
-        data: { code: data.currency.code, ...currencyData },
+        data: { code: data.currency.code, ...changes },
       });
     } else {
       dispatch(currencyAdded({ code: data.currency.code, ...currencyData }));

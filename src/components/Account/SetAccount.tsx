@@ -4,14 +4,20 @@ import { FormProvider, useForm } from 'react-hook-form';
 
 import { useCreateCommitMutation } from '#api/mainApi';
 import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
+import { store } from '#store';
 import { accountAdded, accountUpdated } from '#store/reducers/accountsSlice';
-import { selectCurrencies, selectVisibleAccountCategories } from '#store/selectors';
+import {
+  selectAccountById,
+  selectCurrencies,
+  selectVisibleAccountCategories,
+} from '#store/selectors';
 import { TAccount } from '#types/accountType';
 import Button from '#ui/Button';
 import Form from '#ui/Form';
 import Modal from '#ui/Modal';
 import { committer } from '#utils/committer';
 import yup from '#utils/form/schema';
+import { getChanges } from '#utils/getChanges';
 import { groupBy } from '#utils/groupBy';
 import { genId } from '#utils/random';
 import { compareObjByStr } from '#utils/string';
@@ -36,6 +42,8 @@ const formSchema = yup.object({
   isArchive: yup.boolean(),
 });
 
+const commitDataKeys: (keyof TAccount)[] = ['name', 'category_id', 'is_archive'];
+
 const SetAccount: FC<SetAccountProps> = ({ isOpen, close, account }) => {
   const currencies = useAppSelector(selectCurrencies);
   const categories = useAppSelector(selectVisibleAccountCategories);
@@ -54,11 +62,14 @@ const SetAccount: FC<SetAccountProps> = ({ isOpen, close, account }) => {
     };
 
     if (account) {
-      dispatch(accountUpdated({ id: account.id, changes: accountData }));
+      const oldValue = selectAccountById(store.getState(), account.id);
+      const changes = getChanges(oldValue, accountData, commitDataKeys);
+
+      dispatch(accountUpdated({ id: account.id, changes }));
       createCommit(
         await committer({
           method: 'update_account',
-          data: { id: account.id, ...accountData },
+          data: { id: account.id, ...changes },
         }).encrypt(),
       );
     } else {
