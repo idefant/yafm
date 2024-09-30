@@ -81,9 +81,11 @@ const crypt = {
 
 export type Crypt = typeof crypt;
 
-type CryptAction = { [K in keyof Crypt]: { method: K; data: Parameters<Crypt[K]> } }[keyof Crypt];
+type CryptAction = {
+  [K in keyof Crypt]: { method: K; data: Parameters<Crypt[K]>; requestId: string };
+}[keyof Crypt];
 
 self.onmessage = (e: MessageEvent<CryptAction>) => {
   const res = (crypt[e.data.method] as any)(...e.data.data);
-  self.postMessage(res);
+  self.postMessage({ data: res, requestId: e.data.requestId });
 };

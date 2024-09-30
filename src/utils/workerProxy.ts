@@ -1,5 +1,7 @@
 import { Asyncify, Promisable } from 'type-fest';
 
+import { genRanHex } from './random';
+
 /* eslint-disable no-unused-vars */
 const createActionsProxy = <
   T extends Record<string, (...props: any) => any>,
@@ -22,10 +24,17 @@ const createActionsProxy = <
 // eslint-disable-next-line no-unused-vars
 export const spawnWorker = <T extends Record<string, (...props: any) => any>>(worker: Worker) => {
   const proxy = createActionsProxy<T>((method, data) => {
-    worker.postMessage({ method, data });
+    const requestId = genRanHex(16);
+    worker.postMessage({ method, data, requestId });
 
     return new Promise((resolve) => {
-      worker.addEventListener('message', (e) => resolve(e.data), { once: true });
+      const listener = (e: MessageEvent<{ requestId: string; data: any }>) => {
+        if (e.data.requestId === requestId) {
+          resolve(e.data.data);
+          worker.removeEventListener('message', listener);
+        }
+      };
+      worker.addEventListener('message', listener);
     });
   });
   return proxy;
