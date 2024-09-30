@@ -15,11 +15,11 @@ import BaseTemplate from '#templates/BaseTemplate';
 import CabinetTemplate from '#templates/CabinetTemplate';
 
 const App: FC = () => {
-  const { crypto } = useAppSelector((state) => state.app);
+  const { isBaseUnlocked } = useAppSelector((state) => state.app);
 
   return (
     <Routes>
-      {!crypto ? (
+      {!isBaseUnlocked ? (
         <>
           <Route element={<CabinetTemplate />}>
             <Route path="/decrypt/last" element={<Decrypt />} />

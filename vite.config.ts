@@ -28,6 +28,7 @@ export default defineConfig({
       '#types': path.resolve(__dirname, './src/types'),
       '#ui': path.resolve(__dirname, './src/ui'),
       '#utils': path.resolve(__dirname, './src/utils'),
+      '#workers': path.resolve(__dirname, './src/workers'),
     },
   },
   plugins: [

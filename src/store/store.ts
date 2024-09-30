@@ -1,7 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { combineReducers } from 'redux';
-import { persistReducer, persistStore } from 'redux-persist';
-import storage from 'redux-persist/lib/storage';
 
 import { exratesApi } from '#api/exratesApi';
 import { financeApi } from '#api/financeApi';
@@ -15,14 +13,8 @@ import transactionCategoriesReducer from './reducers/transactionCategoriesSlice'
 import transactionsReducer from './reducers/transactionsSlice';
 import transactionTemplatesReducer from './reducers/transactionTemplatesSlice';
 
-const persistConfigApp = {
-  key: 'app',
-  storage,
-  whitelist: ['vaultUrl', 'isVersioningEnabled'],
-};
-
 export const rootReducer = combineReducers({
-  app: persistReducer(persistConfigApp, appReducer),
+  app: appReducer,
   currencies: currenciesReducer,
   accounts: accountsReducer,
   accountCategories: accountCategoriesReducer,
@@ -42,8 +34,6 @@ export const store = configureStore({
       .concat(financeApi.middleware)
       .concat(mainApi.middleware),
 });
-
-export const persistor = persistStore(store);
 
 export type RootState = ReturnType<typeof rootReducer>;
 export type AppStore = ReturnType<() => typeof store>;

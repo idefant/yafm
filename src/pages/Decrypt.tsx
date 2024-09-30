@@ -1,5 +1,4 @@
 import { yupResolver } from '@hookform/resolvers/yup';
-import { enc } from 'crypto-js';
 import { FC } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
@@ -25,7 +24,7 @@ import EntranceTitle from '#ui/EntranceTitle';
 import Form from '#ui/Form';
 import { committer } from '#utils/committer';
 import { compileBase } from '#utils/compileBase';
-import { generateSalt, pass2key } from '#utils/crypto';
+import { crypt } from '#utils/crypt';
 import yup from '#utils/form/schema';
 
 type TForm = {
@@ -56,17 +55,10 @@ const Decrypt: FC = () => {
 
   const onSubmit = async (values: TForm) => {
     if (isNew) {
-      const salt = generateSalt();
-      const encryptionKey = pass2key(values.password, salt);
+      await crypt.setSecret({ password: values.password });
 
-      dispatch(
-        unlockBase({
-          password: values.password,
-          salt: salt.toString(),
-          encryptionKey: encryptionKey.toString(),
-        }),
-      );
       dispatch(setDefaultCurrencies());
+      dispatch(unlockBase());
 
       createCommit(
         await committer({
@@ -89,11 +81,10 @@ const Decrypt: FC = () => {
 
     const decryptedCommits = [];
 
-    const { salt } = commits[0];
-    const encryptionKey = pass2key(values.password, enc.Hex.parse(salt)).toString();
+    await crypt.setSecret({ password: values.password, salt: commits[0].salt });
 
     for await (const commit of commits.toReversed()) {
-      const decryptedCommit = await committer.decrypt(commit, encryptionKey);
+      const decryptedCommit = await committer.decrypt(commit);
 
       if (!decryptedCommit) {
         Swal.fire({ title: 'Wrong password', icon: 'error' });
@@ -125,13 +116,6 @@ const Decrypt: FC = () => {
       return;
     }
 
-    dispatch(
-      unlockBase({
-        password: values.password,
-        salt,
-        encryptionKey,
-      }),
-    );
     dispatch(currenciesReceived(base.currencies));
     dispatch(setBaseCurrency(base.baseCurrencyCode));
     dispatch(accountsReceived(base.accounts));
@@ -139,6 +123,7 @@ const Decrypt: FC = () => {
     dispatch(transactionsReceived(base.transactions));
     dispatch(transactionCategoriesReceived(base.categories.transactions));
     dispatch(transactionTemplatesReceived(base.templates));
+    dispatch(unlockBase());
 
     navigate('/');
   };

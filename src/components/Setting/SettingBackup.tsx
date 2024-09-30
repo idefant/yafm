@@ -1,15 +1,13 @@
 import { yupResolver } from '@hookform/resolvers/yup';
-import { enc } from 'crypto-js';
 import dayjs from 'dayjs';
 import { FC } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
-import { useAppSelector } from '#hooks/reduxHooks';
 import Button from '#ui/Button';
 import Card from '#ui/Card';
 import Form from '#ui/Form';
-import { aesEncrypt } from '#utils/crypto';
-import { exportFile } from '#utils/file';
+import { crypt } from '#utils/crypt';
+import { exportJsonFile } from '#utils/file';
 import yup from '#utils/form/schema';
 import Gzip from '#utils/gzip';
 import { getSyncData } from '#utils/sync';
@@ -28,33 +26,20 @@ const SettingBackup: FC = () => {
   const methods = useForm<TForm>({ resolver: yupResolver(formSchema) });
   const { handleSubmit } = methods;
 
-  const crypto = useAppSelector((state) => state.app.crypto);
-
   const onSubmit = async (values: TForm) => {
-    if (!crypto) return;
-
     const data = getSyncData();
-    const infoData = {
-      created_at: dayjs().toISOString(),
-      is_encrypted: values.useEncryption,
-    };
 
     if (values.useEncryption) {
-      exportFile(
-        JSON.stringify({
-          ...infoData,
-          data: {
-            ...aesEncrypt(
-              await Gzip.compress(JSON.stringify(data)),
-              enc.Hex.parse(crypto.encryptionKey),
-            ),
-            salt: crypto.salt,
-          },
-        }),
+      const encryptedData = await crypt.encrypt(await Gzip.compress(JSON.stringify(data)));
+      exportJsonFile(
+        { created_at: dayjs().toISOString(), is_encrypted: true, data: encryptedData },
         'backup-enc.json',
       );
     } else {
-      exportFile(JSON.stringify({ ...infoData, data }), 'backup-decr.json');
+      exportJsonFile(
+        { created_at: dayjs().toISOString(), is_encrypted: false, data },
+        'backup-decr.json',
+      );
     }
   };
 

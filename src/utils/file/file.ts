@@ -6,6 +6,10 @@ export const exportFile = (data: string, filename: string, filetype?: string) =>
   link.click();
 };
 
+export const exportJsonFile = (data: any, filename: string) => {
+  exportFile(JSON.stringify(data), filename);
+};
+
 export const readFileContent = (file: File) => {
   const reader = new FileReader();
   return new Promise((resolve, reject) => {

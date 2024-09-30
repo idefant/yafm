@@ -7,10 +7,9 @@ import ReactDOM from 'react-dom/client';
 import { AuthProvider } from 'react-oidc-context';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
-import { PersistGate } from 'redux-persist/integration/react';
 
 import { onSigninCallback, userManager } from '#config/authConfig';
-import { persistor, store } from '#store';
+import { store } from '#store';
 
 import App from './App';
 import { ProtectedApp } from './ProtectedApp';
@@ -31,13 +30,11 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <Provider store={store}>
       <AuthProvider userManager={userManager} onSigninCallback={onSigninCallback}>
-        <PersistGate persistor={persistor}>
-          <BrowserRouter>
-            <ProtectedApp>
-              <App />
-            </ProtectedApp>
-          </BrowserRouter>
-        </PersistGate>
+        <BrowserRouter>
+          <ProtectedApp>
+            <App />
+          </ProtectedApp>
+        </BrowserRouter>
       </AuthProvider>
     </Provider>
   </React.StrictMode>,

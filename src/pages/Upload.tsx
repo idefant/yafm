@@ -1,6 +1,5 @@
 import { yupResolver } from '@hookform/resolvers/yup';
 import classNames from 'classnames';
-import { enc } from 'crypto-js';
 import dayjs from 'dayjs';
 import { ChangeEvent, FC, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
@@ -23,11 +22,11 @@ import GoBackButton from '#ui/Button/GoBackButton';
 import EntranceTitle from '#ui/EntranceTitle';
 import Form from '#ui/Form';
 import { committer } from '#utils/committer';
-import { aesDecrypt, generateSalt, pass2key } from '#utils/crypto';
+import { crypt } from '#utils/crypt';
 import { readFileContent } from '#utils/file';
 import yup from '#utils/form/schema';
 import Gzip from '#utils/gzip';
-import { checkBaseIntegrity, getSyncData } from '#utils/sync';
+import { checkBaseIntegrity } from '#utils/sync';
 
 type TFileData = { created_at: string } & (
   | { data: TEncryptedData; is_encrypted: true }
@@ -57,9 +56,7 @@ const Upload: FC = () => {
     if (!fileData) return;
     if (!fileData.is_encrypted) return fileData.data;
 
-    const encryptionKey = pass2key(password, enc.Hex.parse(fileData.data.salt));
-
-    const plaintext = aesDecrypt(fileData.data, encryptionKey);
+    const plaintext = await crypt.decrypt(fileData.data, password);
     if (!plaintext) {
       Swal.fire({ title: 'Wrong password', icon: 'error' });
       reset({ password: '' });
@@ -70,19 +67,10 @@ const Upload: FC = () => {
   };
 
   const onSubmit = async (values: TForm) => {
-    const salt = generateSalt();
-    const encryptionKey = pass2key(values.password, salt);
-
     const data = await getPlainData(values.password);
     if (!data) return;
 
-    dispatch(
-      unlockBase({
-        password: values.password,
-        salt: salt.toString(),
-        encryptionKey: encryptionKey.toString(),
-      }),
-    );
+    await crypt.setSecret({ password: values.password });
 
     const validatedStatus = checkBaseIntegrity(data);
     if (validatedStatus) {
@@ -101,13 +89,9 @@ const Upload: FC = () => {
     dispatch(transactionsReceived(data.transactions));
     dispatch(transactionCategoriesReceived(data.categories.transactions));
     dispatch(transactionTemplatesReceived(data.templates));
+    dispatch(unlockBase());
 
-    createCommit(
-      await committer({
-        method: 'import_base',
-        data: getSyncData(),
-      }).encrypt(),
-    );
+    createCommit(await committer({ method: 'import_base', data }).encrypt());
 
     navigate('/');
   };

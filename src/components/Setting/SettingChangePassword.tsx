@@ -4,13 +4,11 @@ import { FormProvider, useForm } from 'react-hook-form';
 import Swal from 'sweetalert2';
 
 import { useCreateCommitMutation } from '#api/mainApi';
-import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
-import { unlockBase } from '#store/reducers/appSlice';
 import Button from '#ui/Button';
 import Card from '#ui/Card';
 import Form from '#ui/Form';
 import { committer } from '#utils/committer';
-import { generateSalt, pass2key } from '#utils/crypto';
+import { crypt } from '#utils/crypt';
 import yup from '#utils/form/schema';
 import { getSyncData } from '#utils/sync';
 
@@ -29,16 +27,13 @@ const formSchema = yup
   .required();
 
 const SettingChangePassword: FC = () => {
-  const password = useAppSelector((state) => state.app.crypto?.password);
-  const dispatch = useAppDispatch();
-
   const [createCommit] = useCreateCommitMutation();
 
   const methods = useForm<TForm>({ resolver: yupResolver(formSchema) });
   const { handleSubmit, reset } = methods;
 
   const onSubmit = async (values: TForm) => {
-    if (values.oldPassword !== password) {
+    if (await crypt.checkPassword(values.oldPassword)) {
       Swal.fire({ title: 'Wrong password', icon: 'error' });
       reset({ oldPassword: '' });
       return;
@@ -48,16 +43,7 @@ const SettingChangePassword: FC = () => {
       return;
     }
 
-    const salt = generateSalt();
-    const encryptionKey = pass2key(values.newPassword, salt);
-
-    dispatch(
-      unlockBase({
-        password: values.newPassword,
-        salt: salt.toString(),
-        encryptionKey: encryptionKey.toString(),
-      }),
-    );
+    await crypt.setSecret({ password: values.newPassword });
     await createCommit(
       await committer({
         method: 'change_password',

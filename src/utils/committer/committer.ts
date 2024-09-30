@@ -1,7 +1,5 @@
-import { enc } from 'crypto-js';
 import dayjs from 'dayjs';
 
-import { store } from '#store';
 import { TEncryptedData } from '#types/cipher';
 import {
   CommitAction,
@@ -10,7 +8,7 @@ import {
   Transform,
   updatedBaseMethods,
 } from '#types/commitType';
-import { aesEncrypt, aesDecrypt } from '#utils/crypto';
+import { crypt } from '#utils/crypt';
 import Gzip from '#utils/gzip';
 
 // XXX: Добавить метод push
@@ -73,36 +71,22 @@ class Committer {
     if (this.actions.length === 0) {
       throw new Error('Список действий пуст');
     }
-    const { crypto } = store.getState().app;
-    if (!crypto) {
-      throw new Error('Для шифрования нужен пароль');
-    }
-
-    return {
-      ...aesEncrypt(
-        JSON.stringify({
-          actions: await Promise.all(
-            this.actions.map(async (action) =>
-              updatedBaseMethods.some((method) => method === action.method)
-                ? runTransforms(action, ['gzip'])
-                : action,
-            ),
-          ),
-          createdAt: this.date,
-        }),
-        enc.Hex.parse(crypto.encryptionKey),
+    const commitData = {
+      actions: await Promise.all(
+        this.actions.map(async (action) =>
+          updatedBaseMethods.some((method) => method === action.method)
+            ? runTransforms(action, ['gzip'])
+            : action,
+        ),
       ),
-      salt: crypto.salt,
+      createdAt: this.date,
     };
+
+    return crypt.encrypt(JSON.stringify(commitData));
   }
 
-  static async decrypt(
-    encryptedData: TEncryptedData,
-    encryptionKey = store.getState().app.crypto?.encryptionKey,
-  ) {
-    if (!encryptionKey) throw new Error('Для расшифровки нужен пароль');
-
-    const plaintext = aesDecrypt(encryptedData, enc.Hex.parse(encryptionKey));
+  static async decrypt(encryptedData: TEncryptedData) {
+    const plaintext = await crypt.decrypt(encryptedData);
     if (!plaintext) return;
 
     const commitData: CommitWithTransforms = JSON.parse(plaintext);
