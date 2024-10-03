@@ -4,7 +4,7 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
-import { useCreateCommitMutation, useFetchCommitsQuery } from '#api/mainApi';
+import { useFetchCommitsQuery } from '#api/mainApi';
 import { useAppDispatch } from '#hooks/reduxHooks';
 import { accountCategoriesReceived } from '#store/reducers/accountCategoriesSlice';
 import { accountsReceived } from '#store/reducers/accountsSlice';
@@ -46,8 +46,6 @@ const Decrypt: FC = () => {
     { refetchOnMountOrArgChange: true },
   );
 
-  const [createCommit] = useCreateCommitMutation();
-
   const methods = useForm<TForm>({ resolver: yupResolver(formSchema) });
   const { handleSubmit, reset } = methods;
 
@@ -60,22 +58,20 @@ const Decrypt: FC = () => {
       dispatch(setDefaultCurrencies());
       dispatch(unlockBase());
 
-      createCommit(
-        await committer({
-          method: 'init_base',
-          data: {
+      await committer({
+        method: 'init_base',
+        data: {
+          accounts: [],
+          transactions: [],
+          templates: [],
+          categories: {
             accounts: [],
             transactions: [],
-            templates: [],
-            categories: {
-              accounts: [],
-              transactions: [],
-            },
-            currencies: defaultCurrencies,
-            baseCurrencyCode: '',
           },
-        }).encrypt(),
-      );
+          currencies: defaultCurrencies,
+          baseCurrencyCode: '',
+        },
+      }).sync();
       return;
     }
 

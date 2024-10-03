@@ -1,7 +1,6 @@
 import { FC, useState } from 'react';
 import Swal from 'sweetalert2';
 
-import { useCreateCommitMutation } from '#api/mainApi';
 import { SetTemplate } from '#components/Template';
 import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
 import useModal from '#hooks/useModal';
@@ -18,8 +17,6 @@ import { committer } from '#utils/committer';
 const Templates: FC = () => {
   const templates = useAppSelector(selectAllTransactionTemplatesCombined);
   const dispatch = useAppDispatch();
-
-  const [createCommit] = useCreateCommitMutation();
 
   const templateModal = useModal();
   const [openedTemplate, setOpenedTemplate] = useState<TTransactionTemplate>();
@@ -40,12 +37,10 @@ const Templates: FC = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         dispatch(transactionTemplateDeleted(template.id));
-        createCommit(
-          await committer({
-            method: 'delete_transaction_template',
-            data: { id: template.id },
-          }).encrypt(),
-        );
+        committer({
+          method: 'delete_transaction_template',
+          data: { id: template.id },
+        }).sync();
       }
     });
   };

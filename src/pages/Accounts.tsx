@@ -4,7 +4,6 @@ import { FC, useMemo, useState } from 'react';
 import Swal from 'sweetalert2';
 
 import { useFetchLastRatesQuery } from '#api/exratesApi';
-import { useCreateCommitMutation } from '#api/mainApi';
 import { SetAccount } from '#components/Account';
 import AccountsPie from '#components/Account/AccountsPie';
 import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
@@ -40,7 +39,6 @@ const Accounts: FC = () => {
   const dispatch = useAppDispatch();
 
   const { data: prices } = useFetchLastRatesQuery({});
-  const [createCommit] = useCreateCommitMutation();
 
   const accountModal = useModal();
 
@@ -115,9 +113,10 @@ const Accounts: FC = () => {
       }).then(async (result) => {
         if (result.isConfirmed) {
           dispatch(accountDeleted(account.id));
-          createCommit(
-            await committer({ method: 'delete_account', data: { id: account.id } }).encrypt(),
-          );
+          committer({
+            method: 'delete_account',
+            data: { id: account.id },
+          }).sync();
         }
       });
     }

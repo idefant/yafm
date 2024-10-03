@@ -2,7 +2,6 @@ import dayjs from 'dayjs';
 import { FC, useMemo, useState } from 'react';
 import Swal from 'sweetalert2';
 
-import { useCreateCommitMutation } from '#api/mainApi';
 import { SetTransaction } from '#components/Transaction';
 import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
 import useModal from '#hooks/useModal';
@@ -29,8 +28,6 @@ const Transactions: FC = () => {
   const accounts = useAppSelector(selectVisibleAccounts);
   const transactions = useAppSelector(selectAllTransactionsCombined);
   const dispatch = useAppDispatch();
-
-  const [createCommit] = useCreateCommitMutation();
 
   const [selectedCategories, setSelectedCategories] = useState<TSelectOption[]>([]);
   const selectedCategoryIds = useMemo(
@@ -111,9 +108,10 @@ const Transactions: FC = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         dispatch(transactionDeleted(transaction.id));
-        createCommit(
-          await committer({ method: 'delete_transaction', data: { id: transaction.id } }).encrypt(),
-        );
+        committer({
+          method: 'delete_transaction',
+          data: { id: transaction.id },
+        }).sync();
       }
     });
   };

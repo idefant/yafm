@@ -2,7 +2,6 @@ import { FC, useState } from 'react';
 import Swal from 'sweetalert2';
 
 import { useFetchCurrenciesQuery } from '#api/exratesApi';
-import { useCreateCommitMutation } from '#api/mainApi';
 import { OpenedCurrency, SetCurrency } from '#components/Currency';
 import { useAppDispatch, useAppSelector } from '#hooks/reduxHooks';
 import useModal from '#hooks/useModal';
@@ -23,7 +22,6 @@ const Currencies: FC = () => {
   const dispatch = useAppDispatch();
 
   const { data: availableCurrencies } = useFetchCurrenciesQuery();
-  const [createCommit] = useCreateCommitMutation();
 
   const currencyModal = useModal();
 
@@ -62,9 +60,10 @@ const Currencies: FC = () => {
       }).then(async (result) => {
         if (result.isConfirmed) {
           dispatch(currencyDeleted(currency.code));
-          createCommit(
-            await committer({ method: 'delete_currency', data: { code: currency.code } }).encrypt(),
-          );
+          committer({
+            method: 'delete_currency',
+            data: { code: currency.code },
+          }).sync();
         }
       });
     }

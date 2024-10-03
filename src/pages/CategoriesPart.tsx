@@ -1,7 +1,6 @@
 import { FC, useState } from 'react';
 import Swal from 'sweetalert2';
 
-import { useCreateCommitMutation } from '#api/mainApi';
 import { SetCategory } from '#components/Category';
 import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
 import useModal from '#hooks/useModal';
@@ -37,8 +36,6 @@ const CategoriesPart: FC<CategoriesPartProps> = ({ categoryType }) => {
   const templates = useAppSelector(selectAllTransactionTemplates);
   const archiveMode = useAppSelector((state) => state.app.archiveMode);
   const dispatch = useAppDispatch();
-
-  const [createCommit] = useCreateCommitMutation();
 
   const categoryModal = useModal();
   const [openedCategory, setOpenedCategory] = useState<TCategory>();
@@ -84,17 +81,18 @@ const CategoriesPart: FC<CategoriesPartProps> = ({ categoryType }) => {
         if (result.isConfirmed) {
           if (categoryType === 'accounts') {
             dispatch(accountCategoryDeleted(category.id));
-            committer({ method: 'delete_account_category', data: { id: category.id } }).encrypt();
+            committer({
+              method: 'delete_account_category',
+              data: { id: category.id },
+            }).sync();
           }
 
           if (categoryType === 'transactions') {
             dispatch(transactionCategoryDeleted(category.id));
-            createCommit(
-              await committer({
-                method: 'delete_transaction_category',
-                data: { id: category.id },
-              }).encrypt(),
-            );
+            committer({
+              method: 'delete_transaction_category',
+              data: { id: category.id },
+            }).sync();
           }
         }
       });

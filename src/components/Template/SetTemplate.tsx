@@ -3,7 +3,6 @@ import BigNumber from 'bignumber.js';
 import { FC } from 'react';
 import { FormProvider, useFieldArray, useForm, useWatch } from 'react-hook-form';
 
-import { useCreateCommitMutation } from '#api/mainApi';
 import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
 import { numberWithDecimalPlacesSchema } from '#schema';
 import { store } from '#store';
@@ -57,8 +56,6 @@ const SetTemplate: FC<SetTemplateProps> = ({ isOpen, close, template }) => {
   const accountsEntities = useAppSelector(selectAllAccountsCombinedEntities);
   const categories = useAppSelector(selectAllTransactionCategories);
   const dispatch = useAppDispatch();
-
-  const [createCommit] = useCreateCommitMutation();
 
   const formSchema = yup.object({
     name: yup.string(),
@@ -116,18 +113,14 @@ const SetTemplate: FC<SetTemplateProps> = ({ isOpen, close, template }) => {
       const changes = getChanges(oldValue, templateData, commitDataKeys);
 
       dispatch(transactionTemplateUpdated({ id: template.id, changes }));
-      createCommit(
-        await committer({
-          method: 'update_transaction_template',
-          data: { id: template.id, ...changes },
-        }).encrypt(),
-      );
+      committer({
+        method: 'update_transaction_template',
+        data: { id: template.id, ...changes },
+      }).sync();
     } else {
       const newTemplate = { id: genId(), ...templateData };
       dispatch(transactionTemplateAdded(newTemplate));
-      createCommit(
-        await committer({ method: 'create_transaction_template', data: newTemplate }).encrypt(),
-      );
+      committer({ method: 'create_transaction_template', data: newTemplate }).sync();
     }
     close();
   };

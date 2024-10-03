@@ -2,7 +2,6 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { FC } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
-import { useCreateCommitMutation } from '#api/mainApi';
 import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
 import { store } from '#store';
 import { currencyAdded, currencyUpdated, setBaseCurrency } from '#store/reducers/currenciesSlice';
@@ -55,8 +54,6 @@ const SetCurrency: FC<SetCurrencyProps> = ({ isOpen, close, data }) => {
   const { baseCurrencyCode } = useAppSelector((state) => state.currencies);
   const dispatch = useAppDispatch();
 
-  const [createCommit] = useCreateCommitMutation();
-
   const methods = useForm<TForm>({ resolver: yupResolver(formSchema) });
   const { handleSubmit, reset } = methods;
 
@@ -83,18 +80,16 @@ const SetCurrency: FC<SetCurrencyProps> = ({ isOpen, close, data }) => {
         data: { code: data.currency.code, ...changes },
       });
     } else {
-      dispatch(currencyAdded({ code: data.currency.code, ...currencyData }));
-      commit.add({
-        method: 'create_currency',
-        data: { code: data.currency.code, ...currencyData },
-      });
+      const newCurrency = { code: data.currency.code, ...currencyData };
+      dispatch(currencyAdded(newCurrency));
+      commit.add({ method: 'create_currency', data: newCurrency });
     }
 
     if (values.isBaseCurrency) {
       dispatch(setBaseCurrency(data.currency.code));
       commit.add({ method: 'set_basic_currency', data: { code: data.currency.code } });
     }
-    createCommit(await commit.encrypt());
+    commit.sync();
     close();
   };
 

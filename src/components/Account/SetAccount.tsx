@@ -2,7 +2,6 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { FC } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
-import { useCreateCommitMutation } from '#api/mainApi';
 import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
 import { store } from '#store';
 import { accountAdded, accountUpdated } from '#store/reducers/accountsSlice';
@@ -49,8 +48,6 @@ const SetAccount: FC<SetAccountProps> = ({ isOpen, close, account }) => {
   const categories = useAppSelector(selectVisibleAccountCategories);
   const dispatch = useAppDispatch();
 
-  const [createCommit] = useCreateCommitMutation();
-
   const methods = useForm<TForm>({ resolver: yupResolver(formSchema) });
   const { handleSubmit, reset } = methods;
 
@@ -66,16 +63,14 @@ const SetAccount: FC<SetAccountProps> = ({ isOpen, close, account }) => {
       const changes = getChanges(oldValue, accountData, commitDataKeys);
 
       dispatch(accountUpdated({ id: account.id, changes }));
-      createCommit(
-        await committer({
-          method: 'update_account',
-          data: { id: account.id, ...changes },
-        }).encrypt(),
-      );
+      committer({
+        method: 'update_account',
+        data: { id: account.id, ...changes },
+      }).sync();
     } else {
       const newAccount = { id: genId(), currency_code: values.currencyCode || '', ...accountData };
       dispatch(accountAdded(newAccount));
-      createCommit(await committer({ method: 'create_account', data: newAccount }).encrypt());
+      committer({ method: 'create_account', data: newAccount }).sync();
     }
     close();
   };

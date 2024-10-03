@@ -7,7 +7,6 @@ import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { bool, mixed, object, string, ValidationError } from 'yup';
 
-import { useCreateCommitMutation } from '#api/mainApi';
 import { useAppDispatch } from '#hooks/reduxHooks';
 import { accountCategoriesReceived } from '#store/reducers/accountCategoriesSlice';
 import { accountsReceived } from '#store/reducers/accountsSlice';
@@ -44,8 +43,6 @@ const formSchema = yup.object({
 const Upload: FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-
-  const [createCommit] = useCreateCommitMutation();
 
   const methods = useForm<TForm>({ resolver: yupResolver(formSchema) });
   const { handleSubmit, reset } = methods;
@@ -91,7 +88,7 @@ const Upload: FC = () => {
     dispatch(transactionTemplatesReceived(data.templates));
     dispatch(unlockBase());
 
-    createCommit(await committer({ method: 'import_base', data }).encrypt());
+    await committer({ method: 'import_base', data }).sync();
 
     navigate('/');
   };

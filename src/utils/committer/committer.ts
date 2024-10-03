@@ -1,5 +1,8 @@
 import dayjs from 'dayjs';
+import Swal from 'sweetalert2';
 
+import { mainApi } from '#api/mainApi';
+import { store } from '#store';
 import { TEncryptedData } from '#types/cipher';
 import {
   CommitAction,
@@ -10,8 +13,6 @@ import {
 } from '#types/commitType';
 import { crypt } from '#utils/crypt';
 import Gzip from '#utils/gzip';
-
-// XXX: Добавить метод push
 
 const runTransforms = async (action: CommitAction, transforms: Transform[]) => {
   const newActionData = await transforms.reduce(async (acc, transform) => {
@@ -65,7 +66,7 @@ class Committer {
     return this;
   }
 
-  async encrypt() {
+  private async encrypt() {
     if (this.actions.length === 0) {
       throw new Error('Список действий пуст');
     }
@@ -98,6 +99,19 @@ class Committer {
     );
 
     return new Committer(...transformedActions).setDate(commitData.createdAt);
+  }
+
+  async sync() {
+    const { dispatch } = store;
+    const encryptedData = await this.encrypt();
+    const res = await dispatch(mainApi.endpoints.createCommit.initiate(encryptedData));
+    if ('error' in res) {
+      Swal.fire({
+        title: 'Ошибка сохранения данных',
+        icon: 'error',
+      });
+    }
+    return res;
   }
 }
 

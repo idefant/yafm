@@ -4,7 +4,6 @@ import dayjs from 'dayjs';
 import { FC, useState } from 'react';
 import { FormProvider, useFieldArray, useForm, useWatch } from 'react-hook-form';
 
-import { useCreateCommitMutation } from '#api/mainApi';
 import { ChooseTemplate } from '#components/Template';
 import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
 import useModal from '#hooks/useModal';
@@ -67,8 +66,6 @@ const SetTransaction: FC<SetTransactionProps> = ({
   const categories = useAppSelector(selectAllTransactionCategories);
   const dispatch = useAppDispatch();
 
-  const [createCommit] = useCreateCommitMutation();
-
   const formSchema = yup.object({
     name: yup.string(),
     description: yup.string(),
@@ -129,18 +126,14 @@ const SetTransaction: FC<SetTransactionProps> = ({
       const changes = getChanges(oldValue, transactionData, commitDataKeys);
 
       dispatch(transactionUpdated({ id: transaction.id, changes }));
-      createCommit(
-        await committer({
-          method: 'update_transaction',
-          data: { id: transaction.id, ...changes },
-        }).encrypt(),
-      );
+      committer({
+        method: 'update_transaction',
+        data: { id: transaction.id, ...changes },
+      }).sync();
     } else {
       const newTransaction = { id: genId(), ...transactionData };
       dispatch(transactionAdded(newTransaction));
-      createCommit(
-        await committer({ method: 'create_transaction', data: newTransaction }).encrypt(),
-      );
+      committer({ method: 'create_transaction', data: newTransaction }).sync();
     }
     close();
   };

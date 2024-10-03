@@ -3,7 +3,6 @@ import { FC } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import Swal from 'sweetalert2';
 
-import { useCreateCommitMutation } from '#api/mainApi';
 import Button from '#ui/Button';
 import Card from '#ui/Card';
 import Form from '#ui/Form';
@@ -27,8 +26,6 @@ const formSchema = yup
   .required();
 
 const SettingChangePassword: FC = () => {
-  const [createCommit] = useCreateCommitMutation();
-
   const methods = useForm<TForm>({ resolver: yupResolver(formSchema) });
   const { handleSubmit, reset } = methods;
 
@@ -44,12 +41,7 @@ const SettingChangePassword: FC = () => {
     }
 
     await crypt.setSecret({ password: values.newPassword });
-    await createCommit(
-      await committer({
-        method: 'change_password',
-        data: getSyncData(),
-      }).encrypt(),
-    );
+    await committer({ method: 'change_password', data: getSyncData() }).sync();
     Swal.fire({ title: 'Password changed successfully', icon: 'success' });
     reset();
   };
