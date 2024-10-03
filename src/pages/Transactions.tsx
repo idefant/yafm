@@ -2,12 +2,14 @@ import dayjs from 'dayjs';
 import { FC, useMemo, useState } from 'react';
 import Swal from 'sweetalert2';
 
+import { useFetchRatesByPeriodQuery } from '#api/exratesApi';
 import { SetTransaction } from '#components/Transaction';
 import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
 import useModal from '#hooks/useModal';
 import { transactionDeleted } from '#store/reducers/transactionsSlice';
 import {
   selectAllTransactionsCombined,
+  selectCurrencyById,
   selectVisibleAccounts,
   selectVisibleTransactionCategories,
 } from '#store/selectors';
@@ -21,9 +23,12 @@ import Table, { TColumn, TableDate, TableOperations, TableTooltip, TableAction }
 import { Title } from '#ui/Title';
 import { committer } from '#utils/committer';
 import { groupBy } from '#utils/groupBy';
+import money from '#utils/money';
 import { compareObjByStr } from '#utils/string';
 
 const Transactions: FC = () => {
+  const { baseCurrencyCode } = useAppSelector((state) => state.currencies);
+  const baseCurrency = useAppSelector((state) => selectCurrencyById(state, baseCurrencyCode));
   const categories = useAppSelector(selectVisibleTransactionCategories);
   const accounts = useAppSelector(selectVisibleAccounts);
   const transactions = useAppSelector(selectAllTransactionsCombined);
@@ -52,6 +57,10 @@ const Transactions: FC = () => {
   const transactionModal = useModal();
   const filterData = useDateFilter();
   const { date, periodType } = filterData;
+
+  const { data: prices } = useFetchRatesByPeriodQuery({
+    period: filterData.date.format(filterData.periodType === 'year' ? 'YYYY' : 'YYYY-MM'),
+  });
 
   const [openedTransaction, setOpenedTransaction] = useState<TTransaction>();
   const [copiedTransaction, setCopiedTransaction] = useState<TTransaction>();
@@ -90,12 +99,47 @@ const Transactions: FC = () => {
       dayjs(transaction.datetime).format('DD.MM.YYYY'),
     );
 
-    return Object.entries(transactionGroups).map(([date, transactions]) => ({
-      name: date,
-      data: transactions,
-      key: date,
-    }));
-  }, [date, periodType, selectedAccountsIds, selectedCategoryIds, transactions]);
+    return Object.entries(transactionGroups).map(([date, transactions]) => {
+      const groupSum = money
+        .sum(
+          transactions
+            .map((transaction) =>
+              transaction.operations.map((operation) => ({ ...operation, transaction })),
+            )
+            .flat()
+            .map((operation) => ({
+              value: operation.sum,
+              currency: operation.account.currency_code,
+              rates: prices?.[dayjs(operation.transaction.datetime).format('YYYY-MM-DD')],
+            })),
+          baseCurrencyCode,
+        )
+        .value.decimalPlaces(baseCurrency?.decimal_places_number || 0)
+        .toFormat();
+
+      return {
+        name: (
+          <div className="flex justify-between">
+            <div>{date}</div>
+            <div>
+              {groupSum} {baseCurrencyCode}
+            </div>
+          </div>
+        ),
+        data: transactions,
+        key: date,
+      };
+    });
+  }, [
+    baseCurrency?.decimal_places_number,
+    baseCurrencyCode,
+    date,
+    periodType,
+    prices,
+    selectedAccountsIds,
+    selectedCategoryIds,
+    transactions,
+  ]);
 
   const confirmDelete = (transaction: TTransactionCombined) => {
     Swal.fire({

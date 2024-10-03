@@ -14,6 +14,7 @@ import {
   selectAccountsLastActivityDict,
   selectAllTransactionTemplates,
   selectAllTransactionsCombined,
+  selectCurrencyById,
   selectVisibleAccountCategories,
   selectVisibleAccountsCombined,
 } from '#store/selectors';
@@ -30,6 +31,7 @@ import money from '#utils/money';
 const Accounts: FC = () => {
   const { archiveMode } = useAppSelector((state) => state.app);
   const { baseCurrencyCode } = useAppSelector((state) => state.currencies);
+  const baseCurrency = useAppSelector((state) => selectCurrencyById(state, baseCurrencyCode));
   const accounts = useAppSelector(selectVisibleAccountsCombined);
   const transactions = useAppSelector(selectAllTransactionsCombined);
   const templates = useAppSelector(selectAllTransactionTemplates);
@@ -64,7 +66,13 @@ const Accounts: FC = () => {
     [accounts, accountsBalanceDict, prices?.rates, baseCurrencyCode, accountsLastActivityDict],
   );
 
-  const { accountsWithoutCategory, accountsGroupedByCategory } = useMemo(() => {
+  const accountsGroupedByCategory = useMemo(() => {
+    const sumAccounts = (accounts: typeof accountsWithBalance) =>
+      money
+        .sum(accounts.map((account) => ({ value: account.baseBalance })))
+        .value.decimalPlaces(baseCurrency?.decimal_places_number || 0)
+        .toFormat();
+
     const { undefined: accountsWithoutCategory, ...accountsWithCategory } = groupBy(
       accountsWithBalance,
       (account) => {
@@ -78,7 +86,7 @@ const Accounts: FC = () => {
       .map((category) => ({
         key: category.id,
         name: (
-          <div className="flex justify-center gap-3 items-center">
+          <div className="inline-flex justify-center gap-3 items-center">
             {category.is_archive && <Icon.Archive className="w-[22px] h-[22px]" />}
             {category.name}
           </div>
@@ -86,10 +94,41 @@ const Accounts: FC = () => {
         data: accountsWithCategory[category.id].sort(
           (a, b) => +(a.is_archive || false) - +(b.is_archive || false),
         ),
+      }))
+      .map((accountsGroupedByCategory) => ({
+        ...accountsGroupedByCategory,
+        name: (
+          <div className="flex justify-between">
+            {accountsGroupedByCategory.name}
+            <div>
+              {sumAccounts(accountsGroupedByCategory.data)} {baseCurrencyCode}
+            </div>
+          </div>
+        ),
       }));
 
-    return { accountsWithoutCategory, accountsGroupedByCategory };
-  }, [accountsWithBalance, archiveMode, categories]);
+    return [
+      {
+        key: '',
+        name: (
+          <div className="flex justify-between">
+            Без категории
+            <div>
+              {sumAccounts(accountsWithoutCategory)} {baseCurrencyCode}
+            </div>
+          </div>
+        ),
+        data: accountsWithoutCategory,
+      },
+      ...accountsGroupedByCategory,
+    ];
+  }, [
+    accountsWithBalance,
+    archiveMode,
+    baseCurrency?.decimal_places_number,
+    baseCurrencyCode,
+    categories,
+  ]);
 
   const confirmDelete = (account: TAccount) => {
     const isAccountUsed = [...transactions, ...templates].some(({ operations }) =>
@@ -199,7 +238,6 @@ const Accounts: FC = () => {
               columns={tableColumns}
               isTranslucentRow={(record) => record.is_archive}
               className={{ groupName: '!bg-orange-900', table: 'w-full' }}
-              data={accountsWithoutCategory}
               dataGroups={accountsGroupedByCategory}
             />
           </Card.Body>
