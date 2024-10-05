@@ -1,8 +1,8 @@
 import { createEntityAdapter, createSlice } from '@reduxjs/toolkit';
 
-import { TTransactionTemplate } from '#types/transactionType';
+import { TransactionTemplate } from '#types/transactionType';
 
-export const transactionTemplatesAdapter = createEntityAdapter<TTransactionTemplate>({
+export const transactionTemplatesAdapter = createEntityAdapter<TransactionTemplate>({
   selectId: (template) => template.id,
 });
 

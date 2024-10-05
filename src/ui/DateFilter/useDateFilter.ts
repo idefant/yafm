@@ -1,21 +1,21 @@
 import dayjs, { Dayjs } from 'dayjs';
 import { useState } from 'react';
 
-import { TPeriod } from '#types/periodType';
+import { Period } from '#types/periodType';
 
-export type TDateFilterOptions = {
+export type DateFilterOptions = {
   date: Dayjs;
-  periodType: TPeriod;
+  periodType: Period;
 };
 
-export type TDateFilter = TDateFilterOptions & {
+export type DateFilterResult = DateFilterOptions & {
   setDate: React.Dispatch<React.SetStateAction<Dayjs>>;
-  setPeriodType: React.Dispatch<React.SetStateAction<TPeriod>>;
+  setPeriodType: React.Dispatch<React.SetStateAction<Period>>;
 };
 
-const useDateFilter = (defaultOptions: Partial<TDateFilterOptions> = {}): TDateFilter => {
+const useDateFilter = (defaultOptions: Partial<DateFilterOptions> = {}): DateFilterResult => {
   const [date, setDate] = useState(defaultOptions.date ?? dayjs());
-  const [periodType, setPeriodType] = useState<TPeriod>(defaultOptions.periodType ?? 'month');
+  const [periodType, setPeriodType] = useState<Period>(defaultOptions.periodType ?? 'month');
 
   return {
     date,

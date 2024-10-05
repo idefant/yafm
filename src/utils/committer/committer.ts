@@ -3,7 +3,7 @@ import Swal from 'sweetalert2';
 
 import { mainApi } from '#api/mainApi';
 import { store } from '#store';
-import { TEncryptedData } from '#types/cipher';
+import { EncryptedData } from '#types/cipher';
 import {
   CommitAction,
   CommitActionWithTransforms,
@@ -84,7 +84,7 @@ class Committer {
     return crypt.encrypt(JSON.stringify(commitData));
   }
 
-  static async decrypt(encryptedData: TEncryptedData) {
+  static async decrypt(encryptedData: EncryptedData) {
     const plaintext = await crypt.decrypt(encryptedData);
     if (!plaintext) return;
 

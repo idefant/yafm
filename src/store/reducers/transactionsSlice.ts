@@ -1,8 +1,8 @@
 import { createEntityAdapter, createSlice } from '@reduxjs/toolkit';
 
-import { TTransaction } from '#types/transactionType';
+import { Transaction } from '#types/transactionType';
 
-export const transactionsAdapter = createEntityAdapter<TTransaction>({
+export const transactionsAdapter = createEntityAdapter<Transaction>({
   selectId: (transaction) => transaction.id,
   sortComparer: (a, b) => a.datetime - b.datetime,
 });

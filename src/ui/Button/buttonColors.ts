@@ -5,4 +5,4 @@ export const buttonColors = {
   yellow: 'bg-yellow-400 text-slate-900',
 };
 
-export type TButtonColor = keyof typeof buttonColors;
+export type ButtonColor = keyof typeof buttonColors;

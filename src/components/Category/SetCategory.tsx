@@ -13,7 +13,7 @@ import {
   transactionCategoryUpdated,
 } from '#store/reducers/transactionCategoriesSlice';
 import { selectAccountCategoryById, selectTransactionCategoryById } from '#store/selectors';
-import { TCategory, TCategoryType } from '#types/categoryType';
+import { Category, CategoryType } from '#types/categoryType';
 import Button from '#ui/Button';
 import Form from '#ui/Form';
 import Modal from '#ui/Modal';
@@ -25,8 +25,8 @@ import { genId } from '#utils/random';
 interface SetCategoryProps {
   isOpen: boolean;
   close: () => void;
-  category?: TCategory;
-  categoryType: TCategoryType;
+  category?: Category;
+  categoryType: CategoryType;
 }
 
 type TForm = {
@@ -41,7 +41,7 @@ const formSchema = yup
   })
   .required();
 
-const commitDataKeys: (keyof TCategory)[] = ['name', 'is_archive'];
+const commitDataKeys: (keyof Category)[] = ['name', 'is_archive'];
 
 const SetCategory: FC<SetCategoryProps> = ({ isOpen, close, category, categoryType }) => {
   const methods = useForm<TForm>({ resolver: yupResolver(formSchema) });

@@ -1,18 +1,18 @@
-import { TAccountCombined } from './accountType';
-import { TCategory } from './categoryType';
+import { AccountCombined } from './accountType';
+import { Category } from './categoryType';
 
-export type TTransactionType = 'income' | 'outcome' | 'exchange';
+export type TransactionType = 'income' | 'outcome' | 'exchange';
 
-export type TOperation = {
+export type Operation = {
   account_id: string;
   sum: string;
 };
 
-export type TOperationCombined = TOperation & {
-  account: TAccountCombined;
+export type OperationCombined = Operation & {
+  account: AccountCombined;
 };
 
-type TTransactionBase = {
+type TransactionBase = {
   id: string;
   name?: string;
   description?: string;
@@ -20,15 +20,15 @@ type TTransactionBase = {
   category_id?: string;
 };
 
-export type TTransaction = TTransactionBase & {
-  operations: TOperation[];
+export type Transaction = TransactionBase & {
+  operations: Operation[];
 };
 
-export type TTransactionCombined = TTransactionBase & {
-  operations: TOperationCombined[];
-  category?: TCategory;
+export type TransactionCombined = TransactionBase & {
+  operations: OperationCombined[];
+  category?: Category;
 };
 
-export type TTransactionTemplate = Omit<TTransaction, 'datetime'>;
+export type TransactionTemplate = Omit<Transaction, 'datetime'>;
 
-export type TTransactionTemplateCombined = Omit<TTransactionCombined, 'datetime'>;
+export type TransactionTemplateCombined = Omit<TransactionCombined, 'datetime'>;

@@ -17,6 +17,6 @@ const Select = forwardRef<any, SelectProps>(({ className, error, ...props }, ref
   />
 ));
 
-export type TSelectOption = { value: string; label: string };
+export type SelectOption = { value: string; label: string };
 
 export default Select;

@@ -6,7 +6,7 @@ import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
 import { store } from '#store';
 import { currencyAdded, currencyUpdated, setBaseCurrency } from '#store/reducers/currenciesSlice';
 import { selectCurrencyById } from '#store/selectors';
-import { TCurrency, TCurrencyType, currencyTypes } from '#types/currencyType';
+import { Currency, CurrencyType, currencyTypes } from '#types/currencyType';
 import Button from '#ui/Button';
 import Form from '#ui/Form';
 import Modal from '#ui/Modal';
@@ -16,7 +16,7 @@ import { getChanges } from '#utils/getChanges';
 
 export type OpenedCurrency =
   | { method: 'create'; currency: { name: string; code: string } }
-  | { method: 'update'; currency: TCurrency };
+  | { method: 'update'; currency: Currency };
 
 interface SetCurrencyProps {
   isOpen: boolean;
@@ -27,13 +27,13 @@ interface SetCurrencyProps {
 type TForm = {
   name: string;
   decimalPlacesNumber: number;
-  type: TCurrencyType;
+  type: CurrencyType;
   color: string;
   symbol: string;
   isBaseCurrency: boolean;
 };
 
-const commitDataKeys: (keyof TCurrency)[] = [
+const commitDataKeys: (keyof Currency)[] = [
   'name',
   'symbol',
   'decimal_places_number',

@@ -6,11 +6,11 @@ import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
 import useModal from '#hooks/useModal';
 import { transactionTemplateDeleted } from '#store/reducers/transactionTemplatesSlice';
 import { selectAllTransactionTemplatesCombined } from '#store/selectors';
-import { TTransactionTemplate } from '#types/transactionType';
+import { TransactionTemplate } from '#types/transactionType';
 import Button from '#ui/Button';
 import Card from '#ui/Card';
 import Icon from '#ui/Icon';
-import Table, { TColumn, TableOperations, TableTooltip, TableAction } from '#ui/Table';
+import Table, { Column, TableOperations, TableTooltip, TableAction } from '#ui/Table';
 import { Title } from '#ui/Title';
 import { committer } from '#utils/committer';
 
@@ -19,14 +19,14 @@ const Templates: FC = () => {
   const dispatch = useAppDispatch();
 
   const templateModal = useModal();
-  const [openedTemplate, setOpenedTemplate] = useState<TTransactionTemplate>();
+  const [openedTemplate, setOpenedTemplate] = useState<TransactionTemplate>();
 
-  const openTemplate = (template?: TTransactionTemplate) => {
+  const openTemplate = (template?: TransactionTemplate) => {
     setOpenedTemplate(template);
     templateModal.open();
   };
 
-  const confirmDelete = (template: TTransactionTemplate) => {
+  const confirmDelete = (template: TransactionTemplate) => {
     Swal.fire({
       title: 'Delete template',
       icon: 'error',
@@ -45,7 +45,7 @@ const Templates: FC = () => {
     });
   };
 
-  const tableColumns: TColumn<(typeof templates)[number]>[] = [
+  const tableColumns: Column<(typeof templates)[number]>[] = [
     {
       title: 'Name',
       key: 'name',

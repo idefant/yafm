@@ -7,10 +7,10 @@ import { useAppDispatch, useAppSelector } from '#hooks/reduxHooks';
 import useModal from '#hooks/useModal';
 import { currencyDeleted } from '#store/reducers/currenciesSlice';
 import { selectAllAccounts, selectCurrencies, selectCurrenciesIds } from '#store/selectors';
-import { TCurrency } from '#types/currencyType';
+import { Currency } from '#types/currencyType';
 import Card from '#ui/Card';
 import Icon from '#ui/Icon';
-import Table, { TColumn, TableAction } from '#ui/Table';
+import Table, { Column, TableAction } from '#ui/Table';
 import { Title } from '#ui/Title';
 import { committer } from '#utils/committer';
 
@@ -36,7 +36,7 @@ const Currencies: FC = () => {
     .filter(([code]) => !currenciesIds.includes(code))
     .map(([code, name]) => ({ code, name }));
 
-  const confirmDelete = (currency: TCurrency) => {
+  const confirmDelete = (currency: Currency) => {
     if (accounts.some(({ currency_code: currencyCode }) => currencyCode === currency.code)) {
       Swal.fire({
         title: 'Unable to delete currency',
@@ -69,7 +69,7 @@ const Currencies: FC = () => {
     }
   };
 
-  const currenciesTableColumns: TColumn<TCurrency>[] = [
+  const currenciesTableColumns: Column<Currency>[] = [
     {
       key: 'name',
       title: 'Name',
@@ -95,7 +95,7 @@ const Currencies: FC = () => {
     },
   ];
 
-  const unusedCurrenciesTableColumns: TColumn<{ name: string; code: string }>[] = [
+  const unusedCurrenciesTableColumns: Column<{ name: string; code: string }>[] = [
     {
       key: 'name',
       title: 'Name',

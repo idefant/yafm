@@ -1,4 +1,4 @@
-export type TEncryptedData = {
+export type EncryptedData = {
   iv: string;
   hmac: string;
   cipher: string;

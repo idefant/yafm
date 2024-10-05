@@ -1,8 +1,8 @@
 import { Dictionary, createSelector } from '@reduxjs/toolkit';
 import BigNumber from 'bignumber.js';
 
-import { TAccountCombined } from '#types/accountType';
-import { TTransactionCombined, TTransactionTemplateCombined } from '#types/transactionType';
+import { AccountCombined } from '#types/accountType';
+import { TransactionCombined, TransactionTemplateCombined } from '#types/transactionType';
 import { createKeysDict } from '#utils/createKeysDict';
 import { getEntities } from '#utils/getEntities';
 import { groupBy } from '#utils/groupBy';
@@ -74,7 +74,7 @@ export const selectAllAccountsCombined = createSelector(
       ...account,
       category: account.category_id ? categoriesEntities[account.category_id] : undefined,
       currency: currenciesEntities[account.currency_code]!,
-    })) as TAccountCombined[],
+    })) as AccountCombined[],
 );
 
 export const selectAllAccountsCombinedEntities = createSelector(
@@ -98,7 +98,7 @@ export const selectVisibleAccountsCombined = createSelector(
       ...account,
       category: account.category_id ? categoriesEntities[account.category_id] : undefined,
       currency: currenciesEntities[account.currency_code]!,
-    })) as TAccountCombined[],
+    })) as AccountCombined[],
 );
 
 export const selectAccountById = accountsSelectors.selectById;
@@ -136,7 +136,7 @@ export const selectAllTransactionsCombined = createSelector(
         ...operation,
         account: accountsEntities[operation.account_id]!,
       })),
-    })) as TTransactionCombined[],
+    })) as TransactionCombined[],
 );
 
 export const selectTransactionById = transactionsSelectors.selectById;
@@ -160,7 +160,7 @@ export const selectAllTransactionTemplatesCombined = createSelector(
         ...operation,
         account: accountsEntities[operation.account_id]!,
       })),
-    })) as TTransactionTemplateCombined[],
+    })) as TransactionTemplateCombined[],
 );
 
 export const selectTransactionTemplateById = transactionTemplatesSelectors.selectById;

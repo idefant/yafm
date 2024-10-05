@@ -17,12 +17,12 @@ import { useAppSelector } from '#hooks/reduxHooks';
 import { selectAllTransactionsCombined, selectCurrenciesIds } from '#store/selectors';
 import { components } from '#types/exrates-api-schema';
 import Card from '#ui/Card';
-import { TDateFilterOptions } from '#ui/DateFilter/useDateFilter';
+import { DateFilterOptions } from '#ui/DateFilter/useDateFilter';
 import { createKeysDict } from '#utils/createKeysDict';
 import money from '#utils/money';
 
 interface DashboardBalanceHistoryChartProps {
-  filterData: TDateFilterOptions;
+  filterData: DateFilterOptions;
   rates?: components['schemas']['DateRates'];
 }
 

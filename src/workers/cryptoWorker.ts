@@ -3,7 +3,7 @@
 import { AES, algo, enc, HmacSHA256, lib, PBKDF2 } from 'crypto-js';
 import { EmptyObject } from 'type-fest';
 
-import { TEncryptedData } from '#types/cipher';
+import { EncryptedData } from '#types/cipher';
 
 type Data = { password: string; salt: string; encryptionKey: lib.WordArray } | EmptyObject;
 
@@ -57,7 +57,7 @@ const crypt = {
     };
   },
 
-  decrypt({ iv, hmac, cipher, salt }: TEncryptedData, password?: string) {
+  decrypt({ iv, hmac, cipher, salt }: EncryptedData, password?: string) {
     const encryptionKey = (() => {
       if (password) {
         return pass2key(password, enc.Hex.parse(salt));

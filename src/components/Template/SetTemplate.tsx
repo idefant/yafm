@@ -16,7 +16,7 @@ import {
   selectAllTransactionCategories,
   selectTransactionTemplateById,
 } from '#store/selectors';
-import { TTransactionTemplate } from '#types/transactionType';
+import { TransactionTemplate } from '#types/transactionType';
 import Button from '#ui/Button';
 import Form from '#ui/Form';
 import Icon from '#ui/Icon';
@@ -28,7 +28,7 @@ import { genId } from '#utils/random';
 import { compareObjByStr } from '#utils/string';
 
 interface SetTemplateProps {
-  template?: TTransactionTemplate;
+  template?: TransactionTemplate;
   isOpen: boolean;
   close: () => void;
 }
@@ -44,7 +44,7 @@ type TForm = {
   categoryId: string | null;
 };
 
-const commitDataKeys: (keyof TTransactionTemplate)[] = [
+const commitDataKeys: (keyof TransactionTemplate)[] = [
   'name',
   'category_id',
   'operations',

@@ -3,10 +3,10 @@ import { FC } from 'react';
 import Icon from '#ui/Icon';
 import Select from '#ui/Select';
 
-import { TDateFilter } from './useDateFilter';
+import { DateFilterResult } from './useDateFilter';
 
 interface DateFilterProps {
-  options: TDateFilter;
+  options: DateFilterResult;
 }
 
 const DateFilter: FC<DateFilterProps> = ({ options }) => {

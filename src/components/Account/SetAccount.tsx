@@ -10,7 +10,7 @@ import {
   selectCurrencies,
   selectVisibleAccountCategories,
 } from '#store/selectors';
-import { TAccount } from '#types/accountType';
+import { Account } from '#types/accountType';
 import Button from '#ui/Button';
 import Form from '#ui/Form';
 import Modal from '#ui/Modal';
@@ -22,7 +22,7 @@ import { genId } from '#utils/random';
 import { compareObjByStr } from '#utils/string';
 
 interface SetAccountProps {
-  account?: TAccount;
+  account?: Account;
   isOpen: boolean;
   close: () => void;
 }
@@ -41,7 +41,7 @@ const formSchema = yup.object({
   isArchive: yup.boolean(),
 });
 
-const commitDataKeys: (keyof TAccount)[] = ['name', 'category_id', 'is_archive'];
+const commitDataKeys: (keyof Account)[] = ['name', 'category_id', 'is_archive'];
 
 const SetAccount: FC<SetAccountProps> = ({ isOpen, close, account }) => {
   const currencies = useAppSelector(selectCurrencies);

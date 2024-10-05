@@ -1,8 +1,8 @@
 import { createEntityAdapter, createSlice } from '@reduxjs/toolkit';
 
-import { TAccount } from '#types/accountType';
+import { Account } from '#types/accountType';
 
-export const accountsAdapter = createEntityAdapter<TAccount>({
+export const accountsAdapter = createEntityAdapter<Account>({
   selectId: (account) => account.id,
   sortComparer: (a, b) => a.name.localeCompare(b.name),
 });

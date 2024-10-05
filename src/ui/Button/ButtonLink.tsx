@@ -2,10 +2,10 @@ import classNames from 'classnames';
 import { FC, ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 
-import { buttonColors, TButtonColor } from './buttonColors';
+import { buttonColors, ButtonColor } from './buttonColors';
 
 interface ButtonLinkProps {
-  color?: TButtonColor;
+  color?: ButtonColor;
   className?: string;
   to: string;
   children?: ReactNode;

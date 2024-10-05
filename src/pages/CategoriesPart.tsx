@@ -13,15 +13,15 @@ import {
   selectVisibleAccountCategories,
   selectVisibleTransactionCategories,
 } from '#store/selectors';
-import { TCategoryType, TCategory } from '#types/categoryType';
+import { CategoryType, Category } from '#types/categoryType';
 import Button from '#ui/Button';
 import Card from '#ui/Card';
 import Icon from '#ui/Icon';
-import Table, { TColumn, TableAction } from '#ui/Table';
+import Table, { Column, TableAction } from '#ui/Table';
 import { committer } from '#utils/committer';
 
 interface CategoriesPartProps {
-  categoryType: TCategoryType;
+  categoryType: CategoryType;
 }
 
 const selectCategoryDict = {
@@ -38,9 +38,9 @@ const CategoriesPart: FC<CategoriesPartProps> = ({ categoryType }) => {
   const dispatch = useAppDispatch();
 
   const categoryModal = useModal();
-  const [openedCategory, setOpenedCategory] = useState<TCategory>();
+  const [openedCategory, setOpenedCategory] = useState<Category>();
 
-  const openCategory = (category?: TCategory) => {
+  const openCategory = (category?: Category) => {
     setOpenedCategory(category);
     categoryModal.open();
   };
@@ -62,7 +62,7 @@ const CategoriesPart: FC<CategoriesPartProps> = ({ categoryType }) => {
     return false;
   };
 
-  const confirmDelete = (category: TCategory) => {
+  const confirmDelete = (category: Category) => {
     if (checkCategoryIsUsed(category.id)) {
       Swal.fire({
         title: 'Unable to delete category',
@@ -99,7 +99,7 @@ const CategoriesPart: FC<CategoriesPartProps> = ({ categoryType }) => {
     }
   };
 
-  const tableColumns: TColumn<TCategory>[] = [
+  const tableColumns: Column<Category>[] = [
     {
       title: 'Name',
       key: 'name',

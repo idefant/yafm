@@ -1,8 +1,8 @@
 import { createEntityAdapter, createSlice } from '@reduxjs/toolkit';
 
-import { TCategory } from '#types/categoryType';
+import { Category } from '#types/categoryType';
 
-export const transactionCategoriesAdapter = createEntityAdapter<TCategory>({
+export const transactionCategoriesAdapter = createEntityAdapter<Category>({
   selectId: (category) => category.id,
   sortComparer: (a, b) => a.name.localeCompare(b.name),
 });

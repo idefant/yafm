@@ -16,7 +16,7 @@ import {
   selectAllTransactionCategories,
   selectTransactionById,
 } from '#store/selectors';
-import { TTransaction, TTransactionTemplate } from '#types/transactionType';
+import { Transaction, TransactionTemplate } from '#types/transactionType';
 import Button from '#ui/Button';
 import CalendarButton from '#ui/CalendarButton';
 import DatePicker from '#ui/DatePicker';
@@ -30,10 +30,10 @@ import { genId } from '#utils/random';
 import { compareObjByStr } from '#utils/string';
 
 interface SetTransactionProps {
-  transaction?: TTransaction;
+  transaction?: Transaction;
   isOpen: boolean;
   close: () => void;
-  copiedTransaction?: TTransaction;
+  copiedTransaction?: Transaction;
 }
 
 type TForm = {
@@ -47,7 +47,7 @@ type TForm = {
   categoryId: string | null;
 };
 
-const commitDataKeys: (keyof TTransaction)[] = [
+const commitDataKeys: (keyof Transaction)[] = [
   'name',
   'category_id',
   'operations',
@@ -138,7 +138,7 @@ const SetTransaction: FC<SetTransactionProps> = ({
     close();
   };
 
-  const getTemplateData = (template: TTransactionTemplate) => {
+  const getTemplateData = (template: TransactionTemplate) => {
     const operations = template.operations
       .slice()
       .sort((a, b) => BigNumber(b.sum).minus(a.sum).toNumber())

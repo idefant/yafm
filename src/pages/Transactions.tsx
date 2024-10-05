@@ -13,13 +13,13 @@ import {
   selectVisibleAccounts,
   selectVisibleTransactionCategories,
 } from '#store/selectors';
-import { TTransaction, TTransactionCombined } from '#types/transactionType';
+import { Transaction, TransactionCombined } from '#types/transactionType';
 import Button from '#ui/Button';
 import Card from '#ui/Card';
 import DateFilter, { useDateFilter } from '#ui/DateFilter';
 import Icon from '#ui/Icon';
-import Select, { TSelectOption } from '#ui/Select';
-import Table, { TColumn, TableDate, TableOperations, TableTooltip, TableAction } from '#ui/Table';
+import Select, { SelectOption } from '#ui/Select';
+import Table, { Column, TableDate, TableOperations, TableTooltip, TableAction } from '#ui/Table';
 import { Title } from '#ui/Title';
 import { committer } from '#utils/committer';
 import { groupBy } from '#utils/groupBy';
@@ -34,7 +34,7 @@ const Transactions: FC = () => {
   const transactions = useAppSelector(selectAllTransactionsCombined);
   const dispatch = useAppDispatch();
 
-  const [selectedCategories, setSelectedCategories] = useState<TSelectOption[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<SelectOption[]>([]);
   const selectedCategoryIds = useMemo(
     () => new Set(selectedCategories.map(({ value }) => value)),
     [selectedCategories],
@@ -44,7 +44,7 @@ const Transactions: FC = () => {
     .sort((a, b) => compareObjByStr(a, b, (e) => e.name))
     .map((category) => ({ value: category.id, label: category.name }));
 
-  const [selectedAccounts, setSelectedAccounts] = useState<TSelectOption[]>([]);
+  const [selectedAccounts, setSelectedAccounts] = useState<SelectOption[]>([]);
   const selectedAccountsIds = useMemo(
     () => new Set(selectedAccounts.map(({ value }) => value)),
     [selectedAccounts],
@@ -62,16 +62,16 @@ const Transactions: FC = () => {
     period: filterData.date.format(filterData.periodType === 'year' ? 'YYYY' : 'YYYY-MM'),
   });
 
-  const [openedTransaction, setOpenedTransaction] = useState<TTransaction>();
-  const [copiedTransaction, setCopiedTransaction] = useState<TTransaction>();
+  const [openedTransaction, setOpenedTransaction] = useState<Transaction>();
+  const [copiedTransaction, setCopiedTransaction] = useState<Transaction>();
 
-  const openTransaction = (transaction?: TTransaction) => {
+  const openTransaction = (transaction?: Transaction) => {
     setOpenedTransaction(transaction);
     setCopiedTransaction(undefined);
     transactionModal.open();
   };
 
-  const copyTransaction = (transaction: TTransaction) => {
+  const copyTransaction = (transaction: Transaction) => {
     setOpenedTransaction(undefined);
     setCopiedTransaction(transaction);
     transactionModal.open();
@@ -141,7 +141,7 @@ const Transactions: FC = () => {
     transactions,
   ]);
 
-  const confirmDelete = (transaction: TTransactionCombined) => {
+  const confirmDelete = (transaction: TransactionCombined) => {
     Swal.fire({
       title: 'Delete transaction',
       icon: 'error',
@@ -160,7 +160,7 @@ const Transactions: FC = () => {
     });
   };
 
-  const tableColumns: TColumn<TTransactionCombined>[] = [
+  const tableColumns: Column<TransactionCombined>[] = [
     {
       title: 'Name',
       key: 'name',

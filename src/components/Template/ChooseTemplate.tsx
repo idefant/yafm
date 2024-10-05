@@ -2,27 +2,27 @@ import { FC } from 'react';
 
 import { useAppSelector } from '#hooks/reduxHooks';
 import { selectAllTransactionTemplatesCombined } from '#store/selectors';
-import { TTransactionTemplate, TTransactionTemplateCombined } from '#types/transactionType';
+import { TransactionTemplate, TransactionTemplateCombined } from '#types/transactionType';
 import Icon from '#ui/Icon';
 import Modal from '#ui/Modal';
-import Table, { TColumn, TableOperations, TableTooltip } from '#ui/Table';
+import Table, { Column, TableOperations, TableTooltip } from '#ui/Table';
 
 interface ChooseTemplateProps {
   isOpen: boolean;
   close: () => void;
   // eslint-disable-next-line no-unused-vars
-  setTransaction: (template: TTransactionTemplate) => void;
+  setTransaction: (template: TransactionTemplate) => void;
 }
 
 const ChooseTemplate: FC<ChooseTemplateProps> = ({ isOpen, close, setTransaction }) => {
   const templates = useAppSelector(selectAllTransactionTemplatesCombined);
 
-  const chooseTemplate = (template: TTransactionTemplate) => {
+  const chooseTemplate = (template: TransactionTemplate) => {
     setTransaction(template);
     close();
   };
 
-  const tableColumns: TColumn<TTransactionTemplateCombined>[] = [
+  const tableColumns: Column<TransactionTemplateCombined>[] = [
     {
       key: 'choose',
       render: ({ record }) => (

@@ -2,13 +2,13 @@ import BigNumber from 'bignumber.js';
 import classNames from 'classnames';
 import { FC } from 'react';
 
-import { TOperationCombined } from '#types/transactionType';
+import { OperationCombined } from '#types/transactionType';
 import money from '#utils/money';
 
 import TableDefaultText from './TableDefaultText';
 
 interface TableOperationsProps {
-  operations: TOperationCombined[];
+  operations: OperationCombined[];
   isPositive: boolean;
 }
 

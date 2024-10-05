@@ -1,10 +1,10 @@
 import { SetOptional } from 'type-fest';
 
-import { TAccount } from './accountType';
-import { TBase } from './baseType';
-import { TCategory } from './categoryType';
-import { TCurrency } from './currencyType';
-import { TTransaction, TTransactionTemplate } from './transactionType';
+import { Account } from './accountType';
+import { Base } from './baseType';
+import { Category } from './categoryType';
+import { Currency } from './currencyType';
+import { Transaction, TransactionTemplate } from './transactionType';
 
 type IsUndefined<T> = undefined extends T ? true : false;
 
@@ -25,51 +25,51 @@ export type CommitActionDict = {
   set_basic_currency: {
     code: string;
   };
-  create_currency: TCurrency;
-  update_currency: SetUpdatable<TCurrency, 'code'>;
+  create_currency: Currency;
+  update_currency: SetUpdatable<Currency, 'code'>;
   delete_currency: {
     code: string;
   };
 
   // account category
-  create_account_category: TCategory;
-  update_account_category: SetUpdatable<TCategory, 'id'>;
+  create_account_category: Category;
+  update_account_category: SetUpdatable<Category, 'id'>;
   delete_account_category: {
     id: string;
   };
 
   // account
-  create_account: TAccount;
-  update_account: SetUpdatable<TAccount, 'id'>;
+  create_account: Account;
+  update_account: SetUpdatable<Account, 'id'>;
   delete_account: {
     id: string;
   };
 
   // transaction category
-  create_transaction_category: TCategory;
-  update_transaction_category: SetUpdatable<TCategory, 'id'>;
+  create_transaction_category: Category;
+  update_transaction_category: SetUpdatable<Category, 'id'>;
   delete_transaction_category: {
     id: string;
   };
 
   // transaction template
-  create_transaction_template: TTransactionTemplate;
-  update_transaction_template: SetUpdatable<TTransactionTemplate, 'id'>;
+  create_transaction_template: TransactionTemplate;
+  update_transaction_template: SetUpdatable<TransactionTemplate, 'id'>;
   delete_transaction_template: {
     id: string;
   };
 
   // transaction
-  create_transaction: TTransaction;
-  update_transaction: SetUpdatable<TTransaction, 'id'>;
+  create_transaction: Transaction;
+  update_transaction: SetUpdatable<Transaction, 'id'>;
   delete_transaction: {
     id: string;
   };
 
   // base
-  init_base: TBase;
-  import_base: TBase;
-  change_password: TBase;
+  init_base: Base;
+  import_base: Base;
+  change_password: Base;
 };
 
 export const updatedBaseMethods = ['init_base', 'import_base', 'change_password'] as const;

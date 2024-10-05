@@ -1,7 +1,7 @@
-import { TCategory } from './categoryType';
-import { TCurrency } from './currencyType';
+import { Category } from './categoryType';
+import { Currency } from './currencyType';
 
-export type TAccount = {
+export type Account = {
   id: string;
   name: string;
   currency_code: string;
@@ -9,7 +9,7 @@ export type TAccount = {
   is_archive?: boolean;
 };
 
-export type TAccountCombined = TAccount & {
-  category?: TCategory;
-  currency: TCurrency;
+export type AccountCombined = Account & {
+  category?: Category;
+  currency: Currency;
 };

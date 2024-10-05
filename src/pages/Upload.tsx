@@ -15,7 +15,7 @@ import { currenciesReceived, setBaseCurrency } from '#store/reducers/currenciesS
 import { transactionCategoriesReceived } from '#store/reducers/transactionCategoriesSlice';
 import { transactionsReceived } from '#store/reducers/transactionsSlice';
 import { transactionTemplatesReceived } from '#store/reducers/transactionTemplatesSlice';
-import { TEncryptedData } from '#types/cipher';
+import { EncryptedData } from '#types/cipher';
 import Button, { buttonColors } from '#ui/Button';
 import GoBackButton from '#ui/Button/GoBackButton';
 import EntranceTitle from '#ui/EntranceTitle';
@@ -27,8 +27,8 @@ import yup from '#utils/form/schema';
 import Gzip from '#utils/gzip';
 import { checkBaseIntegrity } from '#utils/sync';
 
-type TFileData = { created_at: string } & (
-  | { data: TEncryptedData; is_encrypted: true }
+type FileData = { created_at: string } & (
+  | { data: EncryptedData; is_encrypted: true }
   | { data: any; is_encrypted: false }
 );
 
@@ -47,7 +47,7 @@ const Upload: FC = () => {
   const methods = useForm<TForm>({ resolver: yupResolver(formSchema) });
   const { handleSubmit, reset } = methods;
 
-  const [fileData, setFileData] = useState<TFileData>();
+  const [fileData, setFileData] = useState<FileData>();
 
   const getPlainData = async (password: string) => {
     if (!fileData) return;

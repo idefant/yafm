@@ -1,1 +1,1 @@
-export type TPeriod = 'year' | 'month';
+export type Period = 'year' | 'month';

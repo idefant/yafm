@@ -1,12 +1,12 @@
 export const currencyTypes = ['fiat', 'crypto'] as const;
 
-export type TCurrencyType = (typeof currencyTypes)[number];
+export type CurrencyType = (typeof currencyTypes)[number];
 
-export type TCurrency = {
+export type Currency = {
   code: string;
   name: string;
   decimal_places_number: number;
-  type: TCurrencyType;
+  type: CurrencyType;
   color: string;
   symbol: string;
 };

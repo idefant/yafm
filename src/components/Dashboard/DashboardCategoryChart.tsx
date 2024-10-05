@@ -10,9 +10,9 @@ import {
   selectAllTransactionsCombined,
 } from '#store/selectors';
 import { components } from '#types/exrates-api-schema';
-import { TTransactionType } from '#types/transactionType';
+import { TransactionType } from '#types/transactionType';
 import Card from '#ui/Card';
-import { TDateFilterOptions } from '#ui/DateFilter/useDateFilter';
+import { DateFilterOptions } from '#ui/DateFilter/useDateFilter';
 import { groupBy } from '#utils/groupBy';
 import money from '#utils/money';
 import { getTransactionsGroupedByType } from '#utils/transaction';
@@ -20,7 +20,7 @@ import { getTransactionsGroupedByType } from '#utils/transaction';
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 interface DashboardCategoryChartProps {
-  filterData: TDateFilterOptions;
+  filterData: DateFilterOptions;
   rates?: components['schemas']['DateRates'];
 }
 
@@ -41,7 +41,7 @@ const DashboardCategoryChart: FC<DashboardCategoryChartProps> = ({ filterData, r
   const transactionsGroupedByType = getTransactionsGroupedByType(filteredTransactions);
 
   const getChartData = useCallback(
-    (transactionType: TTransactionType) => {
+    (transactionType: TransactionType) => {
       const categorySums = Object.entries(
         groupBy(transactionsGroupedByType[transactionType], 'category_id'),
       )

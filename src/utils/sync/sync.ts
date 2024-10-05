@@ -13,7 +13,7 @@ import {
   selectAllTransactions,
   selectCurrencies,
 } from '#store/selectors';
-import { TBase } from '#types/baseType';
+import { Base } from '#types/baseType';
 import { getProp } from '#utils/getProp';
 
 export const getSyncData = () => {
@@ -46,7 +46,7 @@ const schema = object()
   })
   .required();
 
-export const checkBaseIntegrity = (data: TBase) => {
+export const checkBaseIntegrity = (data: Base) => {
   try {
     schema.validateSync(data);
   } catch (error) {

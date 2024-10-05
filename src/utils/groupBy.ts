@@ -20,10 +20,12 @@ type GroupBy = {
 };
 /* eslint-enable no-unused-vars */
 
+/* eslint-disable no-unused-vars */
 export const groupBy: GroupBy = <T, K extends GroupKey>(
   arr: T[],
   pathOrGetGroupName: string | ((value: T) => K),
 ) => {
+  /* eslint-enable no-unused-vars */
   const groups: Record<string, T[]> = {} as any;
 
   arr.forEach((value) => {

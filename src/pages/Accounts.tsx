@@ -18,11 +18,11 @@ import {
   selectVisibleAccountCategories,
   selectVisibleAccountsCombined,
 } from '#store/selectors';
-import { TAccount } from '#types/accountType';
+import { Account } from '#types/accountType';
 import Button from '#ui/Button';
 import Card from '#ui/Card';
 import Icon from '#ui/Icon';
-import Table, { TColumn, TableDate, TableAction } from '#ui/Table';
+import Table, { Column, TableDate, TableAction } from '#ui/Table';
 import { Title } from '#ui/Title';
 import { committer } from '#utils/committer';
 import { groupBy } from '#utils/groupBy';
@@ -44,9 +44,9 @@ const Accounts: FC = () => {
 
   const accountModal = useModal();
 
-  const [openedAccount, setOpenedAccount] = useState<TAccount>();
+  const [openedAccount, setOpenedAccount] = useState<Account>();
 
-  const openAccount = (account?: TAccount) => {
+  const openAccount = (account?: Account) => {
     setOpenedAccount(account);
     accountModal.open();
   };
@@ -130,7 +130,7 @@ const Accounts: FC = () => {
     categories,
   ]);
 
-  const confirmDelete = (account: TAccount) => {
+  const confirmDelete = (account: Account) => {
     const isAccountUsed = [...transactions, ...templates].some(({ operations }) =>
       operations.map((operation) => operation.account_id).includes(account.id),
     );
@@ -161,7 +161,7 @@ const Accounts: FC = () => {
     }
   };
 
-  const tableColumns: TColumn<(typeof accountsWithBalance)[number]>[] = [
+  const tableColumns: Column<(typeof accountsWithBalance)[number]>[] = [
     {
       title: 'Name',
       key: 'name',

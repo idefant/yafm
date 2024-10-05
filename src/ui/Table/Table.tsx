@@ -7,15 +7,15 @@ import { getProp } from '#utils/getProp';
 import TableDefaultText from './TableDefaultText';
 
 /* eslint-disable no-unused-vars */
-export type TColumnRender<T> = {
+export type ColumnRender<T> = {
   record: T;
   index: number;
 };
 
-export type TColumn<T> = {
+export type Column<T> = {
   title?: ReactNode;
   key: string;
-  render?: (data: TColumnRender<T>) => ReactNode;
+  render?: (data: ColumnRender<T>) => ReactNode;
   cellClassName?: string;
   hidden?: boolean;
   default?: ReactNode;
@@ -23,7 +23,7 @@ export type TColumn<T> = {
 };
 
 interface TableProps<T> {
-  columns: TColumn<T>[];
+  columns: Column<T>[];
   data?: T[];
   dataGroups?: {
     key: string | number;
@@ -119,7 +119,7 @@ const Table = <T extends Record<string, any>>({
 interface TableRowProps<T> {
   row: T;
   index: number;
-  visibleColumns: TColumn<T>[];
+  visibleColumns: Column<T>[];
   getClassName?: (record: T) => any;
   isTranslucentRow?: (record: T) => boolean | undefined;
 }

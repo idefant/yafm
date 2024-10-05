@@ -1,8 +1,8 @@
 import { PayloadAction, createEntityAdapter, createSlice } from '@reduxjs/toolkit';
 
-import { TCurrency } from '#types/currencyType';
+import { Currency } from '#types/currencyType';
 
-export const defaultCurrencies: TCurrency[] = [
+export const defaultCurrencies: Currency[] = [
   {
     code: 'RUB',
     name: 'Ruble',
@@ -37,7 +37,7 @@ export const defaultCurrencies: TCurrency[] = [
   },
 ];
 
-export const currenciesAdapter = createEntityAdapter<TCurrency>({
+export const currenciesAdapter = createEntityAdapter<Currency>({
   selectId: (currency) => currency.code,
   sortComparer: (a, b) => a.name.localeCompare(b.name),
 });

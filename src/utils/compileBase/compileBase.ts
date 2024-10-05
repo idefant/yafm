@@ -1,4 +1,4 @@
-import { TBase } from '#types/baseType';
+import { Base } from '#types/baseType';
 import { Commit, updatedBaseMethods } from '#types/commitType';
 import { mapMerge, remove } from '#utils/arrays';
 import { objMap } from '#utils/objMap';
@@ -7,7 +7,7 @@ export const compileBase = (commits: Commit[]) => {
   if (!updatedBaseMethods.some((method) => method === commits[0].actions[0].method)) return;
 
   return commits.reduce(
-    (acc: TBase, commit) => {
+    (acc: Base, commit) => {
       commit.actions.forEach((action) => {
         // currency
         if (action.method === 'set_basic_currency') {

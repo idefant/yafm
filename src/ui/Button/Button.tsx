@@ -1,10 +1,10 @@
 import classNames from 'classnames';
 import { ButtonHTMLAttributes, FC } from 'react';
 
-import { buttonColors, TButtonColor } from './buttonColors';
+import { buttonColors, ButtonColor } from './buttonColors';
 
 interface ButtonProps {
-  color?: TButtonColor;
+  color?: ButtonColor;
   className?: string;
 }
 

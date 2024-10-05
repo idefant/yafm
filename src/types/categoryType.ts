@@ -1,7 +1,7 @@
-export type TCategory = {
+export type Category = {
   id: string;
   name: string;
   is_archive?: boolean;
 };
 
-export type TCategoryType = 'accounts' | 'transactions';
+export type CategoryType = 'accounts' | 'transactions';
