@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import { nanoid } from 'nanoid';
 import Swal from 'sweetalert2';
 import { EmptyObject, Except } from 'type-fest';
 
@@ -66,7 +67,6 @@ import { Transaction, TransactionTemplate } from '#types/transactionType';
 import { crypt } from '#utils/crypt';
 import { getChanges } from '#utils/getChanges';
 import Gzip from '#utils/gzip';
-import { genId } from '#utils/random';
 import { getSyncData } from '#utils/sync';
 
 const runTransforms = async (
@@ -145,7 +145,7 @@ export const actionCreator = {
   createAccountCategory: (
     category: Except<Category, 'id'>,
   ): CommitActionWithDispatch<'create_account_category', { id: string }> => {
-    const id = genId();
+    const id = nanoid();
     return {
       dispatchAction: () => store.dispatch(accountCategoryAdded({ id, ...category })),
       action: { method: 'create_account_category', data: { id, ...category } },
@@ -172,7 +172,7 @@ export const actionCreator = {
   createAccount: (
     account: Except<Account, 'id'>,
   ): CommitActionWithDispatch<'create_account', { id: string }> => {
-    const id = genId();
+    const id = nanoid();
     return {
       dispatchAction: () => store.dispatch(accountAdded({ id, ...account })),
       action: { method: 'create_account', data: { id, ...account } },
@@ -199,7 +199,7 @@ export const actionCreator = {
   createTransactionCategory: (
     category: Except<Category, 'id'>,
   ): CommitActionWithDispatch<'create_transaction_category', { id: string }> => {
-    const id = genId();
+    const id = nanoid();
     return {
       dispatchAction: () => store.dispatch(transactionCategoryAdded({ id, ...category })),
       action: { method: 'create_transaction_category', data: { id, ...category } },
@@ -228,7 +228,7 @@ export const actionCreator = {
   createTransactionTemplate: (
     template: Except<TransactionTemplate, 'id'>,
   ): CommitActionWithDispatch<'create_transaction_template', { id: string }> => {
-    const id = genId();
+    const id = nanoid();
     return {
       dispatchAction: () => store.dispatch(transactionTemplateAdded({ id, ...template })),
       action: { method: 'create_transaction_template', data: { id, ...template } },
@@ -257,7 +257,7 @@ export const actionCreator = {
   createTransaction: (
     transaction: Except<Transaction, 'id'>,
   ): CommitActionWithDispatch<'create_transaction', { id: string }> => {
-    const id = genId();
+    const id = nanoid();
     return {
       dispatchAction: () => store.dispatch(transactionAdded({ id, ...transaction })),
       action: { method: 'create_transaction', data: { id, ...transaction } },
