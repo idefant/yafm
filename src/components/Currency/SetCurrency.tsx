@@ -2,17 +2,13 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { FC } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
-import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
-import { store } from '#store';
-import { currencyAdded, currencyUpdated, setBaseCurrency } from '#store/reducers/currenciesSlice';
-import { selectCurrencyById } from '#store/selectors';
+import { useAppSelector } from '#hooks/reduxHooks';
 import { Currency, CurrencyType, currencyTypes } from '#types/currencyType';
 import Button from '#ui/Button';
 import Form from '#ui/Form';
 import Modal from '#ui/Modal';
-import { committer } from '#utils/committer';
+import { actionCreator, committer } from '#utils/committer';
 import yup from '#utils/form/schema';
-import { getChanges } from '#utils/getChanges';
 
 export type OpenedCurrency =
   | { method: 'create'; currency: { name: string; code: string } }
@@ -33,14 +29,6 @@ type TForm = {
   isBaseCurrency: boolean;
 };
 
-const commitDataKeys: (keyof Currency)[] = [
-  'name',
-  'symbol',
-  'decimal_places_number',
-  'type',
-  'color',
-];
-
 const formSchema = yup.object({
   name: yup.string().required(),
   decimalPlacesNumber: yup.number().positive().required(),
@@ -52,7 +40,6 @@ const formSchema = yup.object({
 
 const SetCurrency: FC<SetCurrencyProps> = ({ isOpen, close, data }) => {
   const { baseCurrencyCode } = useAppSelector((state) => state.currencies);
-  const dispatch = useAppDispatch();
 
   const methods = useForm<TForm>({ resolver: yupResolver(formSchema) });
   const { handleSubmit, reset } = methods;
@@ -71,23 +58,13 @@ const SetCurrency: FC<SetCurrencyProps> = ({ isOpen, close, data }) => {
     const commit = committer();
 
     if (data.method === 'update') {
-      const oldValue = selectCurrencyById(store.getState(), data.currency.code);
-      const changes = getChanges(oldValue, currencyData, commitDataKeys);
-
-      dispatch(currencyUpdated({ id: data.currency.code, changes }));
-      commit.add({
-        method: 'update_currency',
-        data: { code: data.currency.code, ...changes },
-      });
+      commit.add(actionCreator.updateCurrency(data.currency.code, currencyData));
     } else {
-      const newCurrency = { code: data.currency.code, ...currencyData };
-      dispatch(currencyAdded(newCurrency));
-      commit.add({ method: 'create_currency', data: newCurrency });
+      commit.add(actionCreator.createCurrency({ code: data.currency.code, ...currencyData }));
     }
 
     if (values.isBaseCurrency) {
-      dispatch(setBaseCurrency(data.currency.code));
-      commit.add({ method: 'set_basic_currency', data: { code: data.currency.code } });
+      commit.add(actionCreator.setBasicCurrency(data.currency.code));
     }
     commit.sync();
     close();

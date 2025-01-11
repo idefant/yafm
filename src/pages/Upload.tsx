@@ -8,19 +8,13 @@ import Swal from 'sweetalert2';
 import { bool, mixed, object, string, ValidationError } from 'yup';
 
 import { useAppDispatch } from '#hooks/reduxHooks';
-import { accountCategoriesReceived } from '#store/reducers/accountCategoriesSlice';
-import { accountsReceived } from '#store/reducers/accountsSlice';
 import { unlockBase } from '#store/reducers/appSlice';
-import { currenciesReceived, setBaseCurrency } from '#store/reducers/currenciesSlice';
-import { transactionCategoriesReceived } from '#store/reducers/transactionCategoriesSlice';
-import { transactionsReceived } from '#store/reducers/transactionsSlice';
-import { transactionTemplatesReceived } from '#store/reducers/transactionTemplatesSlice';
 import { EncryptedData } from '#types/cipher';
 import Button, { buttonColors } from '#ui/Button';
 import GoBackButton from '#ui/Button/GoBackButton';
 import EntranceTitle from '#ui/EntranceTitle';
 import Form from '#ui/Form';
-import { committer } from '#utils/committer';
+import { actionCreator, committer } from '#utils/committer';
 import { crypt } from '#utils/crypt';
 import { readFileContent } from '#utils/file';
 import yup from '#utils/form/schema';
@@ -79,16 +73,8 @@ const Upload: FC = () => {
       return;
     }
 
-    dispatch(currenciesReceived(data.currencies));
-    dispatch(setBaseCurrency(data.baseCurrencyCode));
-    dispatch(accountsReceived(data.accounts));
-    dispatch(accountCategoriesReceived(data.categories.accounts));
-    dispatch(transactionsReceived(data.transactions));
-    dispatch(transactionCategoriesReceived(data.categories.transactions));
-    dispatch(transactionTemplatesReceived(data.templates));
+    await committer(actionCreator.importBase(data)).sync();
     dispatch(unlockBase());
-
-    await committer({ method: 'import_base', data }).sync();
 
     navigate('/');
   };

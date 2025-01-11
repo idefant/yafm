@@ -2,25 +2,12 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { FC } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
-import { useAppDispatch } from '#hooks/reduxHooks';
-import { store } from '#store';
-import {
-  accountCategoryAdded,
-  accountCategoryUpdated,
-} from '#store/reducers/accountCategoriesSlice';
-import {
-  transactionCategoryAdded,
-  transactionCategoryUpdated,
-} from '#store/reducers/transactionCategoriesSlice';
-import { selectAccountCategoryById, selectTransactionCategoryById } from '#store/selectors';
 import { Category, CategoryType } from '#types/categoryType';
 import Button from '#ui/Button';
 import Form from '#ui/Form';
 import Modal from '#ui/Modal';
-import { committer } from '#utils/committer';
+import { actionCreator, committer } from '#utils/committer';
 import yup from '#utils/form/schema';
-import { getChanges } from '#utils/getChanges';
-import { genId } from '#utils/random';
 
 interface SetCategoryProps {
   isOpen: boolean;
@@ -41,13 +28,9 @@ const formSchema = yup
   })
   .required();
 
-const commitDataKeys: (keyof Category)[] = ['name', 'is_archive'];
-
 const SetCategory: FC<SetCategoryProps> = ({ isOpen, close, category, categoryType }) => {
   const methods = useForm<TForm>({ resolver: yupResolver(formSchema) });
   const { handleSubmit, reset } = methods;
-
-  const dispatch = useAppDispatch();
 
   const onSubmit = async (values: TForm) => {
     const categoryData = {
@@ -56,35 +39,18 @@ const SetCategory: FC<SetCategoryProps> = ({ isOpen, close, category, categoryTy
     };
 
     if (!category) {
-      const newCategory = { id: genId(), ...categoryData };
       if (categoryType === 'accounts') {
-        dispatch(accountCategoryAdded(newCategory));
-        committer({ method: 'create_account_category', data: newCategory }).sync();
+        committer(actionCreator.createAccountCategory(categoryData)).sync();
       }
       if (categoryType === 'transactions') {
-        dispatch(transactionCategoryAdded(newCategory));
-        committer({ method: 'create_transaction_category', data: newCategory }).sync();
+        committer(actionCreator.createTransactionCategory(categoryData)).sync();
       }
     } else {
       if (categoryType === 'accounts') {
-        const oldValue = selectAccountCategoryById(store.getState(), category.id);
-        const changes = getChanges(oldValue, categoryData, commitDataKeys);
-
-        dispatch(accountCategoryUpdated({ id: category.id, changes }));
-        committer({
-          method: 'update_account_category',
-          data: { id: category.id, ...changes },
-        }).sync();
+        committer(actionCreator.updateAccountCategory(category.id, categoryData)).sync();
       }
       if (categoryType === 'transactions') {
-        const oldValue = selectTransactionCategoryById(store.getState(), category.id);
-        const changes = getChanges(oldValue, categoryData, commitDataKeys);
-
-        dispatch(transactionCategoryUpdated({ id: category.id, changes }));
-        committer({
-          method: 'update_transaction_category',
-          data: { id: category.id, ...changes },
-        }).sync();
+        committer(actionCreator.updateTransactionCategory(category.id, categoryData)).sync();
       }
     }
     close();

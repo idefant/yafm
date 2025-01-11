@@ -1,6 +1,6 @@
 import { diff } from 'json-diff-ts';
 
-export const getChanges = (oldObj: any, newObj: any, keys: string[] = []) => {
+export const getChanges = (oldObj: any, newObj: any, keys: string[] = Object.keys(newObj)) => {
   const changes = diff(oldObj, newObj, { treatTypeChangeAsReplace: false })
     .filter((change) => keys.includes(change.key))
     .filter((change) => !(change.type === 'ADD' && change.value === undefined));

@@ -3,28 +3,20 @@ import BigNumber from 'bignumber.js';
 import { FC } from 'react';
 import { FormProvider, useFieldArray, useForm, useWatch } from 'react-hook-form';
 
-import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
+import { useAppSelector } from '#hooks/reduxHooks';
 import { numberWithDecimalPlacesSchema } from '#schema';
-import { store } from '#store';
-import {
-  transactionTemplateAdded,
-  transactionTemplateUpdated,
-} from '#store/reducers/transactionTemplatesSlice';
 import {
   selectAllAccountsCombined,
   selectAllAccountsCombinedEntities,
   selectAllTransactionCategories,
-  selectTransactionTemplateById,
 } from '#store/selectors';
 import { TransactionTemplate } from '#types/transactionType';
 import Button from '#ui/Button';
 import Form from '#ui/Form';
 import Icon from '#ui/Icon';
 import Modal from '#ui/Modal';
-import { committer } from '#utils/committer';
+import { actionCreator, committer } from '#utils/committer';
 import yup from '#utils/form/schema';
-import { getChanges } from '#utils/getChanges';
-import { genId } from '#utils/random';
 import { compareObjByStr } from '#utils/string';
 
 interface SetTemplateProps {
@@ -44,18 +36,10 @@ type TForm = {
   categoryId: string | null;
 };
 
-const commitDataKeys: (keyof TransactionTemplate)[] = [
-  'name',
-  'category_id',
-  'operations',
-  'description',
-];
-
 const SetTemplate: FC<SetTemplateProps> = ({ isOpen, close, template }) => {
   const accounts = useAppSelector(selectAllAccountsCombined);
   const accountsEntities = useAppSelector(selectAllAccountsCombinedEntities);
   const categories = useAppSelector(selectAllTransactionCategories);
-  const dispatch = useAppDispatch();
 
   const formSchema = yup.object({
     name: yup.string(),
@@ -109,18 +93,9 @@ const SetTemplate: FC<SetTemplateProps> = ({ isOpen, close, template }) => {
     };
 
     if (template) {
-      const oldValue = selectTransactionTemplateById(store.getState(), template.id);
-      const changes = getChanges(oldValue, templateData, commitDataKeys);
-
-      dispatch(transactionTemplateUpdated({ id: template.id, changes }));
-      committer({
-        method: 'update_transaction_template',
-        data: { id: template.id, ...changes },
-      }).sync();
+      committer(actionCreator.updateTransactionTemplate(template.id, templateData)).sync();
     } else {
-      const newTemplate = { id: genId(), ...templateData };
-      dispatch(transactionTemplateAdded(newTemplate));
-      committer({ method: 'create_transaction_template', data: newTemplate }).sync();
+      committer(actionCreator.createTransactionTemplate(templateData)).sync();
     }
     close();
   };

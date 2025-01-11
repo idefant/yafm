@@ -3,23 +3,21 @@ import Swal from 'sweetalert2';
 
 import { useFetchCurrenciesQuery } from '#api/exratesApi';
 import { OpenedCurrency, SetCurrency } from '#components/Currency';
-import { useAppDispatch, useAppSelector } from '#hooks/reduxHooks';
+import { useAppSelector } from '#hooks/reduxHooks';
 import useModal from '#hooks/useModal';
-import { currencyDeleted } from '#store/reducers/currenciesSlice';
 import { selectAllAccounts, selectCurrencies, selectCurrenciesIds } from '#store/selectors';
 import { Currency } from '#types/currencyType';
 import Card from '#ui/Card';
 import Icon from '#ui/Icon';
 import Table, { Column, TableAction } from '#ui/Table';
 import { Title } from '#ui/Title';
-import { committer } from '#utils/committer';
+import { actionCreator, committer } from '#utils/committer';
 
 const Currencies: FC = () => {
   const currencies = useAppSelector(selectCurrencies);
   const currenciesIds = useAppSelector(selectCurrenciesIds);
   const accounts = useAppSelector(selectAllAccounts);
   const { baseCurrencyCode } = useAppSelector((state) => state.currencies);
-  const dispatch = useAppDispatch();
 
   const { data: availableCurrencies } = useFetchCurrenciesQuery();
 
@@ -59,11 +57,7 @@ const Currencies: FC = () => {
         confirmButtonText: 'Delete',
       }).then(async (result) => {
         if (result.isConfirmed) {
-          dispatch(currencyDeleted(currency.code));
-          committer({
-            method: 'delete_currency',
-            data: { code: currency.code },
-          }).sync();
+          committer(actionCreator.deleteCurrency(currency.code)).sync();
         }
       });
     }

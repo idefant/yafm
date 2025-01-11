@@ -2,10 +2,8 @@ import { FC, useState } from 'react';
 import Swal from 'sweetalert2';
 
 import { SetCategory } from '#components/Category';
-import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
+import { useAppSelector } from '#hooks/reduxHooks';
 import useModal from '#hooks/useModal';
-import { accountCategoryDeleted } from '#store/reducers/accountCategoriesSlice';
-import { transactionCategoryDeleted } from '#store/reducers/transactionCategoriesSlice';
 import {
   selectAllAccounts,
   selectAllTransactionTemplates,
@@ -18,7 +16,7 @@ import Button from '#ui/Button';
 import Card from '#ui/Card';
 import Icon from '#ui/Icon';
 import Table, { Column, TableAction } from '#ui/Table';
-import { committer } from '#utils/committer';
+import { actionCreator, committer } from '#utils/committer';
 
 interface CategoriesPartProps {
   categoryType: CategoryType;
@@ -35,7 +33,6 @@ const CategoriesPart: FC<CategoriesPartProps> = ({ categoryType }) => {
   const transactions = useAppSelector(selectAllTransactions);
   const templates = useAppSelector(selectAllTransactionTemplates);
   const archiveMode = useAppSelector((state) => state.app.archiveMode);
-  const dispatch = useAppDispatch();
 
   const categoryModal = useModal();
   const [openedCategory, setOpenedCategory] = useState<Category>();
@@ -80,19 +77,10 @@ const CategoriesPart: FC<CategoriesPartProps> = ({ categoryType }) => {
       }).then(async (result) => {
         if (result.isConfirmed) {
           if (categoryType === 'accounts') {
-            dispatch(accountCategoryDeleted(category.id));
-            committer({
-              method: 'delete_account_category',
-              data: { id: category.id },
-            }).sync();
+            committer(actionCreator.deleteAccountCategory(category.id)).sync();
           }
-
           if (categoryType === 'transactions') {
-            dispatch(transactionCategoryDeleted(category.id));
-            committer({
-              method: 'delete_transaction_category',
-              data: { id: category.id },
-            }).sync();
+            committer(actionCreator.deleteTransactionCategory(category.id)).sync();
           }
         }
       });

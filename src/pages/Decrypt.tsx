@@ -9,20 +9,15 @@ import { useAppDispatch } from '#hooks/reduxHooks';
 import { accountCategoriesReceived } from '#store/reducers/accountCategoriesSlice';
 import { accountsReceived } from '#store/reducers/accountsSlice';
 import { unlockBase } from '#store/reducers/appSlice';
-import {
-  currenciesReceived,
-  defaultCurrencies,
-  setBaseCurrency,
-  setDefaultCurrencies,
-} from '#store/reducers/currenciesSlice';
+import { currenciesReceived, setBaseCurrency } from '#store/reducers/currenciesSlice';
 import { transactionCategoriesReceived } from '#store/reducers/transactionCategoriesSlice';
 import { transactionsReceived } from '#store/reducers/transactionsSlice';
 import { transactionTemplatesReceived } from '#store/reducers/transactionTemplatesSlice';
-import { updatedBaseMethods } from '#types/commitType';
+import { Commit, CommitAction, updatedBaseMethods } from '#types/commitType';
 import Button from '#ui/Button';
 import EntranceTitle from '#ui/EntranceTitle';
 import Form from '#ui/Form';
-import { committer } from '#utils/committer';
+import { actionCreator, committer } from '#utils/committer';
 import { compileBase } from '#utils/compileBase';
 import { crypt } from '#utils/crypt';
 import yup from '#utils/form/schema';
@@ -55,27 +50,12 @@ const Decrypt: FC = () => {
     if (isNew) {
       await crypt.setSecret({ password: values.password });
 
-      dispatch(setDefaultCurrencies());
+      await committer(actionCreator.initBase()).sync();
       dispatch(unlockBase());
-
-      await committer({
-        method: 'init_base',
-        data: {
-          accounts: [],
-          transactions: [],
-          templates: [],
-          categories: {
-            accounts: [],
-            transactions: [],
-          },
-          currencies: defaultCurrencies,
-          baseCurrencyCode: '',
-        },
-      }).sync();
       return;
     }
 
-    const decryptedCommits = [];
+    const decryptedCommits: Commit[] = [];
 
     await crypt.setSecret({ password: values.password, salt: commits[0].salt });
 
@@ -89,20 +69,22 @@ const Decrypt: FC = () => {
       }
 
       // XXX: Тут должна быть проверка на целостность типа
-      const updatedBaseActionIndex = decryptedCommit.actions.findIndex((action) =>
+      const updatedBaseActionIndex = decryptedCommit.actions.findIndex(({ action }) =>
         updatedBaseMethods.some((method) => method === action.method),
       );
 
       if (updatedBaseActionIndex !== -1) {
         decryptedCommits.push({
           createdAt: decryptedCommit.date,
-          actions: decryptedCommit.actions.slice(updatedBaseActionIndex),
+          actions: decryptedCommit.actions
+            .slice(updatedBaseActionIndex)
+            .map(({ action }) => action) as CommitAction[],
         });
         break;
       }
       decryptedCommits.push({
         createdAt: decryptedCommit.date,
-        actions: decryptedCommit.actions,
+        actions: decryptedCommit.actions.map(({ action }) => action) as CommitAction[],
       });
     }
 

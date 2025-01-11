@@ -5,16 +5,13 @@ import { FC, useState } from 'react';
 import { FormProvider, useFieldArray, useForm, useWatch } from 'react-hook-form';
 
 import { ChooseTemplate } from '#components/Template';
-import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
+import { useAppSelector } from '#hooks/reduxHooks';
 import useModal from '#hooks/useModal';
 import { numberWithDecimalPlacesSchema } from '#schema';
-import { store } from '#store';
-import { transactionAdded, transactionUpdated } from '#store/reducers/transactionsSlice';
 import {
   selectAllAccountsCombined,
   selectAllAccountsCombinedEntities,
   selectAllTransactionCategories,
-  selectTransactionById,
 } from '#store/selectors';
 import { Transaction, TransactionTemplate } from '#types/transactionType';
 import Button from '#ui/Button';
@@ -23,10 +20,8 @@ import DatePicker from '#ui/DatePicker';
 import Form from '#ui/Form';
 import Icon from '#ui/Icon';
 import Modal from '#ui/Modal';
-import { committer } from '#utils/committer';
+import { actionCreator, committer } from '#utils/committer';
 import yup from '#utils/form/schema';
-import { getChanges } from '#utils/getChanges';
-import { genId } from '#utils/random';
 import { compareObjByStr } from '#utils/string';
 
 interface SetTransactionProps {
@@ -47,14 +42,6 @@ type TForm = {
   categoryId: string | null;
 };
 
-const commitDataKeys: (keyof Transaction)[] = [
-  'name',
-  'category_id',
-  'operations',
-  'description',
-  'datetime',
-];
-
 const SetTransaction: FC<SetTransactionProps> = ({
   isOpen,
   close,
@@ -64,7 +51,6 @@ const SetTransaction: FC<SetTransactionProps> = ({
   const accounts = useAppSelector(selectAllAccountsCombined);
   const accountsEntities = useAppSelector(selectAllAccountsCombinedEntities);
   const categories = useAppSelector(selectAllTransactionCategories);
-  const dispatch = useAppDispatch();
 
   const formSchema = yup.object({
     name: yup.string(),
@@ -122,18 +108,9 @@ const SetTransaction: FC<SetTransactionProps> = ({
     };
 
     if (transaction) {
-      const oldValue = selectTransactionById(store.getState(), transaction.id);
-      const changes = getChanges(oldValue, transactionData, commitDataKeys);
-
-      dispatch(transactionUpdated({ id: transaction.id, changes }));
-      committer({
-        method: 'update_transaction',
-        data: { id: transaction.id, ...changes },
-      }).sync();
+      committer(actionCreator.updateTransaction(transaction.id, transactionData)).sync();
     } else {
-      const newTransaction = { id: genId(), ...transactionData };
-      dispatch(transactionAdded(newTransaction));
-      committer({ method: 'create_transaction', data: newTransaction }).sync();
+      committer(actionCreator.createTransaction(transactionData)).sync();
     }
     close();
   };

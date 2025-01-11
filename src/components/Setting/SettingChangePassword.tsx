@@ -6,10 +6,9 @@ import Swal from 'sweetalert2';
 import Button from '#ui/Button';
 import Card from '#ui/Card';
 import Form from '#ui/Form';
-import { committer } from '#utils/committer';
+import { actionCreator, committer } from '#utils/committer';
 import { crypt } from '#utils/crypt';
 import yup from '#utils/form/schema';
-import { getSyncData } from '#utils/sync';
 
 type TForm = {
   oldPassword: string;
@@ -41,7 +40,7 @@ const SettingChangePassword: FC = () => {
     }
 
     await crypt.setSecret({ password: values.newPassword });
-    await committer({ method: 'change_password', data: getSyncData() }).sync();
+    await committer(actionCreator.changePassword()).sync();
     Swal.fire({ title: 'Password changed successfully', icon: 'success' });
     reset();
   };

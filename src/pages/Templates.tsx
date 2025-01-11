@@ -2,9 +2,8 @@ import { FC, useState } from 'react';
 import Swal from 'sweetalert2';
 
 import { SetTemplate } from '#components/Template';
-import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
+import { useAppSelector } from '#hooks/reduxHooks';
 import useModal from '#hooks/useModal';
-import { transactionTemplateDeleted } from '#store/reducers/transactionTemplatesSlice';
 import { selectAllTransactionTemplatesCombined } from '#store/selectors';
 import { TransactionTemplate } from '#types/transactionType';
 import Button from '#ui/Button';
@@ -12,11 +11,10 @@ import Card from '#ui/Card';
 import Icon from '#ui/Icon';
 import Table, { Column, TableOperations, TableTooltip, TableAction } from '#ui/Table';
 import { Title } from '#ui/Title';
-import { committer } from '#utils/committer';
+import { actionCreator, committer } from '#utils/committer';
 
 const Templates: FC = () => {
   const templates = useAppSelector(selectAllTransactionTemplatesCombined);
-  const dispatch = useAppDispatch();
 
   const templateModal = useModal();
   const [openedTemplate, setOpenedTemplate] = useState<TransactionTemplate>();
@@ -36,11 +34,7 @@ const Templates: FC = () => {
       confirmButtonText: 'Delete',
     }).then(async (result) => {
       if (result.isConfirmed) {
-        dispatch(transactionTemplateDeleted(template.id));
-        committer({
-          method: 'delete_transaction_template',
-          data: { id: template.id },
-        }).sync();
+        committer(actionCreator.deleteTransactionTemplate(template.id)).sync();
       }
     });
   };

@@ -4,9 +4,8 @@ import Swal from 'sweetalert2';
 
 import { useFetchRatesByPeriodQuery } from '#api/exratesApi';
 import { SetTransaction } from '#components/Transaction';
-import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
+import { useAppSelector } from '#hooks/reduxHooks';
 import useModal from '#hooks/useModal';
-import { transactionDeleted } from '#store/reducers/transactionsSlice';
 import {
   selectAllTransactionsCombined,
   selectCurrencyById,
@@ -21,7 +20,7 @@ import Icon from '#ui/Icon';
 import Select, { SelectOption } from '#ui/Select';
 import Table, { Column, TableDate, TableOperations, TableTooltip, TableAction } from '#ui/Table';
 import { Title } from '#ui/Title';
-import { committer } from '#utils/committer';
+import { actionCreator, committer } from '#utils/committer';
 import { groupBy } from '#utils/groupBy';
 import money from '#utils/money';
 import { compareObjByStr } from '#utils/string';
@@ -32,7 +31,6 @@ const Transactions: FC = () => {
   const categories = useAppSelector(selectVisibleTransactionCategories);
   const accounts = useAppSelector(selectVisibleAccounts);
   const transactions = useAppSelector(selectAllTransactionsCombined);
-  const dispatch = useAppDispatch();
 
   const [selectedCategories, setSelectedCategories] = useState<SelectOption[]>([]);
   const selectedCategoryIds = useMemo(
@@ -151,11 +149,7 @@ const Transactions: FC = () => {
       confirmButtonText: 'Delete',
     }).then(async (result) => {
       if (result.isConfirmed) {
-        dispatch(transactionDeleted(transaction.id));
-        committer({
-          method: 'delete_transaction',
-          data: { id: transaction.id },
-        }).sync();
+        committer(actionCreator.deleteTransaction(transaction.id)).sync();
       }
     });
   };
