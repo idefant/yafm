@@ -15,7 +15,7 @@ type CreateCommitResult = ApiResult<CreateCommit>;
 export const mainApi = createApi({
   reducerPath: 'api/main',
   baseQuery: fetchBaseQuery({
-    baseUrl: import.meta.env.VITE_API,
+    baseUrl: '/api',
     prepareHeaders: (headers) => {
       const token = getUser()?.access_token;
       headers.set('Authorization', `Bearer ${token}`);

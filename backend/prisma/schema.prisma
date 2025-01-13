@@ -1,0 +1,21 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Commit {
+  id             String   @id @default(uuid())
+  cipher         String   @db.LongText
+  iv             String
+  hmac           String
+  salt           String   @db.Text
+  is_unused_salt Boolean
+  userId         String   @map("user_id")
+  syncedAt       DateTime @default(now()) @map("synced_at")
+
+  @@map("commits")
+}

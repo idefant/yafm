@@ -1,0 +1,99 @@
+{
+  "env": {
+    "browser": true,
+    "es2021": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:import/recommended",
+    "airbnb-base"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module",
+    "project": "./tsconfig.json"
+  },
+  "plugins": ["@typescript-eslint"],
+  "rules": {
+    "no-useless-return": "off",
+    "object-curly-newline": "warn",
+    "arrow-body-style": "warn",
+    "space-infix-ops": "warn",
+    "no-unused-vars": "warn",
+    "key-spacing": "warn",
+    "comma-spacing": "warn",
+    "space-before-blocks": "warn",
+    "quotes": "warn",
+    "quote-props": "warn",
+    "no-trailing-spaces": "warn",
+    "no-multiple-empty-lines": "warn",
+    "no-shadow": "off",
+    "indent": "warn",
+    "eol-last": "warn",
+    "semi": "warn",
+    "max-len": "warn",
+    "object-curly-spacing": "warn",
+    "consistent-return": "off",
+    "import/no-extraneous-dependencies": "off",
+    "import/prefer-default-export": "off",
+    "import/order": [
+      "warn",
+      {
+        "groups": [
+          "builtin",
+          "external",
+          "internal",
+          "parent",
+          "sibling",
+          "index",
+          "object",
+          "type"
+        ],
+        "newlines-between": "always",
+        "alphabetize": {
+          "order": "asc",
+          "caseInsensitive": true
+        }
+      }
+    ],
+    "import/extensions": [
+      "error",
+      "ignorePackages",
+      {
+        "js": "never",
+        "ts": "never"
+      }
+    ],
+    "@typescript-eslint/object-curly-spacing": ["warn", "always"],
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/semi": "warn",
+    "@typescript-eslint/space-infix-ops": [
+      "warn",
+      {
+        "int32Hint": true
+      }
+    ],
+    "@typescript-eslint/type-annotation-spacing": "warn",
+    "@typescript-eslint/keyword-spacing": "warn",
+    "@typescript-eslint/member-delimiter-style": [
+      "warn",
+      {
+        "multiline": {
+          "delimiter": "semi",
+          "requireLast": true
+        },
+        "singleline": {
+          "delimiter": "semi",
+          "requireLast": false
+        }
+      }
+    ]
+  },
+  "settings": {
+    "import/resolver": {
+      "typescript": {}
+    }
+  }
+}

@@ -9,3 +9,4 @@ dev-dist
 .prettiergnore
 .stylelintrc.json
 .stylelintignore
+npm-debug.log

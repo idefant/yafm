@@ -35,5 +35,6 @@
   },
   "[scss]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
-  }
+  },
+  "eslint.workingDirectories": ["frontend", "backend"]
 }

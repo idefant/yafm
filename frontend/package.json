@@ -12,7 +12,7 @@
     "lint:css": "npx stylelint \"**/*.(s)?css\"",
     "lint:css:fix": "npm run lint:css -- --fix",
     "format": "prettier --write \"**/*.+(js|jsx|ts|tsx|json)\"",
-    "prepare": "husky install",
+    "prepare": "cd .. && husky frontend/.husky",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "schema:main:update": "npx openapi-typescript -o ./src/types/main-api-schema.d.ts",
     "schema:exrates:update": "npx openapi-typescript -o ./src/types/exrates-api-schema.d.ts"
