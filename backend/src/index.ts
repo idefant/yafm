@@ -1,10 +1,12 @@
+import path from 'path';
+
 import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
 
-import errorMiddleware from './middlewares/errorMiddleware';
-import commitRouter from './routes/commitRouter';
-import swaggerDocs from './utils/swagger';
+import errorMiddleware from '#middlewares/errorMiddleware';
+import commitRouter from '#routes/commitRouter';
+import swaggerDocs from '#utils/swagger';
 
 dotenv.config({ path: '../.env' });
 
@@ -16,6 +18,8 @@ app.use(express.urlencoded({ limit: '25mb', extended: true }));
 
 app.use(cors());
 app.use(express.json());
+
+app.use(express.static(path.resolve(__dirname, '../public')));
 
 app.use('/commit', commitRouter);
 

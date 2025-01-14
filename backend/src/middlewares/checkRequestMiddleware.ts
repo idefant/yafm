@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { AnySchema, ValidationError } from 'yup';
 
-import HttpException from '../models/HttpException';
+import HttpException from '#models/HttpException';
 
 const checkSchemaMiddleware = (data: keyof Request) => (
   (schema: AnySchema) => (

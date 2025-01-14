@@ -1,9 +1,9 @@
 import { Router } from 'express';
 
-import CommitController from '../controllers/CommitController';
-import { body, query } from '../middlewares/checkRequestMiddleware';
-import { verifyJwtMiddleware } from '../middlewares/verifyJwtMiddleware';
-import { createCommitSchema, getListCommitsSchema } from '../schema/commitSchema';
+import CommitController from '#controllers/CommitController';
+import { body, query } from '#middlewares/checkRequestMiddleware';
+import { verifyJwtMiddleware } from '#middlewares/verifyJwtMiddleware';
+import { createCommitSchema, getListCommitsSchema } from '#schema/commitSchema';
 
 const router = Router();
 

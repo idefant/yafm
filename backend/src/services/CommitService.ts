@@ -1,6 +1,6 @@
-import HttpException from '../models/HttpException';
-import prisma from '../prisma';
-import { Token } from '../types/tokenType';
+import HttpException from '#models/HttpException';
+import prisma from '#prisma';
+import { Token } from '#types/tokenType';
 
 interface SetCommitBodyProps {
   iv: string;

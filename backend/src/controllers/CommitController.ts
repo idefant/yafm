@@ -1,6 +1,6 @@
 import { Response, Request, NextFunction } from 'express';
 
-import CommitService from '../services/CommitService';
+import CommitService from '#services/CommitService';
 
 class CommitController {
   static async getList(req: Request, res: Response, next: NextFunction) {
