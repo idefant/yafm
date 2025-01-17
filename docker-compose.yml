@@ -1,10 +1,16 @@
-version: '3.7'
 services:
-  yafm-frontend:
-    container_name: yafm-frontend
-    build: ./
+  yafm:
+    image: yafm:${TAG}
+    build:
+      context: ./
+      args:
+        VITE_EXRATES_API: ${VITE_EXRATES_API}
+        VITE_AUTHORITY: ${VITE_AUTHORITY}
+        VITE_CLIENT_ID: ${VITE_CLIENT_ID}
+        VITE_ACCOUNT_URL: ${VITE_ACCOUNT_URL}
+        DATABASE_URL: ${DATABASE_URL}
     ports:
-      - ${FRONTEND_PORT:-80}:80
+      - "5173:8080"
     env_file:
       - .env
     stdin_open: true

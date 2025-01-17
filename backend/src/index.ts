@@ -2,7 +2,7 @@ import path from 'path';
 
 import cors from 'cors';
 import dotenv from 'dotenv';
-import express from 'express';
+import express, { Router } from 'express';
 
 import errorMiddleware from '#middlewares/errorMiddleware';
 import commitRouter from '#routes/commitRouter';
@@ -21,9 +21,15 @@ app.use(express.json());
 
 app.use(express.static(path.resolve(__dirname, '../public')));
 
-app.use('/commit', commitRouter);
+const router = Router();
+router.use('/commit', commitRouter);
+app.use('/api', router);
 
 app.use(errorMiddleware);
+
+app.get('*', (req, res) => {
+  res.sendFile(path.resolve(__dirname, '../public/index.html'));
+});
 
 app.listen(port, async () => {
   console.log(`YAFM API listening on port ${port}`);
