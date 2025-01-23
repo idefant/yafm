@@ -1,11 +1,17 @@
 import { Response, Request, NextFunction } from 'express';
 
+import HttpException from '#models/HttpException';
 import CommitService from '#services/CommitService';
 
 class CommitController {
   static async getList(req: Request, res: Response, next: NextFunction) {
     try {
-      const result = await CommitService.getList(res.locals.token, req.query as any);
+      const { user } = res.locals;
+      if (!user) {
+        throw new HttpException();
+      }
+
+      const result = await CommitService.getList(user, req.query as any);
       res.send(result);
     } catch (error) {
       next(error);
@@ -14,7 +20,12 @@ class CommitController {
 
   static async getActualList(req: Request, res: Response, next: NextFunction) {
     try {
-      const result = await CommitService.getActualList(res.locals.token, req.query as any);
+      const { user } = res.locals;
+      if (!user) {
+        throw new HttpException();
+      }
+
+      const result = await CommitService.getActualList(user, req.query as any);
       res.send(result);
     } catch (error) {
       next(error);
@@ -23,7 +34,12 @@ class CommitController {
 
   static async create(req: Request, res: Response, next: NextFunction) {
     try {
-      const result = await CommitService.create(res.locals.token, req.body);
+      const { user } = res.locals;
+      if (!user) {
+        throw new HttpException();
+      }
+
+      const result = await CommitService.create(user, req.body);
       res.send(result);
     } catch (error) {
       next(error);

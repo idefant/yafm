@@ -6,14 +6,18 @@ import checker from 'vite-plugin-checker';
 import { VitePWA } from 'vite-plugin-pwa';
 import svgr from 'vite-plugin-svgr';
 
-export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd());
+const envDir = '../';
 
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, envDir);
+
+  const port = +env.VITE_FRONTEND_PORT || 5173;
   const apiUrl = env.VITE_API || 'http://localhost:8080';
 
   return {
     server: {
       open: true,
+      port,
       proxy: {
         '/api': {
           target: apiUrl,
@@ -21,7 +25,7 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
-    envDir: '../',
+    envDir,
     build: {
       sourcemap: 'hidden',
     },

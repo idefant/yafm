@@ -5,8 +5,6 @@ services:
       context: ./
       args:
         VITE_EXRATES_API: ${VITE_EXRATES_API}
-        VITE_AUTHORITY: ${VITE_AUTHORITY}
-        VITE_CLIENT_ID: ${VITE_CLIENT_ID}
         VITE_ACCOUNT_URL: ${VITE_ACCOUNT_URL}
         DATABASE_URL: ${DATABASE_URL}
     ports:

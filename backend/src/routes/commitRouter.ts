@@ -1,13 +1,13 @@
 import { Router } from 'express';
 
 import CommitController from '#controllers/CommitController';
+import { checkAuth } from '#middlewares/checkAuthMiddleware';
 import { body, query } from '#middlewares/checkRequestMiddleware';
-import { verifyJwtMiddleware } from '#middlewares/verifyJwtMiddleware';
 import { createCommitSchema, getListCommitsSchema } from '#schema/commitSchema';
 
 const router = Router();
 
-router.use(verifyJwtMiddleware);
+router.use(checkAuth);
 
 /**
  * @openapi

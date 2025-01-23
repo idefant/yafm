@@ -3,7 +3,7 @@ import { nanoid } from 'nanoid';
 import Swal from 'sweetalert2';
 import { EmptyObject, Except } from 'type-fest';
 
-import { mainApi } from '#api/mainApi';
+import { mainApiCommit } from '#api/mainApi';
 import { store } from '#store';
 import {
   accountCategoriesReceived,
@@ -378,7 +378,7 @@ class Committer {
   async sync() {
     const { dispatch } = store;
     const encryptedData = await this.encrypt();
-    const res = await dispatch(mainApi.endpoints.createCommit.initiate(encryptedData));
+    const res = await dispatch(mainApiCommit.endpoints.createCommit.initiate(encryptedData));
     if ('error' in res) {
       Swal.fire({
         title: 'Ошибка сохранения данных',

@@ -1,6 +1,6 @@
 import HttpException from '#models/HttpException';
 import prisma from '#prisma';
-import { Token } from '#types/tokenType';
+import { UserInfo } from '#types/oidcType';
 
 interface SetCommitBodyProps {
   iv: string;
@@ -10,10 +10,10 @@ interface SetCommitBodyProps {
 }
 
 class CommitService {
-  static async getList(token: Token, data: { syncedAtFrom: string }) {
+  static async getList(user: UserInfo, data: { syncedAtFrom: string }) {
     const commits = await prisma.commit.findMany({
       where: {
-        userId: token.sub,
+        userId: user.sub,
         syncedAt: {
           gt: data.syncedAtFrom,
         },
@@ -23,9 +23,9 @@ class CommitService {
     return commits;
   }
 
-  static async getActualList(token: Token, data: { syncedAtFrom: string }) {
+  static async getActualList(user: UserInfo, data: { syncedAtFrom: string }) {
     const lastCommitWithUnusedSalt = await prisma.commit.findFirst({
-      where: { userId: token.sub, is_unused_salt: true },
+      where: { userId: user.sub, is_unused_salt: true },
       orderBy: { syncedAt: 'desc' },
     });
 
@@ -33,7 +33,7 @@ class CommitService {
 
     const commits = await prisma.commit.findMany({
       where: {
-        userId: token.sub,
+        userId: user.sub,
         salt: lastCommitWithUnusedSalt.salt,
         syncedAt: {
           gt: data.syncedAtFrom,
@@ -44,14 +44,14 @@ class CommitService {
     return commits;
   }
 
-  static async create(token: Token, data: SetCommitBodyProps) {
+  static async create(user: UserInfo, data: SetCommitBodyProps) {
     const [commitWithSameSalt, lastCommitWithUnusedSalt] = await Promise.all([
       prisma.commit.findFirst({
-        where: { userId: token.sub, salt: data.salt },
+        where: { userId: user.sub, salt: data.salt },
         orderBy: { syncedAt: 'desc' },
       }),
       prisma.commit.findFirst({
-        where: { userId: token.sub, is_unused_salt: true },
+        where: { userId: user.sub, is_unused_salt: true },
         orderBy: { syncedAt: 'desc' },
       }),
     ]);
@@ -59,7 +59,7 @@ class CommitService {
     if (!lastCommitWithUnusedSalt || !commitWithSameSalt) {
       // список коммитов пуст или нет коммитов с такой солью
       return prisma.commit.create({
-        data: { ...data, userId: token.sub, is_unused_salt: true },
+        data: { ...data, userId: user.sub, is_unused_salt: true },
       });
     }
 
@@ -68,7 +68,7 @@ class CommitService {
     }
 
     const commitWithSameHmac = await prisma.commit.findFirst({
-      where: { userId: token.sub, hmac: data.hmac },
+      where: { userId: user.sub, hmac: data.hmac },
     });
 
     if (commitWithSameHmac) {
@@ -76,7 +76,7 @@ class CommitService {
     }
 
     return prisma.commit.create({
-      data: { ...data, userId: token.sub, is_unused_salt: false },
+      data: { ...data, userId: user.sub, is_unused_salt: false },
     });
   }
 }

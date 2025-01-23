@@ -3,7 +3,7 @@ class HttpException extends Error {
 
   debugMessage?: string;
 
-  constructor(errorCode: number, public readonly message = '', debugMessage?: string) {
+  constructor(errorCode = 500, message = '', debugMessage: string | undefined = undefined) {
     super(message);
     this.errorCode = errorCode;
     this.debugMessage = debugMessage;

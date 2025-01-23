@@ -1,8 +1,7 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-
 import { ApiProps, ApiResult } from '#types/apiType';
 import { paths } from '#types/main-api-schema';
-import { getUser } from '#utils/auth';
+
+import { mainApi } from './mainApi';
 
 type FetchCommits = paths['/commit/actual']['get'];
 type FetchCommitsProps = ApiProps<FetchCommits>;
@@ -12,16 +11,8 @@ type CreateCommit = paths['/commit']['post'];
 type CreateCommitProps = ApiProps<CreateCommit>;
 type CreateCommitResult = ApiResult<CreateCommit>;
 
-export const mainApi = createApi({
-  reducerPath: 'api/main',
-  baseQuery: fetchBaseQuery({
-    baseUrl: '/api',
-    prepareHeaders: (headers) => {
-      const token = getUser()?.access_token;
-      headers.set('Authorization', `Bearer ${token}`);
-      return headers;
-    },
-  }),
+export const mainApiCommit = mainApi.injectEndpoints({
+  overrideExisting: false,
   endpoints: (builder) => ({
     fetchCommits: builder.query<FetchCommitsResult, FetchCommitsProps>({
       query: (params) => ({
@@ -39,4 +30,4 @@ export const mainApi = createApi({
   }),
 });
 
-export const { useFetchCommitsQuery, useCreateCommitMutation } = mainApi;
+export const { useFetchCommitsQuery, useCreateCommitMutation } = mainApiCommit;

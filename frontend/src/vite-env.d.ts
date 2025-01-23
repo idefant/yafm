@@ -2,8 +2,8 @@
 /// <reference types="vite-plugin-svgr/client" />
 
 interface ImportMetaEnv {
-  readonly VITE_API: string;
   readonly VITE_EXRATES_API: string;
+  readonly VITE_ACCOUNT_URL?: string;
 }
 
 // eslint-disable-next-line no-unused-vars
