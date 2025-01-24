@@ -9,15 +9,32 @@ const meta = {
   parameters: {
     layout: 'centered',
   },
-  args: { onClick: fn() },
+  args: { onClick: fn(), children: 'Button' },
 } satisfies Meta<typeof Button>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+export const Medium: Story = {
+  args: {
+    size: 'md',
+  },
+};
+
+export const Large: Story = {
+  args: {
+    size: 'lg',
+  },
+};
+
+export const Small: Story = {
+  args: {
+    size: 'sm',
+  },
+};
+
 export const ContainedPrimary: Story = {
   args: {
-    children: 'Button',
     variant: 'contained',
     color: 'primary',
   },
@@ -25,7 +42,6 @@ export const ContainedPrimary: Story = {
 
 export const ContainedSecondary: Story = {
   args: {
-    children: 'Button',
     variant: 'contained',
     color: 'secondary',
   },
@@ -33,7 +49,6 @@ export const ContainedSecondary: Story = {
 
 export const ContainedSuccess: Story = {
   args: {
-    children: 'Button',
     variant: 'contained',
     color: 'success',
   },
@@ -41,7 +56,6 @@ export const ContainedSuccess: Story = {
 
 export const ContainedDanger: Story = {
   args: {
-    children: 'Button',
     variant: 'contained',
     color: 'danger',
   },
@@ -49,7 +63,6 @@ export const ContainedDanger: Story = {
 
 export const ContainedDisabled: Story = {
   args: {
-    children: 'Button',
     variant: 'contained',
     color: 'primary',
     disabled: true,
@@ -58,7 +71,6 @@ export const ContainedDisabled: Story = {
 
 export const OutlinedPrimary: Story = {
   args: {
-    children: 'Button',
     variant: 'outlined',
     color: 'primary',
   },
@@ -66,7 +78,6 @@ export const OutlinedPrimary: Story = {
 
 export const OutlinedSecondary: Story = {
   args: {
-    children: 'Button',
     variant: 'outlined',
     color: 'secondary',
   },
@@ -74,7 +85,6 @@ export const OutlinedSecondary: Story = {
 
 export const OutlinedSuccess: Story = {
   args: {
-    children: 'Button',
     variant: 'outlined',
     color: 'success',
   },
@@ -82,7 +92,6 @@ export const OutlinedSuccess: Story = {
 
 export const OutlinedDanger: Story = {
   args: {
-    children: 'Button',
     variant: 'outlined',
     color: 'danger',
   },
@@ -90,7 +99,6 @@ export const OutlinedDanger: Story = {
 
 export const OutlinedDisabled: Story = {
   args: {
-    children: 'Button',
     variant: 'outlined',
     color: 'primary',
     disabled: true,
