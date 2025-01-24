@@ -3,7 +3,7 @@ import { FC } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
 import { Category, CategoryType } from '#types/categoryType';
-import Button from '#ui/Button';
+import { Button } from '#ui/Button';
 import Form from '#ui/Form';
 import Modal from '#ui/Modal';
 import { actionCreator, committer } from '#utils/committer';
@@ -78,12 +78,8 @@ const SetCategory: FC<SetCategoryProps> = ({ isOpen, close, category, categoryTy
             {category && <Form.Checkbox name="isArchive">Archive</Form.Checkbox>}
           </Modal.Content>
           <Modal.Footer>
-            <Button color="green" type="submit">
-              Save
-            </Button>
-            <Button color="gray" onClick={close}>
-              Cancel
-            </Button>
+            <Button type="submit">Save</Button>
+            <Button onClick={close}>Cancel</Button>
           </Modal.Footer>
         </Form>
       </FormProvider>

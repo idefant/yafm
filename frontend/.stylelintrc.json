@@ -4,7 +4,7 @@
   "rules": {
     "selector-class-pattern": "[A-Za-z]+",
     "selector-pseudo-class-no-unknown": [true, { "ignorePseudoClasses": ["global"] }],
-    "scss/at-rule-no-unknown": [true, { "ignoreAtRules": ["tailwind"] }],
+    "scss/at-rule-no-unknown": true,
     "plugin/declaration-block-no-ignored-properties": true,
     "media-feature-range-notation": "prefix"
   }

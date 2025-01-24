@@ -18,7 +18,7 @@ import {
   selectVisibleAccountsCombined,
 } from '#store/selectors';
 import { Account } from '#types/accountType';
-import Button from '#ui/Button';
+import { Button } from '#ui/Button';
 import Card from '#ui/Card';
 import Icon from '#ui/Icon';
 import Table, { Column, TableDate, TableAction } from '#ui/Table';
@@ -224,9 +224,7 @@ const Accounts: FC = () => {
         <Card className="col-span-2">
           <Card.Header>List of Accounts</Card.Header>
           <Card.Body>
-            <Button color="green" onClick={() => openAccount()} className="mb-2">
-              Create Account
-            </Button>
+            <Button onClick={() => openAccount()}>Create Account</Button>
 
             <Table
               columns={tableColumns}

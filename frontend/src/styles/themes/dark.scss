@@ -1,0 +1,32 @@
+:root {
+  --dark-bg: #000;
+  --bg: #1c1c1c;
+  --primary-color: #fff;
+  --secondary-color: #b6b6b6;
+  --inverted-primary-color: #000;
+
+  // Button
+  --primary-button-color: #7ca9f8;
+  --primary-button-color-darker: #5475ae;
+  --primary-button-color-transparent: #7ca9f815;
+  --primary-button-color-hovered: #4585f3;
+  --secondary-button-color: #a7a7a7;
+  --secondary-button-color-darker: #6c6c6c;
+  --secondary-button-color-transparent: #a7a7a715;
+  --secondary-button-color-hovered: #808080;
+  --success-button-color: #67be6c;
+  --success-button-color-darker: #509352;
+  --success-button-color-transparent: #67be6c15;
+  --success-button-color-hovered: #56a15a;
+  --danger-button-color: #e94438;
+  --danger-button-color-darker: #ae3229;
+  --danger-button-color-transparent: #e9443815;
+  --danger-button-color-hovered: #c7392f;
+  --disabled-button-color: #696969;
+  --disabled-button-color-darker: #494949;
+
+  // Sidebar
+  --menu-item-color: var(--secondary-color);
+  --menu-chosen-item-color: #357dfb;
+  --menu-chosen-item-bg: #1d2941;
+}

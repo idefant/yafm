@@ -4,7 +4,7 @@ import { FormProvider, useForm } from 'react-hook-form';
 
 import { useAppSelector } from '#hooks/reduxHooks';
 import { Currency, CurrencyType, currencyTypes } from '#types/currencyType';
-import Button from '#ui/Button';
+import { Button } from '#ui/Button';
 import Form from '#ui/Form';
 import Modal from '#ui/Modal';
 import { actionCreator, committer } from '#utils/committer';
@@ -135,12 +135,8 @@ const SetCurrency: FC<SetCurrencyProps> = ({ isOpen, close, data }) => {
             </Form.Checkbox>
           </Modal.Content>
           <Modal.Footer>
-            <Button color="green" type="submit">
-              Save
-            </Button>
-            <Button color="gray" onClick={close}>
-              Cancel
-            </Button>
+            <Button type="submit">Save</Button>
+            <Button onClick={close}>Cancel</Button>
           </Modal.Footer>
         </Form>
       </FormProvider>

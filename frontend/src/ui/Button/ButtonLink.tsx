@@ -1,20 +1,43 @@
 import classNames from 'classnames';
-import { FC, ReactNode } from 'react';
+import { ComponentProps, ElementType, FC } from 'react';
 import { Link } from 'react-router-dom';
 
-import { buttonColors, ButtonColor } from './buttonColors';
+import cls from './Button.module.scss';
+import { ButtonColor, ButtonSize, ButtonVariant } from './buttonType';
 
-interface ButtonLinkProps {
+interface ButtonLinkProps extends ComponentProps<typeof Link> {
+  /** Цвет кнопки */
   color?: ButtonColor;
-  className?: string;
-  to: string;
-  children?: ReactNode;
+  /** Стиль кнопки */
+  variant?: ButtonVariant;
+  /** Размер кнопки */
+  size?: ButtonSize;
+  /** Блокировка кнопки */
+  disabled?: boolean;
 }
 
-const ButtonLink: FC<ButtonLinkProps> = ({ children, color, className, to }) => (
-  <Link to={to} className={classNames(color && buttonColors[color], 'btn', className)}>
-    {children}
-  </Link>
-);
+export const ButtonLink: FC<ButtonLinkProps> = ({
+  color = 'primary',
+  size = 'md',
+  variant = 'contained',
+  className,
+  ...props
+}) => {
+  const Component: ElementType =
+    typeof props.to === 'string' &&
+    (props.to.startsWith('http://') || props.to.startsWith('https://'))
+      ? 'a'
+      : Link;
 
-export default ButtonLink;
+  return (
+    <Component
+      className={classNames(cls.Button, cls[color], cls[variant], cls[size], {
+        [cls.disabled]: props.disabled,
+      })}
+      type="button"
+      role="button"
+      href={props.to.toString()}
+      {...props}
+    />
+  );
+};

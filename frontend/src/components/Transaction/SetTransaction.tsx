@@ -14,7 +14,7 @@ import {
   selectAllTransactionCategories,
 } from '#store/selectors';
 import { Transaction, TransactionTemplate } from '#types/transactionType';
-import Button from '#ui/Button';
+import { Button } from '#ui/Button';
 import CalendarButton from '#ui/CalendarButton';
 import DatePicker from '#ui/DatePicker';
 import Form from '#ui/Form';
@@ -165,13 +165,7 @@ const SetTransaction: FC<SetTransactionProps> = ({
           <Modal.Header close={close}>
             {transaction ? 'Edit Transaction' : 'Create Transaction'}
             {!transaction && !copiedTransaction && (
-              <Button
-                color="yellow"
-                className="text-sm !px-2 !py-1 ml-4"
-                onClick={templateModal.open}
-              >
-                Use Template
-              </Button>
+              <Button onClick={templateModal.open}>Use Template</Button>
             )}
           </Modal.Header>
           <Modal.Content>
@@ -200,8 +194,6 @@ const SetTransaction: FC<SetTransactionProps> = ({
               return (
                 <div className="flex items-center my-2 gap-3" key={operation.id}>
                   <Button
-                    color={operationWatcher?.isPositive ? 'green' : 'red'}
-                    className="!p-1"
                     onClick={() =>
                       setValue(`operations.${i}.isPositive`, !operationWatcher?.isPositive)
                     }
@@ -227,12 +219,7 @@ const SetTransaction: FC<SetTransactionProps> = ({
                     {currency && <div>{currency.code}</div>}
                   </div>
 
-                  <Button
-                    color="red"
-                    className="!p-1"
-                    onClick={() => remove(i)}
-                    disabled={fields.length === 1}
-                  >
+                  <Button onClick={() => remove(i)} disabled={fields.length === 1}>
                     <Icon.Trash />
                   </Button>
                 </div>
@@ -241,16 +228,12 @@ const SetTransaction: FC<SetTransactionProps> = ({
 
             <div className="flex my-3 gap-4 justify-center">
               <Button
-                color="green"
-                className="!py-1"
                 onClick={() => append({ accountId: null, sum: undefined as any, isPositive: true })}
               >
                 Income
               </Button>
 
               <Button
-                color="red"
-                className="!py-1"
                 onClick={() =>
                   append({ accountId: null, sum: undefined as any, isPositive: false })
                 }
@@ -267,12 +250,8 @@ const SetTransaction: FC<SetTransactionProps> = ({
             </div>
           </Modal.Content>
           <Modal.Footer>
-            <Button color="green" type="submit">
-              Save
-            </Button>
-            <Button color="gray" onClick={close}>
-              Cancel
-            </Button>
+            <Button type="submit">Save</Button>
+            <Button onClick={close}>Cancel</Button>
           </Modal.Footer>
         </Form>
       </FormProvider>

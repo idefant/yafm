@@ -13,7 +13,7 @@ import {
   selectVisibleTransactionCategories,
 } from '#store/selectors';
 import { Transaction, TransactionCombined } from '#types/transactionType';
-import Button from '#ui/Button';
+import { Button } from '#ui/Button';
 import Card from '#ui/Card';
 import DateFilter, { useDateFilter } from '#ui/DateFilter';
 import Icon from '#ui/Icon';
@@ -238,9 +238,7 @@ const Transactions: FC = () => {
         <Card.Header>List of Transactions</Card.Header>
 
         <Card.Body>
-          <Button color="green" onClick={() => openTransaction()} className="mb-2">
-            Create Transaction
-          </Button>
+          <Button onClick={() => openTransaction()}>Create Transaction</Button>
 
           <Table
             columns={tableColumns}

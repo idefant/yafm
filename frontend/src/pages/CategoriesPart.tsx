@@ -12,7 +12,7 @@ import {
   selectVisibleTransactionCategories,
 } from '#store/selectors';
 import { CategoryType, Category } from '#types/categoryType';
-import Button from '#ui/Button';
+import { Button } from '#ui/Button';
 import Card from '#ui/Card';
 import Icon from '#ui/Icon';
 import Table, { Column, TableAction } from '#ui/Table';
@@ -120,9 +120,7 @@ const CategoriesPart: FC<CategoriesPartProps> = ({ categoryType }) => {
         </Card.Header>
 
         <Card.Body>
-          <Button color="green" onClick={() => openCategory()} className="mb-2">
-            Create Category
-          </Button>
+          <Button onClick={() => openCategory()}>Create Category</Button>
 
           <Table
             columns={tableColumns}

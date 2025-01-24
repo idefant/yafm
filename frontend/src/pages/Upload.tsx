@@ -1,5 +1,4 @@
 import { yupResolver } from '@hookform/resolvers/yup';
-import classNames from 'classnames';
 import dayjs from 'dayjs';
 import { ChangeEvent, FC, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
@@ -10,10 +9,10 @@ import { bool, mixed, object, string, ValidationError } from 'yup';
 import { useAppDispatch } from '#hooks/reduxHooks';
 import { unlockBase } from '#store/reducers/appSlice';
 import { EncryptedData } from '#types/cipher';
-import Button, { buttonColors } from '#ui/Button';
-import GoBackButton from '#ui/Button/GoBackButton';
+import { Button } from '#ui/Button';
 import EntranceTitle from '#ui/EntranceTitle';
 import Form from '#ui/Form';
+import GoBackButton from '#ui/GoBackButton';
 import { actionCreator, committer } from '#utils/committer';
 import { crypt } from '#utils/crypt';
 import { readFileContent } from '#utils/file';
@@ -135,11 +134,8 @@ const Upload: FC = () => {
                   className="hidden"
                   onChange={uploadBackup}
                 />
-                <label
-                  className={classNames('btn !py-1.5', buttonColors.green)}
-                  htmlFor="upload-enc-backup"
-                >
-                  Upload Base
+                <label htmlFor="upload-enc-backup">
+                  <Button>Upload Base</Button>
                 </label>
               </div>
             </div>
@@ -166,9 +162,7 @@ const Upload: FC = () => {
               />
 
               <div className="mx-auto mt-8 flex justify-center gap-6">
-                <Button type="submit" color="green" className="block">
-                  Open
-                </Button>
+                <Button type="submit">Open</Button>
               </div>
             </>
           )}

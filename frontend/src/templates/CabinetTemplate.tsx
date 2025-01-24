@@ -2,7 +2,7 @@ import { FC } from 'react';
 import { Link, Outlet } from 'react-router-dom';
 
 import { useFetchProfileInfoQuery } from '#api/mainApi';
-import { ButtonLink } from '#ui/Button';
+import { Button } from '#ui/Button';
 
 const CabinetTemplate: FC = () => {
   const { data: profile } = useFetchProfileInfoQuery(undefined);
@@ -32,9 +32,7 @@ const CabinetTemplate: FC = () => {
           )}
         </div>
 
-        <ButtonLink to="/upload" className="block w-full mb-2 text-center" color="green">
-          Upload Version
-        </ButtonLink>
+        <Button.Link to="/upload">Upload Version</Button.Link>
         <hr className="m-4" />
         <Link reloadDocument to="/api/auth/logout">
           Logout

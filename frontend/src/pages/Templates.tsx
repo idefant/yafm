@@ -6,7 +6,7 @@ import { useAppSelector } from '#hooks/reduxHooks';
 import useModal from '#hooks/useModal';
 import { selectAllTransactionTemplatesCombined } from '#store/selectors';
 import { TransactionTemplate } from '#types/transactionType';
-import Button from '#ui/Button';
+import { Button } from '#ui/Button';
 import Card from '#ui/Card';
 import Icon from '#ui/Icon';
 import Table, { Column, TableOperations, TableTooltip, TableAction } from '#ui/Table';
@@ -86,9 +86,7 @@ const Templates: FC = () => {
         <Card.Header>List of Templates</Card.Header>
 
         <Card.Body>
-          <Button color="green" onClick={() => openTemplate()} className="mb-2">
-            Create
-          </Button>
+          <Button onClick={() => openTemplate()}>Create</Button>
 
           <Table columns={tableColumns} data={templates} className={{ table: 'w-full' }} />
         </Card.Body>

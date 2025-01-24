@@ -3,6 +3,4 @@ dist
 dev-dist
 src/types/exrates-api-schema.d.ts
 src/types/main-api-schema.d.ts
-tailwind.config.js
-postcss.config.js
 jest.config.cjs

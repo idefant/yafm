@@ -11,7 +11,7 @@ import {
   selectAllTransactionCategories,
 } from '#store/selectors';
 import { TransactionTemplate } from '#types/transactionType';
-import Button from '#ui/Button';
+import { Button } from '#ui/Button';
 import Form from '#ui/Form';
 import Icon from '#ui/Icon';
 import Modal from '#ui/Modal';
@@ -155,8 +155,6 @@ const SetTemplate: FC<SetTemplateProps> = ({ isOpen, close, template }) => {
               return (
                 <div className="flex items-center my-2 gap-3" key={operation.id}>
                   <Button
-                    color={operationWatcher?.isPositive ? 'green' : 'red'}
-                    className="!p-1"
                     onClick={() =>
                       setValue(`operations.${i}.isPositive`, !operationWatcher?.isPositive)
                     }
@@ -182,12 +180,7 @@ const SetTemplate: FC<SetTemplateProps> = ({ isOpen, close, template }) => {
                     {currency && <div>{currency.code}</div>}
                   </div>
 
-                  <Button
-                    color="red"
-                    className="!p-1"
-                    onClick={() => remove(i)}
-                    disabled={fields.length === 1}
-                  >
+                  <Button onClick={() => remove(i)} disabled={fields.length === 1}>
                     <Icon.Trash />
                   </Button>
                 </div>
@@ -196,16 +189,12 @@ const SetTemplate: FC<SetTemplateProps> = ({ isOpen, close, template }) => {
 
             <div className="flex my-3 gap-4 justify-center">
               <Button
-                color="green"
-                className="!py-1"
                 onClick={() => append({ accountId: null, sum: undefined as any, isPositive: true })}
               >
                 Income
               </Button>
 
               <Button
-                color="red"
-                className="!py-1"
                 onClick={() =>
                   append({ accountId: null, sum: undefined as any, isPositive: false })
                 }
@@ -217,12 +206,8 @@ const SetTemplate: FC<SetTemplateProps> = ({ isOpen, close, template }) => {
             <Form.Textarea name="description" placeholder="Description ..." />
           </Modal.Content>
           <Modal.Footer>
-            <Button color="green" type="submit">
-              Save
-            </Button>
-            <Button color="gray" onClick={close}>
-              Cancel
-            </Button>
+            <Button type="submit">Save</Button>
+            <Button onClick={close}>Cancel</Button>
           </Modal.Footer>
         </Form>
       </FormProvider>

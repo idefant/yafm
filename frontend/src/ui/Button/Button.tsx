@@ -1,28 +1,33 @@
 import classNames from 'classnames';
 import { ButtonHTMLAttributes, FC } from 'react';
 
-import { buttonColors, ButtonColor } from './buttonColors';
+import cls from './Button.module.scss';
+import { ButtonLink } from './ButtonLink';
+import { ButtonColor, ButtonSize, ButtonVariant } from './buttonType';
 
-interface ButtonProps {
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  /** Цвет кнопки */
   color?: ButtonColor;
-  className?: string;
+  /** Стиль кнопки */
+  variant?: ButtonVariant;
+  /** Размер кнопки */
+  size?: ButtonSize;
 }
 
-const Button: FC<ButtonHTMLAttributes<HTMLButtonElement> & ButtonProps> = ({
-  color,
+export const Button: FC<ButtonProps> & { Link: typeof ButtonLink } = ({
+  color = 'primary',
+  size = 'md',
+  variant = 'contained',
   className,
   ...props
 }) => (
   <button
-    className={classNames(
-      color && buttonColors[color],
-      'btn',
-      className,
-      props.disabled && 'opacity-60',
-    )}
+    className={classNames(cls.Button, cls[color], cls[variant], cls[size], {
+      [cls.disabled]: props.disabled,
+    })}
     type="button"
     {...props}
   />
 );
 
-export default Button;
+Button.Link = ButtonLink;

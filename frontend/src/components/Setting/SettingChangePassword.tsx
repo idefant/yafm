@@ -3,7 +3,7 @@ import { FC } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import Swal from 'sweetalert2';
 
-import Button from '#ui/Button';
+import { Button } from '#ui/Button';
 import Card from '#ui/Card';
 import Form from '#ui/Form';
 import { actionCreator, committer } from '#utils/committer';
@@ -58,9 +58,7 @@ const SettingChangePassword: FC = () => {
           </Card.Body>
 
           <Card.Footer>
-            <Button type="submit" color="green" className="!py-1.5">
-              Change Password
-            </Button>
+            <Button type="submit">Change Password</Button>
           </Card.Footer>
         </Form>
       </FormProvider>

@@ -11,12 +11,11 @@ import { store } from '#store';
 
 import App from './App';
 
-import '@fontsource/source-sans-pro/400.css';
-import '@fontsource/source-sans-pro/600.css';
-import '@fontsource/source-sans-pro/700.css';
-
+import 'modern-normalize/modern-normalize.css';
+import '@fontsource-variable/open-sans';
 import 'react-datepicker/dist/react-datepicker.css';
-import './index.css';
+import './index.scss';
+import './styles/themes/dark.scss';
 
 Chart.defaults.animation = { duration: 600 };
 

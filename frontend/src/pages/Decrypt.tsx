@@ -14,7 +14,7 @@ import { transactionCategoriesReceived } from '#store/reducers/transactionCatego
 import { transactionsReceived } from '#store/reducers/transactionsSlice';
 import { transactionTemplatesReceived } from '#store/reducers/transactionTemplatesSlice';
 import { Commit, CommitAction, updatedBaseMethods } from '#types/commitType';
-import Button from '#ui/Button';
+import { Button } from '#ui/Button';
 import EntranceTitle from '#ui/EntranceTitle';
 import Form from '#ui/Form';
 import { actionCreator, committer } from '#utils/committer';
@@ -117,9 +117,7 @@ const Decrypt: FC = () => {
           <Form.Password name="password" label={isNew ? 'New Password:' : 'Password:'} autoFocus />
 
           <div className="mx-auto mt-8 flex justify-center gap-6">
-            <Button type="submit" color="green" className="block">
-              {isNew ? 'Create new Base' : 'Decrypt'}
-            </Button>
+            <Button type="submit">{isNew ? 'Create new Base' : 'Decrypt'}</Button>
           </div>
         </Form>
       </FormProvider>

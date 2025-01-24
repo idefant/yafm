@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import { FC } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
-import Button from '#ui/Button';
+import { Button } from '#ui/Button';
 import Card from '#ui/Card';
 import Form from '#ui/Form';
 import { crypt } from '#utils/crypt';
@@ -54,9 +54,7 @@ const SettingBackup: FC = () => {
           </Card.Body>
 
           <Card.Footer>
-            <Button color="green" type="submit" className="!py-1.5">
-              Download
-            </Button>
+            <Button type="submit">Download</Button>
           </Card.Footer>
         </Form>
       </FormProvider>
