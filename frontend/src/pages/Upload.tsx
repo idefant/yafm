@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { bool, mixed, object, string, ValidationError } from 'yup';
 
+import { appRoutes } from '#data/routes';
 import { useAppDispatch } from '#hooks/reduxHooks';
 import { unlockBase } from '#store/reducers/appSlice';
 import { EncryptedData } from '#types/cipher';
@@ -75,7 +76,7 @@ const Upload: FC = () => {
     await committer(actionCreator.importBase(data)).sync();
     dispatch(unlockBase());
 
-    navigate('/');
+    navigate(appRoutes.dashboard);
   };
 
   const uploadBackup = (event: ChangeEvent<HTMLInputElement>) => {

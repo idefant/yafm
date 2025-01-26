@@ -6,6 +6,7 @@ import Swal from 'sweetalert2';
 import { useFetchLastRatesQuery } from '#api/exratesApi';
 import { SetAccount } from '#components/Account';
 import AccountsPie from '#components/Account/AccountsPie';
+import { HeaderInfo } from '#components/Header';
 import { useAppSelector } from '#hooks/reduxHooks';
 import useModal from '#hooks/useModal';
 import {
@@ -22,7 +23,6 @@ import { Button } from '#ui/Button';
 import Card from '#ui/Card';
 import Icon from '#ui/Icon';
 import Table, { Column, TableDate, TableAction } from '#ui/Table';
-import { Title } from '#ui/Title';
 import { actionCreator, committer } from '#utils/committer';
 import { groupBy } from '#utils/groupBy';
 import money from '#utils/money';
@@ -209,7 +209,7 @@ const Accounts: FC = () => {
 
   return (
     <>
-      <Title>Accounts</Title>
+      <HeaderInfo title="Accounts" />
 
       <div className="grid grid-cols-3 gap-4 items-start">
         <Card>

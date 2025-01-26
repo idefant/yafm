@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
 import { useFetchCommitsQuery } from '#api/mainApi';
+import { appRoutes } from '#data/routes';
 import { useAppDispatch } from '#hooks/reduxHooks';
 import { accountCategoriesReceived } from '#store/reducers/accountCategoriesSlice';
 import { accountsReceived } from '#store/reducers/accountsSlice';
@@ -103,7 +104,7 @@ const Decrypt: FC = () => {
     dispatch(transactionTemplatesReceived(base.templates));
     dispatch(unlockBase());
 
-    navigate('/');
+    navigate(appRoutes.dashboard);
   };
 
   return isLoadingCommits ? (

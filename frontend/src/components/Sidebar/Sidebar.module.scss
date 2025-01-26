@@ -1,0 +1,44 @@
+.Sidebar {
+  height: 100vh;
+  width: 256px;
+  position: sticky;
+  top: 0;
+  background-color: var(--bg-paper);
+  border-right: 1px solid var(--border-color);
+}
+
+.logoContainer {
+  height: var(--header-height);
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+}
+
+.navigation {
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.navItem {
+  display: flex;
+  padding: 8px 12px;
+  gap: 12px;
+  color: var(--menu-item-color);
+  align-items: center;
+  text-decoration: none;
+  border-radius: 12px;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
+
+  &:not(.navItemActive):hover {
+    background-color: var(--menu-item-hovered-bg);
+  }
+
+  &Active {
+    background-color: var(--menu-item-chosen-bg);
+    color: var(--menu-item-chosen-color);
+  }
+}

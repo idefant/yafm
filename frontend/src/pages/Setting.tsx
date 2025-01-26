@@ -1,11 +1,12 @@
 import { FC } from 'react';
 
+import { HeaderInfo } from '#components/Header';
 import { SettingChangePassword, SettingBackup } from '#components/Setting';
-import { Title } from '#ui/Title';
 
 const Setting: FC = () => (
   <>
-    <Title>Setting</Title>
+    <HeaderInfo title="Settings" />
+
     <div className="grid grid-cols-2 items-start gap-4">
       <SettingChangePassword />
       <SettingBackup />

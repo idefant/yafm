@@ -2,6 +2,7 @@ import { FC } from 'react';
 import { Link, Outlet } from 'react-router-dom';
 
 import { useFetchProfileInfoQuery } from '#api/mainApi';
+import { appRoutes } from '#data/routes';
 import { Button } from '#ui/Button';
 
 const CabinetTemplate: FC = () => {
@@ -32,9 +33,9 @@ const CabinetTemplate: FC = () => {
           )}
         </div>
 
-        <Button.Link to="/upload">Upload Version</Button.Link>
+        <Button.Link to={appRoutes.upload}>Upload Version</Button.Link>
         <hr className="m-4" />
-        <Link reloadDocument to="/api/auth/logout">
+        <Link reloadDocument to={appRoutes.oidcLogout}>
           Logout
         </Link>
       </div>

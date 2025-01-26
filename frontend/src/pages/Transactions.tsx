@@ -3,6 +3,7 @@ import { FC, useMemo, useState } from 'react';
 import Swal from 'sweetalert2';
 
 import { useFetchRatesByPeriodQuery } from '#api/exratesApi';
+import { HeaderInfo } from '#components/Header';
 import { SetTransaction } from '#components/Transaction';
 import { useAppSelector } from '#hooks/reduxHooks';
 import useModal from '#hooks/useModal';
@@ -19,7 +20,6 @@ import DateFilter, { useDateFilter } from '#ui/DateFilter';
 import Icon from '#ui/Icon';
 import Select, { SelectOption } from '#ui/Select';
 import Table, { Column, TableDate, TableOperations, TableTooltip, TableAction } from '#ui/Table';
-import { Title } from '#ui/Title';
 import { actionCreator, committer } from '#utils/committer';
 import { groupBy } from '#utils/groupBy';
 import money from '#utils/money';
@@ -201,7 +201,7 @@ const Transactions: FC = () => {
 
   return (
     <>
-      <Title>Transactions</Title>
+      <HeaderInfo title="Transactions" />
 
       <Card>
         <Card.Header>Transaction Filter</Card.Header>

@@ -21,6 +21,9 @@ const preview: Preview = {
     docs: {
       theme: themes.dark,
     },
+    backgrounds: {
+      default: 'dark',
+    },
   },
   decorators: [
     (Story) => (

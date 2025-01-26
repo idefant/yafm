@@ -5,4 +5,6 @@ import { Flex, FlexProps } from '../Flex';
 
 interface VStackProps extends Except<FlexProps, 'direction'> {}
 
-export const VStack: FC<VStackProps> = (props) => <Flex direction="column" gap={8} {...props} />;
+export const VStack: FC<VStackProps> = ({ gap = 8, ...props }) => (
+  <Flex direction="column" gap={gap} {...props} />
+);

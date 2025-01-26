@@ -2,9 +2,9 @@ import { FC } from 'react';
 
 import { useFetchRatesByPeriodQuery } from '#api/exratesApi';
 import { DashboardBalanceHistoryChart, DashboardCategoryChart } from '#components/Dashboard';
+import { HeaderInfo } from '#components/Header';
 import Card from '#ui/Card';
 import DateFilter, { useDateFilter } from '#ui/DateFilter';
-import { Title } from '#ui/Title';
 
 const dateQuery = {
   month: 'YYYY-MM',
@@ -20,7 +20,7 @@ const Dashboard: FC = () => {
 
   return (
     <>
-      <Title>Dashboard</Title>
+      <HeaderInfo title="Dashboard" />
 
       <Card>
         <Card.Header>Data Filter</Card.Header>

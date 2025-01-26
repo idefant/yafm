@@ -3,6 +3,7 @@ import Swal from 'sweetalert2';
 
 import { useFetchCurrenciesQuery } from '#api/exratesApi';
 import { OpenedCurrency, SetCurrency } from '#components/Currency';
+import { HeaderInfo } from '#components/Header';
 import { useAppSelector } from '#hooks/reduxHooks';
 import useModal from '#hooks/useModal';
 import { selectAllAccounts, selectCurrencies, selectCurrenciesIds } from '#store/selectors';
@@ -10,7 +11,6 @@ import { Currency } from '#types/currencyType';
 import Card from '#ui/Card';
 import Icon from '#ui/Icon';
 import Table, { Column, TableAction } from '#ui/Table';
-import { Title } from '#ui/Title';
 import { actionCreator, committer } from '#utils/committer';
 
 const Currencies: FC = () => {
@@ -115,7 +115,7 @@ const Currencies: FC = () => {
 
   return (
     <>
-      <Title>Currencies</Title>
+      <HeaderInfo title="Currencies" />
 
       <div className="grid grid-cols-2 gap-4 items-start">
         <Card>

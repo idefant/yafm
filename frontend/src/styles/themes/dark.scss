@@ -1,10 +1,11 @@
 :root {
-  --dark-bg: #000;
   --bg: #1c1c1c;
+  --bg-paper: #000;
   --primary-color: #fff;
   --secondary-color: #b6b6b6;
   --inverted-primary-color: #000;
   --danger-color: #e04338;
+  --border-color: #4a4a4a;
 
   // Button
   --primary-button-color: #7ca9f8;
@@ -28,6 +29,7 @@
 
   // Sidebar
   --menu-item-color: var(--secondary-color);
-  --menu-chosen-item-color: #357dfb;
-  --menu-chosen-item-bg: #1d2941;
+  --menu-item-hovered-bg: #242424;
+  --menu-item-chosen-color: #357dfb;
+  --menu-item-chosen-bg: #1d2941;
 }

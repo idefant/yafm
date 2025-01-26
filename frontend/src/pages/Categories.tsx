@@ -1,12 +1,12 @@
 import { FC } from 'react';
 
-import { Title } from '#ui/Title';
+import { HeaderInfo } from '#components/Header';
 
 import CategoriesPart from './CategoriesPart';
 
 const Categories: FC = () => (
   <>
-    <Title>Categories</Title>
+    <HeaderInfo title="Categories" />
 
     <div className="grid grid-cols-2 gap-4 items-start">
       <CategoriesPart categoryType="accounts" />

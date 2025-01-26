@@ -1,6 +1,7 @@
 import { FC, useState } from 'react';
 import Swal from 'sweetalert2';
 
+import { HeaderInfo } from '#components/Header';
 import { SetTemplate } from '#components/Template';
 import { useAppSelector } from '#hooks/reduxHooks';
 import useModal from '#hooks/useModal';
@@ -10,7 +11,6 @@ import { Button } from '#ui/Button';
 import Card from '#ui/Card';
 import Icon from '#ui/Icon';
 import Table, { Column, TableOperations, TableTooltip, TableAction } from '#ui/Table';
-import { Title } from '#ui/Title';
 import { actionCreator, committer } from '#utils/committer';
 
 const Templates: FC = () => {
@@ -80,7 +80,7 @@ const Templates: FC = () => {
 
   return (
     <>
-      <Title>Templates</Title>
+      <HeaderInfo title="Templates" />
 
       <Card>
         <Card.Header>List of Templates</Card.Header>

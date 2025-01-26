@@ -1,13 +1,8 @@
 import classNames from 'classnames';
 import { FC, HTMLAttributes } from 'react';
-import { LiteralUnion } from 'type-fest';
 
 import cls from './Flex.module.scss';
-
-type FlexDirection = 'row' | 'column';
-type FlexJustify = 'start' | 'center' | 'end' | 'spaceBetween' | 'spaceAround' | 'spaceEvenly';
-type FlexAlign = 'start' | 'center' | 'end';
-type FlexWrap = 'wrap' | 'nowrap';
+import { FlexAlign, FlexDirection, FlexGap, FlexJustify, FlexWrap } from './flexType';
 
 const directionClasses: Record<FlexDirection, string> = {
   row: cls.directionRow,
@@ -40,7 +35,7 @@ export interface FlexProps extends HTMLAttributes<HTMLDivElement> {
   align?: FlexAlign;
   wrap?: FlexWrap;
   fullWidth?: boolean;
-  gap?: LiteralUnion<4 | 8 | 16 | 24 | 32, number>;
+  gap?: FlexGap;
 }
 
 export const Flex: FC<FlexProps> = ({

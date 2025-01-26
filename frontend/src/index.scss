@@ -4,4 +4,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
   line-height: var(--text-line-height);
   color: var(--primary-color);
+  background-color: var(--bg);
+  width: 100%;
 }
