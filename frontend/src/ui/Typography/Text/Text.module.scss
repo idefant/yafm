@@ -1,0 +1,49 @@
+.Text {
+  line-height: var(--text-line-height);
+}
+
+.primary {
+  color: var(--primary-color);
+}
+
+.secondary {
+  color: var(--secondary-color);
+}
+
+.danger {
+  color: var(--danger-color);
+}
+
+.align {
+  &Left {
+    text-align: left;
+  }
+
+  &Center {
+    text-align: center;
+  }
+
+  &Right {
+    text-align: right;
+  }
+}
+
+.bold {
+  font-weight: 600;
+}
+
+.sm {
+  font-size: var(--text-size-sm);
+}
+
+.md {
+  font-size: var(--text-size-md);
+}
+
+.lg {
+  font-size: var(--text-size-lg);
+}
+
+.xl {
+  font-size: var(--text-size-xl);
+}

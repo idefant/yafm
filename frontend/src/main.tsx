@@ -15,6 +15,7 @@ import 'modern-normalize/modern-normalize.css';
 import '@fontsource-variable/open-sans';
 import 'react-datepicker/dist/react-datepicker.css';
 import './index.scss';
+import './global.scss';
 import './styles/themes/dark.scss';
 
 Chart.defaults.animation = { duration: 600 };
