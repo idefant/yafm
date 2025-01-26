@@ -25,11 +25,13 @@ const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQue
     if (!mutex.isLocked()) {
       const release = await mutex.acquire();
       try {
-        const refreshResult = await api.dispatch(
-          baseQuery({ url: '/auth/refresh', method: 'POST' }, api, extraOptions),
+        const refreshResult = await baseQuery(
+          { url: '/auth/refresh', method: 'POST' },
+          api,
+          extraOptions,
         );
 
-        if ('data' in refreshResult) {
+        if (refreshResult.data) {
           // retry the initial query
           result = await baseQuery(args, api, extraOptions);
         } else {
