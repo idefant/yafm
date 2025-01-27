@@ -15,11 +15,12 @@ import {
 } from '#store/selectors';
 import { Transaction, TransactionCombined } from '#types/transactionType';
 import { Button } from '#ui/Button';
-import Card from '#ui/Card';
+import { Card } from '#ui/Card';
 import DateFilter, { useDateFilter } from '#ui/DateFilter';
 import Icon from '#ui/Icon';
 import Select, { SelectOption } from '#ui/Select';
 import Table, { Column, TableDate, TableOperations, TableTooltip, TableAction } from '#ui/Table';
+import { Title } from '#ui/Typography';
 import { actionCreator, committer } from '#utils/committer';
 import { groupBy } from '#utils/groupBy';
 import money from '#utils/money';
@@ -204,8 +205,11 @@ const Transactions: FC = () => {
       <HeaderInfo title="Transactions" />
 
       <Card>
-        <Card.Header>Transaction Filter</Card.Header>
-        <Card.Body>
+        <Card.Content>
+          <Title level={4} gutterBottom>
+            Transaction Filter
+          </Title>
+
           <DateFilter options={filterData} />
 
           <div className="grid grid-cols-2 gap-3 mt-5">
@@ -231,13 +235,15 @@ const Transactions: FC = () => {
               />
             </div>
           </div>
-        </Card.Body>
+        </Card.Content>
       </Card>
 
       <Card>
-        <Card.Header>List of Transactions</Card.Header>
+        <Card.Content>
+          <Title level={4} gutterBottom>
+            List of Transactions
+          </Title>
 
-        <Card.Body>
           <Button onClick={() => openTransaction()}>Create Transaction</Button>
 
           <Table
@@ -245,7 +251,7 @@ const Transactions: FC = () => {
             dataGroups={transactionGroups}
             className={{ table: 'w-full' }}
           />
-        </Card.Body>
+        </Card.Content>
       </Card>
 
       <SetTransaction

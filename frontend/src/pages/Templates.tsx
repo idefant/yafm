@@ -8,9 +8,10 @@ import useModal from '#hooks/useModal';
 import { selectAllTransactionTemplatesCombined } from '#store/selectors';
 import { TransactionTemplate } from '#types/transactionType';
 import { Button } from '#ui/Button';
-import Card from '#ui/Card';
+import { Card } from '#ui/Card';
 import Icon from '#ui/Icon';
 import Table, { Column, TableOperations, TableTooltip, TableAction } from '#ui/Table';
+import { Title } from '#ui/Typography';
 import { actionCreator, committer } from '#utils/committer';
 
 const Templates: FC = () => {
@@ -83,13 +84,15 @@ const Templates: FC = () => {
       <HeaderInfo title="Templates" />
 
       <Card>
-        <Card.Header>List of Templates</Card.Header>
+        <Card.Content>
+          <Title level={4} gutterBottom>
+            List of Templates
+          </Title>
 
-        <Card.Body>
           <Button onClick={() => openTemplate()}>Create</Button>
 
           <Table columns={tableColumns} data={templates} className={{ table: 'w-full' }} />
-        </Card.Body>
+        </Card.Content>
       </Card>
 
       <SetTemplate

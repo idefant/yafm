@@ -1,5 +1,6 @@
 .Paragraph {
   line-height: var(--text-line-height);
+  margin: 0;
 }
 
 .primary {
@@ -34,16 +35,32 @@
 
 .sm {
   font-size: var(--text-size-sm);
+
+  &.gutterBottom {
+    margin-bottom: var(--text-size-sm);
+  }
 }
 
 .md {
   font-size: var(--text-size-md);
+
+  &.gutterBottom {
+    margin-bottom: var(--text-size-md);
+  }
 }
 
 .lg {
   font-size: var(--text-size-lg);
+
+  &.gutterBottom {
+    margin-bottom: var(--text-size-lg);
+  }
 }
 
 .xl {
   font-size: var(--text-size-xl);
+
+  &.gutterBottom {
+    margin-bottom: var(--text-size-xl);
+  }
 }

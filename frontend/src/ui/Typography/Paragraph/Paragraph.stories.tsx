@@ -11,8 +11,8 @@ const meta = {
   },
   render: (props) => (
     <>
-      <Paragraph {...props} />
-      <Paragraph {...props} />
+      <Paragraph gutterBottom {...props} />
+      <Paragraph gutterBottom {...props} />
       <Paragraph {...props} />
     </>
   ),

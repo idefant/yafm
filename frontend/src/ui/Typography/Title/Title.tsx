@@ -6,9 +6,13 @@ import { TitleLevel } from './titleType';
 
 interface TitleProps extends HTMLAttributes<HTMLDivElement> {
   level: TitleLevel;
+  gutterBottom?: boolean;
   as?: ElementType;
 }
 
-export const Title: FC<TitleProps> = ({ level, as: Component = 'div', ...props }) => (
-  <Component className={classNames(cls.Title, cls[`level${level}`])} {...props} />
+export const Title: FC<TitleProps> = ({ level, gutterBottom, as: Component = 'div', ...props }) => (
+  <Component
+    className={classNames(cls.Title, cls[`level${level}`], { [cls.gutterBottom]: gutterBottom })}
+    {...props}
+  />
 );

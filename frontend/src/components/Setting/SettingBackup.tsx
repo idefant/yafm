@@ -1,11 +1,12 @@
 import { yupResolver } from '@hookform/resolvers/yup';
 import dayjs from 'dayjs';
-import { FC } from 'react';
+import { FC, useId } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
 import { Button } from '#ui/Button';
-import Card from '#ui/Card';
+import { Card } from '#ui/Card';
 import Form from '#ui/Form';
+import { Title } from '#ui/Typography';
 import { crypt } from '#utils/crypt';
 import { exportJsonFile } from '#utils/file';
 import yup from '#utils/form/schema';
@@ -23,6 +24,7 @@ const formSchema = yup
   .required();
 
 const SettingBackup: FC = () => {
+  const formId = useId();
   const methods = useForm<TForm>({ resolver: yupResolver(formSchema) });
   const { handleSubmit } = methods;
 
@@ -45,19 +47,23 @@ const SettingBackup: FC = () => {
 
   return (
     <Card>
-      <Card.Header>Backup</Card.Header>
+      <Card.Content>
+        <Title level={4} gutterBottom>
+          Backup
+        </Title>
 
-      <FormProvider {...methods}>
-        <Form onSubmit={handleSubmit(onSubmit)}>
-          <Card.Body>
+        <FormProvider {...methods}>
+          <Form id={formId} onSubmit={handleSubmit(onSubmit)}>
             <Form.Checkbox name="useEncryption">Use encryption</Form.Checkbox>
-          </Card.Body>
+          </Form>
+        </FormProvider>
+      </Card.Content>
 
-          <Card.Footer>
-            <Button type="submit">Download</Button>
-          </Card.Footer>
-        </Form>
-      </FormProvider>
+      <Card.Actions>
+        <Button type="submit" form={formId}>
+          Download
+        </Button>
+      </Card.Actions>
     </Card>
   );
 };

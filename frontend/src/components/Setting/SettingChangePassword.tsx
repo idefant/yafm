@@ -1,11 +1,12 @@
 import { yupResolver } from '@hookform/resolvers/yup';
-import { FC } from 'react';
+import { FC, useId } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import Swal from 'sweetalert2';
 
 import { Button } from '#ui/Button';
-import Card from '#ui/Card';
+import { Card } from '#ui/Card';
 import Form from '#ui/Form';
+import { Title } from '#ui/Typography';
 import { actionCreator, committer } from '#utils/committer';
 import { crypt } from '#utils/crypt';
 import yup from '#utils/form/schema';
@@ -25,6 +26,7 @@ const formSchema = yup
   .required();
 
 const SettingChangePassword: FC = () => {
+  const formId = useId();
   const methods = useForm<TForm>({ resolver: yupResolver(formSchema) });
   const { handleSubmit, reset } = methods;
 
@@ -47,21 +49,25 @@ const SettingChangePassword: FC = () => {
 
   return (
     <Card>
-      <Card.Header>Change Password</Card.Header>
+      <Card.Content>
+        <Title level={4} gutterBottom>
+          Change Password
+        </Title>
 
-      <FormProvider {...methods}>
-        <Form onSubmit={handleSubmit(onSubmit)}>
-          <Card.Body>
+        <FormProvider {...methods}>
+          <Form id={formId} onSubmit={handleSubmit(onSubmit)}>
             <Form.Password label="Old password" name="oldPassword" />
             <Form.Password label="New password" name="newPassword" />
             <Form.Password label="Repeat password" name="repeatPassword" />
-          </Card.Body>
+          </Form>
+        </FormProvider>
+      </Card.Content>
 
-          <Card.Footer>
-            <Button type="submit">Change Password</Button>
-          </Card.Footer>
-        </Form>
-      </FormProvider>
+      <Card.Actions>
+        <Button type="submit" form={formId}>
+          Change Password
+        </Button>
+      </Card.Actions>
     </Card>
   );
 };

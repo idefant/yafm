@@ -20,9 +20,10 @@ import {
 } from '#store/selectors';
 import { Account } from '#types/accountType';
 import { Button } from '#ui/Button';
-import Card from '#ui/Card';
+import { Card } from '#ui/Card';
 import Icon from '#ui/Icon';
 import Table, { Column, TableDate, TableAction } from '#ui/Table';
+import { Title } from '#ui/Typography';
 import { actionCreator, committer } from '#utils/committer';
 import { groupBy } from '#utils/groupBy';
 import money from '#utils/money';
@@ -213,17 +214,22 @@ const Accounts: FC = () => {
 
       <div className="grid grid-cols-3 gap-4 items-start">
         <Card>
-          <Card.Header>Capital</Card.Header>
-          <Card.Body>
+          <Card.Content>
+            <Title level={4} gutterBottom>
+              Capital
+            </Title>
             <div className="max-w-[300px] mx-auto">
               <AccountsPie />
             </div>
-          </Card.Body>
+          </Card.Content>
         </Card>
 
-        <Card className="col-span-2">
-          <Card.Header>List of Accounts</Card.Header>
-          <Card.Body>
+        <Card>
+          <Card.Content>
+            <Title level={4} gutterBottom>
+              List of Accounts
+            </Title>
+
             <Button onClick={() => openAccount()}>Create Account</Button>
 
             <Table
@@ -232,7 +238,7 @@ const Accounts: FC = () => {
               className={{ groupName: '!bg-orange-900', table: 'w-full' }}
               dataGroups={accountsGroupedByCategory}
             />
-          </Card.Body>
+          </Card.Content>
         </Card>
       </div>
 

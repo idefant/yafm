@@ -18,7 +18,7 @@ export const HeaderInfo: FC<HeaderInfoProps> = ({ title, endAddition, endAdditio
 
   return createPortal(
     <HStack gap={endAdditionGap} align="center">
-      <div className={cls.title}>{title}</div>
+      <h2 className={cls.title}>{title}</h2>
       {endAddition}
     </HStack>,
     headerPortalElem,

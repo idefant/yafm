@@ -37,3 +37,29 @@ export const Level6: Story = {
 export const AsHeader: Story = {
   args: { level: 3, as: 'h3', children: 'Title. Level 3. As h3' },
 };
+
+export const GutterBottom: Story = {
+  args: { level: 1, gutterBottom: true },
+  render: (props) => (
+    <>
+      <Title {...props} level={1}>
+        Title. Level 1
+      </Title>
+      <Title {...props} level={2}>
+        Title. Level 2
+      </Title>
+      <Title {...props} level={3}>
+        Title. Level 3
+      </Title>
+      <Title {...props} level={4}>
+        Title. Level 4
+      </Title>
+      <Title {...props} level={5}>
+        Title. Level 5
+      </Title>
+      <Title {...props} level={6}>
+        Title. Level 6
+      </Title>
+    </>
+  ),
+};

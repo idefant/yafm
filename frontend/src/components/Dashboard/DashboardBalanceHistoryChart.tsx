@@ -16,8 +16,9 @@ import { Line } from 'react-chartjs-2';
 import { useAppSelector } from '#hooks/reduxHooks';
 import { selectAllTransactionsCombined, selectCurrenciesIds } from '#store/selectors';
 import { components } from '#types/exrates-api-schema';
-import Card from '#ui/Card';
+import { Card } from '#ui/Card';
 import { DateFilterOptions } from '#ui/DateFilter/useDateFilter';
+import { Title } from '#ui/Typography';
 import { createKeysDict } from '#utils/createKeysDict';
 import money from '#utils/money';
 
@@ -143,8 +144,10 @@ const DashboardBalanceHistoryChart: FC<DashboardBalanceHistoryChartProps> = ({
 
   return (
     <Card>
-      <Card.Header>Capital</Card.Header>
-      <Card.Body>
+      <Card.Content>
+        <Title level={4} gutterBottom>
+          Capital
+        </Title>
         <Line
           data={{
             labels: daysList,
@@ -174,7 +177,7 @@ const DashboardBalanceHistoryChart: FC<DashboardBalanceHistoryChartProps> = ({
             },
           }}
         />
-      </Card.Body>
+      </Card.Content>
     </Card>
   );
 };

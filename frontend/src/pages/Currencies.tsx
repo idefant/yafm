@@ -8,9 +8,10 @@ import { useAppSelector } from '#hooks/reduxHooks';
 import useModal from '#hooks/useModal';
 import { selectAllAccounts, selectCurrencies, selectCurrenciesIds } from '#store/selectors';
 import { Currency } from '#types/currencyType';
-import Card from '#ui/Card';
+import { Card } from '#ui/Card';
 import Icon from '#ui/Icon';
 import Table, { Column, TableAction } from '#ui/Table';
+import { Title } from '#ui/Typography';
 import { actionCreator, committer } from '#utils/committer';
 
 const Currencies: FC = () => {
@@ -119,27 +120,31 @@ const Currencies: FC = () => {
 
       <div className="grid grid-cols-2 gap-4 items-start">
         <Card>
-          <Card.Header>Added Currencies</Card.Header>
-          <Card.Body>
+          <Card.Content>
+            <Title level={4} gutterBottom>
+              Added Currencies
+            </Title>
             <Table
               columns={currenciesTableColumns}
               data={currencies}
               getKey={(record) => record.code}
               className={{ table: 'w-full' }}
             />
-          </Card.Body>
+          </Card.Content>
         </Card>
 
         <Card>
-          <Card.Header>Unused Currencies</Card.Header>
-          <Card.Body>
+          <Card.Content>
+            <Title level={4} gutterBottom>
+              Unused Currencies
+            </Title>
             <Table
               columns={unusedCurrenciesTableColumns}
               data={unusedCurrencies}
               getKey={(record) => record.code}
               className={{ table: 'w-full' }}
             />
-          </Card.Body>
+          </Card.Content>
         </Card>
       </div>
 

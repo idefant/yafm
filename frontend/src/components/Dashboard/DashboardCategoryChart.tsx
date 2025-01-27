@@ -11,8 +11,9 @@ import {
 } from '#store/selectors';
 import { components } from '#types/exrates-api-schema';
 import { TransactionType } from '#types/transactionType';
-import Card from '#ui/Card';
+import { Card } from '#ui/Card';
 import { DateFilterOptions } from '#ui/DateFilter/useDateFilter';
+import { Title } from '#ui/Typography';
 import { groupBy } from '#utils/groupBy';
 import money from '#utils/money';
 import { getTransactionsGroupedByType } from '#utils/transaction';
@@ -77,8 +78,10 @@ const DashboardCategoryChart: FC<DashboardCategoryChartProps> = ({ filterData, r
   return (
     <div className="grid grid-cols-2 gap-4 items-start">
       <Card>
-        <Card.Header>Income per category</Card.Header>
-        <Card.Body className="max-w-[350px] mx-auto">
+        <Card.Content>
+          <Title level={4} gutterBottom>
+            Income per category
+          </Title>
           <Pie
             data={{
               datasets: [
@@ -101,12 +104,14 @@ const DashboardCategoryChart: FC<DashboardCategoryChartProps> = ({ filterData, r
               },
             }}
           />
-        </Card.Body>
+        </Card.Content>
       </Card>
 
       <Card>
-        <Card.Header>Expense per category</Card.Header>
-        <Card.Body className="max-w-[350px] mx-auto">
+        <Card.Content>
+          <Title level={4} gutterBottom>
+            Expense per category
+          </Title>
           <Pie
             data={{
               datasets: [
@@ -129,7 +134,7 @@ const DashboardCategoryChart: FC<DashboardCategoryChartProps> = ({ filterData, r
               },
             }}
           />
-        </Card.Body>
+        </Card.Content>
       </Card>
     </div>
   );

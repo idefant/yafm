@@ -13,9 +13,10 @@ import {
 } from '#store/selectors';
 import { CategoryType, Category } from '#types/categoryType';
 import { Button } from '#ui/Button';
-import Card from '#ui/Card';
+import { Card } from '#ui/Card';
 import Icon from '#ui/Icon';
 import Table, { Column, TableAction } from '#ui/Table';
+import { Title } from '#ui/Typography';
 import { actionCreator, committer } from '#utils/committer';
 
 interface CategoriesPartProps {
@@ -115,11 +116,11 @@ const CategoriesPart: FC<CategoriesPartProps> = ({ categoryType }) => {
   return (
     <>
       <Card>
-        <Card.Header>
-          {categoryType === 'accounts' ? 'Account' : 'Transaction'} Categories
-        </Card.Header>
+        <Card.Content>
+          <Title level={4} gutterBottom>
+            {categoryType === 'accounts' ? 'Account' : 'Transaction'} Categories
+          </Title>
 
-        <Card.Body>
           <Button onClick={() => openCategory()}>Create Category</Button>
 
           <Table
@@ -128,7 +129,7 @@ const CategoriesPart: FC<CategoriesPartProps> = ({ categoryType }) => {
             isTranslucentRow={(record) => record.is_archive}
             className={{ table: 'w-full' }}
           />
-        </Card.Body>
+        </Card.Content>
       </Card>
 
       <SetCategory
