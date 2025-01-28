@@ -11,10 +11,12 @@ import {
   selectVisibleAccountCategories,
   selectVisibleTransactionCategories,
 } from '#store/selectors';
+import PlusIcon from '#svg/plus.svg?react';
 import { CategoryType, Category } from '#types/categoryType';
 import { Button } from '#ui/Button';
 import { Card } from '#ui/Card';
 import Icon from '#ui/Icon';
+import { HStack } from '#ui/Stack';
 import Table, { Column, TableAction } from '#ui/Table';
 import { Title } from '#ui/Typography';
 import { actionCreator, committer } from '#utils/committer';
@@ -117,11 +119,20 @@ const CategoriesPart: FC<CategoriesPartProps> = ({ categoryType }) => {
     <>
       <Card>
         <Card.Content>
-          <Title level={4} gutterBottom>
-            {categoryType === 'accounts' ? 'Account' : 'Transaction'} Categories
-          </Title>
+          <HStack justify="spaceBetween" align="baseline">
+            <Title level={4} gutterBottom>
+              {categoryType === 'accounts' ? 'Account' : 'Transaction'} Categories
+            </Title>
 
-          <Button onClick={() => openCategory()}>Create Category</Button>
+            <Button
+              color="success"
+              size="sm"
+              startIcon={<PlusIcon />}
+              onClick={() => openCategory()}
+            >
+              Create
+            </Button>
+          </HStack>
 
           <Table
             columns={tableColumns}

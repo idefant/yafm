@@ -13,6 +13,7 @@ import {
   selectVisibleAccounts,
   selectVisibleTransactionCategories,
 } from '#store/selectors';
+import PlusIcon from '#svg/plus.svg?react';
 import { Transaction, TransactionCombined } from '#types/transactionType';
 import { Button } from '#ui/Button';
 import { Card } from '#ui/Card';
@@ -203,13 +204,27 @@ const Transactions: FC = () => {
 
   return (
     <>
-      <HeaderInfo title="Transactions" />
+      <HeaderInfo
+        title="Transactions"
+        endAddition={
+          <Button
+            color="success"
+            size="sm"
+            startIcon={<PlusIcon />}
+            onClick={() => openTransaction()}
+          >
+            Add
+          </Button>
+        }
+        endAdditionGap={24}
+      />
+
       <Grid gap={16} reversed>
         <Grid.Item size={3}>
           <Card>
             <Card.Content>
               <Title level={4} gutterBottom>
-                Transaction Filter
+                Filter
               </Title>
 
               <DateFilter options={filterData} />
@@ -247,8 +262,6 @@ const Transactions: FC = () => {
               <Title level={4} gutterBottom>
                 List of Transactions
               </Title>
-
-              <Button onClick={() => openTransaction()}>Create Transaction</Button>
 
               <Table
                 columns={tableColumns}

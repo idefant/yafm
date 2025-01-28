@@ -1,8 +1,9 @@
 import classNames from 'classnames';
-import { ButtonHTMLAttributes, FC } from 'react';
+import { ButtonHTMLAttributes, FC, ReactNode } from 'react';
+
+import { ButtonLink } from '../ButtonLink';
 
 import cls from './Button.module.scss';
-import { ButtonLink } from './ButtonLink';
 import { ButtonColor, ButtonSize, ButtonVariant } from './buttonType';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -12,6 +13,10 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   /** Размер кнопки */
   size?: ButtonSize;
+  /** Икона перед текстом */
+  startIcon?: ReactNode;
+  /** Икона после текстом */
+  endIcon?: ReactNode;
 }
 
 export const Button: FC<ButtonProps> & { Link: typeof ButtonLink } = ({
@@ -19,6 +24,9 @@ export const Button: FC<ButtonProps> & { Link: typeof ButtonLink } = ({
   size = 'md',
   variant = 'contained',
   className,
+  startIcon,
+  endIcon,
+  children,
   ...props
 }) => (
   <button
@@ -27,7 +35,11 @@ export const Button: FC<ButtonProps> & { Link: typeof ButtonLink } = ({
     })}
     type="button"
     {...props}
-  />
+  >
+    {startIcon && <span className={classNames(cls.icon, cls.startIcon)}>{startIcon}</span>}
+    {children}
+    {endIcon && <span className={classNames(cls.icon, cls.endIcon)}>{endIcon}</span>}
+  </button>
 );
 
 Button.Link = ButtonLink;

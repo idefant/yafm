@@ -30,7 +30,7 @@ const Dashboard: FC = () => {
           <Card>
             <Card.Content>
               <Title level={4} gutterBottom>
-                Data Filter
+                Filter
               </Title>
               <DateFilter options={filterData} />
             </Card.Content>

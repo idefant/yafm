@@ -1,15 +1,17 @@
-import { Button } from './Button';
+import SettingsIcon from '#svg/settings.svg?react';
+
+import { ButtonLink } from './ButtonLink';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
 const meta = {
   title: 'UI/Button.Link',
-  component: Button.Link,
+  component: ButtonLink,
   parameters: {
     layout: 'centered',
   },
   args: { to: 'https://example.org', target: '_blank', children: 'Button' },
-} satisfies Meta<typeof Button.Link>;
+} satisfies Meta<typeof ButtonLink>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -101,5 +103,59 @@ export const OutlinedDisabled: Story = {
     variant: 'outlined',
     color: 'primary',
     disabled: true,
+  },
+};
+
+export const SmallWithStartIcon: Story = {
+  args: {
+    variant: 'contained',
+    color: 'primary',
+    size: 'sm',
+    startIcon: <SettingsIcon />,
+  },
+};
+
+export const MediumWithStartIcon: Story = {
+  args: {
+    variant: 'contained',
+    color: 'primary',
+    size: 'md',
+    startIcon: <SettingsIcon />,
+  },
+};
+
+export const LargeWithStartIcon: Story = {
+  args: {
+    variant: 'contained',
+    color: 'primary',
+    size: 'lg',
+    startIcon: <SettingsIcon />,
+  },
+};
+
+export const SmallWithEndIcon: Story = {
+  args: {
+    variant: 'contained',
+    color: 'primary',
+    size: 'sm',
+    endIcon: <SettingsIcon />,
+  },
+};
+
+export const MediumWithEndIcon: Story = {
+  args: {
+    variant: 'contained',
+    color: 'primary',
+    size: 'md',
+    endIcon: <SettingsIcon />,
+  },
+};
+
+export const LargeWithEndIcon: Story = {
+  args: {
+    variant: 'contained',
+    color: 'primary',
+    size: 'lg',
+    endIcon: <SettingsIcon />,
   },
 };

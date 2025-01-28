@@ -1,9 +1,9 @@
 import classNames from 'classnames';
-import { ComponentProps, ElementType, FC } from 'react';
+import { ComponentProps, ElementType, FC, ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 
-import cls from './Button.module.scss';
-import { ButtonColor, ButtonSize, ButtonVariant } from './buttonType';
+import { ButtonColor, ButtonSize, ButtonVariant } from '../Button';
+import cls from '../Button/Button.module.scss';
 
 interface ButtonLinkProps extends ComponentProps<typeof Link> {
   /** Цвет кнопки */
@@ -14,6 +14,10 @@ interface ButtonLinkProps extends ComponentProps<typeof Link> {
   size?: ButtonSize;
   /** Блокировка кнопки */
   disabled?: boolean;
+  /** Икона перед текстом */
+  startIcon?: ReactNode;
+  /** Икона после текстом */
+  endIcon?: ReactNode;
 }
 
 export const ButtonLink: FC<ButtonLinkProps> = ({
@@ -21,6 +25,9 @@ export const ButtonLink: FC<ButtonLinkProps> = ({
   size = 'md',
   variant = 'contained',
   className,
+  startIcon,
+  endIcon,
+  children,
   ...props
 }) => {
   const Component: ElementType =
@@ -38,6 +45,10 @@ export const ButtonLink: FC<ButtonLinkProps> = ({
       role="button"
       href={props.to.toString()}
       {...props}
-    />
+    >
+      {startIcon && <span className={classNames(cls.icon, cls.startIcon)}>{startIcon}</span>}
+      {children}
+      {endIcon && <span className={classNames(cls.icon, cls.endIcon)}>{endIcon}</span>}
+    </Component>
   );
 };

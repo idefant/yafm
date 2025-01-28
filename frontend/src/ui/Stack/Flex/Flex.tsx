@@ -24,6 +24,7 @@ const alignClasses: Record<FlexAlign, string> = {
   start: cls.alignStart,
   center: cls.alignCenter,
   end: cls.alignEnd,
+  baseline: cls.alignBaseline,
 };
 
 const wrapClasses: Record<FlexWrap, string> = {

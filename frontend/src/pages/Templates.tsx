@@ -6,6 +6,7 @@ import { SetTemplate } from '#components/Template';
 import { useAppSelector } from '#hooks/reduxHooks';
 import useModal from '#hooks/useModal';
 import { selectAllTransactionTemplatesCombined } from '#store/selectors';
+import PlusIcon from '#svg/plus.svg?react';
 import { TransactionTemplate } from '#types/transactionType';
 import { Button } from '#ui/Button';
 import { Card } from '#ui/Card';
@@ -81,15 +82,21 @@ const Templates: FC = () => {
 
   return (
     <>
-      <HeaderInfo title="Templates" />
+      <HeaderInfo
+        title="Templates"
+        endAddition={
+          <Button color="success" size="sm" startIcon={<PlusIcon />} onClick={() => openTemplate()}>
+            Create
+          </Button>
+        }
+        endAdditionGap={24}
+      />
 
       <Card>
         <Card.Content>
           <Title level={4} gutterBottom>
             List of Templates
           </Title>
-
-          <Button onClick={() => openTemplate()}>Create</Button>
 
           <Table columns={tableColumns} data={templates} className={{ table: 'w-full' }} />
         </Card.Content>

@@ -18,6 +18,7 @@ import {
   selectVisibleAccountCategories,
   selectVisibleAccountsCombined,
 } from '#store/selectors';
+import PlusIcon from '#svg/plus.svg?react';
 import { Account } from '#types/accountType';
 import { Button } from '#ui/Button';
 import { Card } from '#ui/Card';
@@ -211,7 +212,15 @@ const Accounts: FC = () => {
 
   return (
     <>
-      <HeaderInfo title="Accounts" />
+      <HeaderInfo
+        title="Accounts"
+        endAddition={
+          <Button color="success" size="sm" startIcon={<PlusIcon />} onClick={() => openAccount()}>
+            Create
+          </Button>
+        }
+        endAdditionGap={24}
+      />
 
       <Grid gap={16}>
         <Grid.Item size={8}>
@@ -220,8 +229,6 @@ const Accounts: FC = () => {
               <Title level={4} gutterBottom>
                 List of Accounts
               </Title>
-
-              <Button onClick={() => openAccount()}>Create Account</Button>
 
               <Table
                 columns={tableColumns}

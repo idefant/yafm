@@ -68,6 +68,12 @@ export const JustifySpaceEvenly: Story = {
   },
 };
 
+export const AlignStretch: Story = {
+  args: {
+    align: 'stretch',
+  },
+};
+
 export const AlignStart: Story = {
   args: {
     align: 'start',
@@ -83,5 +89,11 @@ export const AlignCenter: Story = {
 export const AlignEnd: Story = {
   args: {
     align: 'end',
+  },
+};
+
+export const AlignBaseline: Story = {
+  args: {
+    align: 'baseline',
   },
 };
