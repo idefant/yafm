@@ -13,6 +13,7 @@ import { components } from '#types/exrates-api-schema';
 import { TransactionType } from '#types/transactionType';
 import { Card } from '#ui/Card';
 import { DateFilterOptions } from '#ui/DateFilter/useDateFilter';
+import { Grid } from '#ui/Grid';
 import { Title } from '#ui/Typography';
 import { groupBy } from '#utils/groupBy';
 import money from '#utils/money';
@@ -76,67 +77,71 @@ const DashboardCategoryChart: FC<DashboardCategoryChartProps> = ({ filterData, r
   const outcomesChartData = getChartData('outcome');
 
   return (
-    <div className="grid grid-cols-2 gap-4 items-start">
-      <Card>
-        <Card.Content>
-          <Title level={4} gutterBottom>
-            Income per category
-          </Title>
-          <Pie
-            data={{
-              datasets: [
-                {
-                  data: incomesChartData.dataset,
-                  backgroundColor: colors,
-                },
-              ],
-              labels: incomesChartData.labels,
-            }}
-            options={{
-              plugins: {
-                legend: { display: false },
-                tooltip: {
-                  callbacks: {
-                    label: (tooltipItem) =>
-                      `${tooltipItem.label}: ${tooltipItem.formattedValue} ${baseCurrencyCode}`,
+    <Grid gap={16}>
+      <Grid.Item size={6}>
+        <Card>
+          <Card.Content>
+            <Title level={5} gutterBottom>
+              Income per category
+            </Title>
+            <Pie
+              data={{
+                datasets: [
+                  {
+                    data: incomesChartData.dataset,
+                    backgroundColor: colors,
+                  },
+                ],
+                labels: incomesChartData.labels,
+              }}
+              options={{
+                plugins: {
+                  legend: { display: false },
+                  tooltip: {
+                    callbacks: {
+                      label: (tooltipItem) =>
+                        `${tooltipItem.label}: ${tooltipItem.formattedValue} ${baseCurrencyCode}`,
+                    },
                   },
                 },
-              },
-            }}
-          />
-        </Card.Content>
-      </Card>
+              }}
+            />
+          </Card.Content>
+        </Card>
+      </Grid.Item>
 
-      <Card>
-        <Card.Content>
-          <Title level={4} gutterBottom>
-            Expense per category
-          </Title>
-          <Pie
-            data={{
-              datasets: [
-                {
-                  data: outcomesChartData.dataset,
-                  backgroundColor: colors,
-                },
-              ],
-              labels: outcomesChartData.labels,
-            }}
-            options={{
-              plugins: {
-                legend: { display: false },
-                tooltip: {
-                  callbacks: {
-                    label: (tooltipItem) =>
-                      `${tooltipItem.label}: ${tooltipItem.formattedValue} ${baseCurrencyCode}`,
+      <Grid.Item size={6}>
+        <Card>
+          <Card.Content>
+            <Title level={5} gutterBottom>
+              Expense per category
+            </Title>
+            <Pie
+              data={{
+                datasets: [
+                  {
+                    data: outcomesChartData.dataset,
+                    backgroundColor: colors,
+                  },
+                ],
+                labels: outcomesChartData.labels,
+              }}
+              options={{
+                plugins: {
+                  legend: { display: false },
+                  tooltip: {
+                    callbacks: {
+                      label: (tooltipItem) =>
+                        `${tooltipItem.label}: ${tooltipItem.formattedValue} ${baseCurrencyCode}`,
+                    },
                   },
                 },
-              },
-            }}
-          />
-        </Card.Content>
-      </Card>
-    </div>
+              }}
+            />
+          </Card.Content>
+        </Card>
+      </Grid.Item>
+    </Grid>
   );
 };
 

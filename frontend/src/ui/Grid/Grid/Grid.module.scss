@@ -1,0 +1,11 @@
+.Grid {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: calc(var(--grid-column-gap) / -2);
+  margin-right: calc(var(--grid-column-gap) / -2);
+  row-gap: var(--grid-row-gap);
+}
+
+.reversed {
+  flex-direction: row-reverse;
+}

@@ -1,0 +1,65 @@
+/* stylelint-disable number-max-precision */
+.GridItem {
+  padding-left: calc(var(--grid-column-gap) / 2);
+  padding-right: calc(var(--grid-column-gap) / 2);
+}
+
+.size1 {
+  flex: 0 0 8.33333333333333%;
+  max-width: 8.33333333333333%;
+}
+
+.size2 {
+  flex: 0 0 16.66666666666666%;
+  max-width: 16.66666666666666%;
+}
+
+.size3 {
+  flex: 0 0 25%;
+  max-width: 25%;
+}
+
+.size4 {
+  flex: 0 0 33.33333333333333%;
+  max-width: 33.33333333333333%;
+}
+
+.size5 {
+  flex: 0 0 41.66666666666666%;
+  max-width: 41.66666666666666%;
+}
+
+.size6 {
+  flex: 0 0 50%;
+  max-width: 50%;
+}
+
+.size7 {
+  flex: 0 0 58.33333333333333%;
+  max-width: 58.33333333333333%;
+}
+
+.size8 {
+  flex: 0 0 66.66666666666666%;
+  max-width: 66.66666666666666%;
+}
+
+.size9 {
+  flex: 0 0 75%;
+  max-width: 75%;
+}
+
+.size10 {
+  flex: 0 0 83.33333333333333%;
+  max-width: 83.33333333333333%;
+}
+
+.size11 {
+  flex: 0 0 91.66666666666666%;
+  max-width: 91.66666666666666%;
+}
+
+.size12 {
+  flex: 0 0 100%;
+  max-width: 100%;
+}

@@ -5,6 +5,8 @@ import { DashboardBalanceHistoryChart, DashboardCategoryChart } from '#component
 import { HeaderInfo } from '#components/Header';
 import { Card } from '#ui/Card';
 import DateFilter, { useDateFilter } from '#ui/DateFilter';
+import { Grid } from '#ui/Grid';
+import { VStack } from '#ui/Stack';
 import { Title } from '#ui/Typography';
 
 const dateQuery = {
@@ -23,18 +25,25 @@ const Dashboard: FC = () => {
     <>
       <HeaderInfo title="Dashboard" />
 
-      <Card>
-        <Card.Content>
-          <Title level={4} gutterBottom>
-            Data Filter
-          </Title>
-          <DateFilter options={filterData} />
-        </Card.Content>
-      </Card>
+      <Grid gap={16} reversed>
+        <Grid.Item size={3}>
+          <Card>
+            <Card.Content>
+              <Title level={4} gutterBottom>
+                Data Filter
+              </Title>
+              <DateFilter options={filterData} />
+            </Card.Content>
+          </Card>
+        </Grid.Item>
 
-      <DashboardBalanceHistoryChart filterData={filterData} rates={rates} />
-
-      <DashboardCategoryChart filterData={filterData} rates={rates} />
+        <Grid.Item size={9}>
+          <VStack gap={16}>
+            <DashboardBalanceHistoryChart filterData={filterData} rates={rates} />
+            <DashboardCategoryChart filterData={filterData} rates={rates} />
+          </VStack>
+        </Grid.Item>
+      </Grid>
     </>
   );
 };

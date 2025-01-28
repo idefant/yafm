@@ -2,15 +2,21 @@ import { FC } from 'react';
 
 import { HeaderInfo } from '#components/Header';
 import { SettingChangePassword, SettingBackup } from '#components/Setting';
+import { Grid } from '#ui/Grid';
 
 const Setting: FC = () => (
   <>
     <HeaderInfo title="Settings" />
 
-    <div className="grid grid-cols-2 items-start gap-4">
-      <SettingChangePassword />
-      <SettingBackup />
-    </div>
+    <Grid gap={16}>
+      <Grid.Item size={6}>
+        <SettingChangePassword />
+      </Grid.Item>
+
+      <Grid.Item size={6}>
+        <SettingBackup />
+      </Grid.Item>
+    </Grid>
   </>
 );
 

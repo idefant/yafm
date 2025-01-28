@@ -19,6 +19,8 @@ const justifyClasses: Record<FlexJustify, string> = {
 };
 
 const alignClasses: Record<FlexAlign, string> = {
+  normal: cls.alignNormal,
+  stretch: cls.alignStretch,
   start: cls.alignStart,
   center: cls.alignCenter,
   end: cls.alignEnd,
@@ -34,18 +36,17 @@ export interface FlexProps extends HTMLAttributes<HTMLDivElement> {
   justify?: FlexJustify;
   align?: FlexAlign;
   wrap?: FlexWrap;
-  fullWidth?: boolean;
   gap?: FlexGap;
 }
 
 export const Flex: FC<FlexProps> = ({
   direction = 'row',
   justify = 'start',
-  align = 'start',
+  align = 'normal',
   wrap = 'nowrap',
-  fullWidth,
   gap,
   className,
+  style,
   ...props
 }) => (
   <div
@@ -55,10 +56,9 @@ export const Flex: FC<FlexProps> = ({
       justifyClasses[justify],
       alignClasses[align],
       wrapClasses[wrap],
-      { [cls.fullWidth]: fullWidth },
       className,
     )}
-    style={{ gap }}
+    style={{ gap, ...style }}
     {...props}
   />
 );

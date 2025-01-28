@@ -9,6 +9,7 @@ import useModal from '#hooks/useModal';
 import { selectAllAccounts, selectCurrencies, selectCurrenciesIds } from '#store/selectors';
 import { Currency } from '#types/currencyType';
 import { Card } from '#ui/Card';
+import { Grid } from '#ui/Grid';
 import Icon from '#ui/Icon';
 import Table, { Column, TableAction } from '#ui/Table';
 import { Title } from '#ui/Typography';
@@ -118,35 +119,39 @@ const Currencies: FC = () => {
     <>
       <HeaderInfo title="Currencies" />
 
-      <div className="grid grid-cols-2 gap-4 items-start">
-        <Card>
-          <Card.Content>
-            <Title level={4} gutterBottom>
-              Added Currencies
-            </Title>
-            <Table
-              columns={currenciesTableColumns}
-              data={currencies}
-              getKey={(record) => record.code}
-              className={{ table: 'w-full' }}
-            />
-          </Card.Content>
-        </Card>
+      <Grid gap={16}>
+        <Grid.Item size={6}>
+          <Card>
+            <Card.Content>
+              <Title level={4} gutterBottom>
+                Added Currencies
+              </Title>
+              <Table
+                columns={currenciesTableColumns}
+                data={currencies}
+                getKey={(record) => record.code}
+                className={{ table: 'w-full' }}
+              />
+            </Card.Content>
+          </Card>
+        </Grid.Item>
 
-        <Card>
-          <Card.Content>
-            <Title level={4} gutterBottom>
-              Unused Currencies
-            </Title>
-            <Table
-              columns={unusedCurrenciesTableColumns}
-              data={unusedCurrencies}
-              getKey={(record) => record.code}
-              className={{ table: 'w-full' }}
-            />
-          </Card.Content>
-        </Card>
-      </div>
+        <Grid.Item size={6}>
+          <Card>
+            <Card.Content>
+              <Title level={4} gutterBottom>
+                Unused Currencies
+              </Title>
+              <Table
+                columns={unusedCurrenciesTableColumns}
+                data={unusedCurrencies}
+                getKey={(record) => record.code}
+                className={{ table: 'w-full' }}
+              />
+            </Card.Content>
+          </Card>
+        </Grid.Item>
+      </Grid>
 
       <SetCurrency
         isOpen={currencyModal.isOpen}

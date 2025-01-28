@@ -21,6 +21,7 @@ import {
 import { Account } from '#types/accountType';
 import { Button } from '#ui/Button';
 import { Card } from '#ui/Card';
+import { Grid } from '#ui/Grid';
 import Icon from '#ui/Icon';
 import Table, { Column, TableDate, TableAction } from '#ui/Table';
 import { Title } from '#ui/Typography';
@@ -212,35 +213,37 @@ const Accounts: FC = () => {
     <>
       <HeaderInfo title="Accounts" />
 
-      <div className="grid grid-cols-3 gap-4 items-start">
-        <Card>
-          <Card.Content>
-            <Title level={4} gutterBottom>
-              Capital
-            </Title>
-            <div className="max-w-[300px] mx-auto">
+      <Grid gap={16}>
+        <Grid.Item size={8}>
+          <Card>
+            <Card.Content>
+              <Title level={4} gutterBottom>
+                List of Accounts
+              </Title>
+
+              <Button onClick={() => openAccount()}>Create Account</Button>
+
+              <Table
+                columns={tableColumns}
+                isTranslucentRow={(record) => record.is_archive}
+                className={{ groupName: '!bg-orange-900', table: 'w-full' }}
+                dataGroups={accountsGroupedByCategory}
+              />
+            </Card.Content>
+          </Card>
+        </Grid.Item>
+
+        <Grid.Item size={4}>
+          <Card>
+            <Card.Content>
+              <Title level={4} gutterBottom>
+                Capital
+              </Title>
               <AccountsPie />
-            </div>
-          </Card.Content>
-        </Card>
-
-        <Card>
-          <Card.Content>
-            <Title level={4} gutterBottom>
-              List of Accounts
-            </Title>
-
-            <Button onClick={() => openAccount()}>Create Account</Button>
-
-            <Table
-              columns={tableColumns}
-              isTranslucentRow={(record) => record.is_archive}
-              className={{ groupName: '!bg-orange-900', table: 'w-full' }}
-              dataGroups={accountsGroupedByCategory}
-            />
-          </Card.Content>
-        </Card>
-      </div>
+            </Card.Content>
+          </Card>
+        </Grid.Item>
+      </Grid>
 
       <SetAccount isOpen={accountModal.isOpen} close={accountModal.close} account={openedAccount} />
     </>

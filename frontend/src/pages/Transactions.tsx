@@ -17,6 +17,7 @@ import { Transaction, TransactionCombined } from '#types/transactionType';
 import { Button } from '#ui/Button';
 import { Card } from '#ui/Card';
 import DateFilter, { useDateFilter } from '#ui/DateFilter';
+import { Grid } from '#ui/Grid';
 import Icon from '#ui/Icon';
 import Select, { SelectOption } from '#ui/Select';
 import Table, { Column, TableDate, TableOperations, TableTooltip, TableAction } from '#ui/Table';
@@ -203,56 +204,61 @@ const Transactions: FC = () => {
   return (
     <>
       <HeaderInfo title="Transactions" />
+      <Grid gap={16} reversed>
+        <Grid.Item size={3}>
+          <Card>
+            <Card.Content>
+              <Title level={4} gutterBottom>
+                Transaction Filter
+              </Title>
 
-      <Card>
-        <Card.Content>
-          <Title level={4} gutterBottom>
-            Transaction Filter
-          </Title>
+              <DateFilter options={filterData} />
 
-          <DateFilter options={filterData} />
+              <div className="grid grid-cols-2 gap-3 mt-5">
+                <div className="w-full">
+                  <label>Category:</label>
+                  <Select
+                    className="border-gray-600 w-full"
+                    options={categoryOptions}
+                    value={selectedCategories}
+                    onChange={(newValue: any) => setSelectedCategories(newValue)}
+                    isMulti
+                  />
+                </div>
 
-          <div className="grid grid-cols-2 gap-3 mt-5">
-            <div className="w-full">
-              <label>Category:</label>
-              <Select
-                className="border-gray-600 w-full"
-                options={categoryOptions}
-                value={selectedCategories}
-                onChange={(newValue: any) => setSelectedCategories(newValue)}
-                isMulti
+                <div className="w-full">
+                  <label>Account:</label>
+                  <Select
+                    className="border-gray-600 w-full"
+                    options={accountOptions}
+                    value={selectedAccounts}
+                    onChange={(newValue: any) => setSelectedAccounts(newValue)}
+                    isMulti
+                  />
+                </div>
+              </div>
+            </Card.Content>
+          </Card>
+        </Grid.Item>
+
+        <Grid.Item size={9}>
+          <Card>
+            <Card.Content>
+              <Title level={4} gutterBottom>
+                List of Transactions
+              </Title>
+
+              <Button onClick={() => openTransaction()}>Create Transaction</Button>
+
+              <Table
+                columns={tableColumns}
+                dataGroups={transactionGroups}
+                className={{ table: 'w-full' }}
               />
-            </div>
-
-            <div className="w-full">
-              <label>Account:</label>
-              <Select
-                className="border-gray-600 w-full"
-                options={accountOptions}
-                value={selectedAccounts}
-                onChange={(newValue: any) => setSelectedAccounts(newValue)}
-                isMulti
-              />
-            </div>
-          </div>
-        </Card.Content>
-      </Card>
-
-      <Card>
-        <Card.Content>
-          <Title level={4} gutterBottom>
-            List of Transactions
-          </Title>
-
-          <Button onClick={() => openTransaction()}>Create Transaction</Button>
-
-          <Table
-            columns={tableColumns}
-            dataGroups={transactionGroups}
-            className={{ table: 'w-full' }}
-          />
-        </Card.Content>
-      </Card>
+            </Card.Content>
+          </Card>
+        </Grid.Item>
+      </Grid>
 
       <SetTransaction
         isOpen={transactionModal.isOpen}

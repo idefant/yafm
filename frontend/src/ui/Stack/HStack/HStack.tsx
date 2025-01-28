@@ -6,5 +6,5 @@ import { Flex, FlexProps } from '../Flex';
 interface HStackProps extends Except<FlexProps, 'direction'> {}
 
 export const HStack: FC<HStackProps> = ({ gap = 8, ...props }) => (
-  <Flex direction="row" gap={gap} {...props} />
+  <Flex direction="row" align="start" gap={gap} {...props} />
 );

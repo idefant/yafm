@@ -32,12 +32,6 @@ export const CustomGap: Story = {
   },
 };
 
-export const FullWidth: Story = {
-  args: {
-    fullWidth: true,
-  },
-};
-
 export const JustifyStart: Story = {
   args: {
     justify: 'start',
