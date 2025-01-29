@@ -22,7 +22,11 @@ const preview: Preview = {
       theme: themes.dark,
     },
     backgrounds: {
-      default: 'dark',
+      values: [
+        { name: 'Dark', value: 'var(--bg)' },
+        { name: 'Dark - Paper', value: 'var(--bg-paper)' },
+      ],
+      default: 'Dark - Paper',
     },
   },
   decorators: [

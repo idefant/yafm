@@ -28,6 +28,17 @@
   --disabled-button-color: #696969;
   --disabled-button-color-darker: #494949;
 
+  // Input
+  --input-bg: var(--bg-paper);
+  --input-color: var(--primary-color);
+  --input-label-color: var(--secondary-color);
+  --input-required-mark: #d72525;
+  --input-border-color: #414141;
+  --input-focused-border-color: #527dc6;
+  --input-error-border-color: #ac2b2b;
+  --input-focused-error-border-color: #db2424;
+  --input-prefix-suffix-color: var(--secondary-color);
+
   // Sidebar
   --menu-item-color: var(--secondary-color);
   --menu-item-hovered-bg: #242424;

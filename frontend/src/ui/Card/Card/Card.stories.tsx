@@ -20,6 +20,11 @@ export const Default: Story = {
   args: {
     style: { width: 400 },
   },
+  parameters: {
+    backgrounds: {
+      default: 'Dark',
+    },
+  },
   render: (props) => (
     <Card {...props}>
       <Card.Content>
