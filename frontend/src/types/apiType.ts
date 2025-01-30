@@ -1,5 +1,7 @@
 import { Get, IfNever, IsEmptyObject, Simplify } from 'type-fest';
 
+import { NormalizeId } from './basicTypes';
+
 // prettier-ignore
 type NullishDeep<T> = {
   [K in keyof T]: T[K] extends object | undefined

@@ -1,3 +1,5 @@
+import { OuterClasses } from '#types/basicTypes';
+
 export type TextInputClasses = OuterClasses<
   | 'container'
   | 'label'
