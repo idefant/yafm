@@ -1,8 +1,20 @@
 :root {
+  // text
   --text-size-sm: 12px;
   --text-size-md: 14px;
   --text-size-lg: 16px;
   --text-size-xl: 20px;
   --text-line-height: 1.5;
+
+  // input
+  --input-font-size-sm: 14px;
+  --input-font-size-md: 14px;
+  --input-font-size-lg: 16px;
+  --input-y-padding-sm: 3.5px;
+  --input-y-padding-md: 6.5px;
+  --input-y-padding-lg: 8px;
+  --input-x-padding: 12px;
+
+  // header
   --header-height: 64px;
 }

@@ -23,6 +23,7 @@
   padding: var(--local-input-y-padding) var(--input-x-padding);
   font-size: var(--local-input-font-size);
   line-height: var(--text-line-height);
+  resize: none;
 
   &::placeholder {
     color: var(--secondary-color);
@@ -39,21 +40,7 @@
   }
 }
 
-.prefix,
-.suffix {
-  color: var(--input-prefix-suffix-color);
-  font-size: var(--local-input-font-size);
-}
-
-.prefix {
-  padding-left: var(--input-x-padding);
-}
-
-.suffix {
-  padding-right: var(--input-x-padding);
-}
-
-.InputBase {
+.TextAreaBase {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -72,14 +59,6 @@
 
   &:has(.input:disabled) {
     cursor: default;
-  }
-
-  &:has(.prefix) .input {
-    padding-left: 0;
-  }
-
-  &:has(.suffix) .input {
-    padding-right: 0;
   }
 }
 

@@ -6,7 +6,7 @@ import { Except } from 'type-fest';
 import cls from './InputBase.module.scss';
 import { InputBaseClasses, InputBaseSize } from './inputBaseType';
 
-interface InputBaseProps
+export interface InputBaseProps
   extends Except<InputHTMLAttributes<HTMLInputElement>, 'size' | 'className' | 'prefix'> {
   size?: InputBaseSize;
   error?: string | boolean;

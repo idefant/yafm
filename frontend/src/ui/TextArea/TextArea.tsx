@@ -2,22 +2,22 @@ import { forwardRef, useRef } from 'react';
 import { mergeRefs } from 'react-merge-refs';
 import { Except } from 'type-fest';
 
-import { InputBase, InputBaseProps } from '#ui/InputBase';
 import { InputHelperText } from '#ui/InputHelperText';
 import { InputLabel } from '#ui/InputLabel';
+import { TextAreaBase, TextAreaBaseProps } from '#ui/TextAreaBase';
 
-import { TextInputClasses } from './textInputType';
+import { TextAreaClasses } from './textAreaType';
 
-interface TextInputProps extends Except<InputBaseProps, 'classes'> {
+interface TextAreaProps extends Except<TextAreaBaseProps, 'classes'> {
   label?: string;
   error?: string | boolean;
   helper?: string;
-  classes?: TextInputClasses;
+  classes?: TextAreaClasses;
 }
 
-export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
+export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
   ({ label, error, helper, classes, ...props }, ref) => {
-    const localRef = useRef<HTMLInputElement>();
+    const localRef = useRef<HTMLTextAreaElement>();
 
     const hasErrorText = !!(typeof error === 'string' && error);
 
@@ -35,13 +35,11 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
           </InputLabel>
         )}
 
-        <InputBase
+        <TextAreaBase
           error={error}
           classes={{
             container: classes?.inputContainer,
             input: classes?.input,
-            prefix: classes?.prefix,
-            suffix: classes?.suffix,
           }}
           ref={mergeRefs([ref, localRef])}
           {...props}
@@ -59,6 +57,3 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
     );
   },
 );
-
-// XXX: Проверить, как будет отображаться инпут, если в префиксе/суффиксе будет кнопка
-// XXX: Добавить круглую кнопку только для иконки
