@@ -1,71 +1,66 @@
-import classNames from 'classnames';
 import { InputHTMLAttributes, ReactNode, forwardRef, useRef } from 'react';
 import { mergeRefs } from 'react-merge-refs';
 import { Except } from 'type-fest';
 
-import { Text } from '#ui/Typography';
+import { InputBase, InputBaseSize } from '#ui/InputBase';
+import { InputHelperText } from '#ui/InputHelperText';
+import { InputLabel } from '#ui/InputLabel';
 
-import cls from './TextInput.module.scss';
-
-type TextInputElements = 'container' | 'label' | 'labelText' | 'inputWrapper' | 'input' | 'error';
+import { TextInputClasses } from './textInputType';
 
 interface TextInputProps
   extends Except<InputHTMLAttributes<HTMLInputElement>, 'size' | 'className' | 'prefix'> {
   label?: string;
-  size?: 'sm' | 'md' | 'lg';
+  size?: InputBaseSize;
   error?: string | boolean;
+  helper?: string;
   prefix?: ReactNode;
   suffix?: ReactNode;
-  classes?: Record<TextInputElements, string>;
+  classes?: TextInputClasses;
 }
 
 export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
-  ({ label, size = 'md', error, prefix, suffix, classes, ...props }, ref) => {
+  ({ label, size, error, helper, prefix, suffix, classes, ...props }, ref) => {
     const localRef = useRef<HTMLInputElement>();
 
-    const hasError = typeof error === 'string' || !!error;
+    const hasErrorText = !!(typeof error === 'string' && error);
 
     const focusInput = () => localRef.current?.focus();
 
     return (
-      <div
-        className={classNames(cls.TextInput, cls[size], classes?.container, {
-          [cls.hasError]: hasError,
-          [cls.required]: props.required,
-          [cls.hasPrefix]: !!prefix,
-          [cls.hasSuffix]: !!suffix,
-          [cls.disabled]: props.disabled,
-        })}
-      >
+      <div className={classes?.container}>
         {label && (
-          <label className={classNames(cls.label, classes?.label)}>
-            <span
-              title={label}
-              className={classNames(cls.labelText, classes?.labelText)}
-              onClick={focusInput}
-            >
-              {label}
-            </span>
-          </label>
-        )}
-        <div className={classNames(cls.inputWrapper, classes?.inputWrapper)} onClick={focusInput}>
-          {prefix && <div className={cls.prefix}>{prefix}</div>}
-          <input
-            className={classNames(cls.input, classes?.input)}
-            ref={mergeRefs([ref, localRef])}
-            {...props}
-          />
-          {suffix && <div className={cls.suffix}>{suffix}</div>}
-        </div>
-        {typeof error === 'string' && error && (
-          <Text
-            block
-            color="danger"
-            title={error}
-            className={classNames(cls.error, classes?.error)}
+          <InputLabel
+            required={props.required}
+            onClick={focusInput}
+            classes={{ label: classes?.label, text: classes?.labelText }}
           >
+            {label}
+          </InputLabel>
+        )}
+
+        <InputBase
+          size={size}
+          error={error}
+          prefix={prefix}
+          suffix={suffix}
+          classes={{
+            container: classes?.inputContainer,
+            input: classes?.input,
+            prefix: classes?.prefix,
+            suffix: classes?.suffix,
+          }}
+          ref={mergeRefs([ref, localRef])}
+          {...props}
+        />
+
+        {hasErrorText && (
+          <InputHelperText isError className={classes?.error}>
             {error}
-          </Text>
+          </InputHelperText>
+        )}
+        {!hasErrorText && helper && (
+          <InputHelperText className={classes?.helper}>{helper}</InputHelperText>
         )}
       </div>
     );

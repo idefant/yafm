@@ -24,3 +24,14 @@ type Rename<T, Old extends keyof T, New extends string> = Simplify<
 
 // Замена большого ключа id на стандартный
 type NormalizeId<T, OldId extends keyof T> = Simplify<Rename<T, OldId, 'id'>>;
+
+/**
+ * Возвращает словарь внешних классов для проброса в сложные компоненты
+ * @example OuterClasses<'label' | 'input' | 'errorText'>
+ * // => {
+ * //      label?: string;
+ * //      input?: string;
+ * //      errorText?: string;
+ * //    }
+ */
+type OuterClasses<T extends string> = Partial<Record<T, string>>;

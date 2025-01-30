@@ -10,7 +10,7 @@ const alignClasses: Record<TextAlign, string> = {
   right: cls.alignRight,
 };
 
-interface TextProps<TIsBlock extends boolean>
+export interface TextProps<TIsBlock extends boolean>
   extends HTMLAttributes<TIsBlock extends true ? HTMLDivElement : HTMLSpanElement> {
   color?: TextColor;
   size?: TextSize;

@@ -1,36 +1,17 @@
 $input-x-padding: 12px;
 
-.label {
-  font-size: var(--text-size-md);
-  color: var(--input-label-color);
-  padding-bottom: 4px;
-  display: flex;
-
-  &Text {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-}
-
-.required .label::after {
-  padding-left: 4px;
-  content: "*";
-  color: var(--input-required-mark);
-}
-
 .sm {
-  --input-y-padding: 4px;
+  --input-y-padding: 3.5px;
   --input-font-size: 14px;
 }
 
 .md {
-  --input-y-padding: 8px;
+  --input-y-padding: 6.5px;
   --input-font-size: 14px;
 }
 
 .lg {
-  --input-y-padding: 12px;
+  --input-y-padding: 8px;
   --input-font-size: 16px;
 }
 
@@ -43,6 +24,7 @@ $input-x-padding: 12px;
   overflow: hidden;
   padding: var(--input-y-padding) $input-x-padding;
   font-size: var(--input-font-size);
+  line-height: var(--text-line-height);
 
   &::placeholder {
     color: var(--secondary-color);
@@ -59,14 +41,6 @@ $input-x-padding: 12px;
   }
 }
 
-.TextInput.hasPrefix .input {
-  padding-left: 0;
-}
-
-.TextInput.hasSuffix .input {
-  padding-right: 0;
-}
-
 .prefix,
 .suffix {
   color: var(--input-prefix-suffix-color);
@@ -81,7 +55,7 @@ $input-x-padding: 12px;
   padding-right: $input-x-padding;
 }
 
-.inputWrapper {
+.InputBase {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -97,25 +71,25 @@ $input-x-padding: 12px;
     border: 1px solid var(--input-focused-border-color);
     box-shadow: 0 0 0 1px var(--input-focused-border-color);
   }
+
+  &:has(.input:disabled) {
+    cursor: default;
+  }
+
+  &:has(.prefix) .input {
+    padding-left: 0;
+  }
+
+  &:has(.suffix) .input {
+    padding-right: 0;
+  }
 }
 
-/* stylelint-disable-next-line no-descending-specificity */
-.hasError .inputWrapper {
+.hasError {
   border: 1px solid var(--input-error-border-color);
 
   &:has(.input:focus) {
     border: 1px solid var(--input-focused-error-border-color);
     box-shadow: 0 0 0 1px var(--input-focused-error-border-color);
   }
-}
-
-.error {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* stylelint-disable-next-line no-descending-specificity */
-.disabled .inputWrapper {
-  cursor: default;
 }

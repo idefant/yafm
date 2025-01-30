@@ -1,0 +1,18 @@
+.InputLabel {
+  font-size: var(--text-size-md);
+  color: var(--input-label-color);
+  padding-bottom: 4px;
+  display: flex;
+}
+
+.text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.required::after {
+  padding-left: 4px;
+  content: "*";
+  color: var(--input-required-mark-color);
+}

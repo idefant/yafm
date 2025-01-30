@@ -1,16 +1,15 @@
 import { Meta, StoryObj } from '@storybook/react';
 
-import { TextInput } from './TextInput';
+import { InputBase } from './InputBase';
 
 const meta = {
-  title: 'UI/TextInput',
-  component: TextInput,
+  title: 'UI/InputBase',
+  component: InputBase,
   args: {
-    label: 'Label',
     size: 'md',
     placeholder: 'Placeholder',
   },
-} satisfies Meta<typeof TextInput>;
+} satisfies Meta<typeof InputBase>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -37,39 +36,15 @@ export const Small: Story = {
   },
 };
 
-export const Required: Story = {
-  args: {
-    required: true,
-  },
-};
-
 export const Disabled: Story = {
   args: {
     disabled: true,
   },
 };
 
-export const WithoutLabel: Story = {
-  args: {
-    label: undefined,
-  },
-};
-
 export const WithError: Story = {
   args: {
     error: true,
-  },
-};
-
-export const WithErrorText: Story = {
-  args: {
-    error: 'Sample error text',
-  },
-};
-
-export const WithHelperText: Story = {
-  args: {
-    helper: 'Helper text',
   },
 };
 
