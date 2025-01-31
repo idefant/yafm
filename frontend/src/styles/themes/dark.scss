@@ -39,6 +39,15 @@
   --input-focused-error-border-color: #db2424;
   --input-prefix-suffix-color: var(--secondary-color);
 
+  // Modal
+  --backdrop-bg: #5f5f5f55;
+  --modal-bg: var(--bg-paper);
+  --modal-icon-error: #cf0c0c;
+  --modal-icon-warning: #ef9b00;
+  --modal-icon-success: #11bf11;
+  --modal-x-color: var(--secondary-color);
+  --modal-x-hovered-bg: #212121;
+
   // Sidebar
   --menu-item-color: var(--secondary-color);
   --menu-item-hovered-bg: #242424;

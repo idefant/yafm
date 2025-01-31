@@ -1,3 +1,5 @@
+@use "./styles/media" as *;
+
 :root {
   // text
   --text-size-sm: 12px;
@@ -14,6 +16,35 @@
   --input-y-padding-md: 6.5px;
   --input-y-padding-lg: 8px;
   --input-x-padding: 12px;
+
+  // modal
+  --modal-xs-margin: 8px;
+  --modal-sm-margin: 16px;
+  --modal-md-margin: 24px;
+  --modal-lg-margin: 24px;
+  --modal-xl-margin: 32px;
+  --modal-xxl-margin: 32px;
+  --modal-margin: var(--modal-xs-margin);
+
+  @include sm {
+    --modal-margin: var(--modal-sm-margin);
+  }
+
+  @include md {
+    --modal-margin: var(--modal-md-margin);
+  }
+
+  @include lg {
+    --modal-margin: var(--modal-lg-margin);
+  }
+
+  @include xl {
+    --modal-margin: var(--modal-xl-margin);
+  }
+
+  @include xxl {
+    --modal-margin: var(--modal-xxl-margin);
+  }
 
   // header
   --header-height: 64px;

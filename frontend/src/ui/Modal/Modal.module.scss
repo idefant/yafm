@@ -1,0 +1,113 @@
+@use "../../styles/media" as *;
+
+.popup {
+  margin: 16px auto;
+}
+
+.Modal {
+  padding: 24px;
+  box-sizing: border-box;
+  background-color: var(--modal-bg);
+  border-radius: 20px;
+  box-shadow: var(--paper-shadow);
+}
+
+.xxs {
+  $margin-x: min(var(--modal-margin), var(--modal-xs-margin));
+
+  width: 400px;
+  max-width: calc(100vw - $margin-x * 2);
+}
+
+.xs {
+  $margin-x: min(var(--modal-margin), var(--modal-xs-margin));
+
+  width: calc(576px - $margin-x * 2);
+  max-width: calc(100vw - $margin-x * 2);
+}
+
+.sm {
+  $margin-x: min(var(--modal-margin), var(--modal-sm-margin));
+
+  width: calc(768px - $margin-x * 2);
+  max-width: calc(100vw - $margin-x * 2);
+}
+
+.md {
+  $margin-x: min(var(--modal-margin), var(--modal-md-margin));
+
+  width: calc(992px - $margin-x * 2);
+  max-width: calc(100vw - $margin-x * 2);
+}
+
+.lg {
+  $margin-x: min(var(--modal-margin), var(--modal-lg-margin));
+
+  width: calc(1200px - $margin-x * 2);
+  max-width: calc(100vw - $margin-x * 2);
+}
+
+.xl {
+  $margin-x: min(var(--modal-margin), var(--modal-xl-margin));
+
+  width: calc(1600px - $margin-x * 2);
+  max-width: calc(100vw - $margin-x * 2);
+}
+
+.xxl {
+  $margin-x: min(var(--modal-margin), var(--modal-sm-margin));
+
+  width: calc(100vw - $margin-x * 2);
+}
+
+.xButton {
+  float: right;
+  margin: -8px -8px 4px 4px;
+  line-height: 0;
+  border: none;
+  padding: 12px;
+  border-radius: 50%;
+  color: var(--modal-x-color);
+  background-color: transparent;
+  cursor: pointer;
+  opacity: 0.7;
+  transition:
+    color 0.2s,
+    background-color 0.2s,
+    opacity 0.2s;
+
+  &:hover {
+    opacity: 1;
+    background-color: var(--modal-x-hovered-bg);
+  }
+}
+
+.icon {
+  $size: 32px;
+
+  width: $size;
+  min-width: $size;
+  height: $size;
+  margin-top: 2px;
+
+  &Error {
+    color: var(--modal-icon-error);
+  }
+
+  &Warning {
+    color: var(--modal-icon-warning);
+  }
+
+  &Success {
+    color: var(--modal-icon-success);
+  }
+}
+
+.body {
+  display: flex;
+  gap: 16px;
+}
+
+.content {
+  flex: 1;
+}

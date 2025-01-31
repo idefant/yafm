@@ -1,0 +1,81 @@
+$transition-duration: 0.2s;
+$popup-closed-translate: 0 -5vh;
+$popup-opened-translate: 0;
+
+.Popup {
+  display: none;
+  opacity: 0;
+  transition: opacity $transition-duration ease-out;
+}
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  overflow: auto;
+  z-index: 999;
+}
+
+:global(.yafm_Popup_FocusOn):not(:has(~ :global(.yafm_Popup_FocusOn))) .backdrop {
+  background-color: var(--backdrop-bg);
+  backdrop-filter: blur(3px);
+}
+
+.windowOuter {
+  align-items: center;
+  box-sizing: border-box;
+  display: flex;
+  position: relative;
+  min-height: 100%;
+}
+
+.window {
+  margin: 0 auto;
+  position: relative;
+  translate: $popup-closed-translate;
+  transition: translate $transition-duration ease-out;
+  transform-origin: center center;
+}
+
+.enter {
+  display: block;
+}
+
+.enterActive {
+  display: block;
+  opacity: 1;
+
+  .window {
+    translate: $popup-opened-translate;
+  }
+}
+
+.enterDone {
+  display: block;
+  opacity: 1;
+
+  .window {
+    translate: $popup-opened-translate;
+  }
+}
+
+.exit {
+  display: block;
+}
+
+.exitActive {
+  display: block;
+  opacity: 0;
+
+  .window {
+    translate: $popup-closed-translate;
+  }
+}
+
+.defaultOpen {
+  display: block;
+  opacity: 1;
+
+  .window {
+    translate: $popup-opened-translate;
+  }
+}

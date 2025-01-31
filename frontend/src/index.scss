@@ -1,3 +1,10 @@
+html {
+  &:has(.yafm_Popup) {
+    overflow: hidden;
+    padding-right: var(--scrollbar-width);
+  }
+}
+
 body {
   font-family: "Open Sans Variable", "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   -webkit-font-smoothing: antialiased;
