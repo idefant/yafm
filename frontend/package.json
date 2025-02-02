@@ -45,7 +45,7 @@
     "react-redux": "^8.0.2",
     "react-responsive": "^10.0.0",
     "react-router-dom": "^6.3.0",
-    "react-select": "^5.4.0",
+    "react-select": "^5.10.0",
     "react-textarea-autosize": "^8.3.4",
     "react-tooltip": "^4.2.21",
     "react-transition-group": "^4.4.2",

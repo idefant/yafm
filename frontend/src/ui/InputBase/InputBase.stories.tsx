@@ -59,3 +59,12 @@ export const WithSuffix: Story = {
     suffix: 'kg',
   },
 };
+
+export const DisabledWithPrefixSuffix: Story = {
+  args: {
+    disabled: true,
+    prefix: 'Weight:',
+    suffix: 'kg',
+    value: 'test',
+  },
+};

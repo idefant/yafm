@@ -1,18 +1,3 @@
-.sm {
-  --local-input-font-size: var(--input-font-size-sm);
-  --local-input-y-padding: var(--input-y-padding-sm);
-}
-
-.md {
-  --local-input-font-size: var(--input-font-size-md);
-  --local-input-y-padding: var(--input-y-padding-md);
-}
-
-.lg {
-  --local-input-font-size: var(--input-font-size-lg);
-  --local-input-y-padding: var(--input-y-padding-lg);
-}
-
 .input {
   width: 100%;
   background-color: unset;
@@ -20,21 +5,20 @@
   color: var(--input-color);
   outline: none;
   overflow: hidden;
-  padding: var(--local-input-y-padding) var(--input-x-padding);
-  font-size: var(--local-input-font-size);
+  padding-left: var(--input-x-padding);
+  padding-right: var(--input-x-padding);
   line-height: var(--text-line-height);
 
   &::placeholder {
-    color: var(--secondary-color);
-    opacity: 0.7;
-    cursor: default;
+    color: var(--input-placeholder-color);
+    opacity: var(--input-placeholder-opacity);
   }
 
   &:disabled {
-    color: var(--secondary-color);
+    color: var(--input-disabled-color);
 
     &::placeholder {
-      opacity: 0.4;
+      opacity: var(--input-disabled-placeholder-opacity);
     }
   }
 }
@@ -42,7 +26,6 @@
 .prefix,
 .suffix {
   color: var(--input-prefix-suffix-color);
-  font-size: var(--local-input-font-size);
 }
 
 .prefix {
@@ -53,21 +36,58 @@
   padding-right: var(--input-x-padding);
 }
 
+.sm {
+  .input {
+    padding-top: var(--input-y-padding-sm);
+    padding-bottom: var(--input-y-padding-sm);
+  }
+
+  .input,
+  .prefix,
+  .suffix {
+    font-size: var(--input-font-size-sm);
+  }
+}
+
+.md {
+  .input {
+    padding-top: var(--input-y-padding-md);
+    padding-bottom: var(--input-y-padding-md);
+  }
+
+  .input,
+  .prefix,
+  .suffix {
+    font-size: var(--input-font-size-md);
+  }
+}
+
+.lg {
+  .input {
+    padding-top: var(--input-y-padding-lg);
+    padding-bottom: var(--input-y-padding-lg);
+  }
+
+  .input,
+  .prefix,
+  .suffix {
+    font-size: var(--input-font-size-lg);
+  }
+}
+
 .InputBase {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--input-prefix-suffix-gap);
   background-color: var(--input-bg);
   border: 1px solid var(--input-border-color);
-  border-radius: 8px;
+  border-radius: var(--input-border-radius);
   cursor: text;
-  transition:
-    border-color 0.2s,
-    box-shadow 0.2s;
+  transition: var(--input-transition);
 
   &:has(.input:focus) {
-    border: 1px solid var(--input-focused-border-color);
-    box-shadow: 0 0 0 1px var(--input-focused-border-color);
+    border-color: var(--input-focused-border-color);
+    box-shadow: var(--input-focused-box-shadow);
   }
 
   &:has(.input:disabled) {
@@ -84,10 +104,10 @@
 }
 
 .hasError {
-  border: 1px solid var(--input-error-border-color);
+  border-color: var(--input-error-border-color);
 
   &:has(.input:focus) {
-    border: 1px solid var(--input-focused-error-border-color);
-    box-shadow: 0 0 0 1px var(--input-focused-error-border-color);
+    border-color: var(--input-focused-error-border-color);
+    box-shadow: var(--input-focused-error-box-shadow);
   }
 }

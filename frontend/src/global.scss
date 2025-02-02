@@ -8,6 +8,11 @@
   --text-size-xl: 20px;
   --text-line-height: 1.5;
 
+  // button
+  --button-height-sm: 30px;
+  --button-height-md: 36px;
+  --button-height-lg: 42px;
+
   // input
   --input-font-size-sm: 14px;
   --input-font-size-md: 14px;
@@ -16,6 +21,9 @@
   --input-y-padding-md: 6.5px;
   --input-y-padding-lg: 8px;
   --input-x-padding: 12px;
+  --input-border-radius: 8px;
+  --input-prefix-suffix-gap: 8px;
+  --input-menu-border-radius: 8px;
 
   // modal
   --modal-xs-margin: 8px;

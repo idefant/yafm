@@ -82,7 +82,7 @@
 
 .outlined {
   color: var(--button-outlined-color);
-  background-color: #0000;
+  background-color: transparent;
   border: 1px solid var(--button-outlined-border);
 
   &:hover {
@@ -102,7 +102,7 @@
 .sm {
   font-size: 13px;
   padding: 0 10px;
-  height: 30px;
+  height: var(--button-height-sm);
   border-radius: 6px;
   gap: 8px;
 
@@ -122,7 +122,7 @@
 .md {
   font-size: 14px;
   padding: 0 14px;
-  height: 36px;
+  height: var(--button-height-md);
   border-radius: 8px;
   gap: 8px;
 
@@ -142,7 +142,7 @@
 .lg {
   font-size: 16px;
   padding: 0 18px;
-  height: 42px;
+  height: var(--button-height-lg);
   border-radius: 10px;
   gap: 8px;
 
