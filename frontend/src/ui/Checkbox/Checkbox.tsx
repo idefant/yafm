@@ -1,37 +1,27 @@
 import classNames from 'classnames';
-import { InputHTMLAttributes, forwardRef, useId } from 'react';
+import { InputHTMLAttributes, forwardRef } from 'react';
 
-import style from './Checkbox.module.css';
+import cls from './Checkbox.module.scss';
 
 interface CheckboxProps extends InputHTMLAttributes<HTMLInputElement> {
-  error?: boolean;
+  error?: string | boolean;
 }
 
-const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
-  ({ children, error, ...props }, ref) => {
-    const id = useId();
+export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
+  ({ error, children, ...props }, ref) => {
+    const hasError = typeof error === 'string' || !!error;
 
     return (
-      <div>
-        <input
-          className={classNames(
-            style.checkboxInput,
-            'appearance-none h-4 w-4 border border-gray-300 rounded-sm bg-white checked:bg-blue-600 checked:border-blue-600 focus:outline-none transition duration-200 mt-1 align-top bg-no-repeat bg-center bg-contain float-left mr-2 cursor-pointer',
-            error && 'border-red-400 shadow-[0_0_0_2px_#ff0000c5]',
-          )}
-          type="checkbox"
-          id={id}
-          ref={ref}
-          {...props}
-        />
-        {children && (
-          <label className="inline-block" htmlFor={id}>
-            {children}
-          </label>
-        )}
-      </div>
+      <label
+        className={classNames(cls.Checkbox, {
+          [cls.disabled]: props.disabled,
+          [cls.hasError]: !props.disabled && hasError,
+        })}
+      >
+        <input className={cls.input} type="checkbox" ref={ref} {...props} />
+        <div className={cls.box} />
+        {children && <span className={cls.text}>{children}</span>}
+      </label>
     );
   },
 );
-
-export default Checkbox;
