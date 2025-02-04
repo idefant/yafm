@@ -1,13 +1,6 @@
 import { OuterClasses } from '#types/basicTypes';
+import { InputControlClassName } from '#ui/InputControl';
 
 export type TextInputClasses = OuterClasses<
-  | 'container'
-  | 'label'
-  | 'labelText'
-  | 'inputContainer'
-  | 'input'
-  | 'prefix'
-  | 'suffix'
-  | 'error'
-  | 'helper'
+  InputControlClassName | 'inputContainer' | 'input' | 'prefix' | 'suffix'
 >;

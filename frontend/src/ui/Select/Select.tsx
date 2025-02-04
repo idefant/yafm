@@ -3,8 +3,7 @@ import { mergeRefs } from 'react-merge-refs';
 import { GroupBase } from 'react-select';
 import ReactSelectType from 'react-select/base';
 
-import { InputHelperText } from '#ui/InputHelperText';
-import { InputLabel } from '#ui/InputLabel';
+import { ControlExtraProps, InputControl } from '#ui/InputControl';
 import { SelectBase, SelectBaseProps } from '#ui/SelectBase';
 
 import { SelectClasses } from './selectType';
@@ -13,10 +12,8 @@ interface SelectProps<
   Option = unknown,
   IsMulti extends boolean = boolean,
   Group extends GroupBase<Option> = GroupBase<Option>,
-> extends SelectBaseProps<Option, IsMulti, Group> {
-  label?: string;
-  error?: string | boolean;
-  helper?: string;
+> extends SelectBaseProps<Option, IsMulti, Group>,
+    ControlExtraProps {
   classes?: SelectClasses;
 }
 
@@ -38,42 +35,22 @@ export const Select = forwardRef(
     IsMulti extends boolean = boolean,
     Group extends GroupBase<Option> = GroupBase<Option>,
   >(
-    { label, error, helper, classes, ...props }: SelectProps<Option, IsMulti, Group>,
+    { label, helper, classes, ...props }: SelectProps<Option, IsMulti, Group>,
     ref: ForwardedRef<ReactSelectType<Option, IsMulti, Group>>,
   ) => {
     const localRef = useRef<ReactSelectType<Option, IsMulti, Group>>();
 
-    const hasErrorText = !!(typeof error === 'string' && error);
-
-    const focusInput = () => localRef.current?.focus();
-
     return (
-      <div className={classes?.container}>
-        {label && (
-          <InputLabel
-            required={props.required}
-            onClick={focusInput}
-            classes={{ label: classes?.label, text: classes?.labelText }}
-          >
-            {label}
-          </InputLabel>
-        )}
-
-        <SelectBase<Option, IsMulti, Group>
-          error={error}
-          ref={mergeRefs([ref, localRef])}
-          {...props}
-        />
-
-        {hasErrorText && (
-          <InputHelperText isError className={classes?.error}>
-            {error}
-          </InputHelperText>
-        )}
-        {!hasErrorText && helper && (
-          <InputHelperText className={classes?.helper}>{helper}</InputHelperText>
-        )}
-      </div>
+      <InputControl
+        label={label}
+        inputRef={localRef as any}
+        required={props.required}
+        error={props.error}
+        helper={helper}
+        classes={classes}
+      >
+        <SelectBase<Option, IsMulti, Group> ref={mergeRefs([ref, localRef])} {...props} />
+      </InputControl>
     );
   },
 ) as SelectType;

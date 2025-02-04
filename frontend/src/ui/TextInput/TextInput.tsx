@@ -3,40 +3,28 @@ import { mergeRefs } from 'react-merge-refs';
 import { Except } from 'type-fest';
 
 import { InputBase, InputBaseProps } from '#ui/InputBase';
-import { InputHelperText } from '#ui/InputHelperText';
-import { InputLabel } from '#ui/InputLabel';
+import { ControlExtraProps, InputControl } from '#ui/InputControl';
 
 import { TextInputClasses } from './textInputType';
 
-interface TextInputProps extends Except<InputBaseProps, 'classes'> {
-  label?: string;
-  error?: string | boolean;
-  helper?: string;
+interface TextInputProps extends Except<InputBaseProps, 'classes'>, ControlExtraProps {
   classes?: TextInputClasses;
 }
 
 export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
-  ({ label, error, helper, classes, ...props }, ref) => {
+  ({ label, helper, classes, ...props }, ref) => {
     const localRef = useRef<HTMLInputElement>();
 
-    const hasErrorText = !!(typeof error === 'string' && error);
-
-    const focusInput = () => localRef.current?.focus();
-
     return (
-      <div className={classes?.container}>
-        {label && (
-          <InputLabel
-            required={props.required}
-            onClick={focusInput}
-            classes={{ label: classes?.label, text: classes?.labelText }}
-          >
-            {label}
-          </InputLabel>
-        )}
-
+      <InputControl
+        label={label}
+        inputRef={localRef}
+        required={props.required}
+        error={props.error}
+        helper={helper}
+        classes={classes}
+      >
         <InputBase
-          error={error}
           classes={{
             container: classes?.inputContainer,
             input: classes?.input,
@@ -46,19 +34,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
           ref={mergeRefs([ref, localRef])}
           {...props}
         />
-
-        {hasErrorText && (
-          <InputHelperText isError className={classes?.error}>
-            {error}
-          </InputHelperText>
-        )}
-        {!hasErrorText && helper && (
-          <InputHelperText className={classes?.helper}>{helper}</InputHelperText>
-        )}
-      </div>
+      </InputControl>
     );
   },
 );
-
-// XXX: Проверить, как будет отображаться инпут, если в префиксе/суффиксе будет кнопка
-// XXX: Добавить круглую кнопку только для иконки

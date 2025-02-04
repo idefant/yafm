@@ -147,20 +147,20 @@ export const SelectBase = forwardRef(
         }),
         clearIndicator: (styles) => ({
           ...styles,
-          color: 'var(--input-clear-color)',
+          color: 'var(--input-icon-color)',
           padding: sizeParams.indicator.padding,
           ':hover': {
             ...styles[':hover'],
-            color: 'var(--input-clear-hovered-color)',
+            color: 'var(--input-icon-hovered-color)',
           },
         }),
         dropdownIndicator: (styles) => ({
           ...styles,
-          color: 'var(--input-dropdown-color)',
+          color: 'var(--input-icon-color)',
           padding: sizeParams.indicator.padding,
           ':hover': {
             ...styles[':hover'],
-            color: 'var(--input-dropdown-hovered-color)',
+            color: 'var(--input-icon-hovered-color)',
           },
         }),
         menu: (styles) => ({
