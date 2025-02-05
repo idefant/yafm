@@ -5,7 +5,7 @@ import { FormInput } from './FormInput';
 import { FormNumber } from './FormNumber';
 import { FormPassword } from './FormPassword';
 import { FormSelect } from './FormSelect';
-import { FormTextArea } from './FormTextArea2';
+import { FormTextArea } from './FormTextArea';
 
 interface FormExtensions {
   Input: typeof FormInput;
