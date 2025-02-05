@@ -1,38 +1,22 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 
-import SettingsIcon from '#svg/settings.svg?react';
-
-import { Button } from './Button';
+import { ButtonBase } from './ButtonBase';
 
 const meta = {
-  title: 'UI/Button',
-  component: Button,
+  title: 'UI/ButtonBase',
+  component: ButtonBase,
   parameters: {
     layout: 'centered',
   },
   args: { onClick: fn(), children: 'Button' },
-} satisfies Meta<typeof Button>;
+} satisfies Meta<typeof ButtonBase>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Medium: Story = {
-  args: {
-    size: 'md',
-  },
-};
-
-export const Large: Story = {
-  args: {
-    size: 'lg',
-  },
-};
-
-export const Small: Story = {
-  args: {
-    size: 'sm',
-  },
+export const Default: Story = {
+  args: {},
 };
 
 export const ContainedPrimary: Story = {
@@ -107,56 +91,15 @@ export const OutlinedDisabled: Story = {
   },
 };
 
-export const SmallWithStartIcon: Story = {
+export const Link: Story = {
   args: {
-    variant: 'contained',
-    color: 'primary',
-    size: 'sm',
-    startIcon: <SettingsIcon />,
+    to: '/home',
   },
 };
 
-export const MediumWithStartIcon: Story = {
+export const ExternalLink: Story = {
   args: {
-    variant: 'contained',
-    color: 'primary',
-    size: 'md',
-    startIcon: <SettingsIcon />,
-  },
-};
-
-export const LargeWithStartIcon: Story = {
-  args: {
-    variant: 'contained',
-    color: 'primary',
-    size: 'lg',
-    startIcon: <SettingsIcon />,
-  },
-};
-
-export const SmallWithEndIcon: Story = {
-  args: {
-    variant: 'contained',
-    color: 'primary',
-    size: 'sm',
-    endIcon: <SettingsIcon />,
-  },
-};
-
-export const MediumWithEndIcon: Story = {
-  args: {
-    variant: 'contained',
-    color: 'primary',
-    size: 'md',
-    endIcon: <SettingsIcon />,
-  },
-};
-
-export const LargeWithEndIcon: Story = {
-  args: {
-    variant: 'contained',
-    color: 'primary',
-    size: 'lg',
-    endIcon: <SettingsIcon />,
+    to: 'https://example.org',
+    target: '_blank',
   },
 };
