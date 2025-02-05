@@ -1,14 +1,26 @@
-import { ComponentProps, FC } from 'react';
 import { Controller, FieldError, useFormContext } from 'react-hook-form';
+import { GroupBase } from 'react-select';
 
-import Select from '#ui/Select';
+import { Select, SelectProps } from '#ui/Select';
 import { getProp } from '#utils/getProp';
 
-interface FormSelectProps extends ComponentProps<typeof Select> {
+interface FormSelectProps<
+  Option = unknown,
+  IsMulti extends boolean = boolean,
+  Group extends GroupBase<Option> = GroupBase<Option>,
+> extends SelectProps<Option, IsMulti, Group> {
   name: string;
 }
 
-const FormSelect: FC<FormSelectProps> = ({ name, options, ...props }) => {
+export const FormSelect = <
+  Option = unknown,
+  IsMulti extends boolean = boolean,
+  Group extends GroupBase<Option> = GroupBase<Option>,
+>({
+  name,
+  options,
+  ...props
+}: FormSelectProps<Option, IsMulti, Group>) => {
   const {
     control,
     formState: { errors },
@@ -48,5 +60,3 @@ const FormSelect: FC<FormSelectProps> = ({ name, options, ...props }) => {
     />
   );
 };
-
-export default FormSelect;

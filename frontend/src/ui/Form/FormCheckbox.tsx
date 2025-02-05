@@ -1,14 +1,14 @@
-import { ComponentProps, FC } from 'react';
+import { FC } from 'react';
 import { FieldError, useFormContext } from 'react-hook-form';
 
-import Checkbox from '#ui/Checkbox';
+import { Checkbox, CheckboxProps } from '#ui/Checkbox';
 import { getProp } from '#utils/getProp';
 
-interface FormCheckboxProps extends ComponentProps<typeof Checkbox> {
+interface FormCheckboxProps extends CheckboxProps {
   name: string;
 }
 
-const FormCheckbox: FC<FormCheckboxProps> = ({ name, ...props }) => {
+export const FormCheckbox: FC<FormCheckboxProps> = ({ name, ...props }) => {
   const {
     register,
     formState: { errors },
@@ -18,5 +18,3 @@ const FormCheckbox: FC<FormCheckboxProps> = ({ name, ...props }) => {
 
   return <Checkbox {...props} {...register(name)} error={!!error} />;
 };
-
-export default FormCheckbox;

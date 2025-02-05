@@ -1,15 +1,16 @@
 import { Meta, StoryObj } from '@storybook/react';
 
-import { PasswordInputBase } from './PasswordInputBase';
+import { InputPassword } from './InputPassword';
 
 const meta = {
-  title: 'UI/PasswordInputBase',
-  component: PasswordInputBase,
+  title: 'UI/InputPassword',
+  component: InputPassword,
   args: {
+    label: 'Label',
     size: 'md',
     placeholder: 'Placeholder',
   },
-} satisfies Meta<typeof PasswordInputBase>;
+} satisfies Meta<typeof InputPassword>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -36,9 +37,21 @@ export const Small: Story = {
   },
 };
 
+export const Required: Story = {
+  args: {
+    required: true,
+  },
+};
+
 export const Disabled: Story = {
   args: {
     disabled: true,
+  },
+};
+
+export const WithoutLabel: Story = {
+  args: {
+    label: undefined,
   },
 };
 
@@ -48,16 +61,14 @@ export const WithError: Story = {
   },
 };
 
-export const WithPrefix: Story = {
+export const WithErrorText: Story = {
   args: {
-    prefix: 'Password:',
+    error: 'Sample error text',
   },
 };
 
-export const DisabledWithPrefix: Story = {
+export const WithHelperText: Story = {
   args: {
-    disabled: true,
-    prefix: 'Password:',
-    value: 'test',
+    helper: 'Helper text',
   },
 };

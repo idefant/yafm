@@ -7,11 +7,11 @@ import EyeOffIcon from '#svg/eye-off.svg?react';
 import EyeIcon from '#svg/eye.svg?react';
 import { InputBase, InputBaseProps } from '#ui/InputBase';
 
-import cls from './PasswordInputBase.module.scss';
+import cls from './InputPasswordBase.module.scss';
 
-export interface PasswordInputBaseProps extends Except<InputBaseProps, 'suffix'> {}
+export interface InputPasswordBaseProps extends Except<InputBaseProps, 'suffix'> {}
 
-export const PasswordInputBase = forwardRef<HTMLInputElement, PasswordInputBaseProps>(
+export const InputPasswordBase = forwardRef<HTMLInputElement, InputPasswordBaseProps>(
   ({ size = 'md', ...props }, ref) => {
     const isVisiblePassword = useBoolean();
 

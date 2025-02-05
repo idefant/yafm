@@ -1,4 +1,4 @@
 import { OuterClasses } from '#types/basicTypes';
 import { InputControlClassName } from '#ui/InputControl';
 
-export type PasswordInputClasses = OuterClasses<InputControlClassName>;
+export type InputPasswordClasses = OuterClasses<InputControlClassName>;

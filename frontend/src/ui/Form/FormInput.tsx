@@ -1,14 +1,15 @@
-import { ComponentProps, FC } from 'react';
+import { FC } from 'react';
 import { FieldError, useFormContext } from 'react-hook-form';
+import { Except } from 'type-fest';
 
-import TextInput from '#ui/TextInput';
+import { Input, InputProps } from '#ui/Input';
 import { getProp } from '#utils/getProp';
 
-interface FormInputProps extends Omit<ComponentProps<typeof TextInput>, 'error'> {
+interface FormInputProps extends Except<InputProps, 'error'> {
   name: string;
 }
 
-const FormInput: FC<FormInputProps> = ({ name, onChange, ...props }) => {
+export const FormInput: FC<FormInputProps> = ({ name, onChange, ...props }) => {
   const {
     register,
     formState: { errors },
@@ -17,7 +18,7 @@ const FormInput: FC<FormInputProps> = ({ name, onChange, ...props }) => {
   const error: FieldError | undefined = getProp(errors, name);
 
   return (
-    <TextInput
+    <Input
       {...register(name, { onChange })}
       {...props}
       error={
@@ -27,5 +28,3 @@ const FormInput: FC<FormInputProps> = ({ name, onChange, ...props }) => {
     />
   );
 };
-
-export default FormInput;

@@ -5,13 +5,13 @@ import { Except } from 'type-fest';
 import { InputBase, InputBaseProps } from '#ui/InputBase';
 import { ControlExtraProps, InputControl } from '#ui/InputControl';
 
-import { TextInputClasses } from './textInputType';
+import { InputClasses } from './inputType';
 
-interface TextInputProps extends Except<InputBaseProps, 'classes'>, ControlExtraProps {
-  classes?: TextInputClasses;
+export interface InputProps extends Except<InputBaseProps, 'classes'>, ControlExtraProps {
+  classes?: InputClasses;
 }
 
-export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
+export const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ label, helper, classes, ...props }, ref) => {
     const localRef = useRef<HTMLInputElement>();
 

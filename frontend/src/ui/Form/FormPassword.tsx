@@ -1,15 +1,16 @@
-import { ComponentProps, FC } from 'react';
+import { FC } from 'react';
 import { FieldError, FieldValues, RegisterOptions, useFormContext } from 'react-hook-form';
+import { Except } from 'type-fest';
 
-import PasswordInput from '#ui/PasswordInput';
+import { InputPassword, InputPasswordProps } from '#ui/InputPassword';
 import { getProp } from '#utils/getProp';
 
-interface FormPasswordProps extends Omit<ComponentProps<typeof PasswordInput>, 'error'> {
+interface FormPasswordProps extends Except<InputPasswordProps, 'error'> {
   name: string;
   options?: RegisterOptions<FieldValues, string>;
 }
 
-const FormPassword: FC<FormPasswordProps> = ({ name, options, ...props }) => {
+export const FormPassword: FC<FormPasswordProps> = ({ name, options, ...props }) => {
   const {
     register,
     formState: { errors },
@@ -18,12 +19,10 @@ const FormPassword: FC<FormPasswordProps> = ({ name, options, ...props }) => {
   const error: FieldError | undefined = getProp(errors, name);
 
   return (
-    <PasswordInput
+    <InputPassword
       {...props}
       {...register(name, options)}
       error={error && (error.type === 'required' ? true : error.message)}
     />
   );
 };
-
-export default FormPassword;

@@ -1,13 +1,12 @@
-import { ComponentProps, FC } from 'react';
+import { FC } from 'react';
 import { Controller, FieldError, useFormContext } from 'react-hook-form';
-import { NumericFormat, NumericFormatProps } from 'react-number-format';
 
-import TextInput from '#ui/TextInput';
+import { InputNumber, InputNumberProps } from '#ui/InputNumber';
 import { getProp } from '#utils/getProp';
 
-type FormNumberProps = NumericFormatProps & ComponentProps<typeof TextInput> & { name: string };
+type FormNumberProps = InputNumberProps & { name: string };
 
-const FormNumber: FC<FormNumberProps> = ({ name, ...props }) => {
+export const FormNumber: FC<FormNumberProps> = ({ name, ...props }) => {
   const {
     control,
     formState: { errors },
@@ -18,11 +17,7 @@ const FormNumber: FC<FormNumberProps> = ({ name, ...props }) => {
   return (
     <Controller
       render={({ field: { ref, value, onChange, onBlur } }) => (
-        <NumericFormat<ComponentProps<typeof TextInput>>
-          allowNegative={false}
-          allowedDecimalSeparators={[',']}
-          thousandSeparator=" "
-          customInput={TextInput}
+        <InputNumber
           onValueChange={(v) => onChange(v.floatValue || null)}
           value={value}
           getInputRef={ref}
@@ -39,5 +34,3 @@ const FormNumber: FC<FormNumberProps> = ({ name, ...props }) => {
     />
   );
 };
-
-export default FormNumber;

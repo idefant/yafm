@@ -7,7 +7,9 @@ import { InputNumberBase, InputNumberBaseProps } from '#ui/InputNumberBase';
 
 import { InputNumberClasses } from './inputNumberType';
 
-interface InputNumberProps extends Except<InputNumberBaseProps, 'classes'>, ControlExtraProps {
+export interface InputNumberProps
+  extends Except<InputNumberBaseProps, 'classes'>,
+    ControlExtraProps {
   classes?: InputNumberClasses;
 }
 

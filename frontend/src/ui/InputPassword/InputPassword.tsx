@@ -3,15 +3,17 @@ import { mergeRefs } from 'react-merge-refs';
 import { Except } from 'type-fest';
 
 import { ControlExtraProps, InputControl } from '#ui/InputControl';
-import { PasswordInputBase, PasswordInputBaseProps } from '#ui/PasswordInputBase';
+import { InputPasswordBase, InputPasswordBaseProps } from '#ui/InputPasswordBase';
 
-import { PasswordInputClasses } from './passwordInputType';
+import { InputPasswordClasses } from './inputPasswordType';
 
-interface PasswordInputProps extends Except<PasswordInputBaseProps, 'classes'>, ControlExtraProps {
-  classes?: PasswordInputClasses;
+export interface InputPasswordProps
+  extends Except<InputPasswordBaseProps, 'classes'>,
+    ControlExtraProps {
+  classes?: InputPasswordClasses;
 }
 
-export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
+export const InputPassword = forwardRef<HTMLInputElement, InputPasswordProps>(
   ({ label, helper, classes, ...props }, ref) => {
     const localRef = useRef<HTMLInputElement>();
 
@@ -24,7 +26,7 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
         helper={helper}
         classes={classes}
       >
-        <PasswordInputBase ref={mergeRefs([ref, localRef])} {...props} />
+        <InputPasswordBase ref={mergeRefs([ref, localRef])} {...props} />
       </InputControl>
     );
   },

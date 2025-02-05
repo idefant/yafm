@@ -3,7 +3,7 @@ import { InputHTMLAttributes, forwardRef } from 'react';
 
 import cls from './Checkbox.module.scss';
 
-interface CheckboxProps extends InputHTMLAttributes<HTMLInputElement> {
+export interface CheckboxProps extends InputHTMLAttributes<HTMLInputElement> {
   error?: string | boolean;
 }
 

@@ -7,7 +7,7 @@ import { TextAreaBase, TextAreaBaseProps } from '#ui/TextAreaBase';
 
 import { TextAreaClasses } from './textAreaType';
 
-interface TextAreaProps extends Except<TextAreaBaseProps, 'classes'>, ControlExtraProps {
+export interface TextAreaProps extends Except<TextAreaBaseProps, 'classes'>, ControlExtraProps {
   classes?: TextAreaClasses;
 }
 

@@ -8,7 +8,7 @@ import { SelectBase, SelectBaseProps } from '#ui/SelectBase';
 
 import { SelectClasses } from './selectType';
 
-interface SelectProps<
+export interface SelectProps<
   Option = unknown,
   IsMulti extends boolean = boolean,
   Group extends GroupBase<Option> = GroupBase<Option>,
