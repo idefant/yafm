@@ -8,7 +8,6 @@ import { SetAccount } from '#components/Account';
 import AccountsPie from '#components/Account/AccountsPie';
 import { HeaderInfo } from '#components/Header';
 import { useAppSelector } from '#hooks/reduxHooks';
-import useModal from '#hooks/useModal';
 import {
   selectAccountsBalanceDict,
   selectAccountsLastActivityDict,
@@ -18,12 +17,15 @@ import {
   selectVisibleAccountCategories,
   selectVisibleAccountsCombined,
 } from '#store/selectors';
+import ArchiveIcon from '#svg/archive.svg?react';
+import PencilIcon from '#svg/pencil.svg?react';
 import PlusIcon from '#svg/plus.svg?react';
+import TrashIcon from '#svg/trash.svg?react';
 import { Account } from '#types/accountType';
 import { Button } from '#ui/Button';
 import { Card } from '#ui/Card';
 import { Grid } from '#ui/Grid';
-import Icon from '#ui/Icon';
+import { useModal } from '#ui/Modal';
 import Table, { Column, TableDate, TableAction } from '#ui/Table';
 import { Title } from '#ui/Typography';
 import { actionCreator, committer } from '#utils/committer';
@@ -88,7 +90,7 @@ const Accounts: FC = () => {
         key: category.id,
         name: (
           <div className="inline-flex justify-center gap-3 items-center">
-            {category.is_archive && <Icon.Archive className="w-[22px] h-[22px]" />}
+            {category.is_archive && <ArchiveIcon className="w-[22px] h-[22px]" />}
             {category.name}
           </div>
         ),
@@ -191,9 +193,9 @@ const Accounts: FC = () => {
         ),
     },
     {
-      title: <Icon.Archive className="w-[22px] h-[22px]" />,
+      title: <ArchiveIcon className="w-[22px] h-[22px]" />,
       key: 'is_archive',
-      render: ({ record }) => record.is_archive && <Icon.Archive className="w-[22px] h-[22px]" />,
+      render: ({ record }) => record.is_archive && <ArchiveIcon className="w-[22px] h-[22px]" />,
       default: '',
       hidden: !archiveMode,
     },
@@ -203,8 +205,8 @@ const Accounts: FC = () => {
       width: 'min',
       render: ({ record }) => (
         <div className="flex ml-6">
-          <TableAction onClick={() => openAccount(record)} icon={Icon.Pencil} />
-          <TableAction onClick={() => confirmDelete(record)} icon={Icon.Trash} />
+          <TableAction onClick={() => openAccount(record)} icon={PencilIcon} />
+          <TableAction onClick={() => confirmDelete(record)} icon={TrashIcon} />
         </div>
       ),
     },

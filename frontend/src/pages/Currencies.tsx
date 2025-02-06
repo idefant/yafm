@@ -5,12 +5,15 @@ import { useFetchCurrenciesQuery } from '#api/exratesApi';
 import { OpenedCurrency, SetCurrency } from '#components/Currency';
 import { HeaderInfo } from '#components/Header';
 import { useAppSelector } from '#hooks/reduxHooks';
-import useModal from '#hooks/useModal';
 import { selectAllAccounts, selectCurrencies, selectCurrenciesIds } from '#store/selectors';
+import PencilIcon from '#svg/pencil.svg?react';
+import PlusIcon from '#svg/plus.svg?react';
+import StarIcon from '#svg/star.svg?react';
+import TrashIcon from '#svg/trash.svg?react';
 import { Currency } from '#types/currencyType';
 import { Card } from '#ui/Card';
 import { Grid } from '#ui/Grid';
-import Icon from '#ui/Icon';
+import { useModal } from '#ui/Modal';
 import Table, { Column, TableAction } from '#ui/Table';
 import { Title } from '#ui/Typography';
 import { actionCreator, committer } from '#utils/committer';
@@ -80,12 +83,12 @@ const Currencies: FC = () => {
       width: 'min',
       render: ({ record }) => (
         <div className="flex ml-6 justify-end">
-          {record.code === baseCurrencyCode && <TableAction icon={Icon.Star} />}
+          {record.code === baseCurrencyCode && <TableAction icon={StarIcon} />}
           <TableAction
             onClick={() => openCurrency({ method: 'update', currency: record })}
-            icon={Icon.Pencil}
+            icon={PencilIcon}
           />
-          <TableAction onClick={() => confirmDelete(record)} icon={Icon.Trash} />
+          <TableAction onClick={() => confirmDelete(record)} icon={TrashIcon} />
         </div>
       ),
     },
@@ -108,7 +111,7 @@ const Currencies: FC = () => {
         <div className="flex ml-6">
           <TableAction
             onClick={() => openCurrency({ method: 'create', currency: record })}
-            icon={Icon.Plus}
+            icon={PlusIcon}
           />
         </div>
       ),

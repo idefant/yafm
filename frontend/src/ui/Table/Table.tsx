@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import { Fragment, ReactNode } from 'react';
 
-import Icon from '#ui/Icon';
+import SearchIcon from '#svg/search.svg?react';
 import { getProp } from '#utils/getProp';
 
 import TableDefaultText from './TableDefaultText';
@@ -69,7 +69,7 @@ const Table = <T extends Record<string, any>>({
           <tr>
             <td colSpan={visibleColumns.length}>
               <div className="my-8 text-slate-200">
-                <Icon.Search className="mx-auto w-12 h-12" />
+                <SearchIcon className="mx-auto w-12 h-12" />
                 <div className="text-lg text-center">No Data</div>
               </div>
             </td>

@@ -2,9 +2,9 @@ import { FC } from 'react';
 
 import { useAppSelector } from '#hooks/reduxHooks';
 import { selectAllTransactionTemplatesCombined } from '#store/selectors';
+import InfoIcon from '#svg/info.svg?react';
 import { TransactionTemplate, TransactionTemplateCombined } from '#types/transactionType';
-import Icon from '#ui/Icon';
-import Modal from '#ui/Modal';
+import { Modal } from '#ui/Modal';
 import Table, { Column, TableOperations, TableTooltip } from '#ui/Table';
 
 interface ChooseTemplateProps {
@@ -27,7 +27,7 @@ const ChooseTemplate: FC<ChooseTemplateProps> = ({ isOpen, close, setTransaction
       key: 'choose',
       render: ({ record }) => (
         <button onClick={() => chooseTemplate(record)} type="button" aria-label="choose template">
-          <Icon.Circle />
+          choose
         </button>
       ),
     },
@@ -52,7 +52,7 @@ const ChooseTemplate: FC<ChooseTemplateProps> = ({ isOpen, close, setTransaction
       render: ({ record }) => <TableOperations operations={record.operations} isPositive />,
     },
     {
-      title: <Icon.Info className="w-6 h-6 mx-auto" />,
+      title: <InfoIcon className="w-6 h-6 mx-auto" />,
       key: 'description',
       width: 'min',
       render: ({ record }) => <TableTooltip>{record.description}</TableTooltip>,
@@ -60,8 +60,7 @@ const ChooseTemplate: FC<ChooseTemplateProps> = ({ isOpen, close, setTransaction
   ];
 
   return (
-    <Modal isOpen={isOpen} close={close} width="biggest">
-      <Modal.Header close={close}>Choose Template</Modal.Header>
+    <Modal title="Choose Template" isOpen={isOpen} close={close}>
       <Modal.Content>
         <Table columns={tableColumns} data={templates} className={{ table: 'w-full' }} />
       </Modal.Content>

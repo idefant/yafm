@@ -1,7 +1,10 @@
 import { FC } from 'react';
 
-import Icon from '#ui/Icon';
-import Select from '#ui/Select';
+import ChevronLeftIcon from '#svg/chevron-left.svg?react';
+import ChevronRightIcon from '#svg/chevron-right.svg?react';
+import { IconButton } from '#ui/IconButton';
+import { Select } from '#ui/Select';
+import { HStack } from '#ui/Stack';
 
 import { DateFilterResult } from './useDateFilter';
 
@@ -20,31 +23,31 @@ const DateFilter: FC<DateFilterProps> = ({ options }) => {
   return (
     <div className="flex gap-3 items-center">
       <Select
-        className="border-gray-600"
+        label="Period type"
         options={periodOptions}
         value={periodOptions.find((option) => option.value === periodType)}
         onChange={(newValue: any) => setPeriodType(newValue?.value)}
+        margin="sm"
       />
-      <button
-        onClick={() => setDate(date.subtract(1, periodType))}
-        className="p-2 bg-slate-700 border border-slate-100/30 rounded-full"
-        type="button"
-        aria-label="previous"
-      >
-        <Icon.ChevronLeft />
-      </button>
-      <div>
-        {periodType === 'month' && `${date.format('MMM YYYY')}`}
-        {periodType === 'year' && date.year()}
-      </div>
-      <button
-        onClick={() => setDate(date.add(1, periodType))}
-        className="p-2 bg-slate-700 border border-slate-100/30 rounded-full"
-        type="button"
-        aria-label="next"
-      >
-        <Icon.ChevronRight />
-      </button>
+
+      <HStack align="center">
+        <IconButton
+          variant="outlined"
+          color="secondary"
+          icon={ChevronLeftIcon}
+          onClick={() => setDate(date.subtract(1, periodType))}
+        />
+        <div>
+          {periodType === 'month' && `${date.format('MMM YYYY')}`}
+          {periodType === 'year' && date.year()}
+        </div>
+        <IconButton
+          variant="outlined"
+          color="secondary"
+          icon={ChevronRightIcon}
+          onClick={() => setDate(date.add(1, periodType))}
+        />
+      </HStack>
     </div>
   );
 };

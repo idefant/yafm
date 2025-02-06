@@ -23,6 +23,7 @@ export const Grid: FC<GridProps> & GridExtensions = ({
   columnGap,
   reversed,
   className,
+  style,
   ...props
 }) => (
   <div
@@ -31,6 +32,7 @@ export const Grid: FC<GridProps> & GridExtensions = ({
       {
         '--grid-row-gap': `${rowGap || gap}px`,
         '--grid-column-gap': `${columnGap || gap}px`,
+        ...style,
       } as CSSProperties
     }
     {...props}

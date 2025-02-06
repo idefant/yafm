@@ -1,8 +1,7 @@
 import { ComponentProps, FC } from 'react';
 
-import { useModal } from '#hooks/useModal';
 import { Button } from '#ui/Button';
-import { Modal } from '#ui/Modal';
+import { Modal, useModal } from '#ui/Modal';
 
 type LongExampleProps = Pick<
   ComponentProps<typeof Modal>,

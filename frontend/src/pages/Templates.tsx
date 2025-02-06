@@ -4,13 +4,15 @@ import Swal from 'sweetalert2';
 import { HeaderInfo } from '#components/Header';
 import { SetTemplate } from '#components/Template';
 import { useAppSelector } from '#hooks/reduxHooks';
-import useModal from '#hooks/useModal';
 import { selectAllTransactionTemplatesCombined } from '#store/selectors';
+import InfoIcon from '#svg/info.svg?react';
+import PencilIcon from '#svg/pencil.svg?react';
 import PlusIcon from '#svg/plus.svg?react';
+import TrashIcon from '#svg/trash.svg?react';
 import { TransactionTemplate } from '#types/transactionType';
 import { Button } from '#ui/Button';
 import { Card } from '#ui/Card';
-import Icon from '#ui/Icon';
+import { useModal } from '#ui/Modal';
 import Table, { Column, TableOperations, TableTooltip, TableAction } from '#ui/Table';
 import { Title } from '#ui/Typography';
 import { actionCreator, committer } from '#utils/committer';
@@ -62,7 +64,7 @@ const Templates: FC = () => {
       render: ({ record }) => <TableOperations operations={record.operations} isPositive />,
     },
     {
-      title: <Icon.Info className="w-6 h-6 mx-auto" />,
+      title: <InfoIcon className="w-6 h-6 mx-auto" />,
       key: 'description',
       width: 'min',
       render: ({ record }) => <TableTooltip>{record.description}</TableTooltip>,
@@ -73,8 +75,8 @@ const Templates: FC = () => {
       width: 'min',
       render: ({ record }) => (
         <div className="flex">
-          <TableAction onClick={() => openTemplate(record)} icon={Icon.Pencil} />
-          <TableAction onClick={() => confirmDelete(record)} icon={Icon.Trash} />
+          <TableAction onClick={() => openTemplate(record)} icon={PencilIcon} />
+          <TableAction onClick={() => confirmDelete(record)} icon={TrashIcon} />
         </div>
       ),
     },

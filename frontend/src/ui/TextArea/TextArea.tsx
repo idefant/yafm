@@ -12,7 +12,7 @@ export interface TextAreaProps extends Except<TextAreaBaseProps, 'classes'>, Con
 }
 
 export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
-  ({ label, helper, classes, ...props }, ref) => {
+  ({ label, helper, margin, classes, ...props }, ref) => {
     const localRef = useRef<HTMLTextAreaElement>();
 
     return (
@@ -22,6 +22,7 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
         required={props.required}
         error={props.error}
         helper={helper}
+        margin={margin}
         classes={classes}
       >
         <TextAreaBase

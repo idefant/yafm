@@ -6,21 +6,24 @@ import { useFetchRatesByPeriodQuery } from '#api/exratesApi';
 import { HeaderInfo } from '#components/Header';
 import { SetTransaction } from '#components/Transaction';
 import { useAppSelector } from '#hooks/reduxHooks';
-import useModal from '#hooks/useModal';
 import {
   selectAllTransactionsCombined,
   selectCurrencyById,
   selectVisibleAccounts,
   selectVisibleTransactionCategories,
 } from '#store/selectors';
+import CopyIcon from '#svg/copy.svg?react';
+import InfoIcon from '#svg/info.svg?react';
+import PencilIcon from '#svg/pencil.svg?react';
 import PlusIcon from '#svg/plus.svg?react';
+import TrashIcon from '#svg/trash.svg?react';
 import { Transaction, TransactionCombined } from '#types/transactionType';
 import { Button } from '#ui/Button';
 import { Card } from '#ui/Card';
 import DateFilter, { useDateFilter } from '#ui/DateFilter';
 import { Grid } from '#ui/Grid';
-import Icon from '#ui/Icon';
-import Select, { SelectOption } from '#ui/Select';
+import { useModal } from '#ui/Modal';
+import { Select, SelectOption } from '#ui/Select';
 import Table, { Column, TableDate, TableOperations, TableTooltip, TableAction } from '#ui/Table';
 import { Title } from '#ui/Typography';
 import { actionCreator, committer } from '#utils/committer';
@@ -183,7 +186,7 @@ const Transactions: FC = () => {
       render: ({ record }) => <TableOperations operations={record.operations} isPositive />,
     },
     {
-      title: <Icon.Info className="w-6 h-6 mx-auto" />,
+      title: <InfoIcon className="w-6 h-6 mx-auto" />,
       key: 'description',
       width: 'min',
       render: ({ record }) => <TableTooltip>{record.description}</TableTooltip>,
@@ -194,9 +197,9 @@ const Transactions: FC = () => {
       width: 'min',
       render: ({ record }) => (
         <div className="flex">
-          <TableAction onClick={() => copyTransaction(record)} icon={Icon.Copy} />
-          <TableAction onClick={() => openTransaction(record)} icon={Icon.Pencil} />
-          <TableAction onClick={() => confirmDelete(record)} icon={Icon.Trash} />
+          <TableAction onClick={() => copyTransaction(record)} icon={CopyIcon} />
+          <TableAction onClick={() => openTransaction(record)} icon={PencilIcon} />
+          <TableAction onClick={() => confirmDelete(record)} icon={TrashIcon} />
         </div>
       ),
     },
@@ -229,29 +232,25 @@ const Transactions: FC = () => {
 
               <DateFilter options={filterData} />
 
-              <div className="grid grid-cols-2 gap-3 mt-5">
-                <div className="w-full">
-                  <label>Category:</label>
-                  <Select
-                    className="border-gray-600 w-full"
-                    options={categoryOptions}
-                    value={selectedCategories}
-                    onChange={(newValue: any) => setSelectedCategories(newValue)}
-                    isMulti
-                  />
-                </div>
+              <Select
+                label="Category"
+                placeholder="Choose category..."
+                options={categoryOptions}
+                value={selectedCategories}
+                onChange={(newValue: any) => setSelectedCategories(newValue)}
+                isMulti
+                margin="sm"
+              />
 
-                <div className="w-full">
-                  <label>Account:</label>
-                  <Select
-                    className="border-gray-600 w-full"
-                    options={accountOptions}
-                    value={selectedAccounts}
-                    onChange={(newValue: any) => setSelectedAccounts(newValue)}
-                    isMulti
-                  />
-                </div>
-              </div>
+              <Select
+                label="Account"
+                placeholder="Choose account..."
+                options={accountOptions}
+                value={selectedAccounts}
+                onChange={(newValue: any) => setSelectedAccounts(newValue)}
+                isMulti
+                margin="sm"
+              />
             </Card.Content>
           </Card>
         </Grid.Item>

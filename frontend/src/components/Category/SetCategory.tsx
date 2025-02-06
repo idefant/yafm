@@ -1,11 +1,11 @@
 import { yupResolver } from '@hookform/resolvers/yup';
-import { FC } from 'react';
+import { FC, useId } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
 import { Category, CategoryType } from '#types/categoryType';
 import { Button } from '#ui/Button';
 import Form from '#ui/Form';
-import Modal from '#ui/Modal';
+import { Modal } from '#ui/Modal';
 import { actionCreator, committer } from '#utils/committer';
 import yup from '#utils/form/schema';
 
@@ -29,6 +29,8 @@ const formSchema = yup
   .required();
 
 const SetCategory: FC<SetCategoryProps> = ({ isOpen, close, category, categoryType }) => {
+  const formId = useId();
+
   const methods = useForm<TForm>({ resolver: yupResolver(formSchema) });
   const { handleSubmit, reset } = methods;
 
@@ -56,7 +58,7 @@ const SetCategory: FC<SetCategoryProps> = ({ isOpen, close, category, categoryTy
     close();
   };
 
-  const onEnter = () => {
+  const onOpen = () => {
     reset({
       name: category?.name || '',
       isArchive: category?.is_archive || false,
@@ -66,23 +68,31 @@ const SetCategory: FC<SetCategoryProps> = ({ isOpen, close, category, categoryTy
   const onExited = () => reset();
 
   return (
-    <Modal isOpen={isOpen} close={close} onEnter={onEnter} onExited={onExited}>
-      <FormProvider {...methods}>
-        <Form onSubmit={handleSubmit(onSubmit)}>
-          <Modal.Header close={close}>
-            {category ? 'Edit Category' : 'Create Category'}
-          </Modal.Header>
-          <Modal.Content>
+    <Modal
+      title={category ? 'Edit Category' : 'Create Category'}
+      isOpen={isOpen}
+      close={close}
+      onOpen={onOpen}
+      onExited={onExited}
+    >
+      <Modal.Content>
+        <FormProvider {...methods}>
+          <Form onSubmit={handleSubmit(onSubmit)} id={formId}>
             <Form.Input label="Name" name="name" />
 
             {category && <Form.Checkbox name="isArchive">Archive</Form.Checkbox>}
-          </Modal.Content>
-          <Modal.Footer>
-            <Button type="submit">Save</Button>
-            <Button onClick={close}>Cancel</Button>
-          </Modal.Footer>
-        </Form>
-      </FormProvider>
+          </Form>
+        </FormProvider>
+      </Modal.Content>
+
+      <Modal.Footer>
+        <Button color="secondary" onClick={close}>
+          Cancel
+        </Button>
+        <Button type="submit" form={formId}>
+          Save
+        </Button>
+      </Modal.Footer>
     </Modal>
   );
 };

@@ -1,5 +1,5 @@
 import { yupResolver } from '@hookform/resolvers/yup';
-import { FC } from 'react';
+import { FC, useId } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
 import { useAppSelector } from '#hooks/reduxHooks';
@@ -7,7 +7,7 @@ import { selectCurrencies, selectVisibleAccountCategories } from '#store/selecto
 import { Account } from '#types/accountType';
 import { Button } from '#ui/Button';
 import Form from '#ui/Form';
-import Modal from '#ui/Modal';
+import { Modal } from '#ui/Modal';
 import { actionCreator, committer } from '#utils/committer';
 import yup from '#utils/form/schema';
 import { groupBy } from '#utils/groupBy';
@@ -34,6 +34,8 @@ const formSchema = yup.object({
 });
 
 const SetAccount: FC<SetAccountProps> = ({ isOpen, close, account }) => {
+  const formId = useId();
+
   const currencies = useAppSelector(selectCurrencies);
   const categories = useAppSelector(selectVisibleAccountCategories);
 
@@ -68,7 +70,7 @@ const SetAccount: FC<SetAccountProps> = ({ isOpen, close, account }) => {
     .sort((a, b) => compareObjByStr(a, b, (e) => e.name))
     .map((category) => ({ value: category.id, label: category.name }));
 
-  const onEntering = () => {
+  const onOpening = () => {
     reset({
       name: account?.name || '',
       currencyCode: account?.currency_code || null,
@@ -80,43 +82,47 @@ const SetAccount: FC<SetAccountProps> = ({ isOpen, close, account }) => {
   const onExited = () => reset();
 
   return (
-    <Modal isOpen={isOpen} close={close} onEntering={onEntering} onExited={onExited}>
-      <FormProvider {...methods}>
-        <Form onSubmit={handleSubmit(onSubmit)}>
-          <Modal.Header close={close}>{account ? 'Edit Account' : 'Create Account'}</Modal.Header>
-          <Modal.Content>
+    <Modal
+      title={account ? 'Edit Account' : 'Create Account'}
+      isOpen={isOpen}
+      close={close}
+      onOpening={onOpening}
+      onExited={onExited}
+    >
+      <Modal.Content>
+        <FormProvider {...methods}>
+          <Form onSubmit={handleSubmit(onSubmit)} id={formId}>
             <Form.Input label="Name" name="name" />
             {!account && (
-              <div className="flex items-center my-3 gap-3">
-                <label className="block w-1/3">Currency</label>
-                <Form.Select
-                  className="w-2/3"
-                  placeholder="Currency"
-                  options={currencyOptGroups}
-                  name="currencyCode"
-                />
-              </div>
+              <Form.Select
+                label="Currency"
+                placeholder="Choose currency..."
+                options={currencyOptGroups}
+                name="currencyCode"
+              />
             )}
 
-            <div className="flex items-center my-3 gap-3">
-              <label className="block w-1/3">Category</label>
-              <Form.Select
-                className="w-2/3"
-                placeholder="Category"
-                options={categoryOptions}
-                isClearable
-                name="categoryId"
-              />
-            </div>
+            <Form.Select
+              label="Category"
+              placeholder="Choose category..."
+              options={categoryOptions}
+              isClearable
+              name="categoryId"
+            />
 
             {account && <Form.Checkbox name="isArchive">Archive</Form.Checkbox>}
-          </Modal.Content>
-          <Modal.Footer>
-            <Button type="submit">Save</Button>
-            <Button onClick={close}>Cancel</Button>
-          </Modal.Footer>
-        </Form>
-      </FormProvider>
+          </Form>
+        </FormProvider>
+      </Modal.Content>
+
+      <Modal.Footer>
+        <Button color="secondary" onClick={close}>
+          Cancel
+        </Button>
+        <Button type="submit" form={formId}>
+          Save
+        </Button>
+      </Modal.Footer>
     </Modal>
   );
 };

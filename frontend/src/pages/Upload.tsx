@@ -9,11 +9,12 @@ import { bool, mixed, object, string, ValidationError } from 'yup';
 import { appRoutes } from '#data/routes';
 import { useAppDispatch } from '#hooks/reduxHooks';
 import { unlockBase } from '#store/reducers/appSlice';
+import ChevronLeftIcon from '#svg/chevron-left.svg?react';
 import { EncryptedData } from '#types/cipher';
 import { Button } from '#ui/Button';
-import EntranceTitle from '#ui/EntranceTitle';
 import Form from '#ui/Form';
-import GoBackButton from '#ui/GoBackButton';
+import { IconButton } from '#ui/IconButton';
+import { Title } from '#ui/Typography';
 import { actionCreator, committer } from '#utils/committer';
 import { crypt } from '#utils/crypt';
 import { readFileContent } from '#utils/file';
@@ -120,8 +121,13 @@ const Upload: FC = () => {
 
   return (
     <>
-      <GoBackButton />
-      <EntranceTitle>Upload Base</EntranceTitle>
+      <IconButton
+        icon={ChevronLeftIcon}
+        color="secondary"
+        variant="outlined"
+        onClick={() => navigate(-1)}
+      />
+      <Title level={4}>Upload Base</Title>
 
       <FormProvider {...methods}>
         <Form onSubmit={handleSubmit(onSubmit)}>

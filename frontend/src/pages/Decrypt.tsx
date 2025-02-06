@@ -16,8 +16,8 @@ import { transactionsReceived } from '#store/reducers/transactionsSlice';
 import { transactionTemplatesReceived } from '#store/reducers/transactionTemplatesSlice';
 import { Commit, CommitAction, updatedBaseMethods } from '#types/commitType';
 import { Button } from '#ui/Button';
-import EntranceTitle from '#ui/EntranceTitle';
 import Form from '#ui/Form';
+import { Title } from '#ui/Typography';
 import { actionCreator, committer } from '#utils/committer';
 import { compileBase } from '#utils/compileBase';
 import { crypt } from '#utils/crypt';
@@ -111,7 +111,7 @@ const Decrypt: FC = () => {
     <>Loading...</>
   ) : (
     <>
-      <EntranceTitle>{isNew ? 'Create Base' : 'Decrypt Base'}</EntranceTitle>
+      <Title level={4}>{isNew ? 'Create Base' : 'Decrypt Base'}</Title>
 
       <FormProvider {...methods}>
         <Form onSubmit={handleSubmit(onSubmit)}>

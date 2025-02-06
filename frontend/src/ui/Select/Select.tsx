@@ -35,7 +35,7 @@ export const Select = forwardRef(
     IsMulti extends boolean = boolean,
     Group extends GroupBase<Option> = GroupBase<Option>,
   >(
-    { label, helper, classes, ...props }: SelectProps<Option, IsMulti, Group>,
+    { label, helper, margin, classes, ...props }: SelectProps<Option, IsMulti, Group>,
     ref: ForwardedRef<ReactSelectType<Option, IsMulti, Group>>,
   ) => {
     const localRef = useRef<ReactSelectType<Option, IsMulti, Group>>();
@@ -47,6 +47,7 @@ export const Select = forwardRef(
         required={props.required}
         error={props.error}
         helper={helper}
+        margin={margin}
         classes={classes}
       >
         <SelectBase<Option, IsMulti, Group> ref={mergeRefs([ref, localRef])} {...props} />

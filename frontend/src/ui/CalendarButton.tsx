@@ -3,7 +3,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import { FC } from 'react';
 import ReactDatePicker, { registerLocale } from 'react-datepicker';
 
-import Icon from './Icon';
+import CalendarIcon from '#svg/calendar.svg?react';
 
 interface CalendarButtonProps {
   date: Dayjs;
@@ -22,7 +22,7 @@ const CalendarButton: FC<CalendarButtonProps> = ({ date, setDate }) => (
     timeIntervals={30}
     customInput={
       <button className="p-1" type="button" aria-label="choose date">
-        <Icon.Calendar />
+        <CalendarIcon />
       </button>
     }
     wrapperClassName="!w-fit"

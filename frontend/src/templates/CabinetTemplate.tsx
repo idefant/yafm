@@ -33,7 +33,7 @@ const CabinetTemplate: FC = () => {
           )}
         </div>
 
-        <Button.Link to={appRoutes.upload}>Upload Version</Button.Link>
+        <Button to={appRoutes.upload}>Upload Version</Button>
         <hr className="m-4" />
         <Link reloadDocument to={appRoutes.oidcLogout}>
           Logout

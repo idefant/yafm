@@ -3,7 +3,6 @@ import Swal from 'sweetalert2';
 
 import { SetCategory } from '#components/Category';
 import { useAppSelector } from '#hooks/reduxHooks';
-import useModal from '#hooks/useModal';
 import {
   selectAllAccounts,
   selectAllTransactionTemplates,
@@ -11,11 +10,14 @@ import {
   selectVisibleAccountCategories,
   selectVisibleTransactionCategories,
 } from '#store/selectors';
+import ArchiveIcon from '#svg/archive.svg?react';
+import PencilIcon from '#svg/pencil.svg?react';
 import PlusIcon from '#svg/plus.svg?react';
+import TrashIcon from '#svg/trash.svg?react';
 import { CategoryType, Category } from '#types/categoryType';
 import { Button } from '#ui/Button';
 import { Card } from '#ui/Card';
-import Icon from '#ui/Icon';
+import { useModal } from '#ui/Modal';
 import { HStack } from '#ui/Stack';
 import Table, { Column, TableAction } from '#ui/Table';
 import { Title } from '#ui/Typography';
@@ -96,9 +98,9 @@ const CategoriesPart: FC<CategoriesPartProps> = ({ categoryType }) => {
       key: 'name',
     },
     {
-      title: <Icon.Archive className="w-[22px] h-[22px]" />,
+      title: <ArchiveIcon className="w-[22px] h-[22px]" />,
       key: 'is_archive',
-      render: ({ record }) => record.is_archive && <Icon.Archive className="w-[22px] h-[22px]" />,
+      render: ({ record }) => record.is_archive && <ArchiveIcon className="w-[22px] h-[22px]" />,
       default: '',
       hidden: !archiveMode,
     },
@@ -108,8 +110,8 @@ const CategoriesPart: FC<CategoriesPartProps> = ({ categoryType }) => {
       width: 'min',
       render: ({ record }) => (
         <div className="flex ml-6">
-          <TableAction onClick={() => openCategory(record)} icon={Icon.Pencil} />
-          <TableAction onClick={() => confirmDelete(record)} icon={Icon.Trash} />
+          <TableAction onClick={() => openCategory(record)} icon={PencilIcon} />
+          <TableAction onClick={() => confirmDelete(record)} icon={TrashIcon} />
         </div>
       ),
     },

@@ -87,3 +87,18 @@
     color: var(--secondary-color);
   }
 }
+
+.xsMargin {
+  margin-top: var(--input-margin-xs);
+  margin-bottom: var(--input-margin-xs);
+}
+
+.smMargin {
+  margin-top: var(--input-margin-sm);
+  margin-bottom: var(--input-margin-sm);
+}
+
+.mdMargin {
+  margin-top: var(--input-margin-md);
+  margin-bottom: var(--input-margin-md);
+}

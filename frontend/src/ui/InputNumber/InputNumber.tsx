@@ -14,7 +14,7 @@ export interface InputNumberProps
 }
 
 export const InputNumber = forwardRef<HTMLInputElement, InputNumberProps>(
-  ({ label, helper, classes, ...props }, ref) => {
+  ({ label, helper, margin, classes, ...props }, ref) => {
     const localRef = useRef<HTMLInputElement>();
 
     return (
@@ -24,6 +24,7 @@ export const InputNumber = forwardRef<HTMLInputElement, InputNumberProps>(
         required={props.required}
         error={props.error}
         helper={helper}
+        margin={margin}
         classes={classes}
       >
         <InputNumberBase ref={mergeRefs([ref, localRef])} {...props} />

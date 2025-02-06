@@ -14,7 +14,7 @@ export interface InputPasswordProps
 }
 
 export const InputPassword = forwardRef<HTMLInputElement, InputPasswordProps>(
-  ({ label, helper, classes, ...props }, ref) => {
+  ({ label, helper, margin, classes, ...props }, ref) => {
     const localRef = useRef<HTMLInputElement>();
 
     return (
@@ -24,6 +24,7 @@ export const InputPassword = forwardRef<HTMLInputElement, InputPasswordProps>(
         required={props.required}
         error={props.error}
         helper={helper}
+        margin={margin}
         classes={classes}
       >
         <InputPasswordBase ref={mergeRefs([ref, localRef])} {...props} />

@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { Promisable } from 'type-fest';
 
-import { ButtonColor } from '#ui/Button';
+import { ButtonColor } from '#ui/ButtonBase';
 
 export type ModalIcon = 'warning' | 'error' | 'success';
 

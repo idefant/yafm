@@ -1,8 +1,7 @@
 import { FC } from 'react';
 
-import { useModal } from '#hooks/useModal';
 import { Button } from '#ui/Button';
-import { Modal, dmodal } from '#ui/Modal';
+import { Modal, dmodal, useModal } from '#ui/Modal';
 
 const InternalExample: FC = () => {
   const modal = useModal();

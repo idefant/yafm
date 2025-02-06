@@ -1,7 +1,7 @@
 import { FC, ReactNode, useId } from 'react';
 import ReactTooltip from 'react-tooltip';
 
-import Icon from '#ui/Icon';
+import InfoIcon from '#svg/info.svg?react';
 
 interface TableTooltipProps {
   children?: ReactNode;
@@ -14,7 +14,7 @@ const TableTooltip: FC<TableTooltipProps> = ({ children }) => {
   return (
     <>
       <div data-tip data-for={id} className="px-3">
-        <Icon.Info className="w-7 h-7" />
+        <InfoIcon className="w-7 h-7" />
       </div>
       <ReactTooltip id={id} effect="solid" className="max-w-sm">
         {children}

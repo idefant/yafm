@@ -1,8 +1,11 @@
+import classNames from 'classnames';
 import { FC, ReactNode, Ref } from 'react';
 
+import { InputMargin } from '#types/inputType';
 import { InputHelperText } from '#ui/InputHelperText';
 import { InputLabel } from '#ui/InputLabel';
 
+import cls from './InputControl.module.scss';
 import { InputControlClasses } from './inputControlType';
 
 export type ControlExtraProps = {
@@ -10,6 +13,7 @@ export type ControlExtraProps = {
   required?: boolean;
   error?: string | boolean;
   helper?: string;
+  margin?: InputMargin;
 };
 
 interface InputControlProps extends ControlExtraProps {
@@ -18,12 +22,20 @@ interface InputControlProps extends ControlExtraProps {
   children: ReactNode;
 }
 
+const marginClasses: Record<InputMargin, string> = {
+  none: '',
+  xs: cls.xsMargin,
+  sm: cls.smMargin,
+  md: cls.mdMargin,
+};
+
 export const InputControl: FC<InputControlProps> = ({
   label,
   inputRef,
   required,
   error,
   helper,
+  margin = 'md',
   classes,
   children,
 }) => {
@@ -32,7 +44,7 @@ export const InputControl: FC<InputControlProps> = ({
   const focusInput = () => inputRef && 'current' in inputRef && inputRef.current?.focus();
 
   return (
-    <div className={classes?.container}>
+    <div className={classNames(marginClasses[margin], classes?.container)}>
       {label && (
         <InputLabel
           required={required}

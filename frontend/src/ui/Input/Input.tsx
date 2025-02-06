@@ -12,7 +12,7 @@ export interface InputProps extends Except<InputBaseProps, 'classes'>, ControlEx
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ label, helper, classes, ...props }, ref) => {
+  ({ label, helper, margin, classes, ...props }, ref) => {
     const localRef = useRef<HTMLInputElement>();
 
     return (
@@ -22,6 +22,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         required={props.required}
         error={props.error}
         helper={helper}
+        margin={margin}
         classes={classes}
       >
         <InputBase

@@ -1,12 +1,12 @@
 import { yupResolver } from '@hookform/resolvers/yup';
-import { FC } from 'react';
+import { FC, useId } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
 import { useAppSelector } from '#hooks/reduxHooks';
 import { Currency, CurrencyType, currencyTypes } from '#types/currencyType';
 import { Button } from '#ui/Button';
 import Form from '#ui/Form';
-import Modal from '#ui/Modal';
+import { Modal } from '#ui/Modal';
 import { actionCreator, committer } from '#utils/committer';
 import yup from '#utils/form/schema';
 
@@ -39,6 +39,8 @@ const formSchema = yup.object({
 });
 
 const SetCurrency: FC<SetCurrencyProps> = ({ isOpen, close, data }) => {
+  const formId = useId();
+
   const { baseCurrencyCode } = useAppSelector((state) => state.currencies);
 
   const methods = useForm<TForm>({ resolver: yupResolver(formSchema) });
@@ -70,7 +72,7 @@ const SetCurrency: FC<SetCurrencyProps> = ({ isOpen, close, data }) => {
     close();
   };
 
-  const onEntering = () => {
+  const onOpening = () => {
     if (!data) return;
 
     reset(
@@ -97,13 +99,16 @@ const SetCurrency: FC<SetCurrencyProps> = ({ isOpen, close, data }) => {
   const onExited = () => reset();
 
   return (
-    <Modal isOpen={isOpen} close={close} onEntering={onEntering} onExited={onExited}>
-      <FormProvider {...methods}>
-        <Form onSubmit={handleSubmit(onSubmit)}>
-          <Modal.Header close={close}>
-            {data?.method === 'update' ? 'Edit Currency' : 'Create Currency'}
-          </Modal.Header>
-          <Modal.Content>
+    <Modal
+      title={data?.method === 'update' ? 'Edit Currency' : 'Create Currency'}
+      isOpen={isOpen}
+      close={close}
+      onOpening={onOpening}
+      onExited={onExited}
+    >
+      <Modal.Content>
+        <FormProvider {...methods}>
+          <Form onSubmit={handleSubmit(onSubmit)}>
             <Form.Input label="Name" name="name" />
             <Form.Input label="Symbol" name="symbol" />
             <Form.Number
@@ -112,18 +117,15 @@ const SetCurrency: FC<SetCurrencyProps> = ({ isOpen, close, data }) => {
               decimalScale={0}
             />
 
-            <div className="flex items-center my-3 gap-3">
-              <label className="block w-1/3">Currency</label>
-              <Form.Select
-                className="w-2/3"
-                placeholder="Type"
-                options={[
-                  { value: 'fiat', label: 'Fiat' },
-                  { value: 'crypto', label: 'Crypto' },
-                ]}
-                name="type"
-              />
-            </div>
+            <Form.Select
+              label="Currency type"
+              placeholder="Choose currency type..."
+              options={[
+                { value: 'fiat', label: 'Fiat' },
+                { value: 'crypto', label: 'Crypto' },
+              ]}
+              name="type"
+            />
 
             <Form.Input label="Color" name="color" />
 
@@ -133,13 +135,18 @@ const SetCurrency: FC<SetCurrencyProps> = ({ isOpen, close, data }) => {
             >
               Base Currency
             </Form.Checkbox>
-          </Modal.Content>
-          <Modal.Footer>
-            <Button type="submit">Save</Button>
-            <Button onClick={close}>Cancel</Button>
-          </Modal.Footer>
-        </Form>
-      </FormProvider>
+          </Form>
+        </FormProvider>
+      </Modal.Content>
+
+      <Modal.Footer>
+        <Button color="secondary" onClick={close}>
+          Cancel
+        </Button>
+        <Button type="submit" form={formId}>
+          Save
+        </Button>
+      </Modal.Footer>
     </Modal>
   );
 };
