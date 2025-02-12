@@ -18,7 +18,6 @@ import TrashIcon from '#svg/trash.svg?react';
 import { Transaction, TransactionTemplate } from '#types/transactionType';
 import { Button } from '#ui/Button';
 import CalendarButton from '#ui/CalendarButton';
-import DatePicker from '#ui/DatePicker';
 import { Form } from '#ui/Form';
 import { Grid } from '#ui/Grid';
 import { IconButton } from '#ui/IconButton';
@@ -270,10 +269,7 @@ export const SetTransaction: FC<SetTransactionProps> = ({ modal }) => {
 
             <Form.Textarea label="Description" name="description" placeholder="Description..." />
 
-            <div className="flex gap-2 mt-2 items-center">
-              <DatePicker date={date} setDate={setDate} />
-              <CalendarButton date={date} setDate={setDate} />
-            </div>
+            <CalendarButton date={date} setDate={setDate} />
           </Form>
         </FormProvider>
       </Modal.Content>

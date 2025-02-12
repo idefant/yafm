@@ -14,7 +14,8 @@ import { EncryptedData } from '#types/cipher';
 import { Button } from '#ui/Button';
 import { Form } from '#ui/Form';
 import { IconButton } from '#ui/IconButton';
-import { Title } from '#ui/Typography';
+import { HStack } from '#ui/Stack';
+import { Title, Text } from '#ui/Typography';
 import { actionCreator, committer } from '#utils/committer';
 import { crypt } from '#utils/crypt';
 import { readFileContent } from '#utils/file';
@@ -121,46 +122,40 @@ export const Upload: FC = () => {
 
   return (
     <>
-      <IconButton
-        icon={ChevronLeftIcon}
-        color="secondary"
-        variant="outlined"
-        onClick={() => navigate(-1)}
-      />
-      <Title level={4}>Upload Base</Title>
+      <HStack align="center">
+        <IconButton
+          icon={ChevronLeftIcon}
+          color="secondary"
+          variant="outlined"
+          onClick={() => navigate(-1)}
+        />
+        <Title level={4}>Upload Base</Title>
+      </HStack>
 
       <FormProvider {...methods}>
         <Form onSubmit={handleSubmit(onSubmit)}>
-          <div className="flex gap-3 mb-4">
-            <div className="w-1/3">Base:</div>
-            <div className="w-2/3 flex gap-x-4 gap-y-1.5 flex-wrap items-center">
-              <div>
-                <input
-                  type="file"
-                  id="upload-enc-backup"
-                  className="hidden"
-                  onChange={uploadBackup}
-                />
-                <label htmlFor="upload-enc-backup">
-                  <Button>Upload Base</Button>
-                </label>
-              </div>
-            </div>
-          </div>
+          <HStack>
+            <Text size="lg" color="secondary">
+              Base:
+            </Text>
+            <input type="file" onChange={uploadBackup} />
+          </HStack>
 
           {fileData && (
             <>
-              <div className="flex gap-3 mb-3">
-                <div className="w-1/3">Created at:</div>
-                <div className="w-2/3">
-                  {dayjs(fileData.created_at).format('DD.MM.YYYY (HH:mm)')}
-                </div>
-              </div>
+              <HStack>
+                <Text size="lg" color="secondary">
+                  Created at:
+                </Text>
+                <Text size="lg">{dayjs(fileData.created_at).format('DD.MM.YYYY (HH:mm)')}</Text>
+              </HStack>
 
-              <div className="flex gap-3 mb-3">
-                <div className="w-1/3">Properties:</div>
-                <div className="w-2/3">{fileData.is_encrypted ? 'Encrypted' : 'Plaintext'}</div>
-              </div>
+              <HStack>
+                <Text size="lg" color="secondary">
+                  Properties:
+                </Text>
+                <Text size="lg">{fileData.is_encrypted ? 'Encrypted' : 'Plaintext'}</Text>
+              </HStack>
 
               <Form.Password
                 name="password"
@@ -168,9 +163,9 @@ export const Upload: FC = () => {
                 autoFocus
               />
 
-              <div className="mx-auto mt-8 flex justify-center gap-6">
+              <HStack justify="center">
                 <Button type="submit">Open</Button>
-              </div>
+              </HStack>
             </>
           )}
         </Form>

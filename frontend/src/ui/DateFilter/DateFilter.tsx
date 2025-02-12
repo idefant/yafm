@@ -4,7 +4,7 @@ import ChevronLeftIcon from '#svg/chevron-left.svg?react';
 import ChevronRightIcon from '#svg/chevron-right.svg?react';
 import { IconButton } from '#ui/IconButton';
 import { Select } from '#ui/Select';
-import { HStack } from '#ui/Stack';
+import { HStack, VStack } from '#ui/Stack';
 
 import { DateFilterResult } from './useDateFilter';
 
@@ -21,7 +21,7 @@ export const DateFilter: FC<DateFilterProps> = ({ options }) => {
   ];
 
   return (
-    <div className="flex gap-3 items-center">
+    <VStack gap={4}>
       <Select
         label="Period type"
         options={periodOptions}
@@ -48,6 +48,6 @@ export const DateFilter: FC<DateFilterProps> = ({ options }) => {
           onClick={() => setDate(date.add(1, periodType))}
         />
       </HStack>
-    </div>
+    </VStack>
   );
 };

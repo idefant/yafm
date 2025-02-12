@@ -25,7 +25,7 @@ const navItems: { label: string; link: string; icon: FunctionComponent }[] = [
 ];
 
 export const Sidebar: FC = () => (
-  <aside className={classNames(cls.Sidebar)}>
+  <aside className={cls.Sidebar}>
     <div className={cls.logoContainer}>
       <Logo />
     </div>

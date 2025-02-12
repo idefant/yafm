@@ -17,6 +17,7 @@ import { transactionTemplatesReceived } from '#store/reducers/transactionTemplat
 import { Commit, CommitAction, updatedBaseMethods } from '#types/commitType';
 import { Button } from '#ui/Button';
 import { Form } from '#ui/Form';
+import { HStack } from '#ui/Stack';
 import { Title } from '#ui/Typography';
 import { actionCreator, committer } from '#utils/committer';
 import { compileBase } from '#utils/compileBase';
@@ -117,9 +118,9 @@ export const Decrypt: FC = () => {
         <Form onSubmit={handleSubmit(onSubmit)}>
           <Form.Password name="password" label={isNew ? 'New Password:' : 'Password:'} autoFocus />
 
-          <div className="mx-auto mt-8 flex justify-center gap-6">
+          <HStack justify="center">
             <Button type="submit">{isNew ? 'Create new Base' : 'Decrypt'}</Button>
-          </div>
+          </HStack>
         </Form>
       </FormProvider>
     </>

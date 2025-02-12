@@ -4,12 +4,14 @@ import { FC } from 'react';
 import ReactDatePicker, { registerLocale } from 'react-datepicker';
 
 import CalendarIcon from '#svg/calendar.svg?react';
+import { IconButton } from '#ui/IconButton';
 
+/* eslint-disable no-unused-vars */
 interface CalendarButtonProps {
   date: Dayjs;
-  // eslint-disable-next-line no-unused-vars
   setDate: (date: Dayjs) => void;
 }
+/* eslint-enable no-unused-vars */
 
 registerLocale('ru', ru);
 
@@ -20,12 +22,7 @@ const CalendarButton: FC<CalendarButtonProps> = ({ date, setDate }) => (
     locale="ru"
     showTimeSelect
     timeIntervals={30}
-    customInput={
-      <button className="p-1" type="button" aria-label="choose date">
-        <CalendarIcon />
-      </button>
-    }
-    wrapperClassName="!w-fit"
+    customInput={<IconButton icon={CalendarIcon} />}
   />
 );
 
