@@ -5,19 +5,17 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { useAppSelector } from '#hooks/reduxHooks';
 import { Currency, CurrencyType, currencyTypes } from '#types/currencyType';
 import { Button } from '#ui/Button';
-import Form from '#ui/Form';
-import { Modal } from '#ui/Modal';
+import { Form } from '#ui/Form';
+import { Modal, UseModalReturn } from '#ui/Modal';
 import { actionCreator, committer } from '#utils/committer';
 import yup from '#utils/form/schema';
 
-export type OpenedCurrency =
+export type SetCurrencyModalData =
   | { method: 'create'; currency: { name: string; code: string } }
-  | { method: 'update'; currency: Currency };
+  | { method: 'edit'; currency: Currency };
 
 interface SetCurrencyProps {
-  isOpen: boolean;
-  close: () => void;
-  data?: OpenedCurrency;
+  modal: UseModalReturn<SetCurrencyModalData>;
 }
 
 type TForm = {
@@ -38,7 +36,7 @@ const formSchema = yup.object({
   isBaseCurrency: yup.boolean().required(),
 });
 
-const SetCurrency: FC<SetCurrencyProps> = ({ isOpen, close, data }) => {
+export const SetCurrency: FC<SetCurrencyProps> = ({ modal }) => {
   const formId = useId();
 
   const { baseCurrencyCode } = useAppSelector((state) => state.currencies);
@@ -47,51 +45,50 @@ const SetCurrency: FC<SetCurrencyProps> = ({ isOpen, close, data }) => {
   const { handleSubmit, reset } = methods;
 
   const onSubmit = async (values: TForm) => {
-    if (!data) return;
+    if (!modal.isOpen) return;
 
     const currencyData = {
       name: values.name,
       decimal_places_number: values.decimalPlacesNumber,
       type: values.type,
       color: values.color || 'gray',
-      symbol: values.symbol || data.currency.code,
+      symbol: values.symbol || modal.data.currency.code,
     };
 
     const commit = committer();
 
-    if (data.method === 'update') {
-      commit.add(actionCreator.updateCurrency(data.currency.code, currencyData));
-    } else {
-      commit.add(actionCreator.createCurrency({ code: data.currency.code, ...currencyData }));
-    }
+    commit.add(
+      modal.data.method === 'create'
+        ? actionCreator.createCurrency({ code: modal.data.currency.code, ...currencyData })
+        : actionCreator.updateCurrency(modal.data.currency.code, currencyData),
+    );
 
     if (values.isBaseCurrency) {
-      commit.add(actionCreator.setBasicCurrency(data.currency.code));
+      commit.add(actionCreator.setBasicCurrency(modal.data.currency.code));
     }
     commit.sync();
-    close();
+    modal.close();
   };
 
   const onOpening = () => {
-    if (!data) return;
-
+    if (!modal.isOpen) return;
     reset(
-      data.method === 'create'
+      modal.data.method === 'create'
         ? {
-            name: data.currency.name,
-            symbol: data.currency.code,
+            name: modal.data.currency.name,
+            symbol: modal.data.currency.code,
             decimalPlacesNumber: 2,
             type: 'fiat',
             color: '',
             isBaseCurrency: false,
           }
         : {
-            name: data.currency.name,
-            symbol: data.currency.symbol,
-            decimalPlacesNumber: data.currency.decimal_places_number,
-            type: data.currency.type,
-            color: data.currency.color,
-            isBaseCurrency: data.currency.code === baseCurrencyCode,
+            name: modal.data.currency.name,
+            symbol: modal.data.currency.symbol,
+            decimalPlacesNumber: modal.data.currency.decimal_places_number,
+            type: modal.data.currency.type,
+            color: modal.data.currency.color,
+            isBaseCurrency: modal.data.currency.code === baseCurrencyCode,
           },
     );
   };
@@ -100,9 +97,9 @@ const SetCurrency: FC<SetCurrencyProps> = ({ isOpen, close, data }) => {
 
   return (
     <Modal
-      title={data?.method === 'update' ? 'Edit Currency' : 'Create Currency'}
-      isOpen={isOpen}
-      close={close}
+      title={modal.data?.method === 'create' ? 'Create Currency' : 'Edit Currency'}
+      isOpen={modal.isOpen}
+      close={modal.close}
       onOpening={onOpening}
       onExited={onExited}
     >
@@ -131,7 +128,7 @@ const SetCurrency: FC<SetCurrencyProps> = ({ isOpen, close, data }) => {
 
             <Form.Checkbox
               name="isBaseCurrency"
-              disabled={data?.currency.code === baseCurrencyCode}
+              disabled={modal.data?.currency.code === baseCurrencyCode}
             >
               Base Currency
             </Form.Checkbox>
@@ -140,7 +137,7 @@ const SetCurrency: FC<SetCurrencyProps> = ({ isOpen, close, data }) => {
       </Modal.Content>
 
       <Modal.Footer>
-        <Button color="secondary" onClick={close}>
+        <Button color="secondary" onClick={modal.close}>
           Cancel
         </Button>
         <Button type="submit" form={formId}>
@@ -150,5 +147,3 @@ const SetCurrency: FC<SetCurrencyProps> = ({ isOpen, close, data }) => {
     </Modal>
   );
 };
-
-export default SetCurrency;

@@ -7,6 +7,8 @@ import { FormPassword } from './FormPassword';
 import { FormSelect } from './FormSelect';
 import { FormTextArea } from './FormTextArea';
 
+interface FormProps extends FormHTMLAttributes<HTMLFormElement> {}
+
 interface FormExtensions {
   Input: typeof FormInput;
   Password: typeof FormPassword;
@@ -16,9 +18,7 @@ interface FormExtensions {
   Textarea: typeof FormTextArea;
 }
 
-const Form: FC<FormHTMLAttributes<HTMLFormElement>> & FormExtensions = (props) => (
-  <form {...props} />
-);
+export const Form: FC<FormProps> & FormExtensions = (props) => <form {...props} />;
 
 Form.Input = FormInput;
 Form.Password = FormPassword;
@@ -26,5 +26,3 @@ Form.Checkbox = FormCheckbox;
 Form.Select = FormSelect;
 Form.Number = FormNumber;
 Form.Textarea = FormTextArea;
-
-export default Form;

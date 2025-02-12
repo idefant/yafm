@@ -12,7 +12,7 @@ interface DateFilterProps {
   options: DateFilterResult;
 }
 
-const DateFilter: FC<DateFilterProps> = ({ options }) => {
+export const DateFilter: FC<DateFilterProps> = ({ options }) => {
   const { date, periodType, setDate, setPeriodType } = options;
 
   const periodOptions = [
@@ -51,5 +51,3 @@ const DateFilter: FC<DateFilterProps> = ({ options }) => {
     </div>
   );
 };
-
-export default DateFilter;

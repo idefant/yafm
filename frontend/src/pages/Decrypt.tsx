@@ -16,7 +16,7 @@ import { transactionsReceived } from '#store/reducers/transactionsSlice';
 import { transactionTemplatesReceived } from '#store/reducers/transactionTemplatesSlice';
 import { Commit, CommitAction, updatedBaseMethods } from '#types/commitType';
 import { Button } from '#ui/Button';
-import Form from '#ui/Form';
+import { Form } from '#ui/Form';
 import { Title } from '#ui/Typography';
 import { actionCreator, committer } from '#utils/committer';
 import { compileBase } from '#utils/compileBase';
@@ -33,7 +33,7 @@ const formSchema = yup
   })
   .required();
 
-const Decrypt: FC = () => {
+export const Decrypt: FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
@@ -125,5 +125,3 @@ const Decrypt: FC = () => {
     </>
   );
 };
-
-export default Decrypt;

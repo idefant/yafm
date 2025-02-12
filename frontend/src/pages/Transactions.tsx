@@ -1,10 +1,20 @@
+import {
+  createColumnHelper,
+  getCoreRowModel,
+  getExpandedRowModel,
+  getGroupedRowModel,
+  Row,
+  useReactTable,
+} from '@tanstack/react-table';
+import BigNumber from 'bignumber.js';
 import dayjs from 'dayjs';
-import { FC, useMemo, useState } from 'react';
+import { FC, useCallback, useMemo, useState } from 'react';
 import Swal from 'sweetalert2';
+import { Except } from 'type-fest';
 
 import { useFetchRatesByPeriodQuery } from '#api/exratesApi';
 import { HeaderInfo } from '#components/Header';
-import { SetTransaction } from '#components/Transaction';
+import { SetTransaction, SetTransactionModalData } from '#components/Transaction';
 import { useAppSelector } from '#hooks/reduxHooks';
 import {
   selectAllTransactionsCombined,
@@ -13,25 +23,70 @@ import {
   selectVisibleTransactionCategories,
 } from '#store/selectors';
 import CopyIcon from '#svg/copy.svg?react';
-import InfoIcon from '#svg/info.svg?react';
 import PencilIcon from '#svg/pencil.svg?react';
 import PlusIcon from '#svg/plus.svg?react';
 import TrashIcon from '#svg/trash.svg?react';
-import { Transaction, TransactionCombined } from '#types/transactionType';
+import { OperationCombined, TransactionCombined } from '#types/transactionType';
 import { Button } from '#ui/Button';
 import { Card } from '#ui/Card';
-import DateFilter, { useDateFilter } from '#ui/DateFilter';
+import { DateFilter, useDateFilter } from '#ui/DateFilter';
 import { Grid } from '#ui/Grid';
 import { useModal } from '#ui/Modal';
 import { Select, SelectOption } from '#ui/Select';
-import Table, { Column, TableDate, TableOperations, TableTooltip, TableAction } from '#ui/Table';
-import { Title } from '#ui/Typography';
+import { HStack } from '#ui/Stack';
+import { SumValue } from '#ui/SumValue';
+import { SumValueList } from '#ui/SumValueList';
+import { Table } from '#ui/Table';
+import { Text, Title } from '#ui/Typography';
 import { actionCreator, committer } from '#utils/committer';
-import { groupBy } from '#utils/groupBy';
 import money from '#utils/money';
 import { compareObjByStr } from '#utils/string';
 
-const Transactions: FC = () => {
+type TransactionWithBaseSum = Except<TransactionCombined, 'operations'> & {
+  baseSum: BigNumber;
+  operations: (OperationCombined & { baseSum: BigNumber })[];
+};
+
+const columnHelper = createColumnHelper<TransactionWithBaseSum>();
+
+const columns = [
+  columnHelper.accessor('name', {
+    header: 'Name',
+    size: Number.MAX_SAFE_INTEGER,
+    cell: (info) => info.getValue(),
+  }),
+  columnHelper.accessor('datetime', {
+    header: 'Time',
+    size: 0,
+    getGroupingValue: (row) => dayjs(row.datetime).format('DD.MM.YYYY'),
+    cell: (info) => dayjs(info.getValue()).format('HH:mm'),
+  }),
+  columnHelper.accessor('category', {
+    header: 'Category',
+    size: 100,
+    cell: (info) => info.getValue()?.name,
+  }),
+  columnHelper.accessor('operations', {
+    header: 'Operations',
+    size: 0,
+    // eslint-disable-next-line react/no-unstable-nested-components
+    cell: (info) => (
+      <SumValueList
+        items={info.getValue().map(({ sum, account }) => ({
+          value: BigNumber(sum),
+          decimalPlacesNumber: account.currency.decimal_places_number,
+          currencyCode: account.currency_code,
+          description: account.name,
+        }))}
+      />
+    ),
+    meta: { justify: 'end' },
+  }),
+];
+
+const grouping = ['datetime'];
+
+export const Transactions: FC = () => {
   const { baseCurrencyCode } = useAppSelector((state) => state.currencies);
   const baseCurrency = useAppSelector((state) => selectCurrencyById(state, baseCurrencyCode));
   const categories = useAppSelector(selectVisibleTransactionCategories);
@@ -58,7 +113,7 @@ const Transactions: FC = () => {
     .sort((a, b) => compareObjByStr(a, b, (e) => e.name))
     .map((category) => ({ value: category.id, label: category.name }));
 
-  const transactionModal = useModal();
+  const transactionModal = useModal<SetTransactionModalData>();
   const filterData = useDateFilter();
   const { date, periodType } = filterData;
 
@@ -66,86 +121,67 @@ const Transactions: FC = () => {
     period: filterData.date.format(filterData.periodType === 'year' ? 'YYYY' : 'YYYY-MM'),
   });
 
-  const [openedTransaction, setOpenedTransaction] = useState<Transaction>();
-  const [copiedTransaction, setCopiedTransaction] = useState<Transaction>();
+  const transactionsWithBaseSum = useMemo(
+    () =>
+      transactions.map((transaction) => {
+        const operations = transaction.operations.map((operation) => ({
+          ...operation,
+          baseSum: money(operation.sum, operation.account.currency_code).to(
+            baseCurrencyCode,
+            prices?.[dayjs(transaction.datetime).format('YYYY-MM-DD')],
+          ).value,
+        }));
 
-  const openTransaction = (transaction?: Transaction) => {
-    setOpenedTransaction(transaction);
-    setCopiedTransaction(undefined);
-    transactionModal.open();
-  };
+        return {
+          ...transaction,
+          operations,
+          baseSum: BigNumber.sum(...operations.map((operation) => operation.baseSum)),
+        };
+      }),
+    [baseCurrencyCode, prices, transactions],
+  );
 
-  const copyTransaction = (transaction: Transaction) => {
-    setOpenedTransaction(undefined);
-    setCopiedTransaction(transaction);
-    transactionModal.open();
-  };
-
-  const transactionGroups = useMemo(() => {
-    const filteredTransactions = transactions
-      .filter((transaction) => {
-        const datetime = dayjs(transaction.datetime);
-        return datetime > date.startOf(periodType) && datetime < date.endOf(periodType);
-      })
-      .filter((transaction) => {
-        if (selectedCategoryIds.size === 0) return true;
-        return transaction.category_id && selectedCategoryIds.has(transaction.category_id);
-      })
-      .filter((transaction) => {
-        if (selectedAccountsIds.size === 0) return true;
-        return transaction.operations.some((operation) =>
-          selectedAccountsIds.has(operation.account_id),
-        );
-      })
-      .sort((a, b) => b.datetime - a.datetime);
-
-    const transactionGroups = groupBy(filteredTransactions, (transaction) =>
-      dayjs(transaction.datetime).format('DD.MM.YYYY'),
-    );
-
-    return Object.entries(transactionGroups).map(([date, transactions]) => {
-      const groupSum = money
-        .sum(
-          transactions
-            .map((transaction) =>
-              transaction.operations.map((operation) => ({ ...operation, transaction })),
+  const filteredTransactions = useMemo(
+    () =>
+      transactionsWithBaseSum
+        .sort((a, b) => a.datetime - b.datetime)
+        .toReversed()
+        .filter((transaction) => {
+          const datetime = dayjs(transaction.datetime);
+          if (datetime.isBefore(date, periodType) || datetime.isAfter(date, periodType))
+            return false;
+          if (selectedCategoryIds.size > 0) {
+            if (!transaction.category_id || !selectedCategoryIds.has(transaction.category_id))
+              return false;
+          }
+          if (selectedAccountsIds.size > 0) {
+            if (
+              !transaction.operations.some((operation) =>
+                selectedAccountsIds.has(operation.account_id),
+              )
             )
-            .flat()
-            .map((operation) => ({
-              value: operation.sum,
-              currency: operation.account.currency_code,
-              rates: prices?.[dayjs(operation.transaction.datetime).format('YYYY-MM-DD')],
-            })),
-          baseCurrencyCode,
-        )
-        .value.decimalPlaces(baseCurrency?.decimal_places_number || 0)
-        .toFormat();
+              return false;
+          }
+          return true;
+        }),
+    [date, periodType, selectedAccountsIds, selectedCategoryIds, transactionsWithBaseSum],
+  );
 
-      return {
-        name: (
-          <div className="flex justify-between">
-            <div>{date}</div>
-            <div>
-              {groupSum} {baseCurrencyCode}
-            </div>
-          </div>
-        ),
-        data: transactions,
-        key: date,
-      };
-    });
-  }, [
-    baseCurrency?.decimal_places_number,
-    baseCurrencyCode,
-    date,
-    periodType,
-    prices,
-    selectedAccountsIds,
-    selectedCategoryIds,
-    transactions,
-  ]);
+  const table = useReactTable({
+    groupedColumnMode: false,
+    state: {
+      grouping,
+      expanded: true,
+    },
+    data: filteredTransactions,
+    columns,
+    getRowId: (original) => original.id,
+    getCoreRowModel: getCoreRowModel(),
+    getGroupedRowModel: getGroupedRowModel(),
+    getExpandedRowModel: getExpandedRowModel(),
+  });
 
-  const confirmDelete = (transaction: TransactionCombined) => {
+  const confirmDelete = useCallback((transaction: TransactionCombined) => {
     Swal.fire({
       title: 'Delete transaction',
       icon: 'error',
@@ -158,52 +194,52 @@ const Transactions: FC = () => {
         committer(actionCreator.deleteTransaction(transaction.id)).sync();
       }
     });
-  };
+  }, []);
 
-  const tableColumns: Column<TransactionCombined>[] = [
-    {
-      title: 'Name',
-      key: 'name',
-    },
-    {
-      title: 'Date',
-      key: 'datetime',
-      render: ({ record }) => <TableDate date={dayjs(record.datetime)} />,
-    },
-    {
-      title: 'Category',
-      key: 'category.name',
-      cellClassName: 'text-center',
-    },
-    {
-      title: 'Outcome',
-      key: 'outcome',
-      render: ({ record }) => <TableOperations operations={record.operations} isPositive={false} />,
-    },
-    {
-      title: 'Income',
-      key: 'income',
-      render: ({ record }) => <TableOperations operations={record.operations} isPositive />,
-    },
-    {
-      title: <InfoIcon className="w-6 h-6 mx-auto" />,
-      key: 'description',
-      width: 'min',
-      render: ({ record }) => <TableTooltip>{record.description}</TableTooltip>,
-    },
-    {
-      key: 'actions',
-      cellClassName: '!p-0',
-      width: 'min',
-      render: ({ record }) => (
-        <div className="flex">
-          <TableAction onClick={() => copyTransaction(record)} icon={CopyIcon} />
-          <TableAction onClick={() => openTransaction(record)} icon={PencilIcon} />
-          <TableAction onClick={() => confirmDelete(record)} icon={TrashIcon} />
-        </div>
-      ),
-    },
-  ];
+  const renderGroupCell = useCallback(
+    (row: Row<TransactionWithBaseSum>) => (
+      <HStack justify="spaceBetween" grow={1}>
+        <Text color="secondary" size="sm" weight="bold">
+          {dayjs(row.original.datetime).format('DD.MM.YYYY, dddd')}
+        </Text>
+        <SumValue
+          value={row.original.baseSum}
+          currencyCode={baseCurrencyCode}
+          decimalPlacesNumber={baseCurrency?.decimal_places_number || 2}
+          color="secondary"
+          size="sm"
+          weight="bold"
+        />
+      </HStack>
+    ),
+    [baseCurrency?.decimal_places_number, baseCurrencyCode],
+  );
+
+  const getRowContextMenu = useCallback(
+    (row: Row<TransactionWithBaseSum>) => ({
+      items: [
+        {
+          key: 'edit',
+          label: 'Edit',
+          icon: PencilIcon,
+          onClick: () => transactionModal.open({ transaction: row.original, method: 'edit' }),
+        },
+        {
+          key: 'copy',
+          label: 'Copy',
+          icon: CopyIcon,
+          onClick: () => transactionModal.open({ transaction: row.original, method: 'copy' }),
+        },
+        {
+          key: 'delete',
+          label: 'Delete',
+          icon: TrashIcon,
+          onClick: () => confirmDelete(row.original),
+        },
+      ],
+    }),
+    [confirmDelete, transactionModal],
+  );
 
   return (
     <>
@@ -214,7 +250,7 @@ const Transactions: FC = () => {
             color="success"
             size="sm"
             startIcon={<PlusIcon />}
-            onClick={() => openTransaction()}
+            onClick={() => transactionModal.open({ method: 'create' })}
           >
             Add
           </Button>
@@ -263,23 +299,20 @@ const Transactions: FC = () => {
               </Title>
 
               <Table
-                columns={tableColumns}
-                dataGroups={transactionGroups}
-                className={{ table: 'w-full' }}
+                table={table}
+                fullWidth
+                renderGroupCell={renderGroupCell}
+                rowContextMenu={getRowContextMenu}
+                rowOnClick={(row) =>
+                  transactionModal.open({ transaction: row.original, method: 'edit' })
+                }
               />
             </Card.Content>
           </Card>
         </Grid.Item>
       </Grid>
 
-      <SetTransaction
-        isOpen={transactionModal.isOpen}
-        close={transactionModal.close}
-        transaction={openedTransaction}
-        copiedTransaction={copiedTransaction}
-      />
+      <SetTransaction modal={transactionModal} />
     </>
   );
 };
-
-export default Transactions;

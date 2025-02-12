@@ -3,9 +3,9 @@ import { FC } from 'react';
 import { HeaderInfo } from '#components/Header';
 import { Grid } from '#ui/Grid';
 
-import CategoriesPart from './CategoriesPart';
+import { CategoriesPart } from './CategoriesPart';
 
-const Categories: FC = () => (
+export const Categories: FC = () => (
   <>
     <HeaderInfo title="Categories" />
 
@@ -20,5 +20,3 @@ const Categories: FC = () => (
     </Grid>
   </>
 );
-
-export default Categories;

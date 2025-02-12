@@ -9,6 +9,7 @@ import { BrowserRouter } from 'react-router-dom';
 
 import { store } from '#store';
 import { DialogModalContainer } from '#ui/Modal';
+import { ScrollLockWatcher } from '#ui/ScrollLock';
 
 import App from './App';
 
@@ -30,6 +31,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       <BrowserRouter>
         <App />
         <DialogModalContainer />
+        <ScrollLockWatcher />
       </BrowserRouter>
     </Provider>
   </React.StrictMode>,

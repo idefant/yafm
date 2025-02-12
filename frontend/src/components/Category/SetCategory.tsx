@@ -4,16 +4,25 @@ import { FormProvider, useForm } from 'react-hook-form';
 
 import { Category, CategoryType } from '#types/categoryType';
 import { Button } from '#ui/Button';
-import Form from '#ui/Form';
-import { Modal } from '#ui/Modal';
+import { Form } from '#ui/Form';
+import { Modal, UseModalReturn } from '#ui/Modal';
 import { actionCreator, committer } from '#utils/committer';
 import yup from '#utils/form/schema';
 
+export type SetCategoryModalData =
+  | {
+      method: 'create';
+      category?: undefined;
+      categoryType: CategoryType;
+    }
+  | {
+      method: 'edit';
+      category: Category;
+      categoryType: CategoryType;
+    };
+
 interface SetCategoryProps {
-  isOpen: boolean;
-  close: () => void;
-  category?: Category;
-  categoryType: CategoryType;
+  modal: UseModalReturn<SetCategoryModalData>;
 }
 
 type TForm = {
@@ -28,40 +37,45 @@ const formSchema = yup
   })
   .required();
 
-const SetCategory: FC<SetCategoryProps> = ({ isOpen, close, category, categoryType }) => {
+export const SetCategory: FC<SetCategoryProps> = ({ modal }) => {
   const formId = useId();
 
   const methods = useForm<TForm>({ resolver: yupResolver(formSchema) });
   const { handleSubmit, reset } = methods;
 
   const onSubmit = async (values: TForm) => {
+    if (!modal.isOpen) return;
+
     const categoryData = {
       name: values.name,
       is_archive: values.isArchive || undefined,
     };
 
-    if (!category) {
-      if (categoryType === 'accounts') {
+    if (modal.data.method === 'create') {
+      if (modal.data.categoryType === 'accounts') {
         committer(actionCreator.createAccountCategory(categoryData)).sync();
       }
-      if (categoryType === 'transactions') {
+      if (modal.data.categoryType === 'transactions') {
         committer(actionCreator.createTransactionCategory(categoryData)).sync();
       }
     } else {
-      if (categoryType === 'accounts') {
-        committer(actionCreator.updateAccountCategory(category.id, categoryData)).sync();
+      if (modal.data.categoryType === 'accounts') {
+        committer(actionCreator.updateAccountCategory(modal.data.category.id, categoryData)).sync();
       }
-      if (categoryType === 'transactions') {
-        committer(actionCreator.updateTransactionCategory(category.id, categoryData)).sync();
+      if (modal.data.categoryType === 'transactions') {
+        committer(
+          actionCreator.updateTransactionCategory(modal.data.category.id, categoryData),
+        ).sync();
       }
     }
-    close();
+    modal.close();
   };
 
   const onOpen = () => {
+    if (!modal.isOpen) return;
     reset({
-      name: category?.name || '',
-      isArchive: category?.is_archive || false,
+      name: modal.data.category?.name || '',
+      isArchive: modal.data.category?.is_archive || false,
     });
   };
 
@@ -69,9 +83,9 @@ const SetCategory: FC<SetCategoryProps> = ({ isOpen, close, category, categoryTy
 
   return (
     <Modal
-      title={category ? 'Edit Category' : 'Create Category'}
-      isOpen={isOpen}
-      close={close}
+      title={modal.data?.method === 'create' ? 'Create Category' : 'Edit Category'}
+      isOpen={modal.isOpen}
+      close={modal.close}
       onOpen={onOpen}
       onExited={onExited}
     >
@@ -80,13 +94,15 @@ const SetCategory: FC<SetCategoryProps> = ({ isOpen, close, category, categoryTy
           <Form onSubmit={handleSubmit(onSubmit)} id={formId}>
             <Form.Input label="Name" name="name" />
 
-            {category && <Form.Checkbox name="isArchive">Archive</Form.Checkbox>}
+            {modal.data?.method === 'edit' && (
+              <Form.Checkbox name="isArchive">Archive</Form.Checkbox>
+            )}
           </Form>
         </FormProvider>
       </Modal.Content>
 
       <Modal.Footer>
-        <Button color="secondary" onClick={close}>
+        <Button color="secondary" onClick={modal.close}>
           Cancel
         </Button>
         <Button type="submit" form={formId}>
@@ -96,5 +112,3 @@ const SetCategory: FC<SetCategoryProps> = ({ isOpen, close, category, categoryTy
     </Modal>
   );
 };
-
-export default SetCategory;

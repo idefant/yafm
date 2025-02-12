@@ -1,4 +1,2 @@
-import ChooseTemplate from './ChooseTemplate';
-import SetTemplate from './SetTemplate';
-
-export { ChooseTemplate, SetTemplate };
+export * from './SetTemplate';
+export * from './ChooseTemplate';

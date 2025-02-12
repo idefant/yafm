@@ -38,6 +38,7 @@ export interface FlexProps extends HTMLAttributes<HTMLDivElement> {
   align?: FlexAlign;
   wrap?: FlexWrap;
   gap?: FlexGap;
+  grow?: number;
 }
 
 export const Flex: FC<FlexProps> = ({
@@ -46,6 +47,7 @@ export const Flex: FC<FlexProps> = ({
   align = 'normal',
   wrap = 'nowrap',
   gap,
+  grow,
   className,
   style,
   ...props
@@ -59,7 +61,7 @@ export const Flex: FC<FlexProps> = ({
       wrapClasses[wrap],
       className,
     )}
-    style={{ gap, ...style }}
+    style={{ gap, flexGrow: grow, ...style }}
     {...props}
   />
 );

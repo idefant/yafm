@@ -11,7 +11,7 @@ import { sum } from '#utils/sum';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const AccountsPie: FC = () => {
+export const AccountsPie: FC = () => {
   const currencies = useAppSelector(selectCurrencies);
   const currenciesBalanceDict = useAppSelector(selectCurrenciesBalanceDict);
   const { baseCurrencyCode } = useAppSelector((state) => state.currencies);
@@ -79,5 +79,3 @@ const AccountsPie: FC = () => {
     />
   );
 };
-
-export default AccountsPie;

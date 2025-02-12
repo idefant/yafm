@@ -1,3 +1,1 @@
-import SetTransaction from './SetTransaction';
-
-export { SetTransaction };
+export * from './SetTransaction';

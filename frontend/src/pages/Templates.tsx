@@ -1,34 +1,103 @@
-import { FC, useState } from 'react';
+import { createColumnHelper, getCoreRowModel, Row, useReactTable } from '@tanstack/react-table';
+import BigNumber from 'bignumber.js';
+import { FC, useCallback, useMemo } from 'react';
 import Swal from 'sweetalert2';
+import { Except } from 'type-fest';
 
+import { useFetchLastRatesQuery } from '#api/exratesApi';
 import { HeaderInfo } from '#components/Header';
-import { SetTemplate } from '#components/Template';
+import { SetTemplate, SetTemplateModalData } from '#components/Template';
 import { useAppSelector } from '#hooks/reduxHooks';
 import { selectAllTransactionTemplatesCombined } from '#store/selectors';
-import InfoIcon from '#svg/info.svg?react';
 import PencilIcon from '#svg/pencil.svg?react';
 import PlusIcon from '#svg/plus.svg?react';
 import TrashIcon from '#svg/trash.svg?react';
-import { TransactionTemplate } from '#types/transactionType';
+import {
+  OperationCombined,
+  TransactionTemplate,
+  TransactionTemplateCombined,
+} from '#types/transactionType';
 import { Button } from '#ui/Button';
 import { Card } from '#ui/Card';
 import { useModal } from '#ui/Modal';
-import Table, { Column, TableOperations, TableTooltip, TableAction } from '#ui/Table';
+import { SumValueList } from '#ui/SumValueList';
+import { Table } from '#ui/Table';
 import { Title } from '#ui/Typography';
 import { actionCreator, committer } from '#utils/committer';
+import money from '#utils/money';
 
-const Templates: FC = () => {
+type TransactionTemplateWithBaseSum = Except<TransactionTemplateCombined, 'operations'> & {
+  baseSum: BigNumber;
+  operations: (OperationCombined & { baseSum: BigNumber })[];
+};
+
+const columnHelper = createColumnHelper<TransactionTemplateWithBaseSum>();
+
+const columns = [
+  columnHelper.accessor('name', {
+    header: 'Name',
+    size: Number.MAX_SAFE_INTEGER,
+    cell: (info) => info.getValue(),
+  }),
+  columnHelper.accessor('category', {
+    header: 'Category',
+    size: 100,
+    cell: (info) => info.getValue()?.name,
+  }),
+  columnHelper.accessor('operations', {
+    header: 'Operations',
+    size: 0,
+    // eslint-disable-next-line react/no-unstable-nested-components
+    cell: (info) => (
+      <SumValueList
+        items={info.getValue().map(({ sum, account }) => ({
+          value: BigNumber(sum),
+          decimalPlacesNumber: account.currency.decimal_places_number,
+          currencyCode: account.currency_code,
+          description: account.name,
+        }))}
+      />
+    ),
+    meta: { justify: 'end' },
+  }),
+];
+
+export const Templates: FC = () => {
   const templates = useAppSelector(selectAllTransactionTemplatesCombined);
+  const { baseCurrencyCode } = useAppSelector((state) => state.currencies);
 
-  const templateModal = useModal();
-  const [openedTemplate, setOpenedTemplate] = useState<TransactionTemplate>();
+  const templateModal = useModal<SetTemplateModalData>();
 
-  const openTemplate = (template?: TransactionTemplate) => {
-    setOpenedTemplate(template);
-    templateModal.open();
-  };
+  const { data: prices } = useFetchLastRatesQuery({});
 
-  const confirmDelete = (template: TransactionTemplate) => {
+  const templatesWithBaseSum = useMemo(
+    () =>
+      templates.map((template) => {
+        const operations = template.operations.map((operation) => ({
+          ...operation,
+          baseSum: money(operation.sum, operation.account.currency_code).to(
+            baseCurrencyCode,
+            prices?.rates,
+          ).value,
+        }));
+
+        return {
+          ...template,
+          operations,
+          baseSum: BigNumber.sum(...operations.map((operation) => operation.baseSum)),
+        };
+      }),
+    [baseCurrencyCode, prices?.rates, templates],
+  );
+
+  const table = useReactTable({
+    data: templatesWithBaseSum,
+    columns,
+    getRowId: (original) => original.id,
+    getCoreRowModel: getCoreRowModel(),
+  });
+
+  const confirmDelete = useCallback((template: TransactionTemplate) => {
     Swal.fire({
       title: 'Delete template',
       icon: 'error',
@@ -41,53 +110,39 @@ const Templates: FC = () => {
         committer(actionCreator.deleteTransactionTemplate(template.id)).sync();
       }
     });
-  };
+  }, []);
 
-  const tableColumns: Column<(typeof templates)[number]>[] = [
-    {
-      title: 'Name',
-      key: 'name',
-    },
-    {
-      title: 'Category',
-      key: 'category.name',
-      cellClassName: 'text-center',
-    },
-    {
-      title: 'Outcome',
-      key: 'outcome',
-      render: ({ record }) => <TableOperations operations={record.operations} isPositive={false} />,
-    },
-    {
-      title: 'Income',
-      key: 'income',
-      render: ({ record }) => <TableOperations operations={record.operations} isPositive />,
-    },
-    {
-      title: <InfoIcon className="w-6 h-6 mx-auto" />,
-      key: 'description',
-      width: 'min',
-      render: ({ record }) => <TableTooltip>{record.description}</TableTooltip>,
-    },
-    {
-      key: 'actions',
-      cellClassName: '!p-0',
-      width: 'min',
-      render: ({ record }) => (
-        <div className="flex">
-          <TableAction onClick={() => openTemplate(record)} icon={PencilIcon} />
-          <TableAction onClick={() => confirmDelete(record)} icon={TrashIcon} />
-        </div>
-      ),
-    },
-  ];
+  const getRowContextMenu = useCallback(
+    (row: Row<TransactionTemplateWithBaseSum>) => ({
+      items: [
+        {
+          key: 'edit',
+          label: 'Edit',
+          icon: PencilIcon,
+          onClick: () => templateModal.open({ method: 'edit', template: row.original }),
+        },
+        {
+          key: 'delete',
+          label: 'Delete',
+          icon: TrashIcon,
+          onClick: () => confirmDelete(row.original),
+        },
+      ],
+    }),
+    [confirmDelete, templateModal],
+  );
 
   return (
     <>
       <HeaderInfo
         title="Templates"
         endAddition={
-          <Button color="success" size="sm" startIcon={<PlusIcon />} onClick={() => openTemplate()}>
+          <Button
+            color="success"
+            size="sm"
+            startIcon={<PlusIcon />}
+            onClick={() => templateModal.open({ method: 'create' })}
+          >
             Create
           </Button>
         }
@@ -100,17 +155,16 @@ const Templates: FC = () => {
             List of Templates
           </Title>
 
-          <Table columns={tableColumns} data={templates} className={{ table: 'w-full' }} />
+          <Table
+            table={table}
+            fullWidth
+            rowContextMenu={getRowContextMenu}
+            rowOnClick={(row) => templateModal.open({ method: 'edit', template: row.original })}
+          />
         </Card.Content>
       </Card>
 
-      <SetTemplate
-        isOpen={templateModal.isOpen}
-        close={templateModal.close}
-        template={openedTemplate}
-      />
+      <SetTemplate modal={templateModal} />
     </>
   );
 };
-
-export default Templates;

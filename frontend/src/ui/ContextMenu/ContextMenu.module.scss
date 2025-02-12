@@ -1,0 +1,40 @@
+.ContextMenu {
+  outline: 0;
+  background-color: var(--context-menu-bg);
+  padding: 4px;
+  border-radius: 8px;
+  box-shadow: var(--paper-shadow);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  cursor: pointer;
+  background-color: transparent;
+  border: none;
+  border-radius: 6px;
+  outline: 0;
+  padding: 6px 10px;
+
+  &:hover {
+    background-color: var(--context-menu-item-hovered);
+  }
+
+  &:focus,
+  &:not([disabled]):active {
+    background: var(--context-menu-item-active);
+  }
+
+  &Icon {
+    color: var(--primary-color);
+    width: auto;
+    height: 18px;
+  }
+
+  &Label {
+    color: var(--primary-color);
+    font-size: var(--text-size-lg);
+  }
+}

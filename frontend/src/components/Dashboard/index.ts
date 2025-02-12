@@ -1,4 +1,2 @@
-import DashboardBalanceHistoryChart from './DashboardBalanceHistoryChart';
-import DashboardCategoryChart from './DashboardCategoryChart';
-
-export { DashboardBalanceHistoryChart, DashboardCategoryChart };
+export * from './DashboardBalanceHistoryChart';
+export * from './DashboardCategoryChart';

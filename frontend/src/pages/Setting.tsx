@@ -4,7 +4,7 @@ import { HeaderInfo } from '#components/Header';
 import { SettingChangePassword, SettingBackup } from '#components/Setting';
 import { Grid } from '#ui/Grid';
 
-const Setting: FC = () => (
+export const Setting: FC = () => (
   <>
     <HeaderInfo title="Settings" />
 
@@ -19,5 +19,3 @@ const Setting: FC = () => (
     </Grid>
   </>
 );
-
-export default Setting;

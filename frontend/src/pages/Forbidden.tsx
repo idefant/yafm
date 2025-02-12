@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 import { appRoutes } from '#data/routes';
 
-const Forbidden: FC = () => (
+export const Forbidden: FC = () => (
   <div>
     <div>
       У вас недостаточно прав для доступа к сервису. За более подробной информацией обратитесь к
@@ -14,5 +14,3 @@ const Forbidden: FC = () => (
     </Link>
   </div>
 );
-
-export default Forbidden;

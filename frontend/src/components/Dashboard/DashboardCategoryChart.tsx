@@ -26,7 +26,7 @@ interface DashboardCategoryChartProps {
   rates?: components['schemas']['DateRates'];
 }
 
-const DashboardCategoryChart: FC<DashboardCategoryChartProps> = ({ filterData, rates }) => {
+export const DashboardCategoryChart: FC<DashboardCategoryChartProps> = ({ filterData, rates }) => {
   const transactions = useAppSelector(selectAllTransactionsCombined);
   const categoriesEntities = useAppSelector(selectAllTransactionCategoriesEntities);
   const { baseCurrencyCode } = useAppSelector((state) => state.currencies);
@@ -144,5 +144,3 @@ const DashboardCategoryChart: FC<DashboardCategoryChartProps> = ({ filterData, r
     </Grid>
   );
 };
-
-export default DashboardCategoryChart;

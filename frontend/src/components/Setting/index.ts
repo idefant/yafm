@@ -1,4 +1,2 @@
-import SettingBackup from './SettingBackup';
-import SettingChangePassword from './SettingChangePassword';
-
-export { SettingBackup, SettingChangePassword };
+export * from './SettingBackup';
+export * from './SettingChangePassword';

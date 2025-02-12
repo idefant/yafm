@@ -27,7 +27,7 @@ interface DashboardBalanceHistoryChartProps {
   rates?: components['schemas']['DateRates'];
 }
 
-const DashboardBalanceHistoryChart: FC<DashboardBalanceHistoryChartProps> = ({
+export const DashboardBalanceHistoryChart: FC<DashboardBalanceHistoryChartProps> = ({
   filterData,
   rates,
 }) => {
@@ -181,5 +181,3 @@ const DashboardBalanceHistoryChart: FC<DashboardBalanceHistoryChartProps> = ({
     </Card>
   );
 };
-
-export default DashboardBalanceHistoryChart;

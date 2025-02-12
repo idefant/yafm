@@ -1,11 +1,13 @@
+import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table';
+import BigNumber from 'bignumber.js';
 import { FC } from 'react';
 
 import { useAppSelector } from '#hooks/reduxHooks';
 import { selectAllTransactionTemplatesCombined } from '#store/selectors';
-import InfoIcon from '#svg/info.svg?react';
 import { TransactionTemplate, TransactionTemplateCombined } from '#types/transactionType';
 import { Modal } from '#ui/Modal';
-import Table, { Column, TableOperations, TableTooltip } from '#ui/Table';
+import { SumValueList } from '#ui/SumValueList';
+import { Table } from '#ui/Table';
 
 interface ChooseTemplateProps {
   isOpen: boolean;
@@ -14,58 +16,57 @@ interface ChooseTemplateProps {
   setTransaction: (template: TransactionTemplate) => void;
 }
 
-const ChooseTemplate: FC<ChooseTemplateProps> = ({ isOpen, close, setTransaction }) => {
+const columnHelper = createColumnHelper<TransactionTemplateCombined>();
+
+const columns = [
+  columnHelper.accessor('name', {
+    header: 'Name',
+    size: Number.MAX_SAFE_INTEGER,
+    cell: (info) => info.getValue(),
+  }),
+  columnHelper.accessor('category', {
+    header: 'Category',
+    size: 100,
+    cell: (info) => info.getValue()?.name,
+  }),
+  columnHelper.accessor('operations', {
+    header: 'Operations',
+    size: 0,
+    // eslint-disable-next-line react/no-unstable-nested-components
+    cell: (info) => (
+      <SumValueList
+        items={info.getValue().map(({ sum, account }) => ({
+          value: BigNumber(sum),
+          decimalPlacesNumber: account.currency.decimal_places_number,
+          currencyCode: account.currency_code,
+          description: account.name,
+        }))}
+      />
+    ),
+    meta: { justify: 'end' },
+  }),
+];
+
+export const ChooseTemplate: FC<ChooseTemplateProps> = ({ isOpen, close, setTransaction }) => {
   const templates = useAppSelector(selectAllTransactionTemplatesCombined);
+
+  const table = useReactTable({
+    data: templates,
+    columns,
+    getRowId: (original) => original.id,
+    getCoreRowModel: getCoreRowModel(),
+  });
 
   const chooseTemplate = (template: TransactionTemplate) => {
     setTransaction(template);
     close();
   };
 
-  const tableColumns: Column<TransactionTemplateCombined>[] = [
-    {
-      key: 'choose',
-      render: ({ record }) => (
-        <button onClick={() => chooseTemplate(record)} type="button" aria-label="choose template">
-          choose
-        </button>
-      ),
-    },
-    {
-      title: 'Name',
-      key: 'name',
-    },
-    {
-      title: 'Category',
-      key: 'category',
-      cellClassName: 'text-center',
-      render: ({ record }) => record.category?.name,
-    },
-    {
-      title: 'Outcome',
-      key: 'outcome',
-      render: ({ record }) => <TableOperations operations={record.operations} isPositive={false} />,
-    },
-    {
-      title: 'Income',
-      key: 'income',
-      render: ({ record }) => <TableOperations operations={record.operations} isPositive />,
-    },
-    {
-      title: <InfoIcon className="w-6 h-6 mx-auto" />,
-      key: 'description',
-      width: 'min',
-      render: ({ record }) => <TableTooltip>{record.description}</TableTooltip>,
-    },
-  ];
-
   return (
     <Modal title="Choose Template" isOpen={isOpen} close={close}>
       <Modal.Content>
-        <Table columns={tableColumns} data={templates} className={{ table: 'w-full' }} />
+        <Table table={table} fullWidth rowOnClick={(row) => chooseTemplate(row.original)} />
       </Modal.Content>
     </Modal>
   );
 };
-
-export default ChooseTemplate;

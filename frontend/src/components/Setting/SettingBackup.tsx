@@ -5,7 +5,7 @@ import { FormProvider, useForm } from 'react-hook-form';
 
 import { Button } from '#ui/Button';
 import { Card } from '#ui/Card';
-import Form from '#ui/Form';
+import { Form } from '#ui/Form';
 import { Title } from '#ui/Typography';
 import { crypt } from '#utils/crypt';
 import { exportJsonFile } from '#utils/file';
@@ -23,7 +23,7 @@ const formSchema = yup
   })
   .required();
 
-const SettingBackup: FC = () => {
+export const SettingBackup: FC = () => {
   const formId = useId();
   const methods = useForm<TForm>({ resolver: yupResolver(formSchema) });
   const { handleSubmit } = methods;
@@ -67,5 +67,3 @@ const SettingBackup: FC = () => {
     </Card>
   );
 };
-
-export default SettingBackup;

@@ -1,0 +1,4 @@
+html:has(.yafm_Popup, div[data-floating-ui-inert]) {
+  overflow: hidden;
+  padding-right: var(--scrollbar-width);
+}

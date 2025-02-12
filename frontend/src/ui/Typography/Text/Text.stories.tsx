@@ -49,6 +49,12 @@ export const Secondary: Story = {
   },
 };
 
+export const Success: Story = {
+  args: {
+    color: 'success',
+  },
+};
+
 export const Danger: Story = {
   args: {
     color: 'danger',
@@ -73,5 +79,23 @@ export const AlignRight: Story = {
   args: {
     align: 'right',
     block: true,
+  },
+};
+
+export const Regular: Story = {
+  args: {
+    weight: 'regular',
+  },
+};
+
+export const SemiBold: Story = {
+  args: {
+    weight: 'semiBold',
+  },
+};
+
+export const Bold: Story = {
+  args: {
+    weight: 'bold',
   },
 };

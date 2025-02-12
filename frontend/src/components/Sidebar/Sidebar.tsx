@@ -24,7 +24,7 @@ const navItems: { label: string; link: string; icon: FunctionComponent }[] = [
   { label: 'Settings', link: appRoutes.settings, icon: SettingsIcon },
 ];
 
-const Sidebar: FC = () => (
+export const Sidebar: FC = () => (
   <aside className={classNames(cls.Sidebar)}>
     <div className={cls.logoContainer}>
       <Logo />
@@ -43,5 +43,3 @@ const Sidebar: FC = () => (
     </nav>
   </aside>
 );
-
-export default Sidebar;

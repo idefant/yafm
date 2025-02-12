@@ -6,17 +6,19 @@ import { useAppSelector } from '#hooks/reduxHooks';
 import { selectCurrencies, selectVisibleAccountCategories } from '#store/selectors';
 import { Account } from '#types/accountType';
 import { Button } from '#ui/Button';
-import Form from '#ui/Form';
-import { Modal } from '#ui/Modal';
+import { Form } from '#ui/Form';
+import { Modal, UseModalReturn } from '#ui/Modal';
 import { actionCreator, committer } from '#utils/committer';
 import yup from '#utils/form/schema';
 import { groupBy } from '#utils/groupBy';
 import { compareObjByStr } from '#utils/string';
 
+export type SetAccountModalData =
+  | { method: 'create'; account?: undefined }
+  | { method: 'edit'; account: Account };
+
 interface SetAccountProps {
-  account?: Account;
-  isOpen: boolean;
-  close: () => void;
+  modal: UseModalReturn<SetAccountModalData>;
 }
 
 type TForm = {
@@ -33,7 +35,7 @@ const formSchema = yup.object({
   isArchive: yup.boolean(),
 });
 
-const SetAccount: FC<SetAccountProps> = ({ isOpen, close, account }) => {
+export const SetAccount: FC<SetAccountProps> = ({ modal }) => {
   const formId = useId();
 
   const currencies = useAppSelector(selectCurrencies);
@@ -43,20 +45,19 @@ const SetAccount: FC<SetAccountProps> = ({ isOpen, close, account }) => {
   const { handleSubmit, reset } = methods;
 
   const onSubmit = async (values: TForm) => {
+    if (!modal.isOpen) return;
     const accountData = {
       name: values.name,
       category_id: values.categoryId || undefined,
       is_archive: values.isArchive || undefined,
     };
 
-    if (account) {
-      committer(actionCreator.updateAccount(account.id, accountData)).sync();
-    } else {
-      committer(
-        actionCreator.createAccount({ currency_code: values.currencyCode || '', ...accountData }),
-      ).sync();
-    }
-    close();
+    committer(
+      modal.data.method === 'create'
+        ? actionCreator.createAccount({ currency_code: values.currencyCode || '', ...accountData })
+        : actionCreator.updateAccount(modal.data.account.id, accountData),
+    ).sync();
+    modal.close();
   };
 
   const currencyOptGroups = Object.entries(groupBy(currencies, 'type')).map(
@@ -71,11 +72,12 @@ const SetAccount: FC<SetAccountProps> = ({ isOpen, close, account }) => {
     .map((category) => ({ value: category.id, label: category.name }));
 
   const onOpening = () => {
+    if (!modal.isOpen) return;
     reset({
-      name: account?.name || '',
-      currencyCode: account?.currency_code || null,
-      categoryId: account?.category_id || null,
-      isArchive: account?.is_archive || false,
+      name: modal.data.account?.name || '',
+      currencyCode: modal.data.account?.currency_code || null,
+      categoryId: modal.data.account?.category_id || null,
+      isArchive: modal.data.account?.is_archive || false,
     });
   };
 
@@ -83,9 +85,9 @@ const SetAccount: FC<SetAccountProps> = ({ isOpen, close, account }) => {
 
   return (
     <Modal
-      title={account ? 'Edit Account' : 'Create Account'}
-      isOpen={isOpen}
-      close={close}
+      title={modal.data?.method === 'create' ? 'Create Account' : 'Edit Account'}
+      isOpen={modal.isOpen}
+      close={modal.close}
       onOpening={onOpening}
       onExited={onExited}
     >
@@ -93,7 +95,7 @@ const SetAccount: FC<SetAccountProps> = ({ isOpen, close, account }) => {
         <FormProvider {...methods}>
           <Form onSubmit={handleSubmit(onSubmit)} id={formId}>
             <Form.Input label="Name" name="name" />
-            {!account && (
+            {modal.data?.method === 'create' && (
               <Form.Select
                 label="Currency"
                 placeholder="Choose currency..."
@@ -110,13 +112,15 @@ const SetAccount: FC<SetAccountProps> = ({ isOpen, close, account }) => {
               name="categoryId"
             />
 
-            {account && <Form.Checkbox name="isArchive">Archive</Form.Checkbox>}
+            {modal.data?.method === 'edit' && (
+              <Form.Checkbox name="isArchive">Archive</Form.Checkbox>
+            )}
           </Form>
         </FormProvider>
       </Modal.Content>
 
       <Modal.Footer>
-        <Button color="secondary" onClick={close}>
+        <Button color="secondary" onClick={modal.close}>
           Cancel
         </Button>
         <Button type="submit" form={formId}>
@@ -126,5 +130,3 @@ const SetAccount: FC<SetAccountProps> = ({ isOpen, close, account }) => {
     </Modal>
   );
 };
-
-export default SetAccount;

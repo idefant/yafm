@@ -1,7 +1,8 @@
-import { FC, useState } from 'react';
+import { createColumnHelper, getCoreRowModel, Row, useReactTable } from '@tanstack/react-table';
+import { FC, useCallback } from 'react';
 import Swal from 'sweetalert2';
 
-import { SetCategory } from '#components/Category';
+import { SetCategory, SetCategoryModalData } from '#components/Category';
 import { useAppSelector } from '#hooks/reduxHooks';
 import {
   selectAllAccounts,
@@ -19,7 +20,7 @@ import { Button } from '#ui/Button';
 import { Card } from '#ui/Card';
 import { useModal } from '#ui/Modal';
 import { HStack } from '#ui/Stack';
-import Table, { Column, TableAction } from '#ui/Table';
+import { Table } from '#ui/Table';
 import { Title } from '#ui/Typography';
 import { actionCreator, committer } from '#utils/committer';
 
@@ -32,90 +33,118 @@ const selectCategoryDict = {
   transactions: selectVisibleTransactionCategories,
 };
 
-const CategoriesPart: FC<CategoriesPartProps> = ({ categoryType }) => {
+const columnHelper = createColumnHelper<Category>();
+
+const columns = [
+  columnHelper.accessor('name', {
+    header: 'Name',
+    size: Number.MAX_SAFE_INTEGER,
+    cell: (info) => info.getValue(),
+  }),
+];
+
+export const CategoriesPart: FC<CategoriesPartProps> = ({ categoryType }) => {
   const categories = useAppSelector(selectCategoryDict[categoryType]);
   const accounts = useAppSelector(selectAllAccounts);
   const transactions = useAppSelector(selectAllTransactions);
   const templates = useAppSelector(selectAllTransactionTemplates);
-  const archiveMode = useAppSelector((state) => state.app.archiveMode);
 
-  const categoryModal = useModal();
-  const [openedCategory, setOpenedCategory] = useState<Category>();
+  const categoryModal = useModal<SetCategoryModalData>();
 
-  const openCategory = (category?: Category) => {
-    setOpenedCategory(category);
-    categoryModal.open();
-  };
+  const checkCategoryIsUsed = useCallback(
+    (categoryId: string) => {
+      if (categoryType === 'transactions') {
+        const isFound = [...transactions, ...templates].some(
+          ({ category_id: transactionCategoryId }) => transactionCategoryId === categoryId,
+        );
+        if (isFound) return true;
+      }
 
-  const checkCategoryIsUsed = (categoryId: string) => {
-    if (categoryType === 'transactions') {
-      const isFound = [...transactions, ...templates].some(
-        ({ category_id: transactionCategoryId }) => transactionCategoryId === categoryId,
-      );
-      if (isFound) return true;
-    }
+      if (categoryType === 'accounts') {
+        const isFound = accounts.some(
+          ({ category_id: accountCategoryId }) => accountCategoryId === categoryId,
+        );
+        if (isFound) return true;
+      }
+      return false;
+    },
+    [accounts, categoryType, templates, transactions],
+  );
 
-    if (categoryType === 'accounts') {
-      const isFound = accounts.some(
-        ({ category_id: accountCategoryId }) => accountCategoryId === categoryId,
-      );
-      if (isFound) return true;
-    }
-    return false;
-  };
+  const table = useReactTable({
+    data: categories,
+    columns,
+    getRowId: (original) => original.id,
+    getCoreRowModel: getCoreRowModel(),
+  });
 
-  const confirmDelete = (category: Category) => {
-    if (checkCategoryIsUsed(category.id)) {
-      Swal.fire({
-        title: 'Unable to delete category',
-        text: `There are ${categoryType} or templates using this category`,
-        icon: 'error',
-      });
-    } else {
-      Swal.fire({
-        title: 'Delete category',
-        icon: 'error',
-        text: category.name,
-        showCancelButton: true,
-        cancelButtonText: 'Cancel',
-        confirmButtonText: 'Delete',
-      }).then(async (result) => {
-        if (result.isConfirmed) {
-          if (categoryType === 'accounts') {
-            committer(actionCreator.deleteAccountCategory(category.id)).sync();
+  const confirmDelete = useCallback(
+    (category: Category) => {
+      if (checkCategoryIsUsed(category.id)) {
+        Swal.fire({
+          title: 'Unable to delete category',
+          text: `There are ${categoryType} or templates using this category`,
+          icon: 'error',
+        });
+      } else {
+        Swal.fire({
+          title: 'Delete category',
+          icon: 'error',
+          text: category.name,
+          showCancelButton: true,
+          cancelButtonText: 'Cancel',
+          confirmButtonText: 'Delete',
+        }).then(async (result) => {
+          if (result.isConfirmed) {
+            if (categoryType === 'accounts') {
+              committer(actionCreator.deleteAccountCategory(category.id)).sync();
+            }
+            if (categoryType === 'transactions') {
+              committer(actionCreator.deleteTransactionCategory(category.id)).sync();
+            }
           }
-          if (categoryType === 'transactions') {
-            committer(actionCreator.deleteTransactionCategory(category.id)).sync();
-          }
-        }
-      });
-    }
-  };
+        });
+      }
+    },
+    [categoryType, checkCategoryIsUsed],
+  );
 
-  const tableColumns: Column<Category>[] = [
-    {
-      title: 'Name',
-      key: 'name',
-    },
-    {
-      title: <ArchiveIcon className="w-[22px] h-[22px]" />,
-      key: 'is_archive',
-      render: ({ record }) => record.is_archive && <ArchiveIcon className="w-[22px] h-[22px]" />,
-      default: '',
-      hidden: !archiveMode,
-    },
-    {
-      key: 'actions',
-      cellClassName: '!p-0',
-      width: 'min',
-      render: ({ record }) => (
-        <div className="flex ml-6">
-          <TableAction onClick={() => openCategory(record)} icon={PencilIcon} />
-          <TableAction onClick={() => confirmDelete(record)} icon={TrashIcon} />
-        </div>
-      ),
-    },
-  ];
+  const getRowContextMenu = useCallback(
+    (row: Row<Category>) => ({
+      items: [
+        {
+          key: 'edit',
+          label: 'Edit',
+          icon: PencilIcon,
+          onClick: () =>
+            categoryModal.open({ method: 'edit', category: row.original, categoryType }),
+        },
+        {
+          key: 'archive',
+          label: 'Archive',
+          icon: ArchiveIcon,
+          onClick: () => {
+            if (categoryType === 'accounts') {
+              committer(
+                actionCreator.updateAccountCategory(row.original.id, { is_archive: true }),
+              ).sync();
+            } else {
+              committer(
+                actionCreator.updateTransactionCategory(row.original.id, { is_archive: true }),
+              ).sync();
+            }
+          },
+        },
+        {
+          key: 'delete',
+          label: 'Delete',
+          icon: TrashIcon,
+          onClick: () => confirmDelete(row.original),
+        },
+      ],
+    }),
+    [categoryModal, categoryType, confirmDelete],
+  );
 
   return (
     <>
@@ -130,29 +159,24 @@ const CategoriesPart: FC<CategoriesPartProps> = ({ categoryType }) => {
               color="success"
               size="sm"
               startIcon={<PlusIcon />}
-              onClick={() => openCategory()}
+              onClick={() => categoryModal.open({ method: 'create', categoryType })}
             >
               Create
             </Button>
           </HStack>
 
           <Table
-            columns={tableColumns}
-            data={categories}
-            isTranslucentRow={(record) => record.is_archive}
-            className={{ table: 'w-full' }}
+            table={table}
+            fullWidth
+            rowContextMenu={getRowContextMenu}
+            rowOnClick={(row) =>
+              categoryModal.open({ method: 'edit', category: row.original, categoryType })
+            }
           />
         </Card.Content>
       </Card>
 
-      <SetCategory
-        isOpen={categoryModal.isOpen}
-        close={categoryModal.close}
-        categoryType={categoryType}
-        category={openedCategory}
-      />
+      <SetCategory modal={categoryModal} />
     </>
   );
 };
-
-export default CategoriesPart;

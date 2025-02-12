@@ -1,0 +1,82 @@
+$cell-padding-x-inner: 8px;
+$cell-padding-x-outer: 4px;
+
+.Table {
+  border-collapse: collapse;
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+.cell {
+  padding: 0;
+
+  &:first-of-type {
+    padding-left: $cell-padding-x-outer;
+  }
+
+  &:last-of-type {
+    padding-right: $cell-padding-x-outer;
+  }
+}
+
+.head {
+  &Row {
+    border-bottom: 2px solid var(--table-head-row-border-color);
+  }
+
+  &Cell {
+    &Inner {
+      font-size: var(--text-size-lg);
+      color: var(--table-head-row-color);
+      font-weight: 600;
+      padding: 4px $cell-padding-x-inner;
+      min-height: 32px;
+    }
+  }
+}
+
+.body {
+  &Row {
+    border-bottom: 1px solid var(--table-body-row-border-color);
+
+    &:hover {
+      background-color: var(--table-body-row-hovered-bg);
+    }
+
+    &Clickable {
+      cursor: pointer;
+    }
+  }
+
+  &Cell {
+    &Inner {
+      font-size: var(--text-size-md);
+      min-height: 44px;
+      padding-left: $cell-padding-x-inner;
+      padding-right: $cell-padding-x-inner;
+
+      &WithYPadding {
+        padding-top: 8px;
+        padding-bottom: 8px;
+      }
+    }
+  }
+}
+
+.group {
+  &Row {
+    border-bottom: 1px solid var(--table-group-row-border-color);
+    background-color: var(--table-group-row-bg);
+  }
+
+  &Cell {
+    &Inner {
+      font-size: var(--text-size-md);
+      font-weight: 500;
+      min-height: 34px;
+      padding: 6px $cell-padding-x-inner;
+    }
+  }
+}

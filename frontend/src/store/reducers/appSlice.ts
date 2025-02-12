@@ -3,13 +3,11 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 type AppState = {
   archiveMode: boolean;
   isBaseUnlocked: boolean;
-  openedModalsCount: number;
 };
 
 const initialState: AppState = {
   archiveMode: false,
   isBaseUnlocked: false,
-  openedModalsCount: 0,
 };
 
 export const appSlice = createSlice({
@@ -23,21 +21,9 @@ export const appSlice = createSlice({
       state.isBaseUnlocked = true;
     },
     lockBase: () => initialState,
-    incrementOpenedModalsCount(state) {
-      state.openedModalsCount += 1;
-    },
-    decrementOpenedModalsCount(state) {
-      state.openedModalsCount = Math.max(state.openedModalsCount - 1, 0);
-    },
   },
 });
 
-export const {
-  setArchiveMode,
-  unlockBase,
-  lockBase,
-  incrementOpenedModalsCount,
-  decrementOpenedModalsCount,
-} = appSlice.actions;
+export const { setArchiveMode, unlockBase, lockBase } = appSlice.actions;
 
 export default appSlice.reducer;

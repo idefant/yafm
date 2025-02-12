@@ -1,3 +1,2 @@
-import SetAccount from './SetAccount';
-
-export { SetAccount };
+export * from './SetAccount';
+export * from './AccountsPie';

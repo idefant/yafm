@@ -10,6 +10,10 @@
   color: var(--secondary-color);
 }
 
+.success {
+  color: var(--success-color);
+}
+
 .danger {
   color: var(--danger-color);
 }
@@ -26,6 +30,14 @@
   &Right {
     text-align: right;
   }
+}
+
+.regular {
+  font-weight: 400;
+}
+
+.semiBold {
+  font-weight: 500;
 }
 
 .bold {

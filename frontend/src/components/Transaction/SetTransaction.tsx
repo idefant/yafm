@@ -19,21 +19,22 @@ import { Transaction, TransactionTemplate } from '#types/transactionType';
 import { Button } from '#ui/Button';
 import CalendarButton from '#ui/CalendarButton';
 import DatePicker from '#ui/DatePicker';
-import Form from '#ui/Form';
+import { Form } from '#ui/Form';
 import { Grid } from '#ui/Grid';
 import { IconButton } from '#ui/IconButton';
-import { Modal, useModal } from '#ui/Modal';
+import { Modal, useModal, UseModalReturn } from '#ui/Modal';
 import { HStack, VStack } from '#ui/Stack';
 import { Title } from '#ui/Typography';
 import { actionCreator, committer } from '#utils/committer';
 import yup from '#utils/form/schema';
 import { compareObjByStr } from '#utils/string';
 
+export type SetTransactionModalData =
+  | { method: 'create'; transaction?: undefined }
+  | { method: 'edit' | 'copy'; transaction: Transaction };
+
 interface SetTransactionProps {
-  transaction?: Transaction;
-  isOpen: boolean;
-  close: () => void;
-  copiedTransaction?: Transaction;
+  modal: UseModalReturn<SetTransactionModalData>;
 }
 
 type TForm = {
@@ -47,12 +48,7 @@ type TForm = {
   categoryId: string | null;
 };
 
-const SetTransaction: FC<SetTransactionProps> = ({
-  isOpen,
-  close,
-  transaction,
-  copiedTransaction,
-}) => {
+export const SetTransaction: FC<SetTransactionProps> = ({ modal }) => {
   const formId = useId();
 
   const accounts = useAppSelector(selectAllAccountsCombined);
@@ -103,6 +99,8 @@ const SetTransaction: FC<SetTransactionProps> = ({
   const templateModal = useModal();
 
   const onSubmit = async (values: TForm) => {
+    if (!modal.isOpen) return;
+
     const transactionData = {
       datetime: +date,
       name: values.name || undefined,
@@ -114,12 +112,12 @@ const SetTransaction: FC<SetTransactionProps> = ({
       })),
     };
 
-    if (transaction) {
-      committer(actionCreator.updateTransaction(transaction.id, transactionData)).sync();
-    } else {
-      committer(actionCreator.createTransaction(transactionData)).sync();
-    }
-    close();
+    committer(
+      modal.data.method === 'create'
+        ? actionCreator.createTransaction(transactionData)
+        : actionCreator.updateTransaction(modal.data.transaction.id, transactionData),
+    ).sync();
+    modal.close();
   };
 
   const getTemplateData = (template: TransactionTemplate) => {
@@ -140,9 +138,7 @@ const SetTransaction: FC<SetTransactionProps> = ({
     };
   };
 
-  const trans = transaction || copiedTransaction;
-
-  const initialOperations = trans?.operations
+  const initialOperations = modal.data?.transaction?.operations
     .slice()
     .sort((a, b) => BigNumber(b.sum).minus(a.sum).toNumber())
     .map((operation) => ({
@@ -154,25 +150,28 @@ const SetTransaction: FC<SetTransactionProps> = ({
   const defaultOperations = [{ accountId: '', sum: undefined, isPositive: false }];
 
   const onOpening = () => {
+    if (!modal.isOpen) return;
     reset({
-      name: trans?.name || '',
-      description: trans?.description || '',
+      name: modal.data.transaction?.name || '',
+      description: modal.data.transaction?.description || '',
       operations: initialOperations || defaultOperations,
-      categoryId: trans?.category_id || '',
+      categoryId: modal.data.transaction?.category_id || '',
     });
-    setDate(dayjs(transaction?.datetime));
+    setDate(dayjs(modal.data.method === 'edit' ? modal.data.transaction.datetime : undefined));
   };
 
   const onExited = () => reset();
 
   return (
-    <Modal isOpen={isOpen} close={close} onOpening={onOpening} onExited={onExited}>
+    <Modal isOpen={modal.isOpen} close={modal.close} onOpening={onOpening} onExited={onExited}>
       <Modal.Content>
         <FormProvider {...methods}>
           <Form onSubmit={handleSubmit(onSubmit)} id={formId}>
             <HStack align="center" gap={16}>
-              <Title level={4}>{transaction ? 'Edit Transaction' : 'Create Transaction'}</Title>
-              {!transaction && !copiedTransaction && (
+              <Title level={4}>
+                {modal.data?.method === 'create' ? 'Create Transaction' : 'Edit Transaction'}
+              </Title>
+              {modal.data?.method === 'create' && (
                 <Button size="sm" onClick={templateModal.open}>
                   Use Template
                 </Button>
@@ -280,7 +279,7 @@ const SetTransaction: FC<SetTransactionProps> = ({
       </Modal.Content>
 
       <Modal.Footer>
-        <Button color="secondary" onClick={close}>
+        <Button color="secondary" onClick={modal.close}>
           Cancel
         </Button>
         <Button type="submit" form={formId}>
@@ -296,5 +295,3 @@ const SetTransaction: FC<SetTransactionProps> = ({
     </Modal>
   );
 };
-
-export default SetTransaction;

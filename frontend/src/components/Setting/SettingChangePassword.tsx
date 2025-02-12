@@ -5,7 +5,7 @@ import Swal from 'sweetalert2';
 
 import { Button } from '#ui/Button';
 import { Card } from '#ui/Card';
-import Form from '#ui/Form';
+import { Form } from '#ui/Form';
 import { Title } from '#ui/Typography';
 import { actionCreator, committer } from '#utils/committer';
 import { crypt } from '#utils/crypt';
@@ -25,7 +25,7 @@ const formSchema = yup
   })
   .required();
 
-const SettingChangePassword: FC = () => {
+export const SettingChangePassword: FC = () => {
   const formId = useId();
   const methods = useForm<TForm>({ resolver: yupResolver(formSchema) });
   const { handleSubmit, reset } = methods;
@@ -71,5 +71,3 @@ const SettingChangePassword: FC = () => {
     </Card>
   );
 };
-
-export default SettingChangePassword;

@@ -9,6 +9,7 @@ import '../src/styles/themes/dark.scss';
 import '../src/index.scss';
 import '../src/global.scss';
 import { DialogModalContainer } from '../src/ui/Modal';
+import { ScrollLockWatcher } from '../src/ui/ScrollLock';
 
 const preview: Preview = {
   tags: ['autodocs'],
@@ -35,6 +36,7 @@ const preview: Preview = {
       <BrowserRouter>
         <Story />
         <DialogModalContainer />
+        <ScrollLockWatcher />
       </BrowserRouter>
     ),
   ],

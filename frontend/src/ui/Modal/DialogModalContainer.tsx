@@ -114,18 +114,6 @@ export const DialogModalContainer: FC<DialogModalContainerProps> = ({ maxCount =
     return () => emitter.off('close', handler);
   }, []);
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      const hasPopup = !!document.querySelector('.yafm_Popup');
-      if (!hasPopup) {
-        const scrollbarWidth = window.innerWidth - document.body.scrollWidth;
-        document.documentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`);
-      }
-    }, 100);
-
-    return () => clearInterval(timer);
-  }, []);
-
   return (
     <>
       {modals.map(

@@ -15,19 +15,21 @@ import PlusIcon from '#svg/plus.svg?react';
 import TrashIcon from '#svg/trash.svg?react';
 import { TransactionTemplate } from '#types/transactionType';
 import { Button } from '#ui/Button';
-import Form from '#ui/Form';
+import { Form } from '#ui/Form';
 import { Grid } from '#ui/Grid';
 import { IconButton } from '#ui/IconButton';
-import { Modal } from '#ui/Modal';
+import { Modal, UseModalReturn } from '#ui/Modal';
 import { HStack, VStack } from '#ui/Stack';
 import { actionCreator, committer } from '#utils/committer';
 import yup from '#utils/form/schema';
 import { compareObjByStr } from '#utils/string';
 
+export type SetTemplateModalData =
+  | { method: 'create'; template?: undefined }
+  | { method: 'edit'; template: TransactionTemplate };
+
 interface SetTemplateProps {
-  template?: TransactionTemplate;
-  isOpen: boolean;
-  close: () => void;
+  modal: UseModalReturn<SetTemplateModalData>;
 }
 
 type TForm = {
@@ -41,7 +43,7 @@ type TForm = {
   categoryId: string | null;
 };
 
-const SetTemplate: FC<SetTemplateProps> = ({ isOpen, close, template }) => {
+export const SetTemplate: FC<SetTemplateProps> = ({ modal }) => {
   const formId = useId();
 
   const accounts = useAppSelector(selectAllAccountsCombined);
@@ -89,6 +91,8 @@ const SetTemplate: FC<SetTemplateProps> = ({ isOpen, close, template }) => {
     .map((category) => ({ value: category.id, label: category.name }));
 
   const onSubmit = async (values: TForm) => {
+    if (!modal.isOpen) return;
+
     const templateData = {
       name: values.name || undefined,
       description: values.description || undefined,
@@ -99,15 +103,15 @@ const SetTemplate: FC<SetTemplateProps> = ({ isOpen, close, template }) => {
       })),
     };
 
-    if (template) {
-      committer(actionCreator.updateTransactionTemplate(template.id, templateData)).sync();
-    } else {
-      committer(actionCreator.createTransactionTemplate(templateData)).sync();
-    }
-    close();
+    committer(
+      modal.data.method === 'create'
+        ? actionCreator.createTransactionTemplate(templateData)
+        : actionCreator.updateTransactionTemplate(modal.data.template.id, templateData),
+    ).sync();
+    modal.close();
   };
 
-  const initialOperations = template?.operations
+  const initialOperations = modal.data?.template?.operations
     .slice()
     .sort((a, b) => BigNumber(b.sum).minus(a.sum).toNumber())
     .map((operation) => ({
@@ -119,11 +123,12 @@ const SetTemplate: FC<SetTemplateProps> = ({ isOpen, close, template }) => {
   const defaultOperations = [{ accountId: '', sum: undefined, isPositive: false }];
 
   const onOpening = () => {
+    if (!modal.isOpen) return;
     reset({
-      name: template?.name || '',
-      description: template?.description || '',
+      name: modal.data.template?.name || '',
+      description: modal.data.template?.description || '',
       operations: initialOperations || defaultOperations,
-      categoryId: template?.category_id || '',
+      categoryId: modal.data.template?.category_id || '',
     });
   };
 
@@ -131,9 +136,9 @@ const SetTemplate: FC<SetTemplateProps> = ({ isOpen, close, template }) => {
 
   return (
     <Modal
-      title={template ? 'Edit Template' : 'Create Template'}
-      isOpen={isOpen}
-      close={close}
+      title={modal.data?.method === 'create' ? 'Create Template' : 'Edit Template'}
+      isOpen={modal.isOpen}
+      close={modal.close}
       onOpening={onOpening}
       onExited={onExited}
     >
@@ -234,7 +239,7 @@ const SetTemplate: FC<SetTemplateProps> = ({ isOpen, close, template }) => {
           </Modal.Content>
 
           <Modal.Footer>
-            <Button color="secondary" onClick={close}>
+            <Button color="secondary" onClick={modal.close}>
               Cancel
             </Button>
             <Button type="submit" form={formId}>
@@ -246,5 +251,3 @@ const SetTemplate: FC<SetTemplateProps> = ({ isOpen, close, template }) => {
     </Modal>
   );
 };
-
-export default SetTemplate;

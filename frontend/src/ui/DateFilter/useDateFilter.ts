@@ -13,7 +13,9 @@ export type DateFilterResult = DateFilterOptions & {
   setPeriodType: React.Dispatch<React.SetStateAction<Period>>;
 };
 
-const useDateFilter = (defaultOptions: Partial<DateFilterOptions> = {}): DateFilterResult => {
+export const useDateFilter = (
+  defaultOptions: Partial<DateFilterOptions> = {},
+): DateFilterResult => {
   const [date, setDate] = useState(defaultOptions.date ?? dayjs());
   const [periodType, setPeriodType] = useState<Period>(defaultOptions.periodType ?? 'month');
 
@@ -24,5 +26,3 @@ const useDateFilter = (defaultOptions: Partial<DateFilterOptions> = {}): DateFil
     setPeriodType,
   };
 };
-
-export default useDateFilter;

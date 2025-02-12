@@ -5,7 +5,7 @@ import { useFetchProfileInfoQuery } from '#api/mainApi';
 import { appRoutes } from '#data/routes';
 import { Button } from '#ui/Button';
 
-const CabinetTemplate: FC = () => {
+export const CabinetTemplate: FC = () => {
   const { data: profile } = useFetchProfileInfoQuery(undefined);
 
   const accountUrl = import.meta.env.VITE_ACCOUNT_URL;
@@ -45,5 +45,3 @@ const CabinetTemplate: FC = () => {
     </div>
   );
 };
-
-export default CabinetTemplate;

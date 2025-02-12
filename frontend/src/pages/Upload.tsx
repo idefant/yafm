@@ -12,7 +12,7 @@ import { unlockBase } from '#store/reducers/appSlice';
 import ChevronLeftIcon from '#svg/chevron-left.svg?react';
 import { EncryptedData } from '#types/cipher';
 import { Button } from '#ui/Button';
-import Form from '#ui/Form';
+import { Form } from '#ui/Form';
 import { IconButton } from '#ui/IconButton';
 import { Title } from '#ui/Typography';
 import { actionCreator, committer } from '#utils/committer';
@@ -35,7 +35,7 @@ const formSchema = yup.object({
   password: yup.string().required(),
 });
 
-const Upload: FC = () => {
+export const Upload: FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
@@ -178,5 +178,3 @@ const Upload: FC = () => {
     </>
   );
 };
-
-export default Upload;

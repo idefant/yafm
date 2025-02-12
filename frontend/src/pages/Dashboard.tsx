@@ -4,7 +4,7 @@ import { useFetchRatesByPeriodQuery } from '#api/exratesApi';
 import { DashboardBalanceHistoryChart, DashboardCategoryChart } from '#components/Dashboard';
 import { HeaderInfo } from '#components/Header';
 import { Card } from '#ui/Card';
-import DateFilter, { useDateFilter } from '#ui/DateFilter';
+import { DateFilter, useDateFilter } from '#ui/DateFilter';
 import { Grid } from '#ui/Grid';
 import { VStack } from '#ui/Stack';
 import { Title } from '#ui/Typography';
@@ -14,7 +14,7 @@ const dateQuery = {
   year: 'YYYY',
 };
 
-const Dashboard: FC = () => {
+export const Dashboard: FC = () => {
   const filterData = useDateFilter();
   const { date, periodType } = filterData;
   const { data: rates } = useFetchRatesByPeriodQuery({
@@ -47,5 +47,3 @@ const Dashboard: FC = () => {
     </>
   );
 };
-
-export default Dashboard;

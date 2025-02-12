@@ -1,3 +1,1 @@
-import SetCategory from './SetCategory';
-
-export { SetCategory };
+export * from './SetCategory';

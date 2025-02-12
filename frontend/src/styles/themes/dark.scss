@@ -4,6 +4,7 @@
   --primary-color: #fff;
   --secondary-color: #b6b6b6;
   --inverted-primary-color: #000;
+  --success-color: #31cc38;
   --danger-color: #e04338;
   --border-color: #3b3b3b;
   --paper-shadow: 0 0 4px 0 rgb(92 92 92 / 20%);
@@ -73,6 +74,19 @@
   --modal-icon-success: #11bf11;
   --modal-x-color: var(--secondary-color);
   --modal-x-hovered-bg: #212121;
+
+  // Context Menu
+  --context-menu-bg: #353535;
+  --context-menu-item-hovered: #494949;
+  --context-menu-item-active: var(--primary-button-color-hovered);
+
+  // Table
+  --table-head-row-border-color: #cbcbcb;
+  --table-head-row-color: var(--primary-color);
+  --table-body-row-border-color: #565656;
+  --table-body-row-hovered-bg: #262626;
+  --table-group-row-bg: #232f46;
+  --table-group-row-border-color: #565656;
 
   // Sidebar
   --menu-item-color: var(--secondary-color);

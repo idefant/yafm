@@ -1,158 +1,137 @@
+import { flexRender, Row, Table as TableType } from '@tanstack/react-table';
 import classNames from 'classnames';
-import { Fragment, ReactNode } from 'react';
+import { ReactNode, useRef } from 'react';
 
-import SearchIcon from '#svg/search.svg?react';
-import { getProp } from '#utils/getProp';
+import { ContextMenu, ContextMenuItem } from '#ui/ContextMenu';
+import { HStack } from '#ui/Stack';
 
-import TableDefaultText from './TableDefaultText';
+import cls from './Table.module.scss';
 
 /* eslint-disable no-unused-vars */
-export type ColumnRender<T> = {
-  record: T;
-  index: number;
-};
-
-export type Column<T> = {
-  title?: ReactNode;
-  key: string;
-  render?: (data: ColumnRender<T>) => ReactNode;
-  cellClassName?: string;
-  hidden?: boolean;
-  default?: ReactNode;
-  width?: 'min';
-};
-
-interface TableProps<T> {
-  columns: Column<T>[];
-  data?: T[];
-  dataGroups?: {
-    key: string | number;
-    name: ReactNode;
-    data: T[];
-  }[];
-  getKey?: (record: T) => number | string;
-  isTranslucentRow?: (record: T) => boolean | undefined;
-  className?: {
-    table?: string;
-    row?: (record: T) => any;
-    groupName?: string;
-  };
+export interface TableProps<T> {
+  table: TableType<T>;
+  fullWidth?: boolean;
+  renderGroupCell?: (row: Row<T>) => ReactNode;
+  rowContextMenu?: (row: Row<T>) => { items: ContextMenuItem[] } | undefined;
+  rowOnClick?: (row: Row<T>) => void;
 }
 /* eslint-enable no-unused-vars */
 
-const Table = <T extends Record<string, any>>({
-  columns,
-  data,
-  dataGroups,
-  getKey = (record: T) => record.id,
-  isTranslucentRow,
-  className,
+// eslint-disable-next-line comma-spacing
+export const Table = <T,>({
+  table,
+  fullWidth,
+  renderGroupCell,
+  rowContextMenu,
+  rowOnClick,
 }: TableProps<T>) => {
-  const visibleColumns = columns.filter((column) => !column.hidden);
+  const refs = useRef<Record<string, HTMLElement | null>>({});
 
   return (
-    <table className={className?.table}>
-      <thead className="bg-slate-100/20">
-        <tr className="border-b-2 border-gray-500">
-          {visibleColumns.map((column) => (
-            <th
-              className={classNames('px-4 py-3', column.width === 'min' && 'w-0')}
-              key={column.key}
-            >
-              {column.title}
-            </th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {!(data?.length || dataGroups?.length) ? (
-          <tr>
-            <td colSpan={visibleColumns.length}>
-              <div className="my-8 text-slate-200">
-                <SearchIcon className="mx-auto w-12 h-12" />
-                <div className="text-lg text-center">No Data</div>
-              </div>
-            </td>
+    <table className={classNames(cls.Table, { [cls.fullWidth]: fullWidth })}>
+      <thead className={cls.head}>
+        {table.getHeaderGroups().map((headerGroup) => (
+          <tr className={cls.headRow} key={headerGroup.id}>
+            {headerGroup.headers.map((header) => (
+              <th
+                colSpan={header.colSpan}
+                className={classNames(cls.cell, cls.headCell)}
+                style={{
+                  width: header.getSize() === Number.MAX_SAFE_INTEGER ? 'auto' : header.getSize(),
+                }}
+                key={header.id}
+              >
+                <HStack
+                  align="center"
+                  justify={header.column.columnDef.meta?.justify}
+                  className={cls.headCellInner}
+                >
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(header.column.columnDef.header, header.getContext())}
+                </HStack>
+              </th>
+            ))}
           </tr>
-        ) : (
-          <>
-            {data?.map((row, index) => (
-              <TableRow
-                row={row}
-                index={index}
-                visibleColumns={visibleColumns}
-                getClassName={className?.row}
-                isTranslucentRow={isTranslucentRow}
-                key={getKey(row)}
-              />
-            ))}
-            {dataGroups?.map((dataGroup) => (
-              <Fragment key={dataGroup.key}>
-                <tr className="border-t-2 border-gray-500">
-                  <th
-                    colSpan={columns.length}
-                    className={classNames('bg-stone-700 py-0 px-4', className?.groupName)}
-                  >
-                    {dataGroup.name}
-                  </th>
-                </tr>
-                {dataGroup.data.map((row, index) => (
-                  <TableRow
-                    row={row}
-                    index={index}
-                    visibleColumns={visibleColumns}
-                    getClassName={className?.row}
-                    isTranslucentRow={isTranslucentRow}
-                    key={getKey(row)}
-                  />
-                ))}
-              </Fragment>
-            ))}
-          </>
-        )}
+        ))}
+      </thead>
+      <tbody className={cls.body}>
+        {table.getRowModel().rows.map((row) => {
+          if (row.getIsGrouped()) {
+            const groupingValue = (() => {
+              if (renderGroupCell) {
+                const groupingValue = renderGroupCell(row);
+                if (groupingValue) return groupingValue;
+              } else if (
+                typeof row.groupingValue === 'string' &&
+                row.groupingValue !== 'null' &&
+                row.groupingValue !== 'undefined'
+              ) {
+                return row.groupingValue;
+              }
+              return '-';
+            })();
+            if (!groupingValue) return;
+            return (
+              <tr className={cls.groupRow} key={row.id}>
+                <td
+                  colSpan={row.getVisibleCells().length}
+                  className={classNames(cls.cell, cls.groupCell)}
+                >
+                  <HStack align="center" className={cls.groupCellInner}>
+                    {groupingValue}
+                  </HStack>
+                </td>
+              </tr>
+            );
+          }
+
+          const contextMenu = rowContextMenu?.(row);
+
+          return (
+            <>
+              <tr
+                className={classNames(cls.bodyRow, { [cls.bodyRowClickable]: !!rowOnClick })}
+                key={row.id}
+                onClick={() => rowOnClick?.(row)}
+                ref={(el) => {
+                  refs.current[row.id] = el;
+                }}
+              >
+                {row.getVisibleCells().map((cell) => {
+                  const withYPadding = cell.column.columnDef.meta?.withYPadding ?? true;
+                  const width =
+                    cell.column.getSize() === Number.MAX_SAFE_INTEGER
+                      ? 'auto'
+                      : cell.column.getSize();
+
+                  return (
+                    <td
+                      className={classNames(cls.cell, cls.bodyCell)}
+                      style={{ width }}
+                      key={cell.id}
+                    >
+                      <HStack
+                        align="center"
+                        justify={cell.column.columnDef.meta?.justify}
+                        className={classNames(cls.bodyCellInner, {
+                          [cls.bodyCellInnerWithYPadding]: withYPadding,
+                        })}
+                      >
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </HStack>
+                    </td>
+                  );
+                })}
+              </tr>
+
+              {contextMenu && (
+                <ContextMenu {...contextMenu} getElement={() => refs.current[row.id]} />
+              )}
+            </>
+          );
+        })}
       </tbody>
     </table>
   );
 };
-
-/* eslint-disable no-unused-vars */
-interface TableRowProps<T> {
-  row: T;
-  index: number;
-  visibleColumns: Column<T>[];
-  getClassName?: (record: T) => any;
-  isTranslucentRow?: (record: T) => boolean | undefined;
-}
-/* eslint-enable no-unused-vars */
-
-const TableRow = <T extends Record<string, any>>({
-  row,
-  index,
-  visibleColumns,
-  getClassName,
-  isTranslucentRow,
-}: TableRowProps<T>) => {
-  let rowClassName = getClassName?.(row);
-  if (rowClassName instanceof String || typeof rowClassName !== 'string') {
-    rowClassName = undefined;
-  }
-
-  return (
-    <tr
-      className={classNames(
-        'border-t-2 border-gray-500',
-        isTranslucentRow?.(row) && 'opacity-60',
-        getClassName?.(row),
-      )}
-    >
-      {visibleColumns.map((column) => (
-        <td key={column.key} className={classNames('px-4 py-3', column.cellClassName)}>
-          {(column.render ? column.render({ record: row, index }) : getProp(row, column.key)) ??
-            column.default ?? <TableDefaultText />}
-        </td>
-      ))}
-    </tr>
-  );
-};
-
-export default Table;
