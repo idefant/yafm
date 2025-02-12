@@ -6,8 +6,8 @@ import { BrowserRouter } from 'react-router-dom';
 import 'modern-normalize/modern-normalize.css';
 import '@fontsource-variable/open-sans';
 import '../src/styles/themes/dark.scss';
-import '../src/index.scss';
-import '../src/global.scss';
+import '../src/styles/index.scss';
+import '../src/styles/global.scss';
 import { DialogModalContainer } from '../src/ui/Modal';
 import { ScrollLockWatcher } from '../src/ui/ScrollLock';
 
