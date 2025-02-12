@@ -30,3 +30,10 @@ YAFM - Yet Another Finance Manager
 - Login - `/api/auth/login`
 - Logout - `/api/auth/logout`
 - Callback - `/api/auth/callback`
+
+## Development
+
+1. Установите переменные окружения командой `task dev-env`
+2. Обновите переменные окружения в файле `.env`
+3. Установите зависимости командой `task install`
+4. Запустите проект в dev-режиме командой `task dev`

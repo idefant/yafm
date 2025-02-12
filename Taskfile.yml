@@ -1,0 +1,45 @@
+version: "3"
+
+output: prefixed
+
+tasks:
+  # Базовые задачи
+  install:
+    desc: Установка зависимостей
+    deps: [install-frontend, install-backend]
+
+  dev:
+    desc: Запуск в режиме разработки
+    deps: [dev-storybook, dev-backend, dev-frontend]
+
+  # Переменные среды
+  dev-env:
+    desc: Установка окружения для режима разработки
+    cmd: cp .env.dev.example .env
+
+  # Фронтенд
+  install-frontend:
+    desc: Установка зависимостей для фронтенда
+    dir: ./frontend
+    cmd: npm install
+
+  dev-frontend:
+    desc: Запуск фронтенда в режиме разработки
+    dir: ./frontend
+    cmd: npm run dev
+
+  dev-storybook:
+    desc: Запуск Storybook в режиме разработки
+    dir: ./frontend
+    cmd: npm run storybook
+
+  # Бэкенд
+  install-backend:
+    desc: Установка зависимостей для бэкенда
+    dir: ./backend
+    cmd: npm install
+
+  dev-backend:
+    desc: Запуск бэкенда в режиме разработки
+    dir: ./backend
+    cmd: npm run dev
