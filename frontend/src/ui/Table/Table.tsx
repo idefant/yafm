@@ -89,46 +89,44 @@ export const Table = <T,>({
           const contextMenu = rowContextMenu?.(row);
 
           return (
-            <>
-              <tr
-                className={classNames(cls.bodyRow, { [cls.bodyRowClickable]: !!rowOnClick })}
-                key={row.id}
-                onClick={() => rowOnClick?.(row)}
-                ref={(el) => {
-                  refs.current[row.id] = el;
-                }}
-              >
-                {row.getVisibleCells().map((cell) => {
-                  const withYPadding = cell.column.columnDef.meta?.withYPadding ?? true;
-                  const width =
-                    cell.column.getSize() === Number.MAX_SAFE_INTEGER
-                      ? 'auto'
-                      : cell.column.getSize();
+            <tr
+              className={classNames(cls.bodyRow, { [cls.bodyRowClickable]: !!rowOnClick })}
+              key={row.id}
+              onClick={() => rowOnClick?.(row)}
+              ref={(el) => {
+                refs.current[row.id] = el;
+              }}
+            >
+              {row.getVisibleCells().map((cell) => {
+                const withYPadding = cell.column.columnDef.meta?.withYPadding ?? true;
+                const width =
+                  cell.column.getSize() === Number.MAX_SAFE_INTEGER
+                    ? 'auto'
+                    : cell.column.getSize();
 
-                  return (
-                    <td
-                      className={classNames(cls.cell, cls.bodyCell)}
-                      style={{ width }}
-                      key={cell.id}
+                return (
+                  <td
+                    className={classNames(cls.cell, cls.bodyCell)}
+                    style={{ width }}
+                    key={cell.id}
+                  >
+                    <HStack
+                      align="center"
+                      justify={cell.column.columnDef.meta?.justify}
+                      className={classNames(cls.bodyCellInner, {
+                        [cls.bodyCellInnerWithYPadding]: withYPadding,
+                      })}
                     >
-                      <HStack
-                        align="center"
-                        justify={cell.column.columnDef.meta?.justify}
-                        className={classNames(cls.bodyCellInner, {
-                          [cls.bodyCellInnerWithYPadding]: withYPadding,
-                        })}
-                      >
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </HStack>
-                    </td>
-                  );
-                })}
-              </tr>
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </HStack>
+                  </td>
+                );
+              })}
 
               {contextMenu && (
                 <ContextMenu {...contextMenu} getElement={() => refs.current[row.id]} />
               )}
-            </>
+            </tr>
           );
         })}
       </tbody>

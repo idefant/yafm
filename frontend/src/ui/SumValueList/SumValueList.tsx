@@ -16,8 +16,8 @@ export const SumValueList: FC<SumValueListProps> = ({ items }) => {
 
   return (
     <VStack>
-      {sortedItems.map((item) => (
-        <SumValue {...item} />
+      {sortedItems.map((item, i) => (
+        <SumValue {...item} key={i} />
       ))}
     </VStack>
   );
