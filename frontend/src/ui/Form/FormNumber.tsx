@@ -18,15 +18,12 @@ export const FormNumber: FC<FormNumberProps> = ({ name, ...props }) => {
     <Controller
       render={({ field: { ref, value, onChange, onBlur } }) => (
         <InputNumber
-          onValueChange={(v) => onChange(v.floatValue || null)}
+          onValueChange={(v) => onChange(v.floatValue ?? null)}
           value={value}
           getInputRef={ref}
           onBlur={onBlur}
           {...props}
-          error={
-            error &&
-            (['required', 'nullable', 'optionality'].includes(error.type) ? true : error.message)
-          }
+          error={error ? error.message || true : false}
         />
       )}
       name={name}

@@ -1,8 +1,9 @@
-import { yupResolver } from '@hookform/resolvers/yup';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { FC } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
+import { z } from 'zod';
 
 import { useFetchCommitsQuery } from '#api/mainApi';
 import { appRoutes } from '#data/routes';
@@ -22,17 +23,12 @@ import { Title } from '#ui/Typography';
 import { actionCreator, committer } from '#utils/committer';
 import { compileBase } from '#utils/compileBase';
 import { crypt } from '#utils/crypt';
-import yup from '#utils/form/schema';
 
-type TForm = {
-  password: string;
-};
+const formSchema = z.object({
+  password: z.string().nonempty(),
+});
 
-const formSchema = yup
-  .object({
-    password: yup.string().required(),
-  })
-  .required();
+type FormOutput = z.infer<typeof formSchema>;
 
 export const Decrypt: FC = () => {
   const dispatch = useAppDispatch();
@@ -43,12 +39,12 @@ export const Decrypt: FC = () => {
     { refetchOnMountOrArgChange: true },
   );
 
-  const methods = useForm<TForm>({ resolver: yupResolver(formSchema) });
+  const methods = useForm<FormOutput>({ resolver: zodResolver(formSchema) });
   const { handleSubmit, reset } = methods;
 
   const isNew = !commits?.length;
 
-  const onSubmit = async (values: TForm) => {
+  const onSubmit = async (values: FormOutput) => {
     if (isNew) {
       await crypt.setSecret({ password: values.password });
 

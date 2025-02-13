@@ -1,7 +1,8 @@
-import { yupResolver } from '@hookform/resolvers/yup';
+import { zodResolver } from '@hookform/resolvers/zod';
 import dayjs from 'dayjs';
 import { FC, useId } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
+import { z } from 'zod';
 
 import { Button } from '#ui/Button';
 import { Card } from '#ui/Card';
@@ -9,26 +10,21 @@ import { Form } from '#ui/Form';
 import { Title } from '#ui/Typography';
 import { crypt } from '#utils/crypt';
 import { exportJsonFile } from '#utils/file';
-import yup from '#utils/form/schema';
 import Gzip from '#utils/gzip';
 import { getSyncData } from '#utils/sync';
 
-type TForm = {
-  useEncryption: boolean;
-};
+const formSchema = z.object({
+  useEncryption: z.boolean(),
+});
 
-const formSchema = yup
-  .object({
-    useEncryption: yup.bool(),
-  })
-  .required();
+type FormOutput = z.infer<typeof formSchema>;
 
 export const SettingBackup: FC = () => {
   const formId = useId();
-  const methods = useForm<TForm>({ resolver: yupResolver(formSchema) });
+  const methods = useForm<FormOutput>({ resolver: zodResolver(formSchema) });
   const { handleSubmit } = methods;
 
-  const onSubmit = async (values: TForm) => {
+  const onSubmit = async (values: FormOutput) => {
     const data = getSyncData();
 
     if (values.useEncryption) {

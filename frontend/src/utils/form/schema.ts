@@ -1,19 +1,13 @@
-import * as yup from 'yup';
+import { z } from 'zod';
 
-/* eslint-disable no-unused-vars */
-declare module 'yup' {
-  interface StringSchema {
-    repeatPassword(key?: string): this;
+const customErrorMap: z.ZodErrorMap = (issue, ctx) => {
+  if (issue.code === 'invalid_type') {
+    return { message: '' };
   }
-}
-/* eslint-enable no-unused-vars */
+  if (issue.code === 'too_small' && issue.minimum === 1) {
+    return { message: '' };
+  }
+  return { message: ctx.defaultError };
+};
 
-yup.addMethod<yup.StringSchema>(
-  yup.string,
-  'repeatPassword',
-  function repeatPassword(key = 'password') {
-    return this.oneOf([yup.ref(key)], 'Пароли не совпадают');
-  },
-);
-
-export default yup;
+z.setErrorMap(customErrorMap);

@@ -1,6 +1,7 @@
-import { yupResolver } from '@hookform/resolvers/yup';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { FC, useId } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
+import { z } from 'zod';
 
 import { useAppSelector } from '#hooks/reduxHooks';
 import { selectCurrencies, selectVisibleAccountCategories } from '#store/selectors';
@@ -9,7 +10,6 @@ import { Button } from '#ui/Button';
 import { Form } from '#ui/Form';
 import { Modal, UseModalReturn } from '#ui/Modal';
 import { actionCreator, committer } from '#utils/committer';
-import yup from '#utils/form/schema';
 import { groupBy } from '#utils/groupBy';
 import { compareObjByStr } from '#utils/string';
 
@@ -21,19 +21,14 @@ interface SetAccountProps {
   modal: UseModalReturn<SetAccountModalData>;
 }
 
-type TForm = {
-  name: string;
-  currencyCode: string | null;
-  categoryId: string | null;
-  isArchive: boolean;
-};
-
-const formSchema = yup.object({
-  name: yup.string().required(),
-  currencyCode: yup.string().required(),
-  categoryId: yup.string().nullable(),
-  isArchive: yup.boolean(),
+const formSchema = z.object({
+  name: z.string().trim().nonempty(),
+  currencyCode: z.string().nonempty(),
+  categoryId: z.string().nullish(),
+  isArchive: z.boolean().optional(),
 });
+
+type FormOutput = z.infer<typeof formSchema>;
 
 export const SetAccount: FC<SetAccountProps> = ({ modal }) => {
   const formId = useId();
@@ -41,10 +36,10 @@ export const SetAccount: FC<SetAccountProps> = ({ modal }) => {
   const currencies = useAppSelector(selectCurrencies);
   const categories = useAppSelector(selectVisibleAccountCategories);
 
-  const methods = useForm<TForm>({ resolver: yupResolver(formSchema) });
+  const methods = useForm<FormOutput>({ resolver: zodResolver(formSchema) });
   const { handleSubmit, reset } = methods;
 
-  const onSubmit = async (values: TForm) => {
+  const onSubmit = async (values: FormOutput) => {
     if (!modal.isOpen) return;
     const accountData = {
       name: values.name,
@@ -75,13 +70,11 @@ export const SetAccount: FC<SetAccountProps> = ({ modal }) => {
     if (!modal.isOpen) return;
     reset({
       name: modal.data.account?.name || '',
-      currencyCode: modal.data.account?.currency_code || null,
+      currencyCode: modal.data.account?.currency_code || '',
       categoryId: modal.data.account?.category_id || null,
       isArchive: modal.data.account?.is_archive || false,
     });
   };
-
-  const onExited = () => reset();
 
   return (
     <Modal
@@ -89,7 +82,6 @@ export const SetAccount: FC<SetAccountProps> = ({ modal }) => {
       isOpen={modal.isOpen}
       close={modal.close}
       onOpening={onOpening}
-      onExited={onExited}
     >
       <Modal.Content>
         <FormProvider {...methods}>

@@ -1,38 +1,39 @@
-import { yupResolver } from '@hookform/resolvers/yup';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { FC, useId } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import Swal from 'sweetalert2';
+import { z } from 'zod';
 
+import { passwordSchema } from '#schema/commonSchema';
 import { Button } from '#ui/Button';
 import { Card } from '#ui/Card';
 import { Form } from '#ui/Form';
 import { Title } from '#ui/Typography';
 import { actionCreator, committer } from '#utils/committer';
 import { crypt } from '#utils/crypt';
-import yup from '#utils/form/schema';
 
-type TForm = {
-  oldPassword: string;
-  newPassword: string;
-  repeatPassword: string;
-};
-
-const formSchema = yup
+const formSchema = z
   .object({
-    oldPassword: yup.string().required(),
-    newPassword: yup.string().required(),
-    repeatPassword: yup.string().required().repeatPassword('newPassword'),
+    oldPassword: z.string().nonempty(),
+    newPassword: passwordSchema,
+    repeatPassword: z.string().nonempty(),
   })
-  .required();
+  .refine((data) => data.newPassword === data.repeatPassword, {
+    message: 'Пароли не совпадают',
+    path: ['repeatPassword'],
+  });
+
+type FormOutput = z.infer<typeof formSchema>;
 
 export const SettingChangePassword: FC = () => {
   const formId = useId();
-  const methods = useForm<TForm>({ resolver: yupResolver(formSchema) });
+  const methods = useForm<FormOutput>({ resolver: zodResolver(formSchema) });
   const { handleSubmit, reset } = methods;
 
-  const onSubmit = async (values: TForm) => {
-    if (await crypt.checkPassword(values.oldPassword)) {
-      Swal.fire({ title: 'Wrong password', icon: 'error' });
+  const onSubmit = async (values: FormOutput) => {
+    const isCorrectOldPassword = await crypt.checkPassword(values.oldPassword);
+    if (!isCorrectOldPassword) {
+      Swal.fire({ title: 'Wrong old password', icon: 'error' });
       reset({ oldPassword: '' });
       return;
     }
@@ -44,7 +45,11 @@ export const SettingChangePassword: FC = () => {
     await crypt.setSecret({ password: values.newPassword });
     await committer(actionCreator.changePassword()).sync();
     Swal.fire({ title: 'Password changed successfully', icon: 'success' });
-    reset();
+    reset({
+      oldPassword: '',
+      newPassword: '',
+      repeatPassword: '',
+    });
   };
 
   return (

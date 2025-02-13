@@ -1,7 +1,7 @@
-import { object, string, boolean } from 'yup';
+import { z } from 'zod';
 
-export const categorySchema = object().shape({
-  id: string().required(),
-  name: string().required(),
-  is_archive: boolean(),
+export const categorySchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  is_archive: z.boolean().optional(),
 });

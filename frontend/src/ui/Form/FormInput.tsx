@@ -21,10 +21,7 @@ export const FormInput: FC<FormInputProps> = ({ name, onChange, ...props }) => {
     <Input
       {...register(name, { onChange })}
       {...props}
-      error={
-        error &&
-        (['required', 'nullable', 'optionality'].includes(error.type) ? true : error.message)
-      }
+      error={error ? error.message || true : false}
     />
   );
 };

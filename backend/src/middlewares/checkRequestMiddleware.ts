@@ -1,23 +1,18 @@
 import { NextFunction, Request, Response } from 'express';
-import { AnySchema, ValidationError } from 'yup';
+import { z } from 'zod';
 
 import HttpException from '#models/HttpException';
 
 const checkSchemaMiddleware = (data: keyof Request) => (
-  (schema: AnySchema) => (
+  (schema: z.ZodSchema) => (
     async (req: Request, _res: Response, next: NextFunction) => {
-      try {
-        await schema.validate(req[data]);
-        next();
-      } catch (error) {
+      const parsingResult = schema.safeParse(req[data]);
+      if (!parsingResult.success) {
         next(
-          new HttpException(
-            500,
-            'Wrong request parameters',
-            error instanceof ValidationError ? error.message : undefined,
-          ),
+          new HttpException(500, 'Wrong request parameters', parsingResult.error.message),
         );
       }
+      next();
     }
   )
 );

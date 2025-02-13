@@ -26,7 +26,7 @@ export const FormSelect = <
     formState: { errors },
   } = useFormContext();
 
-  const error: FieldError | undefined = getProp(errors, name)?.value;
+  const error: FieldError | undefined = getProp(errors, name);
 
   const optionFinder = (options: any, value: string): any => {
     if (!options) return null;
@@ -51,10 +51,7 @@ export const FormSelect = <
           value={optionFinder(options, field.value)}
           onChange={(val: any) => field.onChange(val?.value)}
           ref={field.ref}
-          error={
-            error &&
-            (['required', 'nullable', 'optionality'].includes(error.type) ? true : error.message)
-          }
+          error={error ? error.message || true : false}
         />
       )}
     />

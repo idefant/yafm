@@ -29,11 +29,12 @@ app.use('/api', router);
 
 app.use(errorMiddleware);
 
+swaggerDocs(app, port);
+
 app.get('*', (req, res) => {
   res.sendFile(path.resolve(__dirname, '../public/index.html'));
 });
 
 app.listen(port, async () => {
   console.log(`YAFM API listening on port ${port}`);
-  swaggerDocs(app, port);
 });

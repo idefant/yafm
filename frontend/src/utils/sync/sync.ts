@@ -1,4 +1,4 @@
-import { array, object, string, ValidationError } from 'yup';
+import { z } from 'zod';
 
 import { accountSchema } from '#schema/accountSchema';
 import { categorySchema } from '#schema/categorySchema';
@@ -32,27 +32,24 @@ export const getSyncData = () => {
   };
 };
 
-const schema = object()
-  .shape({
-    accounts: array().of(accountSchema).required(),
-    transactions: array().of(transactionSchema).required(),
-    templates: array().of(templateSchema).required(),
-    categories: object({
-      accounts: array().of(categorySchema).required(),
-      transactions: array().of(categorySchema).required(),
-    }).required(),
-    currencies: array().of(currencySchema).required(),
-    baseCurrencyCode: string().required(),
+const schema = z
+  .object({
+    accounts: z.array(accountSchema),
+    transactions: z.array(transactionSchema),
+    templates: z.array(templateSchema),
+    categories: z.object({
+      accounts: z.array(categorySchema),
+      transactions: z.array(categorySchema),
+    }),
+    currencies: z.array(currencySchema),
+    baseCurrencyCode: z.string(),
   })
   .required();
 
 export const checkBaseIntegrity = (data: Base) => {
-  try {
-    schema.validateSync(data);
-  } catch (error) {
-    if (error instanceof ValidationError) {
-      return { error: error.message };
-    }
+  const parsingResult = schema.safeParse(data);
+  if (!parsingResult.success) {
+    return { error: parsingResult.error.message };
   }
 
   const getKeys = <T>(items: T[], key: string) =>

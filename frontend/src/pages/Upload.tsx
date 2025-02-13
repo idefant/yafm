@@ -1,10 +1,10 @@
-import { yupResolver } from '@hookform/resolvers/yup';
+import { zodResolver } from '@hookform/resolvers/zod';
 import dayjs from 'dayjs';
 import { ChangeEvent, FC, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { bool, mixed, object, string, ValidationError } from 'yup';
+import { z } from 'zod';
 
 import { appRoutes } from '#data/routes';
 import { useAppDispatch } from '#hooks/reduxHooks';
@@ -19,7 +19,6 @@ import { Title, Text } from '#ui/Typography';
 import { actionCreator, committer } from '#utils/committer';
 import { crypt } from '#utils/crypt';
 import { readFileContent } from '#utils/file';
-import yup from '#utils/form/schema';
 import Gzip from '#utils/gzip';
 import { checkBaseIntegrity } from '#utils/sync';
 
@@ -28,19 +27,17 @@ type FileData = { created_at: string } & (
   | { data: any; is_encrypted: false }
 );
 
-type TForm = {
-  password: string;
-};
-
-const formSchema = yup.object({
-  password: yup.string().required(),
+const formSchema = z.object({
+  password: z.string().nonempty(),
 });
+
+type FormOutput = z.infer<typeof formSchema>;
 
 export const Upload: FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const methods = useForm<TForm>({ resolver: yupResolver(formSchema) });
+  const methods = useForm<FormOutput>({ resolver: zodResolver(formSchema) });
   const { handleSubmit, reset } = methods;
 
   const [fileData, setFileData] = useState<FileData>();
@@ -59,7 +56,7 @@ export const Upload: FC = () => {
     return JSON.parse(await Gzip.decompress(plaintext));
   };
 
-  const onSubmit = async (values: TForm) => {
+  const onSubmit = async (values: FormOutput) => {
     const data = await getPlainData(values.password);
     if (!data) return;
 
@@ -92,21 +89,17 @@ export const Upload: FC = () => {
           }
 
           const data = JSON.parse(content);
-          const schema = object().shape({
-            created_at: string().required(),
-            is_encrypted: bool().required(),
-            data: mixed().required(),
+          const schema = z.object({
+            created_at: z.string().datetime(),
+            is_encrypted: z.boolean(),
+            data: z.any(),
           });
 
-          const error = await schema
-            .validate(data)
-            .then(() => undefined)
-            .catch((err: ValidationError) => err.message);
-
-          if (error) {
+          const parsingResult = schema.safeParse(data);
+          if (!parsingResult.success) {
             Swal.fire({
               title: 'File Opening Error',
-              text: error,
+              text: parsingResult.error.message,
               icon: 'error',
             });
             return;

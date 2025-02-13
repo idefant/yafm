@@ -197,21 +197,24 @@ export const Transactions: FC = () => {
   }, []);
 
   const renderGroupCell = useCallback(
-    (row: Row<TransactionWithBaseSum>) => (
-      <HStack justify="spaceBetween" grow={1}>
-        <Text color="secondary" size="sm" weight="bold">
-          {dayjs(row.original.datetime).format('DD.MM.YYYY, dddd')}
-        </Text>
-        <SumValue
-          value={row.original.baseSum}
-          currencyCode={baseCurrencyCode}
-          decimalPlacesNumber={baseCurrency?.decimal_places_number || 2}
-          color="secondary"
-          size="sm"
-          weight="bold"
-        />
-      </HStack>
-    ),
+    (row: Row<TransactionWithBaseSum>) => {
+      const sum = BigNumber.sum(...row.subRows.map((subRow) => subRow.original.baseSum));
+      return (
+        <HStack justify="spaceBetween" grow={1}>
+          <Text color="secondary" size="sm" weight="bold">
+            {dayjs(row.original.datetime).format('DD.MM.YYYY, dddd')}
+          </Text>
+          <SumValue
+            value={sum}
+            currencyCode={baseCurrencyCode}
+            decimalPlacesNumber={baseCurrency?.decimal_places_number || 2}
+            color="secondary"
+            size="sm"
+            weight="bold"
+          />
+        </HStack>
+      );
+    },
     [baseCurrency?.decimal_places_number, baseCurrencyCode],
   );
 

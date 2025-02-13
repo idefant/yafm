@@ -1,14 +1,14 @@
-import { yupResolver } from '@hookform/resolvers/yup';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { FC, useId } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
+import { z } from 'zod';
 
 import { useAppSelector } from '#hooks/reduxHooks';
-import { Currency, CurrencyType, currencyTypes } from '#types/currencyType';
+import { Currency, currencyTypes } from '#types/currencyType';
 import { Button } from '#ui/Button';
 import { Form } from '#ui/Form';
 import { Modal, UseModalReturn } from '#ui/Modal';
 import { actionCreator, committer } from '#utils/committer';
-import yup from '#utils/form/schema';
 
 export type SetCurrencyModalData =
   | { method: 'create'; currency: { name: string; code: string } }
@@ -18,33 +18,26 @@ interface SetCurrencyProps {
   modal: UseModalReturn<SetCurrencyModalData>;
 }
 
-type TForm = {
-  name: string;
-  decimalPlacesNumber: number;
-  type: CurrencyType;
-  color: string;
-  symbol: string;
-  isBaseCurrency: boolean;
-};
-
-const formSchema = yup.object({
-  name: yup.string().required(),
-  decimalPlacesNumber: yup.number().positive().required(),
-  type: yup.string().oneOf(currencyTypes).required(),
-  color: yup.string(),
-  symbol: yup.string(),
-  isBaseCurrency: yup.boolean().required(),
+const formSchema = z.object({
+  name: z.string().trim().nonempty(),
+  decimalPlacesNumber: z.number().nonnegative().int(),
+  type: z.enum(currencyTypes),
+  color: z.string().nullish(),
+  symbol: z.string().trim().nonempty(),
+  isBaseCurrency: z.boolean(),
 });
+
+type FormOutput = z.infer<typeof formSchema>;
 
 export const SetCurrency: FC<SetCurrencyProps> = ({ modal }) => {
   const formId = useId();
 
   const { baseCurrencyCode } = useAppSelector((state) => state.currencies);
 
-  const methods = useForm<TForm>({ resolver: yupResolver(formSchema) });
+  const methods = useForm<FormOutput>({ resolver: zodResolver(formSchema) });
   const { handleSubmit, reset } = methods;
 
-  const onSubmit = async (values: TForm) => {
+  const onSubmit = async (values: FormOutput) => {
     if (!modal.isOpen) return;
 
     const currencyData = {
@@ -93,19 +86,16 @@ export const SetCurrency: FC<SetCurrencyProps> = ({ modal }) => {
     );
   };
 
-  const onExited = () => reset();
-
   return (
     <Modal
       title={modal.data?.method === 'create' ? 'Create Currency' : 'Edit Currency'}
       isOpen={modal.isOpen}
       close={modal.close}
       onOpening={onOpening}
-      onExited={onExited}
     >
       <Modal.Content>
         <FormProvider {...methods}>
-          <Form onSubmit={handleSubmit(onSubmit)}>
+          <Form onSubmit={handleSubmit(onSubmit)} id={formId}>
             <Form.Input label="Name" name="name" />
             <Form.Input label="Symbol" name="symbol" />
             <Form.Number

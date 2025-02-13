@@ -1,14 +1,14 @@
-import { object, date } from 'yup';
+import { z } from 'zod';
 
-import { base64Schema, hexSchema } from './commonSchema';
+import { hexSchema } from './commonSchema';
 
-export const getListCommitsSchema = object().shape({
-  syncedAtFrom: date(),
+export const getListCommitsSchema = z.object({
+  syncedAtFrom: z.string().datetime().optional(),
 });
 
-export const createCommitSchema = object().shape({
-  iv: hexSchema.required(),
-  cipher: base64Schema.required(),
-  hmac: hexSchema.required(),
-  salt: hexSchema.required(),
+export const createCommitSchema = z.object({
+  iv: hexSchema,
+  cipher: z.string().base64(),
+  hmac: hexSchema,
+  salt: hexSchema,
 });

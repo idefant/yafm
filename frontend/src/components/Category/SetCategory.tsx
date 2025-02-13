@@ -1,13 +1,13 @@
-import { yupResolver } from '@hookform/resolvers/yup';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { FC, useId } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
+import { z } from 'zod';
 
 import { Category, CategoryType } from '#types/categoryType';
 import { Button } from '#ui/Button';
 import { Form } from '#ui/Form';
 import { Modal, UseModalReturn } from '#ui/Modal';
 import { actionCreator, committer } from '#utils/committer';
-import yup from '#utils/form/schema';
 
 export type SetCategoryModalData =
   | {
@@ -25,25 +25,20 @@ interface SetCategoryProps {
   modal: UseModalReturn<SetCategoryModalData>;
 }
 
-type TForm = {
-  name: string;
-  isArchive: boolean;
-};
+const formSchema = z.object({
+  name: z.string().trim().nonempty(),
+  isArchive: z.boolean().nullish(),
+});
 
-const formSchema = yup
-  .object({
-    name: yup.string().required(),
-    isArchive: yup.bool(),
-  })
-  .required();
+type FormOutput = z.infer<typeof formSchema>;
 
 export const SetCategory: FC<SetCategoryProps> = ({ modal }) => {
   const formId = useId();
 
-  const methods = useForm<TForm>({ resolver: yupResolver(formSchema) });
+  const methods = useForm<FormOutput>({ resolver: zodResolver(formSchema) });
   const { handleSubmit, reset } = methods;
 
-  const onSubmit = async (values: TForm) => {
+  const onSubmit = async (values: FormOutput) => {
     if (!modal.isOpen) return;
 
     const categoryData = {
@@ -79,15 +74,12 @@ export const SetCategory: FC<SetCategoryProps> = ({ modal }) => {
     });
   };
 
-  const onExited = () => reset();
-
   return (
     <Modal
       title={modal.data?.method === 'create' ? 'Create Category' : 'Edit Category'}
       isOpen={modal.isOpen}
       close={modal.close}
       onOpen={onOpen}
-      onExited={onExited}
     >
       <Modal.Content>
         <FormProvider {...methods}>

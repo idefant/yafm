@@ -1,12 +1,12 @@
-import { yupResolver } from '@hookform/resolvers/yup';
+import { zodResolver } from '@hookform/resolvers/zod';
 import BigNumber from 'bignumber.js';
 import dayjs from 'dayjs';
 import { FC, useId, useState } from 'react';
 import { FormProvider, useFieldArray, useForm, useWatch } from 'react-hook-form';
+import { z } from 'zod';
 
 import { ChooseTemplate } from '#components/Template';
 import { useAppSelector } from '#hooks/reduxHooks';
-import { numberWithDecimalPlacesSchema } from '#schema';
 import {
   selectAllAccountsCombined,
   selectAllAccountsCombinedEntities,
@@ -25,7 +25,6 @@ import { Modal, useModal, UseModalReturn } from '#ui/Modal';
 import { HStack, VStack } from '#ui/Stack';
 import { Title } from '#ui/Typography';
 import { actionCreator, committer } from '#utils/committer';
-import yup from '#utils/form/schema';
 import { compareObjByStr } from '#utils/string';
 
 export type SetTransactionModalData =
@@ -36,16 +35,22 @@ interface SetTransactionProps {
   modal: UseModalReturn<SetTransactionModalData>;
 }
 
-type TForm = {
-  name: string;
-  description: string;
-  operations: {
-    accountId: string | null;
-    isPositive: boolean;
-    sum: number;
-  }[];
-  categoryId: string | null;
-};
+const formSchema = z.object({
+  name: z.string().trim(),
+  categoryId: z.string().nullish(),
+  operations: z
+    .array(
+      z.object({
+        isPositive: z.boolean(),
+        accountId: z.string().nonempty(),
+        sum: z.number().positive(),
+      }),
+    )
+    .nonempty(),
+  description: z.string(),
+});
+
+type FormOutput = z.infer<typeof formSchema>;
 
 export const SetTransaction: FC<SetTransactionProps> = ({ modal }) => {
   const formId = useId();
@@ -54,30 +59,7 @@ export const SetTransaction: FC<SetTransactionProps> = ({ modal }) => {
   const accountsEntities = useAppSelector(selectAllAccountsCombinedEntities);
   const categories = useAppSelector(selectAllTransactionCategories);
 
-  const formSchema = yup.object({
-    name: yup.string(),
-    description: yup.string(),
-    operations: yup
-      .array(
-        yup.object().shape({
-          isPositive: yup.bool().required(),
-          accountId: yup.string().required(),
-          sum: yup
-            .number()
-            .positive()
-            .required()
-            .when('accountId', ([accountId], schema) => {
-              const account = accountsEntities[accountId];
-              if (!account) return schema;
-              return numberWithDecimalPlacesSchema(account.currency.decimal_places_number, true);
-            }),
-        }),
-      )
-      .min(1),
-    categoryId: yup.string(),
-  });
-
-  const methods = useForm<TForm>({ resolver: yupResolver(formSchema) });
+  const methods = useForm<FormOutput>({ resolver: zodResolver(formSchema) });
   const { control, handleSubmit, reset, setValue } = methods;
   const { fields, append, remove } = useFieldArray({
     control,
@@ -97,7 +79,7 @@ export const SetTransaction: FC<SetTransactionProps> = ({ modal }) => {
   const [date, setDate] = useState(dayjs());
   const templateModal = useModal();
 
-  const onSubmit = async (values: TForm) => {
+  const onSubmit = async (values: FormOutput) => {
     if (!modal.isOpen) return;
 
     const transactionData = {
@@ -159,10 +141,8 @@ export const SetTransaction: FC<SetTransactionProps> = ({ modal }) => {
     setDate(dayjs(modal.data.method === 'edit' ? modal.data.transaction.datetime : undefined));
   };
 
-  const onExited = () => reset();
-
   return (
-    <Modal isOpen={modal.isOpen} close={modal.close} onOpening={onOpening} onExited={onExited}>
+    <Modal isOpen={modal.isOpen} close={modal.close} onOpening={onOpening}>
       <Modal.Content>
         <FormProvider {...methods}>
           <Form onSubmit={handleSubmit(onSubmit)} id={formId}>
@@ -248,9 +228,7 @@ export const SetTransaction: FC<SetTransactionProps> = ({ modal }) => {
                 <Button
                   color="success"
                   startIcon={<PlusIcon />}
-                  onClick={() =>
-                    append({ accountId: null, sum: undefined as any, isPositive: true })
-                  }
+                  onClick={() => append({ accountId: '', sum: undefined as any, isPositive: true })}
                 >
                   Income
                 </Button>
@@ -259,7 +237,7 @@ export const SetTransaction: FC<SetTransactionProps> = ({ modal }) => {
                   color="danger"
                   startIcon={<MinusIcon />}
                   onClick={() =>
-                    append({ accountId: null, sum: undefined as any, isPositive: false })
+                    append({ accountId: '', sum: undefined as any, isPositive: false })
                   }
                 >
                   Outcome

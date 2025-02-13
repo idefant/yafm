@@ -22,7 +22,7 @@ export const FormPassword: FC<FormPasswordProps> = ({ name, options, ...props })
     <InputPassword
       {...props}
       {...register(name, options)}
-      error={error && (error.type === 'required' ? true : error.message)}
+      error={error ? error.message || true : false}
     />
   );
 };

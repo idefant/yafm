@@ -1,23 +1,23 @@
-import { object, string, number, array } from 'yup';
+import { z } from 'zod';
 
-export const transferSchema = object({
-  account_id: string().required(),
-  sum: string().required(),
+export const operationSchema = z.object({
+  account_id: z.string(),
+  sum: z.string(),
 });
 
-export const transactionSchema = object().shape({
-  id: string().required(),
-  name: string(),
-  description: string(),
-  datetime: number().required().integer(),
-  operations: array(transferSchema).required(),
-  category_id: string(),
+export const transactionSchema = z.object({
+  id: z.string(),
+  name: z.string().optional(),
+  description: z.string().optional(),
+  datetime: z.number().int().positive(),
+  operations: z.array(operationSchema),
+  category_id: z.string().optional(),
 });
 
-export const templateSchema = object().shape({
-  id: string().required(),
-  name: string(),
-  description: string(),
-  operations: array(transferSchema).required(),
-  category_id: string(),
+export const templateSchema = z.object({
+  id: z.string(),
+  name: z.string().optional(),
+  description: z.string().optional(),
+  operations: z.array(operationSchema),
+  category_id: z.string().optional(),
 });

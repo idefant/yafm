@@ -12,6 +12,7 @@ import { DialogModalContainer } from '#ui/Modal';
 import { ScrollLockWatcher } from '#ui/ScrollLock';
 
 import App from './App';
+import '#utils/form/schema';
 
 import 'modern-normalize/modern-normalize.css';
 import '@fontsource-variable/open-sans';
