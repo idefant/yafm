@@ -1,4 +1,5 @@
-import { Controller, FieldError, useFormContext } from 'react-hook-form';
+import { useCallback } from 'react';
+import { FieldError, useFormContext, useWatch } from 'react-hook-form';
 import { GroupBase } from 'react-select';
 
 import { Select, SelectProps } from '#ui/Select';
@@ -23,37 +24,38 @@ export const FormSelect = <
 }: FormSelectProps<Option, IsMulti, Group>) => {
   const {
     control,
+    register,
     formState: { errors },
+    setValue,
   } = useFormContext();
+  const selectedValue = useWatch({ control, name });
 
   const error: FieldError | undefined = getProp(errors, name);
 
-  const optionFinder = (options: any, value: string): any => {
+  const findOption = useCallback((options: any, value: string): any => {
     if (!options) return null;
-    for (const c of options) {
-      if (!c.options) {
-        if (c.value === value) return c;
+    for (const option of options) {
+      if (!option.options) {
+        if (option.value === value) return option;
       }
-      const foundOption = optionFinder(c.options, value);
+      const foundOption = findOption(option.options, value);
       if (foundOption) return foundOption;
     }
     return null;
-  };
+  }, []);
+
+  const selectedOption = findOption(options, selectedValue);
 
   return (
-    <Controller
-      name={name}
-      control={control}
-      render={({ field }) => (
-        <Select
-          {...props}
-          options={options}
-          value={optionFinder(options, field.value)}
-          onChange={(val: any) => field.onChange(val?.value)}
-          ref={field.ref}
-          error={error ? error.message || true : false}
-        />
-      )}
+    <Select
+      {...register(name)}
+      {...props}
+      options={options}
+      value={selectedOption}
+      onChange={(val: any) => {
+        setValue(name, val?.value, { shouldValidate: true });
+      }}
+      error={error ? error.message || true : false}
     />
   );
 };
