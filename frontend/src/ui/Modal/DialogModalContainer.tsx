@@ -122,12 +122,14 @@ export const DialogModalContainer: FC<DialogModalContainerProps> = ({ maxCount =
           title,
           icon,
           content,
+          showCloseButton,
           cancelText = 'Отмена',
           confirmText = 'ОК',
           showCancel = true,
           showConfirm = true,
           cancelColor = 'secondary',
           confirmColor = 'primary',
+          focusButton = (showConfirm && 'confirm') || (showCancel && 'cancel') || 'close',
           container,
           disablePortal,
         }) => {
@@ -153,18 +155,30 @@ export const DialogModalContainer: FC<DialogModalContainerProps> = ({ maxCount =
               container={container}
               disablePortal={disablePortal}
               refocus
+              size="xxs"
+              showCloseButton={showCloseButton}
             >
               {content && <Modal.Content>{content}</Modal.Content>}
 
               <Modal.Footer>
                 {showCancel && (
-                  <Button color={cancelColor} onClick={handleCancel} disabled={disabled}>
+                  <Button
+                    color={cancelColor}
+                    onClick={handleCancel}
+                    disabled={disabled}
+                    autoFocus={focusButton === 'cancel'}
+                  >
                     {cancelText}
                   </Button>
                 )}
 
                 {showConfirm && (
-                  <Button color={confirmColor} onClick={handleSubmit} disabled={disabled}>
+                  <Button
+                    color={confirmColor}
+                    onClick={handleSubmit}
+                    disabled={disabled}
+                    autoFocus={focusButton === 'confirm'}
+                  >
                     {confirmText}
                   </Button>
                 )}

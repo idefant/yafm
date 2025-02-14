@@ -9,7 +9,6 @@ import {
 import BigNumber from 'bignumber.js';
 import dayjs from 'dayjs';
 import { FC, useCallback, useMemo, useState } from 'react';
-import Swal from 'sweetalert2';
 import { Except } from 'type-fest';
 
 import { useFetchRatesByPeriodQuery } from '#api/exratesApi';
@@ -31,7 +30,7 @@ import { Button } from '#ui/Button';
 import { Card } from '#ui/Card';
 import { DateFilter, useDateFilter } from '#ui/DateFilter';
 import { Grid } from '#ui/Grid';
-import { useModal } from '#ui/Modal';
+import { dmodal, useModal } from '#ui/Modal';
 import { Select, SelectOption } from '#ui/Select';
 import { HStack } from '#ui/Stack';
 import { SumValue } from '#ui/SumValue';
@@ -181,19 +180,17 @@ export const Transactions: FC = () => {
     getExpandedRowModel: getExpandedRowModel(),
   });
 
-  const confirmDelete = useCallback((transaction: TransactionCombined) => {
-    Swal.fire({
+  const confirmDelete = useCallback(async (transaction: TransactionCombined) => {
+    const modalResult = await dmodal.error({
       title: 'Delete transaction',
-      icon: 'error',
-      text: transaction.name,
-      showCancelButton: true,
-      cancelButtonText: 'Cancel',
-      confirmButtonText: 'Delete',
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        committer(actionCreator.deleteTransaction(transaction.id)).sync();
-      }
+      content: `Transaction name: ${transaction.name || '-'}`,
+      confirmText: 'Delete',
+      confirmColor: 'danger',
     });
+
+    if (modalResult.isConfirmed) {
+      committer(actionCreator.deleteTransaction(transaction.id)).sync();
+    }
   }, []);
 
   const renderGroupCell = useCallback(

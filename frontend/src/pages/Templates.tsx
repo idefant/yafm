@@ -1,7 +1,6 @@
 import { createColumnHelper, getCoreRowModel, Row, useReactTable } from '@tanstack/react-table';
 import BigNumber from 'bignumber.js';
 import { FC, useCallback, useMemo } from 'react';
-import Swal from 'sweetalert2';
 import { Except } from 'type-fest';
 
 import { useFetchLastRatesQuery } from '#api/exratesApi';
@@ -19,7 +18,7 @@ import {
 } from '#types/transactionType';
 import { Button } from '#ui/Button';
 import { Card } from '#ui/Card';
-import { useModal } from '#ui/Modal';
+import { dmodal, useModal } from '#ui/Modal';
 import { SumValueList } from '#ui/SumValueList';
 import { Table } from '#ui/Table';
 import { Title } from '#ui/Typography';
@@ -97,19 +96,17 @@ export const Templates: FC = () => {
     getCoreRowModel: getCoreRowModel(),
   });
 
-  const confirmDelete = useCallback((template: TransactionTemplate) => {
-    Swal.fire({
+  const confirmDelete = useCallback(async (template: TransactionTemplate) => {
+    const modalResult = await dmodal.error({
       title: 'Delete template',
-      icon: 'error',
-      text: template.name,
-      showCancelButton: true,
-      cancelButtonText: 'Cancel',
-      confirmButtonText: 'Delete',
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        committer(actionCreator.deleteTransactionTemplate(template.id)).sync();
-      }
+      content: `Template name: ${template.name}`,
+      confirmText: 'Delete',
+      confirmColor: 'danger',
     });
+
+    if (modalResult.isConfirmed) {
+      committer(actionCreator.deleteTransactionTemplate(template.id)).sync();
+    }
   }, []);
 
   const getRowContextMenu = useCallback(

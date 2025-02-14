@@ -3,7 +3,6 @@ import dayjs from 'dayjs';
 import { ChangeEvent, FC, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import Swal from 'sweetalert2';
 import { z } from 'zod';
 
 import { appRoutes } from '#data/routes';
@@ -11,9 +10,11 @@ import { useAppDispatch } from '#hooks/reduxHooks';
 import { unlockBase } from '#store/reducers/appSlice';
 import ChevronLeftIcon from '#svg/chevron-left.svg?react';
 import { EncryptedData } from '#types/cipher';
+import { Alert } from '#ui/Alert';
 import { Button } from '#ui/Button';
 import { Form } from '#ui/Form';
 import { IconButton } from '#ui/IconButton';
+import { dmodal } from '#ui/Modal';
 import { HStack } from '#ui/Stack';
 import { Title, Text } from '#ui/Typography';
 import { actionCreator, committer } from '#utils/committer';
@@ -41,6 +42,7 @@ export const Upload: FC = () => {
   const { handleSubmit, reset } = methods;
 
   const [fileData, setFileData] = useState<FileData>();
+  const [alertText, setAlertText] = useState<string>();
 
   const getPlainData = async (password: string) => {
     if (!fileData) return;
@@ -48,7 +50,7 @@ export const Upload: FC = () => {
 
     const plaintext = await crypt.decrypt(fileData.data, password);
     if (!plaintext) {
-      Swal.fire({ title: 'Wrong password', icon: 'error' });
+      setAlertText('Wrong password');
       reset({ password: '' });
       return;
     }
@@ -57,6 +59,7 @@ export const Upload: FC = () => {
   };
 
   const onSubmit = async (values: FormOutput) => {
+    setAlertText(undefined);
     const data = await getPlainData(values.password);
     if (!data) return;
 
@@ -64,10 +67,10 @@ export const Upload: FC = () => {
 
     const validatedStatus = checkBaseIntegrity(data);
     if (validatedStatus) {
-      Swal.fire({
+      dmodal.error({
         title: 'Validate Error',
-        text: validatedStatus.error,
-        icon: 'error',
+        content: validatedStatus.error,
+        showCancel: false,
       });
       return;
     }
@@ -84,7 +87,10 @@ export const Upload: FC = () => {
       readFileContent(input.files[0])
         .then(async (content) => {
           if (typeof content !== 'string') {
-            Swal.fire({ title: 'Wrong Format', icon: 'error' });
+            dmodal.error({
+              title: 'Wrong Format',
+              showCancel: false,
+            });
             return;
           }
 
@@ -97,10 +103,10 @@ export const Upload: FC = () => {
 
           const parsingResult = schema.safeParse(data);
           if (!parsingResult.success) {
-            Swal.fire({
+            dmodal.error({
               title: 'File Opening Error',
-              text: parsingResult.error.message,
-              icon: 'error',
+              content: parsingResult.error.message,
+              showCancel: false,
             });
             return;
           }
@@ -108,7 +114,10 @@ export const Upload: FC = () => {
           setFileData(data);
         })
         .catch(() => {
-          Swal.fire({ title: 'File Opening Error', icon: 'error' });
+          dmodal.error({
+            title: 'File Opening Error',
+            showCancel: false,
+          });
         });
     }
   };
@@ -124,6 +133,8 @@ export const Upload: FC = () => {
         />
         <Title level={4}>Upload Base</Title>
       </HStack>
+
+      <Alert text={alertText} />
 
       <FormProvider {...methods}>
         <Form onSubmit={handleSubmit(onSubmit)}>

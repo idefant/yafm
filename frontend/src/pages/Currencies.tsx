@@ -1,6 +1,5 @@
 import { createColumnHelper, getCoreRowModel, Row, useReactTable } from '@tanstack/react-table';
 import { FC, useCallback, useMemo } from 'react';
-import Swal from 'sweetalert2';
 
 import { useFetchCurrenciesQuery } from '#api/exratesApi';
 import { SetCurrency, SetCurrencyModalData } from '#components/Currency';
@@ -15,7 +14,7 @@ import { Currency } from '#types/currencyType';
 import { Card } from '#ui/Card';
 import { Grid } from '#ui/Grid';
 import { IconButton } from '#ui/IconButton';
-import { useModal } from '#ui/Modal';
+import { dmodal, useModal } from '#ui/Modal';
 import { Table } from '#ui/Table';
 import { Title } from '#ui/Typography';
 import { actionCreator, committer } from '#utils/committer';
@@ -109,32 +108,34 @@ export const Currencies: FC = () => {
   });
 
   const confirmDelete = useCallback(
-    (currency: Currency) => {
+    async (currency: Currency) => {
       if (accounts.some(({ currency_code: currencyCode }) => currencyCode === currency.code)) {
-        Swal.fire({
+        dmodal.error({
           title: 'Unable to delete currency',
-          text: 'There are accounts using this currency',
-          icon: 'error',
+          content: 'There are accounts using this currency',
+          showCancel: false,
         });
-      } else if (currency.code === baseCurrencyCode) {
-        Swal.fire({
+        return;
+      }
+
+      if (currency.code === baseCurrencyCode) {
+        dmodal.error({
           title: 'Unable to delete currency',
-          text: 'This is base currency',
-          icon: 'error',
+          content: 'This is base currency',
+          showCancel: false,
         });
-      } else {
-        Swal.fire({
-          title: 'Delete currency',
-          icon: 'error',
-          text: `Name: ${currency.name}`,
-          showCancelButton: true,
-          cancelButtonText: 'Cancel',
-          confirmButtonText: 'Delete',
-        }).then(async (result) => {
-          if (result.isConfirmed) {
-            committer(actionCreator.deleteCurrency(currency.code)).sync();
-          }
-        });
+        return;
+      }
+
+      const modalResult = await dmodal.error({
+        title: 'Delete currency',
+        content: `Currency name: ${currency.name}`,
+        confirmText: 'Delete',
+        confirmColor: 'danger',
+      });
+
+      if (modalResult.isConfirmed) {
+        committer(actionCreator.deleteCurrency(currency.code)).sync();
       }
     },
     [accounts, baseCurrencyCode],

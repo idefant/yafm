@@ -20,6 +20,8 @@ interface ModalProps extends PopupProps {
   icon?: ModalIcon;
   /** Размеры модального окна */
   size?: ModalSize;
+  /** Показывать кнопку закрытия */
+  showCloseButton?: boolean;
 }
 
 interface ModalExtensions {
@@ -39,6 +41,7 @@ export const Modal: FC<ModalProps> & ModalExtensions = ({
   close,
   icon,
   size = 'xs',
+  showCloseButton = true,
   ...props
 }: ModalProps) => (
   <Popup classes={{ window: cls.popup }} close={close} {...props}>
@@ -47,7 +50,7 @@ export const Modal: FC<ModalProps> & ModalExtensions = ({
         {icon && iconsDict[icon]}
 
         <div className={cls.content}>
-          {close && (
+          {showCloseButton && close && (
             <button type="button" className={cls.xButton} onClick={close} aria-label="Close">
               <XIcon />
             </button>

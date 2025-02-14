@@ -1,10 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { FC, useId } from 'react';
+import { FC, useId, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import Swal from 'sweetalert2';
 import { z } from 'zod';
 
 import { passwordSchema } from '#schema/commonSchema';
+import { Alert, AlertColor } from '#ui/Alert';
 import { Button } from '#ui/Button';
 import { Card } from '#ui/Card';
 import { Form } from '#ui/Form';
@@ -30,21 +30,24 @@ export const SettingChangePassword: FC = () => {
   const methods = useForm<FormOutput>({ resolver: zodResolver(formSchema) });
   const { handleSubmit, reset } = methods;
 
+  const [alert, setAlert] = useState<{ color: AlertColor; text: string }>();
+
   const onSubmit = async (values: FormOutput) => {
+    setAlert(undefined);
+
     const isCorrectOldPassword = await crypt.checkPassword(values.oldPassword);
     if (!isCorrectOldPassword) {
-      Swal.fire({ title: 'Wrong old password', icon: 'error' });
+      setAlert({ color: 'danger', text: 'Wrong old password' });
       reset({ oldPassword: '' });
-      return;
-    }
-    if (values.newPassword !== values.repeatPassword) {
-      Swal.fire({ title: "Passwords don't match", icon: 'error' });
       return;
     }
 
     await crypt.setSecret({ password: values.newPassword });
     await committer(actionCreator.changePassword()).sync();
-    Swal.fire({ title: 'Password changed successfully', icon: 'success' });
+    setAlert({ color: 'success', text: 'Password changed successfully' });
+    setTimeout(() => {
+      setAlert((currentAlert) => (currentAlert?.color === 'success' ? undefined : currentAlert));
+    }, 10_000);
     reset({
       oldPassword: '',
       newPassword: '',
@@ -58,6 +61,8 @@ export const SettingChangePassword: FC = () => {
         <Title level={4} gutterBottom>
           Change Password
         </Title>
+
+        <Alert color={alert?.color} text={alert?.text} />
 
         <FormProvider {...methods}>
           <Form id={formId} onSubmit={handleSubmit(onSubmit)}>

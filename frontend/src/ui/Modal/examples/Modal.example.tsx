@@ -6,13 +6,14 @@ import { Paragraph } from '#ui/Typography';
 
 type ModalExampleProps = Pick<
   ComponentProps<typeof Modal>,
-  'title' | 'icon' | 'isOpen' | 'container' | 'disablePortal' | 'size'
+  'title' | 'icon' | 'isOpen' | 'container' | 'disablePortal' | 'size' | 'showCloseButton'
 >;
 
 const ModalExample: FC<ModalExampleProps> = ({
   title,
   icon,
   size,
+  showCloseButton,
   isOpen: isOpenByDefault,
   container,
   disablePortal,
@@ -29,6 +30,7 @@ const ModalExample: FC<ModalExampleProps> = ({
         title={title}
         icon={icon}
         size={size}
+        showCloseButton={showCloseButton}
         container={container}
         disablePortal={disablePortal}
       >

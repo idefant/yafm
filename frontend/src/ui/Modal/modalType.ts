@@ -11,6 +11,7 @@ export type ModalParams<S, T> = {
   title?: string;
   icon?: ModalIcon;
   content?: ReactNode;
+  showCloseButton?: boolean;
   cancelText?: string;
   confirmText?: string;
   cancelColor?: ButtonColor;
@@ -19,6 +20,7 @@ export type ModalParams<S, T> = {
   showConfirm?: boolean;
   preCancel?: () => Promisable<S>;
   preConfirm?: () => Promisable<T>;
+  focusButton?: 'confirm' | 'cancel' | 'close';
   container?: HTMLElement;
   disablePortal?: boolean;
 };

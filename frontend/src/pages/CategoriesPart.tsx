@@ -1,6 +1,5 @@
 import { createColumnHelper, getCoreRowModel, Row, useReactTable } from '@tanstack/react-table';
 import { FC, useCallback } from 'react';
-import Swal from 'sweetalert2';
 
 import { SetCategory, SetCategoryModalData } from '#components/Category';
 import { useAppSelector } from '#hooks/reduxHooks';
@@ -18,7 +17,7 @@ import TrashIcon from '#svg/trash.svg?react';
 import { CategoryType, Category } from '#types/categoryType';
 import { Button } from '#ui/Button';
 import { Card } from '#ui/Card';
-import { useModal } from '#ui/Modal';
+import { dmodal, useModal } from '#ui/Modal';
 import { HStack } from '#ui/Stack';
 import { Table } from '#ui/Table';
 import { Title } from '#ui/Typography';
@@ -79,31 +78,33 @@ export const CategoriesPart: FC<CategoriesPartProps> = ({ categoryType }) => {
   });
 
   const confirmDelete = useCallback(
-    (category: Category) => {
+    async (category: Category) => {
       if (checkCategoryIsUsed(category.id)) {
-        Swal.fire({
+        dmodal.error({
           title: 'Unable to delete category',
-          text: `There are ${categoryType} or templates using this category`,
-          icon: 'error',
+          content:
+            categoryType === 'accounts'
+              ? 'There are accounts using this category'
+              : 'There are transactions or templates using this category',
+          showCancel: false,
         });
-      } else {
-        Swal.fire({
-          title: 'Delete category',
-          icon: 'error',
-          text: category.name,
-          showCancelButton: true,
-          cancelButtonText: 'Cancel',
-          confirmButtonText: 'Delete',
-        }).then(async (result) => {
-          if (result.isConfirmed) {
-            if (categoryType === 'accounts') {
-              committer(actionCreator.deleteAccountCategory(category.id)).sync();
-            }
-            if (categoryType === 'transactions') {
-              committer(actionCreator.deleteTransactionCategory(category.id)).sync();
-            }
-          }
-        });
+        return;
+      }
+
+      const modalResult = await dmodal.error({
+        title: 'Delete category',
+        content: `Category name: ${category.name}`,
+        confirmText: 'Delete',
+        confirmColor: 'danger',
+      });
+
+      if (modalResult.isConfirmed) {
+        if (categoryType === 'accounts') {
+          committer(actionCreator.deleteAccountCategory(category.id)).sync();
+        }
+        if (categoryType === 'transactions') {
+          committer(actionCreator.deleteTransactionCategory(category.id)).sync();
+        }
       }
     },
     [categoryType, checkCategoryIsUsed],

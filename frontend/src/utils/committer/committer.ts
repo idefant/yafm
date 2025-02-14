@@ -1,6 +1,5 @@
 import dayjs from 'dayjs';
 import { nanoid } from 'nanoid';
-import Swal from 'sweetalert2';
 import { EmptyObject, Except } from 'type-fest';
 
 import { mainApiCommit } from '#api/mainApi';
@@ -64,6 +63,7 @@ import {
 } from '#types/commitType';
 import { Currency } from '#types/currencyType';
 import { Transaction, TransactionTemplate } from '#types/transactionType';
+import { dmodal } from '#ui/Modal';
 import { crypt } from '#utils/crypt';
 import { getChanges } from '#utils/getChanges';
 import Gzip from '#utils/gzip';
@@ -380,9 +380,9 @@ class Committer {
     const encryptedData = await this.encrypt();
     const res = await dispatch(mainApiCommit.endpoints.createCommit.initiate(encryptedData));
     if ('error' in res) {
-      Swal.fire({
+      dmodal.error({
         title: 'Ошибка сохранения данных',
-        icon: 'error',
+        showCancel: false,
       });
     }
     return res;

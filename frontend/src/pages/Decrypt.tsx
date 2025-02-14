@@ -1,8 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import Swal from 'sweetalert2';
 import { z } from 'zod';
 
 import { useFetchCommitsQuery } from '#api/mainApi';
@@ -16,8 +15,10 @@ import { transactionCategoriesReceived } from '#store/reducers/transactionCatego
 import { transactionsReceived } from '#store/reducers/transactionsSlice';
 import { transactionTemplatesReceived } from '#store/reducers/transactionTemplatesSlice';
 import { Commit, CommitAction, updatedBaseMethods } from '#types/commitType';
+import { Alert } from '#ui/Alert';
 import { Button } from '#ui/Button';
 import { Form } from '#ui/Form';
+import { dmodal } from '#ui/Modal';
 import { HStack } from '#ui/Stack';
 import { Title } from '#ui/Typography';
 import { actionCreator, committer } from '#utils/committer';
@@ -34,6 +35,8 @@ export const Decrypt: FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
+  const [alertText, setAlertText] = useState<string>();
+
   const { data: commits, isLoading: isLoadingCommits } = useFetchCommitsQuery(
     {},
     { refetchOnMountOrArgChange: true },
@@ -45,6 +48,7 @@ export const Decrypt: FC = () => {
   const isNew = !commits?.length;
 
   const onSubmit = async (values: FormOutput) => {
+    setAlertText(undefined);
     if (isNew) {
       await crypt.setSecret({ password: values.password });
 
@@ -61,7 +65,7 @@ export const Decrypt: FC = () => {
       const decryptedCommit = await committer.decrypt(commit);
 
       if (!decryptedCommit) {
-        Swal.fire({ title: 'Wrong password', icon: 'error' });
+        setAlertText('Wrong password');
         reset({ password: '' });
         return;
       }
@@ -88,7 +92,10 @@ export const Decrypt: FC = () => {
 
     const base = compileBase(decryptedCommits.toReversed());
     if (!base) {
-      Swal.fire({ title: 'Invalid base data', icon: 'error' });
+      dmodal.error({
+        title: 'Invalid base data',
+        showCancel: false,
+      });
       return;
     }
 
@@ -108,7 +115,11 @@ export const Decrypt: FC = () => {
     <>Loading...</>
   ) : (
     <>
-      <Title level={4}>{isNew ? 'Create Base' : 'Decrypt Base'}</Title>
+      <Title level={4} gutterBottom>
+        {isNew ? 'Create Base' : 'Decrypt Base'}
+      </Title>
+
+      <Alert text={alertText} />
 
       <FormProvider {...methods}>
         <Form onSubmit={handleSubmit(onSubmit)}>

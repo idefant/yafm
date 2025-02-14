@@ -71,6 +71,15 @@ export const Warning: Story = {
   parameters: WithoutIcon.parameters,
 };
 
+export const WithoutCloseButton: Story = {
+  render: (args) => <ModalExample {...args} />,
+  args: {
+    ...WithoutIcon.args,
+    showCloseButton: false,
+  },
+  parameters: WithoutIcon.parameters,
+};
+
 export const ExtraExtraSmall: Story = {
   render: (args) => <ModalExample {...args} />,
   args: {

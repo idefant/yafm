@@ -9,7 +9,6 @@ import {
 import BigNumber from 'bignumber.js';
 import dayjs from 'dayjs';
 import { FC, useCallback, useMemo } from 'react';
-import Swal from 'sweetalert2';
 
 import { useFetchLastRatesQuery } from '#api/exratesApi';
 import { SetAccount, SetAccountModalData } from '#components/Account';
@@ -32,7 +31,7 @@ import { AccountCombined } from '#types/accountType';
 import { Button } from '#ui/Button';
 import { Card } from '#ui/Card';
 import { Grid } from '#ui/Grid';
-import { useModal } from '#ui/Modal';
+import { dmodal, useModal } from '#ui/Modal';
 import { HStack, VStack } from '#ui/Stack';
 import { SumValue } from '#ui/SumValue';
 import { Table } from '#ui/Table';
@@ -139,7 +138,7 @@ export const Accounts: FC = () => {
   });
 
   const confirmDelete = useCallback(
-    (account: AccountCombined) => {
+    async (account: AccountCombined) => {
       if (!account) return;
 
       const isAccountUsed = [...transactions, ...templates].some(({ operations }) =>
@@ -147,24 +146,23 @@ export const Accounts: FC = () => {
       );
 
       if (isAccountUsed) {
-        Swal.fire({
+        dmodal.error({
           title: 'Unable to delete account',
-          text: 'There are transactions or templates using this account',
-          icon: 'error',
+          content: 'There are transactions or templates using this account',
+          showCancel: false,
         });
-      } else {
-        Swal.fire({
-          title: 'Delete account',
-          icon: 'error',
-          text: account.name,
-          showCancelButton: true,
-          cancelButtonText: 'Cancel',
-          confirmButtonText: 'Delete',
-        }).then(async (result) => {
-          if (result.isConfirmed) {
-            committer(actionCreator.deleteAccount(account.id)).sync();
-          }
-        });
+        return;
+      }
+
+      const modalResult = await dmodal.error({
+        title: 'Delete account',
+        content: `Account name: ${account.name}`,
+        confirmText: 'Delete',
+        confirmColor: 'danger',
+      });
+
+      if (modalResult.isConfirmed) {
+        committer(actionCreator.deleteAccount(account.id)).sync();
       }
     },
     [templates, transactions],

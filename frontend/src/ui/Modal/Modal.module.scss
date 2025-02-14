@@ -15,7 +15,7 @@
 .xxs {
   $margin-x: min(var(--modal-margin), var(--modal-xs-margin));
 
-  width: 400px;
+  width: 512px;
   max-width: calc(100vw - $margin-x * 2);
 }
 
