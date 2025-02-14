@@ -1,0 +1,14 @@
+.Alert {
+  padding: 10px 12px;
+  border-radius: 10px;
+}
+
+.success {
+  background-color: var(--alert-success-bg);
+  border: 1px solid var(--alert-success-border-color);
+}
+
+.danger {
+  background-color: var(--alert-danger-bg);
+  border: 1px solid var(--alert-danger-border-color);
+}
