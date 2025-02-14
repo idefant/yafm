@@ -19,6 +19,10 @@
     background-color: var(--button-hovered-bg);
     border-color: var(--button-hovered-border, var(--button-hovered-bg));
   }
+
+  &:focus-visible {
+    box-shadow: var(--button-focused-box-shadow);
+  }
 }
 
 .disabled {
@@ -41,6 +45,8 @@
 
 :not(.disabled) {
   &.primary {
+    --button-focused-box-shadow: var(--primary-button-focused-box-shadow);
+
     &.contained {
       --button-color: var(--inverted-primary-color);
       --button-bg: var(--primary-button-color);
@@ -56,6 +62,8 @@
   }
 
   &.secondary {
+    --button-focused-box-shadow: var(--secondary-button-focused-box-shadow);
+
     &.contained {
       --button-color: var(--inverted-primary-color);
       --button-bg: var(--secondary-button-color);
@@ -71,6 +79,8 @@
   }
 
   &.success {
+    --button-focused-box-shadow: var(--success-button-focused-box-shadow);
+
     &.contained {
       --button-color: var(--inverted-primary-color);
       --button-bg: var(--success-button-color);
@@ -86,6 +96,8 @@
   }
 
   &.danger {
+    --button-focused-box-shadow: var(--danger-button-focused-box-shadow);
+
     &.contained {
       --button-color: var(--inverted-primary-color);
       --button-bg: var(--danger-button-color);
