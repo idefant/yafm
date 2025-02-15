@@ -79,7 +79,12 @@ export const Popup: FC<PopupProps> = ({
         onExited={onExited}
         nodeRef={nodeRef}
       >
-        <FocusOn enabled={refocus} onEscapeKey={close} className="yafm_Popup_FocusOn">
+        <FocusOn
+          enabled={refocus}
+          onEscapeKey={close}
+          className="yafm_Popup_FocusOn"
+          scrollLock={false}
+        >
           <div
             className={classNames(cls.Popup, classes?.container, 'yafm_Popup', {
               [cls.defaultOpen]: isOpenByDefault.current && isOpen,

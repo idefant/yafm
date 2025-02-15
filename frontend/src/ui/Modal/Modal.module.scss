@@ -77,7 +77,7 @@
     opacity 0.2s;
 
   &:hover,
-  &:focus {
+  &:focus-visible {
     opacity: 1;
     background-color: var(--modal-x-hovered-bg);
     outline: none;
