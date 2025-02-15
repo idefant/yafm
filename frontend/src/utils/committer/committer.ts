@@ -128,12 +128,14 @@ export const actionCreator = {
   updateCurrency: (
     id: string,
     currency: Partial<Except<Currency, 'code'>>,
-  ): CommitActionWithDispatch<'update_currency'> => {
+  ): CommitActionWithDispatch<'update_currency'> | undefined => {
     const oldValue = selectCurrencyById(store.getState(), id);
-    const changes = getChanges(oldValue, currency);
+    if (!oldValue) return;
+    const changes = getChanges(oldValue, currency, { onlyKeys: Object.keys(currency) });
+    if (changes.isEmpty) return;
     return {
-      dispatchAction: () => store.dispatch(currencyUpdated({ id, changes })),
-      action: { method: 'update_currency', data: { code: id, ...changes } },
+      dispatchAction: () => store.dispatch(currencyUpdated({ id, changes: changes.value })),
+      action: { method: 'update_currency', data: { code: id, ...changes.value } },
     };
   },
   deleteCurrency: (id: string): CommitActionWithDispatch<'delete_currency'> => ({
@@ -155,12 +157,14 @@ export const actionCreator = {
   updateAccountCategory: (
     id: string,
     category: Partial<Except<Category, 'id'>>,
-  ): CommitActionWithDispatch<'update_account_category'> => {
+  ): CommitActionWithDispatch<'update_account_category'> | undefined => {
     const oldValue = selectAccountCategoryById(store.getState(), id);
-    const changes = getChanges(oldValue, category);
+    if (!oldValue) return;
+    const changes = getChanges(oldValue, category, { onlyKeys: Object.keys(category) });
+    if (changes.isEmpty) return;
     return {
-      dispatchAction: () => store.dispatch(accountCategoryUpdated({ id, changes })),
-      action: { method: 'update_account_category', data: { id, ...changes } },
+      dispatchAction: () => store.dispatch(accountCategoryUpdated({ id, changes: changes.value })),
+      action: { method: 'update_account_category', data: { id, ...changes.value } },
     };
   },
   deleteAccountCategory: (id: string): CommitActionWithDispatch<'delete_account_category'> => ({
@@ -181,13 +185,15 @@ export const actionCreator = {
   },
   updateAccount: (
     id: string,
-    account: Partial<Except<Account, 'id'>>,
-  ): CommitActionWithDispatch<'update_account'> => {
+    account: Partial<Except<Account, 'id' | 'currency_code'>>,
+  ): CommitActionWithDispatch<'update_account'> | undefined => {
     const oldValue = selectAccountById(store.getState(), id);
-    const changes = getChanges(oldValue, account);
+    if (!oldValue) return;
+    const changes = getChanges(oldValue, account, { onlyKeys: Object.keys(account) });
+    if (changes.isEmpty) return;
     return {
-      dispatchAction: () => store.dispatch(accountUpdated({ id, changes })),
-      action: { method: 'update_account', data: { id, ...changes } },
+      dispatchAction: () => store.dispatch(accountUpdated({ id, changes: changes.value })),
+      action: { method: 'update_account', data: { id, ...changes.value } },
     };
   },
   deleteAccount: (id: string): CommitActionWithDispatch<'delete_account'> => ({
@@ -209,12 +215,15 @@ export const actionCreator = {
   updateTransactionCategory: (
     id: string,
     category: Partial<Except<Category, 'id'>>,
-  ): CommitActionWithDispatch<'update_transaction_category'> => {
+  ): CommitActionWithDispatch<'update_transaction_category'> | undefined => {
     const oldValue = selectTransactionCategoryById(store.getState(), id);
-    const changes = getChanges(oldValue, category);
+    if (!oldValue) return;
+    const changes = getChanges(oldValue, category, { onlyKeys: Object.keys(category) });
+    if (changes.isEmpty) return;
     return {
-      dispatchAction: () => store.dispatch(transactionCategoryUpdated({ id, changes })),
-      action: { method: 'update_transaction_category', data: { id, ...changes } },
+      dispatchAction: () =>
+        store.dispatch(transactionCategoryUpdated({ id, changes: changes.value })),
+      action: { method: 'update_transaction_category', data: { id, ...changes.value } },
     };
   },
   deleteTransactionCategory: (
@@ -238,12 +247,15 @@ export const actionCreator = {
   updateTransactionTemplate: (
     id: string,
     template: Partial<Except<TransactionTemplate, 'id'>>,
-  ): CommitActionWithDispatch<'update_transaction_template'> => {
+  ): CommitActionWithDispatch<'update_transaction_template'> | undefined => {
     const oldValue = selectTransactionTemplateById(store.getState(), id);
-    const changes = getChanges(oldValue, template);
+    if (!oldValue) return;
+    const changes = getChanges(oldValue, template, { onlyKeys: Object.keys(template) });
+    if (changes.isEmpty) return;
     return {
-      dispatchAction: () => store.dispatch(transactionTemplateUpdated({ id, changes })),
-      action: { method: 'update_transaction_template', data: { id, ...changes } },
+      dispatchAction: () =>
+        store.dispatch(transactionTemplateUpdated({ id, changes: changes.value })),
+      action: { method: 'update_transaction_template', data: { id, ...changes.value } },
     };
   },
   deleteTransactionTemplate: (
@@ -267,12 +279,14 @@ export const actionCreator = {
   updateTransaction: (
     id: string,
     transaction: Partial<Except<Transaction, 'id'>>,
-  ): CommitActionWithDispatch<'update_transaction'> => {
+  ): CommitActionWithDispatch<'update_transaction'> | undefined => {
     const oldValue = selectTransactionById(store.getState(), id);
-    const changes = getChanges(oldValue, transaction);
+    if (!oldValue) return;
+    const changes = getChanges(oldValue, transaction, { onlyKeys: Object.keys(transaction) });
+    if (changes.isEmpty) return;
     return {
-      dispatchAction: () => store.dispatch(transactionUpdated({ id, changes })),
-      action: { method: 'update_transaction', data: { id, ...changes } },
+      dispatchAction: () => store.dispatch(transactionUpdated({ id, changes: changes.value })),
+      action: { method: 'update_transaction', data: { id, ...changes.value } },
     };
   },
   deleteTransaction: (id: string): CommitActionWithDispatch<'delete_transaction'> => ({
@@ -320,14 +334,13 @@ class Committer {
 
   date: Date;
 
-  constructor(...actions: CommitActionWithDispatch[]) {
-    this.actions = actions;
+  constructor(...actions: (CommitActionWithDispatch | undefined)[]) {
+    this.actions = actions.filter((action): action is CommitActionWithDispatch => !!action);
     this.date = new Date();
-    this.actions = actions;
   }
 
-  add(...actions: CommitActionWithDispatch[]) {
-    this.actions.push(...actions);
+  add(...actions: (CommitActionWithDispatch | undefined)[]) {
+    this.actions.push(...actions.filter((action): action is CommitActionWithDispatch => !!action));
     this.date = new Date();
     return this;
   }
@@ -377,6 +390,7 @@ class Committer {
 
   async sync() {
     const { dispatch } = store;
+    if (this.actions.length === 0) return;
     const encryptedData = await this.encrypt();
     const res = await dispatch(mainApiCommit.endpoints.createCommit.initiate(encryptedData));
     if ('error' in res) {

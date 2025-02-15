@@ -49,7 +49,7 @@ export const SetAccount: FC<SetAccountProps> = ({ modal }) => {
 
     committer(
       modal.data.method === 'create'
-        ? actionCreator.createAccount({ currency_code: values.currencyCode || '', ...accountData })
+        ? actionCreator.createAccount({ currency_code: values.currencyCode, ...accountData })
         : actionCreator.updateAccount(modal.data.account.id, accountData),
     ).sync();
     modal.close();
