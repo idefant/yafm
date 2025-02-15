@@ -20,7 +20,7 @@ interface SetCurrencyProps {
 
 const formSchema = z.object({
   name: z.string().trim().nonempty(),
-  decimalPlacesNumber: z.number().nonnegative().int(),
+  decimalPlacesNumber: z.coerce.number().nonnegative().int(),
   type: z.enum(currencyTypes),
   color: z.string().nullish(),
   symbol: z.string().trim().nonempty(),
@@ -102,6 +102,7 @@ export const SetCurrency: FC<SetCurrencyProps> = ({ modal }) => {
               label="Number of decimal places"
               name="decimalPlacesNumber"
               decimalScale={0}
+              allowNegative={false}
             />
 
             <Form.Select

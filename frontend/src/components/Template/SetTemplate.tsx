@@ -39,7 +39,7 @@ const formSchema = z.object({
       z.object({
         isPositive: z.boolean(),
         accountId: z.string().nonempty(),
-        sum: z.number().positive(),
+        sum: z.string(),
       }),
     )
     .nonempty(),
@@ -83,7 +83,9 @@ export const SetTemplate: FC<SetTemplateProps> = ({ modal }) => {
       category_id: values.categoryId || undefined,
       operations: values.operations.map((operation) => ({
         account_id: operation.accountId as string,
-        sum: (operation.sum * (operation.isPositive ? 1 : -1)).toString(),
+        sum: BigNumber(operation.sum)
+          .multipliedBy(operation.isPositive ? 1 : -1)
+          .toString(),
       })),
     };
 
@@ -100,7 +102,7 @@ export const SetTemplate: FC<SetTemplateProps> = ({ modal }) => {
     .sort((a, b) => BigNumber(b.sum).minus(a.sum).toNumber())
     .map((operation) => ({
       accountId: operation.account_id,
-      sum: BigNumber(operation.sum).abs().toNumber(),
+      sum: BigNumber(operation.sum).abs().toString(),
       isPositive: BigNumber(operation.sum).isPositive(),
     }));
 

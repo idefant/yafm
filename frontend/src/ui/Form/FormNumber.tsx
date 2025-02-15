@@ -18,7 +18,7 @@ export const FormNumber: FC<FormNumberProps> = ({ name, ...props }) => {
     <Controller
       render={({ field: { ref, value, onChange, onBlur } }) => (
         <InputNumber
-          onValueChange={(v) => onChange(v.floatValue ?? null)}
+          onValueChange={(v) => onChange(v.value)}
           value={value}
           getInputRef={ref}
           onBlur={onBlur}
