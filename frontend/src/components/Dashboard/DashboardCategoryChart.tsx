@@ -1,20 +1,25 @@
+import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table';
+import BigNumber from 'bignumber.js';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
-import dayjs from 'dayjs';
-import { FC, useCallback } from 'react';
+import dayjs, { Dayjs } from 'dayjs';
+import { FC, useMemo } from 'react';
 import { Pie } from 'react-chartjs-2';
+import { SetRequired } from 'type-fest';
+import { useBoolean } from 'usehooks-ts';
 
 import colors from '#data/color';
 import { useAppSelector } from '#hooks/reduxHooks';
-import {
-  selectAllTransactionCategoriesEntities,
-  selectAllTransactionsCombined,
-} from '#store/selectors';
+import { selectAllTransactionsCombined, selectCurrencyById } from '#store/selectors';
+import { Category } from '#types/categoryType';
 import { components } from '#types/exrates-api-schema';
-import { TransactionType } from '#types/transactionType';
+import { TransactionCombined, TransactionType } from '#types/transactionType';
+import { Button } from '#ui/Button';
 import { Card } from '#ui/Card';
-import { DateFilterOptions } from '#ui/DateFilter/useDateFilter';
-import { Grid } from '#ui/Grid';
-import { Title } from '#ui/Typography';
+import { HStack, VStack } from '#ui/Stack';
+import { SumValue } from '#ui/SumValue';
+import { Table } from '#ui/Table';
+import { Title, Text } from '#ui/Typography';
+import { getPercentage } from '#utils/getPercentage';
 import { groupBy } from '#utils/groupBy';
 import money from '#utils/money';
 import { getTransactionsGroupedByType } from '#utils/transaction';
@@ -22,125 +27,166 @@ import { getTransactionsGroupedByType } from '#utils/transaction';
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 interface DashboardCategoryChartProps {
-  filterData: DateFilterOptions;
+  period: { start: Dayjs; end: Dayjs };
   rates?: components['schemas']['DateRates'];
+  transactionType: TransactionType;
 }
 
-export const DashboardCategoryChart: FC<DashboardCategoryChartProps> = ({ filterData, rates }) => {
+const columnHelper = createColumnHelper<
+  SetRequired<Partial<Category>, 'id'> & {
+    transactions: TransactionCombined[];
+    baseSum: BigNumber;
+  }
+>();
+
+export const DashboardCategoryChart: FC<DashboardCategoryChartProps> = ({
+  period,
+  rates,
+  transactionType,
+}) => {
   const transactions = useAppSelector(selectAllTransactionsCombined);
-  const categoriesEntities = useAppSelector(selectAllTransactionCategoriesEntities);
   const { baseCurrencyCode } = useAppSelector((state) => state.currencies);
+  const baseCurrency = useAppSelector((state) => selectCurrencyById(state, baseCurrencyCode));
 
-  const { date, periodType } = filterData;
+  const isTableShown = useBoolean();
 
-  const startPeriodDate = date.startOf(periodType);
-  const endPeriodDate = startPeriodDate.add(1, periodType);
-
-  const filteredTransactions = transactions.filter((transaction) =>
-    dayjs(transaction.datetime).isBetween(startPeriodDate, endPeriodDate, 'day', '[)'),
+  const filteredTransactions = useMemo(
+    () =>
+      transactions.filter((transaction) =>
+        dayjs(transaction.datetime).isBetween(period.start, period.end, 'second', '[]'),
+      ),
+    [period.end, period.start, transactions],
   );
 
-  const transactionsGroupedByType = getTransactionsGroupedByType(filteredTransactions);
+  const transactionsGroupedByType = useMemo(
+    () => getTransactionsGroupedByType(filteredTransactions),
+    [filteredTransactions],
+  );
 
-  const getChartData = useCallback(
-    (transactionType: TransactionType) => {
-      const categorySums = Object.entries(
-        groupBy(transactionsGroupedByType[transactionType], 'category_id'),
-      )
+  const categoriesWithSum = useMemo(
+    () =>
+      Object.entries(groupBy(transactionsGroupedByType[transactionType], 'category_id'))
         .map(([categoryId, transactions]) => {
-          const sum = transactions
-            .reduce(
-              (acc, transaction) => {
-                const dayRates = rates?.[dayjs(transaction.datetime).format('YYYY-MM-DD')];
-                transaction.operations.forEach((operation) => {
-                  acc.add(operation.sum, operation.account.currency_code, dayRates);
-                });
-                return acc;
-              },
-              money(0, baseCurrencyCode),
-            )
-            .value.abs();
+          const baseSum = money.sum(
+            transactions.flatMap((transaction) =>
+              transaction.operations.map((operation) => ({
+                value: operation.sum,
+                currency: operation.account.currency_code,
+                rates: rates?.[dayjs(transaction.datetime).format('YYYY-MM-DD')],
+              })),
+            ),
+            baseCurrencyCode,
+          ).value;
 
-          return { id: categoryId, sum };
+          return {
+            ...transactions[0].category,
+            id: categoryId,
+            transactions,
+            baseSum,
+          };
         })
-        .sort((a, b) => b.sum.minus(a.sum).toNumber());
-
-      return {
-        dataset: categorySums.map(({ sum }) => sum),
-        labels: categorySums.map(({ id }) => categoriesEntities[id]?.name || ''),
-      };
-    },
-    [baseCurrencyCode, categoriesEntities, rates, transactionsGroupedByType],
+        .sort((a, b) => b.baseSum.abs().minus(a.baseSum.abs()).toNumber()),
+    [baseCurrencyCode, rates, transactionType, transactionsGroupedByType],
   );
 
-  const incomesChartData = getChartData('income');
-  const outcomesChartData = getChartData('outcome');
+  const totalSum = useMemo(
+    () => money.sum(categoriesWithSum.map((category) => ({ value: category.baseSum }))).value,
+    [categoriesWithSum],
+  );
+
+  const columns = useMemo(
+    () => [
+      columnHelper.accessor('name', {
+        header: 'Name',
+        size: Number.MAX_SAFE_INTEGER,
+        cell: (info) => info.getValue() || '-',
+      }),
+      columnHelper.accessor('baseSum', {
+        header: 'Sum',
+        size: 0,
+        // eslint-disable-next-line react/no-unstable-nested-components
+        cell: (info) => (
+          <SumValue
+            value={info.getValue()}
+            decimalPlacesNumber={baseCurrency?.decimal_places_number || 0}
+            currencyCode={baseCurrencyCode}
+            size="sm"
+          />
+        ),
+        meta: {
+          justify: 'end',
+        },
+      }),
+    ],
+    [baseCurrency?.decimal_places_number, baseCurrencyCode],
+  );
+
+  const table = useReactTable({
+    groupedColumnMode: 'remove',
+    data: categoriesWithSum,
+    columns,
+    getRowId: (original) => original.id,
+    getCoreRowModel: getCoreRowModel(),
+  });
+
+  const chartData = useMemo(
+    () => ({
+      dataset: categoriesWithSum.map((category) => category.baseSum),
+      labels: categoriesWithSum.map((category) => category?.name),
+    }),
+    [categoriesWithSum],
+  );
 
   return (
-    <Grid gap={16}>
-      <Grid.Item size={6}>
-        <Card>
-          <Card.Content>
-            <Title level={5} gutterBottom>
-              Income per category
-            </Title>
-            <Pie
-              data={{
-                datasets: [
-                  {
-                    data: incomesChartData.dataset,
-                    backgroundColor: colors,
-                  },
-                ],
-                labels: incomesChartData.labels,
-              }}
-              options={{
-                plugins: {
-                  legend: { display: false },
-                  tooltip: {
-                    callbacks: {
-                      label: (tooltipItem) =>
-                        `${tooltipItem.label}: ${tooltipItem.formattedValue} ${baseCurrencyCode}`,
-                    },
-                  },
-                },
-              }}
+    <Card>
+      <Card.Content>
+        <Title level={5} gutterBottom>
+          {transactionType === 'income' ? 'Income' : 'Expense'} per category
+        </Title>
+        <VStack gap={16}>
+          <HStack>
+            <Text size="lg">Сумма:</Text>
+            <SumValue
+              value={totalSum}
+              currencyCode={baseCurrencyCode}
+              decimalPlacesNumber={baseCurrency?.decimal_places_number || 0}
+              size="lg"
             />
-          </Card.Content>
-        </Card>
-      </Grid.Item>
+          </HStack>
 
-      <Grid.Item size={6}>
-        <Card>
-          <Card.Content>
-            <Title level={5} gutterBottom>
-              Expense per category
-            </Title>
-            <Pie
-              data={{
-                datasets: [
-                  {
-                    data: outcomesChartData.dataset,
-                    backgroundColor: colors,
-                  },
-                ],
-                labels: outcomesChartData.labels,
-              }}
-              options={{
-                plugins: {
-                  legend: { display: false },
-                  tooltip: {
-                    callbacks: {
-                      label: (tooltipItem) =>
-                        `${tooltipItem.label}: ${tooltipItem.formattedValue} ${baseCurrencyCode}`,
+          <Pie
+            data={{
+              datasets: [
+                {
+                  data: chartData.dataset,
+                  backgroundColor: colors,
+                },
+              ],
+              labels: chartData.labels,
+            }}
+            options={{
+              plugins: {
+                legend: { display: false },
+                tooltip: {
+                  callbacks: {
+                    label: (tooltipItem) => {
+                      const { parsed, formattedValue, label } = tooltipItem;
+                      const percentage = getPercentage(parsed, totalSum);
+                      return `${label}: ${formattedValue} ${baseCurrencyCode} - ${percentage}`;
                     },
                   },
                 },
-              }}
-            />
-          </Card.Content>
-        </Card>
-      </Grid.Item>
-    </Grid>
+              },
+            }}
+          />
+
+          <Button variant="outlined" onClick={isTableShown.toggle}>
+            {isTableShown.value ? 'Скрыть таблицу' : 'Показать таблицу'}
+          </Button>
+
+          {isTableShown.value && <Table table={table} fullWidth size="sm" headTextSize="md" />}
+        </VStack>
+      </Card.Content>
+    </Card>
   );
 };

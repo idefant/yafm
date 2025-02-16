@@ -6,6 +6,7 @@ import { useFetchLastRatesQuery } from '#api/exratesApi';
 import { useAppSelector } from '#hooks/reduxHooks';
 import { selectCurrencies, selectCurrenciesBalanceDict } from '#store/selectors';
 import { getEntities } from '#utils/getEntities';
+import { getPercentage } from '#utils/getPercentage';
 import money from '#utils/money';
 import { sum } from '#utils/sum';
 
@@ -57,7 +58,6 @@ export const AccountsPie: FC = () => {
     <Pie
       data={data}
       options={{
-        animation: { duration: 600 },
         plugins: {
           legend: {
             labels: {
@@ -68,9 +68,9 @@ export const AccountsPie: FC = () => {
             callbacks: {
               label: (tooltipItem) => {
                 const { balance, baseBalance } = currencyBalancesDict[tooltipItem.label]!;
-                const percentage = baseBalance.div(totalAmount).multipliedBy(100).toFixed(2);
+                const percentage = getPercentage(baseBalance, totalAmount);
                 const formattedBalance = money(balance).format();
-                return `${tooltipItem.label}: ${formattedBalance} - ${percentage}%`;
+                return `${tooltipItem.label}: ${formattedBalance} - ${percentage}`;
               },
             },
           },

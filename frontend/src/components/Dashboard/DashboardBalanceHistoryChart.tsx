@@ -20,7 +20,9 @@ import { Card } from '#ui/Card';
 import { DateFilterOptions } from '#ui/DateFilter/useDateFilter';
 import { Title } from '#ui/Typography';
 import { createKeysDict } from '#utils/createKeysDict';
+import { groupBy } from '#utils/groupBy';
 import money from '#utils/money';
+import { objMap } from '#utils/objMap';
 
 interface DashboardBalanceHistoryChartProps {
   filterData: DateFilterOptions;
@@ -61,22 +63,28 @@ export const DashboardBalanceHistoryChart: FC<DashboardBalanceHistoryChartProps>
     return periodTypeAction[periodType]();
   }, [periodType, date, startPeriodDate]);
 
-  const startBalance = useMemo(
-    () =>
-      transactions
-        .filter((transaction) => dayjs(transaction.datetime).isBefore(startPeriodDate))
-        .reduce(
-          (acc, transaction) => {
-            transaction.operations.forEach((operation) => {
-              const currencyCode = operation.account.currency_code;
-              acc[currencyCode] = acc[currencyCode].plus(operation.sum);
-            });
-            return acc;
-          },
-          createKeysDict(currenciesIds, BigNumber(0)),
-        ),
-    [currenciesIds, startPeriodDate, transactions],
-  );
+  const startBalance = useMemo(() => {
+    const filteredTransactions = transactions.filter((transaction) =>
+      dayjs(transaction.datetime).isBefore(startPeriodDate),
+    );
+    const operations = filteredTransactions.flatMap((transaction) => transaction.operations);
+    const operationsGroupedByCurrencyCode = groupBy(
+      operations,
+      (operation) => operation.account.currency_code,
+    );
+
+    return {
+      ...createKeysDict(currenciesIds, BigNumber(0)),
+      ...objMap(
+        operationsGroupedByCurrencyCode,
+        (currencyCode, operations) => [
+          currencyCode,
+          BigNumber.sum(...operations.map((operation) => operation.sum)),
+        ],
+        { strict: true },
+      ),
+    };
+  }, [currenciesIds, startPeriodDate, transactions]);
 
   const balanceChanges = useMemo(() => {
     const daysToToday = dayjs().diff(date.endOf(periodType), 'day');
@@ -164,9 +172,6 @@ export const DashboardBalanceHistoryChart: FC<DashboardBalanceHistoryChartProps>
           }}
           options={{
             aspectRatio: 3,
-            interaction: {
-              intersect: false,
-            },
             plugins: {
               tooltip: {
                 callbacks: {

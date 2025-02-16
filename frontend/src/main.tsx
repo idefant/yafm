@@ -21,7 +21,10 @@ import './styles/index.scss';
 import './styles/global.scss';
 import './styles/themes/dark.scss';
 
-Chart.defaults.animation = { duration: 600 };
+Chart.defaults.animation = { duration: 500 };
+Chart.overrides.pie.animation = { animateRotate: false, animateScale: false };
+Chart.overrides.line.interaction = { intersect: false, mode: 'x' } as any;
+Chart.overrides.pie.borderColor = '#000';
 
 dayjs.extend(customParseFormat);
 dayjs.extend(isBetween);

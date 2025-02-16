@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, useMemo } from 'react';
 
 import { useFetchRatesByPeriodQuery } from '#api/exratesApi';
 import { DashboardBalanceHistoryChart, DashboardCategoryChart } from '#components/Dashboard';
@@ -21,6 +21,14 @@ export const Dashboard: FC = () => {
     period: date.format(dateQuery[periodType]),
   });
 
+  const datePeriod = useMemo(
+    () => ({
+      start: filterData.date.startOf(filterData.periodType),
+      end: filterData.date.endOf(filterData.periodType),
+    }),
+    [filterData.date, filterData.periodType],
+  );
+
   return (
     <>
       <HeaderInfo title="Dashboard" />
@@ -40,7 +48,24 @@ export const Dashboard: FC = () => {
         <Grid.Item size={9}>
           <VStack gap={16}>
             <DashboardBalanceHistoryChart filterData={filterData} rates={rates} />
-            <DashboardCategoryChart filterData={filterData} rates={rates} />
+
+            <Grid gap={16}>
+              <Grid.Item size={6}>
+                <DashboardCategoryChart
+                  period={datePeriod}
+                  rates={rates}
+                  transactionType="income"
+                />
+              </Grid.Item>
+
+              <Grid.Item size={6}>
+                <DashboardCategoryChart
+                  period={datePeriod}
+                  rates={rates}
+                  transactionType="outcome"
+                />
+              </Grid.Item>
+            </Grid>
           </VStack>
         </Grid.Item>
       </Grid>

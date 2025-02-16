@@ -31,14 +31,12 @@ export const getChanges = (
         acc[change.key] = newObj[change.key];
       }
       if (change.type === 'UPDATE') {
-        if (
-          !(
-            'oldValue' in change &&
-            'value' in change &&
-            isNullish(change.oldValue) &&
-            isNullish(change.value)
-          )
-        ) {
+        const isEmptyChange =
+          'oldValue' in change &&
+          'value' in change &&
+          isNullish(change.oldValue) &&
+          isNullish(change.value);
+        if (!isEmptyChange) {
           acc[change.key] = newObj[change.key] ?? null;
         }
       }
