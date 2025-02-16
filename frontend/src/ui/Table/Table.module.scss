@@ -1,8 +1,27 @@
-$cell-padding-x-inner: 8px;
-$cell-padding-x-outer: 4px;
-
 .Table {
   border-collapse: collapse;
+
+  &.sm {
+    --cell-x-padding-inner: 4px;
+    --cell-x-padding-outer: 4px;
+    --head-cell-min-height: 24px;
+    --head-cell-y-padding: 4px;
+    --body-cell-min-height: 36px;
+    --body-cell-y-padding: 6px;
+    --group-cell-min-height: 24px;
+    --group-cell-y-padding: 4px;
+  }
+
+  &.md {
+    --cell-x-padding-inner: 8px;
+    --cell-x-padding-outer: 4px;
+    --head-cell-min-height: 32px;
+    --head-cell-y-padding: 4px;
+    --body-cell-min-height: 44px;
+    --body-cell-y-padding: 8px;
+    --group-cell-min-height: 34px;
+    --group-cell-y-padding: 6px;
+  }
 }
 
 .fullWidth {
@@ -13,11 +32,25 @@ $cell-padding-x-outer: 4px;
   padding: 0;
 
   &:first-of-type {
-    padding-left: $cell-padding-x-outer;
+    padding-left: var(--cell-x-padding-outer);
   }
 
   &:last-of-type {
-    padding-right: $cell-padding-x-outer;
+    padding-right: var(--cell-x-padding-outer);
+  }
+
+  &Inner {
+    &.sm {
+      font-size: var(--text-size-sm);
+    }
+
+    &.md {
+      font-size: var(--text-size-md);
+    }
+
+    &.lg {
+      font-size: var(--text-size-lg);
+    }
   }
 }
 
@@ -28,11 +61,10 @@ $cell-padding-x-outer: 4px;
 
   &Cell {
     &Inner {
-      font-size: var(--text-size-lg);
       color: var(--table-head-row-color);
       font-weight: 600;
-      padding: 4px $cell-padding-x-inner;
-      min-height: 32px;
+      padding: var(--head-cell-y-padding) var(--cell-x-padding-inner);
+      min-height: var(--head-cell-min-height);
     }
   }
 }
@@ -52,14 +84,13 @@ $cell-padding-x-outer: 4px;
 
   &Cell {
     &Inner {
-      font-size: var(--text-size-md);
-      min-height: 44px;
-      padding-left: $cell-padding-x-inner;
-      padding-right: $cell-padding-x-inner;
+      min-height: var(--body-cell-min-height);
+      padding-left: var(--cell-x-padding-inner);
+      padding-right: var(--cell-x-padding-inner);
 
       &WithYPadding {
-        padding-top: 8px;
-        padding-bottom: 8px;
+        padding-top: var(--body-cell-y-padding);
+        padding-bottom: var(--body-cell-y-padding);
       }
     }
   }
@@ -73,10 +104,9 @@ $cell-padding-x-outer: 4px;
 
   &Cell {
     &Inner {
-      font-size: var(--text-size-md);
       font-weight: 500;
-      min-height: 34px;
-      padding: 6px $cell-padding-x-inner;
+      min-height: var(--group-cell-min-height);
+      padding: var(--group-cell-y-padding) var(--cell-x-padding-inner);
     }
   }
 }

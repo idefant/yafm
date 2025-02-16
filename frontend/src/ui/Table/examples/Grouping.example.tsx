@@ -5,6 +5,8 @@ import {
   getGroupedRowModel,
   getExpandedRowModel,
 } from '@tanstack/react-table';
+import { FC } from 'react';
+import { Except } from 'type-fest';
 
 import { Table, TableProps } from '#ui/Table';
 
@@ -43,7 +45,7 @@ const columns = [
 
 const grouping = ['date'];
 
-export const GroupingExample = <T,>({ fullWidth = true }: TableProps<T>) => {
+export const GroupingExample: FC<Except<TableProps<Article>, 'table'>> = (props) => {
   const table = useReactTable({
     groupedColumnMode: 'remove',
     state: {
@@ -58,5 +60,5 @@ export const GroupingExample = <T,>({ fullWidth = true }: TableProps<T>) => {
     getExpandedRowModel: getExpandedRowModel(),
   });
 
-  return <Table table={table} fullWidth={fullWidth} />;
+  return <Table table={table} {...props} />;
 };

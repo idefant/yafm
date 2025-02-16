@@ -17,8 +17,11 @@ export default meta;
 
 type Story = StoryObj<typeof Table>;
 
-export const Basic: Story = {
+export const BasicMedium: Story = {
   render: (args) => <BasicExample {...args} />,
+  args: {
+    fullWidth: true,
+  },
   parameters: {
     docs: {
       source: {
@@ -29,8 +32,45 @@ export const Basic: Story = {
   },
 };
 
-export const Grouping: Story = {
+export const BasicSmall: Story = {
+  render: (args) => <BasicExample {...args} />,
+  args: {
+    fullWidth: true,
+    size: 'sm',
+    headTextSize: 'md',
+  },
+  parameters: {
+    docs: {
+      source: {
+        code: BasicExampleCode,
+        language: 'tsx',
+      },
+    },
+  },
+};
+
+export const GroupingMedium: Story = {
   render: (args) => <GroupingExample {...args} />,
+  args: {
+    fullWidth: true,
+  },
+  parameters: {
+    docs: {
+      source: {
+        code: GroupingExampleCode,
+        language: 'tsx',
+      },
+    },
+  },
+};
+
+export const GroupingSmall: Story = {
+  render: (args) => <GroupingExample {...args} />,
+  args: {
+    fullWidth: true,
+    size: 'sm',
+    headTextSize: 'md',
+  },
   parameters: {
     docs: {
       source: {

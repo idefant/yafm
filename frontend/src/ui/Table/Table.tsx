@@ -4,6 +4,7 @@ import { ReactNode, useRef } from 'react';
 
 import { ContextMenu, ContextMenuItem } from '#ui/ContextMenu';
 import { HStack } from '#ui/Stack';
+import { TextSize } from '#ui/Typography';
 
 import cls from './Table.module.scss';
 
@@ -14,6 +15,10 @@ export interface TableProps<T> {
   renderGroupCell?: (row: Row<T>) => ReactNode;
   rowContextMenu?: (row: Row<T>) => { items: ContextMenuItem[] } | undefined;
   rowOnClick?: (row: Row<T>) => void;
+  size?: 'sm' | 'md';
+  headTextSize?: TextSize;
+  groupTextSize?: TextSize;
+  cellTextSize?: TextSize;
 }
 /* eslint-enable no-unused-vars */
 
@@ -24,11 +29,15 @@ export const Table = <T,>({
   renderGroupCell,
   rowContextMenu,
   rowOnClick,
+  size = 'md',
+  headTextSize = 'lg',
+  groupTextSize = size,
+  cellTextSize = size,
 }: TableProps<T>) => {
   const refs = useRef<Record<string, HTMLElement | null>>({});
 
   return (
-    <table className={classNames(cls.Table, { [cls.fullWidth]: fullWidth })}>
+    <table className={classNames(cls.Table, cls[size], { [cls.fullWidth]: fullWidth })}>
       <thead className={cls.head}>
         {table.getHeaderGroups().map((headerGroup) => (
           <tr className={cls.headRow} key={headerGroup.id}>
@@ -44,7 +53,7 @@ export const Table = <T,>({
                 <HStack
                   align="center"
                   justify={header.column.columnDef.meta?.justify}
-                  className={cls.headCellInner}
+                  className={classNames(cls.cellInner, cls.headCellInner, cls[headTextSize])}
                 >
                   {header.isPlaceholder
                     ? null
@@ -78,7 +87,10 @@ export const Table = <T,>({
                   colSpan={row.getVisibleCells().length}
                   className={classNames(cls.cell, cls.groupCell)}
                 >
-                  <HStack align="center" className={cls.groupCellInner}>
+                  <HStack
+                    align="center"
+                    className={classNames(cls.cellInner, cls.groupCellInner, cls[groupTextSize])}
+                  >
                     {groupingValue}
                   </HStack>
                 </td>
@@ -113,7 +125,7 @@ export const Table = <T,>({
                     <HStack
                       align="center"
                       justify={cell.column.columnDef.meta?.justify}
-                      className={classNames(cls.bodyCellInner, {
+                      className={classNames(cls.cellInner, cls.bodyCellInner, cls[cellTextSize], {
                         [cls.bodyCellInnerWithYPadding]: withYPadding,
                       })}
                     >

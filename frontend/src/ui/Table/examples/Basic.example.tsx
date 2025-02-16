@@ -1,4 +1,6 @@
 import { createColumnHelper, useReactTable, getCoreRowModel } from '@tanstack/react-table';
+import { FC } from 'react';
+import { Except } from 'type-fest';
 
 import { Table, TableProps } from '#ui/Table';
 
@@ -34,7 +36,7 @@ const columns = [
   }),
 ];
 
-export const BasicExample = <T,>({ fullWidth = true }: TableProps<T>) => {
+export const BasicExample: FC<Except<TableProps<Article>, 'table'>> = (props) => {
   const table = useReactTable({
     data: defaultData,
     columns,
@@ -42,5 +44,5 @@ export const BasicExample = <T,>({ fullWidth = true }: TableProps<T>) => {
     getCoreRowModel: getCoreRowModel(),
   });
 
-  return <Table table={table} fullWidth={fullWidth} />;
+  return <Table table={table} {...props} />;
 };
