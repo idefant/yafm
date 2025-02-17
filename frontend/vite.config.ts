@@ -34,7 +34,7 @@ export default defineConfig(({ mode }) => {
         '#': path.resolve(__dirname, './src'),
         '#api': path.resolve(__dirname, './src/api'),
         '#components': path.resolve(__dirname, './src/components'),
-        '#config': path.resolve(__dirname, './src/config'),
+        '#configs': path.resolve(__dirname, './src/configs'),
         '#data': path.resolve(__dirname, './src/data'),
         '#hooks': path.resolve(__dirname, './src/hooks'),
         '#pages': path.resolve(__dirname, './src/pages'),
