@@ -78,11 +78,8 @@ export const Accounts: FC = () => {
   );
 
   const totalFormattedBaseBalance = useMemo(
-    () =>
-      BigNumber.sum(...accountsWithBalance.map((account) => account.baseBalance)).toFormat(
-        mainCurrency?.decimalPlaces,
-      ),
-    [accountsWithBalance, mainCurrency?.decimalPlaces],
+    () => BigNumber.sum(...accountsWithBalance.map((account) => account.baseBalance)),
+    [accountsWithBalance],
   );
 
   const columns = useMemo(
@@ -262,9 +259,10 @@ export const Accounts: FC = () => {
                 Capital
               </Title>
               <VStack gap={16}>
-                <Text>
-                  Итоговая сумма: {totalFormattedBaseBalance} <span>{mainCurrencyCode}</span>
-                </Text>
+                <HStack>
+                  <Text>Итоговая сумма:</Text>
+                  <SumValue value={totalFormattedBaseBalance} currencyCode={mainCurrencyCode} />
+                </HStack>
                 <AccountsPie />
               </VStack>
             </Card.Content>
