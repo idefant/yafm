@@ -5,9 +5,9 @@ import { HStack, VStack } from '#ui/Stack';
 import { Text, TextColor, TextSize, TextWeight } from '#ui/Typography';
 
 export interface SumValueProps {
-  value: BigNumber;
-  decimalPlacesNumber: number;
-  currencyCode: string;
+  value?: BigNumber;
+  decimalPlaces?: number;
+  currencyCode?: string;
   description?: string;
   color?: TextColor;
   size?: TextSize;
@@ -16,22 +16,24 @@ export interface SumValueProps {
 
 export const SumValue: FC<SumValueProps> = ({
   value,
-  decimalPlacesNumber,
+  decimalPlaces = 0,
   currencyCode,
   description,
   color,
   size,
   weight,
 }) => {
-  const formattedValue = value.toFormat(decimalPlacesNumber);
+  const formattedValue = value?.toFormat(decimalPlaces);
 
   const sumColor: TextColor =
     color ||
     (() => {
-      if (value.isGreaterThan(0)) return 'success';
-      if (value.isLessThan(0)) return 'danger';
+      if (value?.isGreaterThan(0)) return 'success';
+      if (value?.isLessThan(0)) return 'danger';
       return 'secondary';
     })();
+
+  if (!value) return null;
 
   return (
     <VStack gap={0} align="end">

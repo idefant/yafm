@@ -17,6 +17,7 @@
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
+    "noErrorTruncation": true,
     "paths": {
       "#*": ["src/*"]
     }

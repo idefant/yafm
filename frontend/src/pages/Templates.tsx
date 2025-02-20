@@ -1,21 +1,15 @@
 import { createColumnHelper, getCoreRowModel, Row, useReactTable } from '@tanstack/react-table';
 import BigNumber from 'bignumber.js';
-import { FC, useCallback, useMemo } from 'react';
-import { Except } from 'type-fest';
+import { FC, useCallback } from 'react';
 
-import { useFetchLastRatesQuery } from '#api/exratesApi';
 import { HeaderInfo } from '#components/Header';
 import { SetTemplate, SetTemplateModalData } from '#components/Template';
 import { useAppSelector } from '#hooks/reduxHooks';
-import { selectAllTransactionTemplatesCombined } from '#store/selectors';
+import { selectAllTemplatesExtended } from '#store/selectors';
 import PencilIcon from '#svg/pencil.svg?react';
 import PlusIcon from '#svg/plus.svg?react';
 import TrashIcon from '#svg/trash.svg?react';
-import {
-  OperationCombined,
-  TransactionTemplate,
-  TransactionTemplateCombined,
-} from '#types/transactionType';
+import { TemplateExtended } from '#types/templateType';
 import { Button } from '#ui/Button';
 import { Card } from '#ui/Card';
 import { dmodal, useModal } from '#ui/Modal';
@@ -23,14 +17,8 @@ import { SumValueList } from '#ui/SumValueList';
 import { Table } from '#ui/Table';
 import { Title } from '#ui/Typography';
 import { actionCreator, committer } from '#utils/committer';
-import money from '#utils/money';
 
-type TransactionTemplateWithBaseSum = Except<TransactionTemplateCombined, 'operations'> & {
-  baseSum: BigNumber;
-  operations: (OperationCombined & { baseSum: BigNumber })[];
-};
-
-const columnHelper = createColumnHelper<TransactionTemplateWithBaseSum>();
+const columnHelper = createColumnHelper<TemplateExtended>();
 
 const columns = [
   columnHelper.accessor('name', {
@@ -50,10 +38,10 @@ const columns = [
     cell: (info) => (
       <SumValueList
         items={info.getValue().map(({ sum, account }) => ({
-          value: BigNumber(sum),
-          decimalPlacesNumber: account.currency.decimal_places_number,
-          currencyCode: account.currency_code,
-          description: account.name,
+          value: sum ? BigNumber(sum) : undefined,
+          decimalPlaces: account?.currency.decimalPlaces,
+          currencyCode: account?.currencyCode,
+          description: account?.name,
         }))}
       />
     ),
@@ -62,41 +50,18 @@ const columns = [
 ];
 
 export const Templates: FC = () => {
-  const templates = useAppSelector(selectAllTransactionTemplatesCombined);
-  const { baseCurrencyCode } = useAppSelector((state) => state.currencies);
+  const templates = useAppSelector(selectAllTemplatesExtended);
 
   const templateModal = useModal<SetTemplateModalData>();
 
-  const { data: prices } = useFetchLastRatesQuery({});
-
-  const templatesWithBaseSum = useMemo(
-    () =>
-      templates.map((template) => {
-        const operations = template.operations.map((operation) => ({
-          ...operation,
-          baseSum: money(operation.sum, operation.account.currency_code).to(
-            baseCurrencyCode,
-            prices?.rates,
-          ).value,
-        }));
-
-        return {
-          ...template,
-          operations,
-          baseSum: BigNumber.sum(...operations.map((operation) => operation.baseSum)),
-        };
-      }),
-    [baseCurrencyCode, prices?.rates, templates],
-  );
-
   const table = useReactTable({
-    data: templatesWithBaseSum,
+    data: templates,
     columns,
     getRowId: (original) => original.id,
     getCoreRowModel: getCoreRowModel(),
   });
 
-  const confirmDelete = useCallback(async (template: TransactionTemplate) => {
+  const confirmDelete = useCallback(async (template: TemplateExtended) => {
     const modalResult = await dmodal.error({
       title: 'Delete template',
       content: `Template name: ${template.name}`,
@@ -105,12 +70,12 @@ export const Templates: FC = () => {
     });
 
     if (modalResult.isConfirmed) {
-      committer(actionCreator.deleteTransactionTemplate(template.id)).sync();
+      committer(actionCreator.deleteTemplate(template.id)).sync();
     }
   }, []);
 
   const getRowContextMenu = useCallback(
-    (row: Row<TransactionTemplateWithBaseSum>) => ({
+    (row: Row<TemplateExtended>) => ({
       items: [
         {
           key: 'edit',

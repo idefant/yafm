@@ -7,9 +7,10 @@ import { z } from 'zod';
 
 import { appRoutes } from '#data/routes';
 import { useAppDispatch } from '#hooks/reduxHooks';
+import { baseFileSchema } from '#schema/baseSchema';
 import { unlockBase } from '#store/reducers/appSlice';
 import ChevronLeftIcon from '#svg/chevron-left.svg?react';
-import { EncryptedData } from '#types/cipher';
+import { BaseFileData } from '#types/baseType';
 import { Alert } from '#ui/Alert';
 import { Button } from '#ui/Button';
 import { Form } from '#ui/Form';
@@ -22,11 +23,6 @@ import { crypt } from '#utils/crypt';
 import { readFileContent } from '#utils/file';
 import Gzip from '#utils/gzip';
 import { checkBaseIntegrity } from '#utils/sync';
-
-type FileData = { created_at: string } & (
-  | { data: EncryptedData; is_encrypted: true }
-  | { data: any; is_encrypted: false }
-);
 
 const formSchema = z.object({
   password: z.string().nonempty(),
@@ -41,12 +37,12 @@ export const Upload: FC = () => {
   const methods = useForm<FormOutput>({ resolver: zodResolver(formSchema) });
   const { handleSubmit, reset } = methods;
 
-  const [fileData, setFileData] = useState<FileData>();
+  const [fileData, setFileData] = useState<BaseFileData>();
   const [alertText, setAlertText] = useState<string>();
 
   const getPlainData = async (password: string) => {
     if (!fileData) return;
-    if (!fileData.is_encrypted) return fileData.data;
+    if (!fileData.isEncrypted) return fileData.data;
 
     const plaintext = await crypt.decrypt(fileData.data, password);
     if (!plaintext) {
@@ -95,13 +91,8 @@ export const Upload: FC = () => {
           }
 
           const data = JSON.parse(content);
-          const schema = z.object({
-            created_at: z.string().datetime(),
-            is_encrypted: z.boolean(),
-            data: z.any(),
-          });
 
-          const parsingResult = schema.safeParse(data);
+          const parsingResult = baseFileSchema.safeParse(data);
           if (!parsingResult.success) {
             dmodal.error({
               title: 'File Opening Error',
@@ -151,19 +142,19 @@ export const Upload: FC = () => {
                 <Text size="lg" color="secondary">
                   Created at:
                 </Text>
-                <Text size="lg">{dayjs(fileData.created_at).format('DD.MM.YYYY (HH:mm)')}</Text>
+                <Text size="lg">{dayjs(fileData.createdAt).format('DD.MM.YYYY (HH:mm)')}</Text>
               </HStack>
 
               <HStack>
                 <Text size="lg" color="secondary">
                   Properties:
                 </Text>
-                <Text size="lg">{fileData.is_encrypted ? 'Encrypted' : 'Plaintext'}</Text>
+                <Text size="lg">{fileData.isEncrypted ? 'Encrypted' : 'Plaintext'}</Text>
               </HStack>
 
               <Form.Password
                 name="password"
-                label={fileData.is_encrypted ? 'Password:' : 'New Password'}
+                label={fileData.isEncrypted ? 'Password:' : 'New Password'}
                 autoFocus
               />
 

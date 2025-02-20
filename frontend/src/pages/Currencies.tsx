@@ -26,7 +26,7 @@ export const Currencies: FC = () => {
   const currencies = useAppSelector(selectCurrencies);
   const currenciesIds = useAppSelector(selectCurrenciesIds);
   const accounts = useAppSelector(selectAllAccounts);
-  const { baseCurrencyCode } = useAppSelector((state) => state.currencies);
+  const { mainCurrencyCode } = useAppSelector((state) => state.currencies);
 
   const { data: availableCurrencies } = useFetchCurrenciesQuery();
 
@@ -43,10 +43,10 @@ export const Currencies: FC = () => {
   const usedCurrenciesColumns = useMemo(
     () => [
       usedCurrenciesColumnHelper.display({
-        id: 'baseCurrency',
+        id: 'mainCurrency',
         size: 0,
         // eslint-disable-next-line react/no-unstable-nested-components
-        cell: (info) => baseCurrencyCode === info.row.original.code && <StarIcon />,
+        cell: (info) => mainCurrencyCode === info.row.original.code && <StarIcon />,
       }),
       usedCurrenciesColumnHelper.accessor('code', {
         header: 'Code',
@@ -59,7 +59,7 @@ export const Currencies: FC = () => {
         cell: (info) => info.getValue(),
       }),
     ],
-    [baseCurrencyCode],
+    [mainCurrencyCode],
   );
 
   const usedCurrenciesTable = useReactTable({
@@ -109,7 +109,7 @@ export const Currencies: FC = () => {
 
   const confirmDelete = useCallback(
     async (currency: Currency) => {
-      if (accounts.some(({ currency_code: currencyCode }) => currencyCode === currency.code)) {
+      if (accounts.some(({ currencyCode }) => currencyCode === currency.code)) {
         dmodal.error({
           title: 'Unable to delete currency',
           content: 'There are accounts using this currency',
@@ -118,10 +118,10 @@ export const Currencies: FC = () => {
         return;
       }
 
-      if (currency.code === baseCurrencyCode) {
+      if (currency.code === mainCurrencyCode) {
         dmodal.error({
           title: 'Unable to delete currency',
-          content: 'This is base currency',
+          content: 'This is main currency',
           showCancel: false,
         });
         return;
@@ -138,7 +138,7 @@ export const Currencies: FC = () => {
         committer(actionCreator.deleteCurrency(currency.code)).sync();
       }
     },
-    [accounts, baseCurrencyCode],
+    [accounts, mainCurrencyCode],
   );
 
   const getRowContextMenu = useCallback(
@@ -151,10 +151,10 @@ export const Currencies: FC = () => {
           onClick: () => currencyModal.open({ method: 'edit', currency: row.original }),
         },
         {
-          key: 'makeBase',
-          label: 'Set as base currency',
+          key: 'makeMain',
+          label: 'Set as main currency',
           icon: StarIcon,
-          onClick: () => committer(actionCreator.setBasicCurrency(row.original.code)).sync(),
+          onClick: () => committer(actionCreator.setMainCurrency(row.original.code)).sync(),
         },
         {
           key: 'delete',

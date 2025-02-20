@@ -18,16 +18,16 @@ import { useAppSelector } from '#hooks/reduxHooks';
 import {
   selectAccountsBalanceDict,
   selectAccountsLastActivityDict,
-  selectAllTransactionTemplates,
-  selectAllTransactionsCombined,
+  selectAllTemplates,
+  selectAllTransactionsExtended,
   selectCurrencyById,
-  selectVisibleAccountsCombined,
+  selectVisibleAccountsExtended,
 } from '#store/selectors';
 import ArchiveIcon from '#svg/archive.svg?react';
 import PencilIcon from '#svg/pencil.svg?react';
 import PlusIcon from '#svg/plus.svg?react';
 import TrashIcon from '#svg/trash.svg?react';
-import { AccountCombined } from '#types/accountType';
+import { AccountExtended } from '#types/accountType';
 import { Button } from '#ui/Button';
 import { Card } from '#ui/Card';
 import { Grid } from '#ui/Grid';
@@ -39,7 +39,7 @@ import { Title, Text } from '#ui/Typography';
 import { actionCreator, committer } from '#utils/committer';
 import money from '#utils/money';
 
-type AccountWithBalance = AccountCombined & {
+type AccountWithBalance = AccountExtended & {
   balance: BigNumber;
   baseBalance: BigNumber;
   lastActivity?: number;
@@ -47,14 +47,14 @@ type AccountWithBalance = AccountCombined & {
 
 const columnHelper = createColumnHelper<AccountWithBalance>();
 
-const grouping = ['category_id'];
+const grouping = ['groupId'];
 
 export const Accounts: FC = () => {
-  const { baseCurrencyCode } = useAppSelector((state) => state.currencies);
-  const baseCurrency = useAppSelector((state) => selectCurrencyById(state, baseCurrencyCode));
-  const accounts = useAppSelector(selectVisibleAccountsCombined);
-  const transactions = useAppSelector(selectAllTransactionsCombined);
-  const templates = useAppSelector(selectAllTransactionTemplates);
+  const { mainCurrencyCode } = useAppSelector((state) => state.currencies);
+  const mainCurrency = useAppSelector((state) => selectCurrencyById(state, mainCurrencyCode));
+  const accounts = useAppSelector(selectVisibleAccountsExtended);
+  const transactions = useAppSelector(selectAllTransactionsExtended);
+  const templates = useAppSelector(selectAllTemplates);
   const accountsBalanceDict = useAppSelector(selectAccountsBalanceDict);
   const accountsLastActivityDict = useAppSelector(selectAccountsLastActivityDict);
 
@@ -71,23 +71,23 @@ export const Accounts: FC = () => {
           accountsBalanceDict[account.id]!,
           account.currency.code,
           prices?.rates,
-        ).to(baseCurrencyCode).value,
+        ).to(mainCurrencyCode).value,
         lastActivity: accountsLastActivityDict[account.id],
       })),
-    [accounts, accountsBalanceDict, prices?.rates, baseCurrencyCode, accountsLastActivityDict],
+    [accounts, accountsBalanceDict, prices?.rates, mainCurrencyCode, accountsLastActivityDict],
   );
 
   const totalFormattedBaseBalance = useMemo(
     () =>
       BigNumber.sum(...accountsWithBalance.map((account) => account.baseBalance)).toFormat(
-        baseCurrency?.decimal_places_number,
+        mainCurrency?.decimalPlaces,
       ),
-    [accountsWithBalance, baseCurrency?.decimal_places_number],
+    [accountsWithBalance, mainCurrency?.decimalPlaces],
   );
 
   const columns = useMemo(
     () => [
-      columnHelper.accessor('category_id', {}),
+      columnHelper.accessor('groupId', {}),
       columnHelper.accessor('name', {
         header: 'Name',
         size: Number.MAX_SAFE_INTEGER,
@@ -110,8 +110,8 @@ export const Accounts: FC = () => {
           return (
             <SumValue
               value={info.getValue()}
-              decimalPlacesNumber={account.currency.decimal_places_number}
-              currencyCode={account.currency_code}
+              decimalPlaces={account.currency.decimalPlaces}
+              currencyCode={account.currencyCode}
             />
           );
         },
@@ -138,11 +138,11 @@ export const Accounts: FC = () => {
   });
 
   const confirmDelete = useCallback(
-    async (account: AccountCombined) => {
+    async (account: AccountExtended) => {
       if (!account) return;
 
       const isAccountUsed = [...transactions, ...templates].some(({ operations }) =>
-        operations.map((operation) => operation.account_id).includes(account.id),
+        operations.map((operation) => operation.accountId).includes(account.id),
       );
 
       if (isAccountUsed) {
@@ -174,13 +174,13 @@ export const Accounts: FC = () => {
       return (
         <HStack justify="spaceBetween" grow={1}>
           <Text color="secondary" size="sm" weight="bold">
-            {row.original.category?.name || 'Без категории'}
+            {row.original.group?.name || 'Без категории'}
           </Text>
           <HStack>
             <SumValue
               value={sum}
-              currencyCode={baseCurrencyCode}
-              decimalPlacesNumber={baseCurrency?.decimal_places_number || 2}
+              currencyCode={mainCurrencyCode}
+              decimalPlaces={mainCurrency?.decimalPlaces}
               color="secondary"
               size="sm"
               weight="bold"
@@ -189,7 +189,7 @@ export const Accounts: FC = () => {
         </HStack>
       );
     },
-    [baseCurrency?.decimal_places_number, baseCurrencyCode],
+    [mainCurrency?.decimalPlaces, mainCurrencyCode],
   );
 
   const getRowContextMenu = useCallback(
@@ -206,7 +206,7 @@ export const Accounts: FC = () => {
           label: 'Archive',
           icon: ArchiveIcon,
           onClick: () =>
-            committer(actionCreator.updateAccount(row.original.id, { is_archive: true })).sync(),
+            committer(actionCreator.updateAccount(row.original.id, { isArchived: true })).sync(),
         },
         {
           key: 'delete',
@@ -263,7 +263,7 @@ export const Accounts: FC = () => {
               </Title>
               <VStack gap={16}>
                 <Text>
-                  Итоговая сумма: {totalFormattedBaseBalance} <span>{baseCurrencyCode}</span>
+                  Итоговая сумма: {totalFormattedBaseBalance} <span>{mainCurrencyCode}</span>
                 </Text>
                 <AccountsPie />
               </VStack>

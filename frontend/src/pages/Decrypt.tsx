@@ -7,13 +7,13 @@ import { z } from 'zod';
 import { useFetchCommitsQuery } from '#api/mainApi';
 import { appRoutes } from '#data/routes';
 import { useAppDispatch } from '#hooks/reduxHooks';
-import { accountCategoriesReceived } from '#store/reducers/accountCategoriesSlice';
+import { accountGroupsReceived } from '#store/reducers/accountGroupsSlice';
 import { accountsReceived } from '#store/reducers/accountsSlice';
 import { unlockBase } from '#store/reducers/appSlice';
-import { currenciesReceived, setBaseCurrency } from '#store/reducers/currenciesSlice';
-import { transactionCategoriesReceived } from '#store/reducers/transactionCategoriesSlice';
+import { categoriesReceived } from '#store/reducers/categoriesSlice';
+import { currenciesReceived, setMainCurrency } from '#store/reducers/currenciesSlice';
+import { templatesReceived } from '#store/reducers/templatesSlice';
 import { transactionsReceived } from '#store/reducers/transactionsSlice';
-import { transactionTemplatesReceived } from '#store/reducers/transactionTemplatesSlice';
 import { Commit, CommitAction, updatedBaseMethods } from '#types/commitType';
 import { Alert } from '#ui/Alert';
 import { Button } from '#ui/Button';
@@ -99,14 +99,14 @@ export const Decrypt: FC = () => {
       return;
     }
 
-    dispatch(currenciesReceived(base.currencies));
-    dispatch(setBaseCurrency(base.baseCurrencyCode));
-    dispatch(accountsReceived(base.accounts));
-    dispatch(accountCategoriesReceived(base.categories.accounts));
-    dispatch(transactionsReceived(base.transactions));
-    dispatch(transactionCategoriesReceived(base.categories.transactions));
-    dispatch(transactionTemplatesReceived(base.templates));
     dispatch(unlockBase());
+    dispatch(currenciesReceived(base.currencies));
+    dispatch(setMainCurrency(base.mainCurrencyCode));
+    dispatch(accountGroupsReceived(base.accountGroups));
+    dispatch(accountsReceived(base.accounts));
+    dispatch(categoriesReceived(base.categories));
+    dispatch(templatesReceived(base.templates));
+    dispatch(transactionsReceived(base.transactions));
 
     navigate(appRoutes.dashboard);
   };

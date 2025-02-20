@@ -10,7 +10,12 @@ interface SumValueListProps {
 
 export const SumValueList: FC<SumValueListProps> = ({ items }) => {
   const sortedItems = useMemo(
-    () => items.sort((a, b) => BigNumber(b.value).minus(a.value).toNumber()),
+    () =>
+      items.sort((a, b) =>
+        BigNumber(b.value || 0)
+          .minus(a.value || 0)
+          .toNumber(),
+      ),
     [items],
   );
 

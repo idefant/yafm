@@ -4,10 +4,12 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { useAppSelector } from '#hooks/reduxHooks';
-import { Currency, currencyTypes } from '#types/currencyType';
+import { currencyTypes } from '#schema/currencySchema';
+import { Currency } from '#types/currencyType';
 import { Button } from '#ui/Button';
 import { Form } from '#ui/Form';
 import { Modal, UseModalReturn } from '#ui/Modal';
+import { capitalize } from '#utils/capitalize';
 import { actionCreator, committer } from '#utils/committer';
 
 export type SetCurrencyModalData =
@@ -20,11 +22,11 @@ interface SetCurrencyProps {
 
 const formSchema = z.object({
   name: z.string().trim().nonempty(),
-  decimalPlacesNumber: z.coerce.number().nonnegative().int(),
+  decimalPlaces: z.coerce.number().nonnegative().int(),
   type: z.enum(currencyTypes),
   color: z.string().nullish(),
   symbol: z.string().trim().nonempty(),
-  isBaseCurrency: z.boolean(),
+  isMainCurrency: z.boolean(),
 });
 
 type FormOutput = z.infer<typeof formSchema>;
@@ -32,7 +34,7 @@ type FormOutput = z.infer<typeof formSchema>;
 export const SetCurrency: FC<SetCurrencyProps> = ({ modal }) => {
   const formId = useId();
 
-  const { baseCurrencyCode } = useAppSelector((state) => state.currencies);
+  const { mainCurrencyCode } = useAppSelector((state) => state.currencies);
 
   const methods = useForm<FormOutput>({ resolver: zodResolver(formSchema) });
   const { handleSubmit, reset } = methods;
@@ -42,7 +44,7 @@ export const SetCurrency: FC<SetCurrencyProps> = ({ modal }) => {
 
     const currencyData = {
       name: values.name,
-      decimal_places_number: values.decimalPlacesNumber,
+      decimalPlaces: values.decimalPlaces,
       type: values.type,
       color: values.color || 'gray',
       symbol: values.symbol || modal.data.currency.code,
@@ -56,8 +58,8 @@ export const SetCurrency: FC<SetCurrencyProps> = ({ modal }) => {
         : actionCreator.updateCurrency(modal.data.currency.code, currencyData),
     );
 
-    if (values.isBaseCurrency) {
-      commit.add(actionCreator.setBasicCurrency(modal.data.currency.code));
+    if (values.isMainCurrency) {
+      commit.add(actionCreator.setMainCurrency(modal.data.currency.code));
     }
     commit.sync();
     modal.close();
@@ -70,18 +72,18 @@ export const SetCurrency: FC<SetCurrencyProps> = ({ modal }) => {
         ? {
             name: modal.data.currency.name,
             symbol: modal.data.currency.code,
-            decimalPlacesNumber: 2,
+            decimalPlaces: 2,
             type: 'fiat',
             color: '',
-            isBaseCurrency: false,
+            isMainCurrency: false,
           }
         : {
             name: modal.data.currency.name,
             symbol: modal.data.currency.symbol,
-            decimalPlacesNumber: modal.data.currency.decimal_places_number,
+            decimalPlaces: modal.data.currency.decimalPlaces,
             type: modal.data.currency.type,
             color: modal.data.currency.color,
-            isBaseCurrency: modal.data.currency.code === baseCurrencyCode,
+            isMainCurrency: modal.data.currency.code === mainCurrencyCode,
           },
     );
   };
@@ -100,7 +102,7 @@ export const SetCurrency: FC<SetCurrencyProps> = ({ modal }) => {
             <Form.Input label="Symbol" name="symbol" />
             <Form.Number
               label="Number of decimal places"
-              name="decimalPlacesNumber"
+              name="decimalPlaces"
               decimalScale={0}
               allowNegative={false}
             />
@@ -108,20 +110,20 @@ export const SetCurrency: FC<SetCurrencyProps> = ({ modal }) => {
             <Form.Select
               label="Currency type"
               placeholder="Choose currency type..."
-              options={[
-                { value: 'fiat', label: 'Fiat' },
-                { value: 'crypto', label: 'Crypto' },
-              ]}
+              options={currencyTypes.map((currencyType) => ({
+                value: currencyType,
+                label: capitalize(currencyType),
+              }))}
               name="type"
             />
 
             <Form.Input label="Color" name="color" />
 
             <Form.Checkbox
-              name="isBaseCurrency"
-              disabled={modal.data?.currency.code === baseCurrencyCode}
+              name="isMainCurrency"
+              disabled={modal.data?.currency.code === mainCurrencyCode}
             >
-              Base Currency
+              Main Currency
             </Form.Checkbox>
           </Form>
         </FormProvider>

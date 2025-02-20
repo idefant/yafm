@@ -1,15 +1,10 @@
-import { z } from 'zod';
-
-import { accountSchema } from '#schema/accountSchema';
-import { categorySchema } from '#schema/categorySchema';
-import { currencySchema } from '#schema/currencySchema';
-import { templateSchema, transactionSchema } from '#schema/transactionSchema';
+import { baseSchema } from '#schema/baseSchema';
 import { store } from '#store';
 import {
-  selectAllAccountCategories,
+  selectAllAccountGroups,
   selectAllAccounts,
-  selectAllTransactionTemplates,
-  selectAllTransactionCategories,
+  selectAllTemplates,
+  selectAllCategories,
   selectAllTransactions,
   selectCurrencies,
 } from '#store/selectors';
@@ -20,34 +15,18 @@ export const getSyncData = () => {
   const state = store.getState();
 
   return {
-    accounts: selectAllAccounts(state),
-    transactions: selectAllTransactions(state),
-    categories: {
-      accounts: selectAllAccountCategories(state),
-      transactions: selectAllTransactionCategories(state),
-    },
-    templates: selectAllTransactionTemplates(state),
     currencies: selectCurrencies(state),
-    baseCurrencyCode: state.currencies.baseCurrencyCode,
+    mainCurrencyCode: state.currencies.mainCurrencyCode,
+    accounts: selectAllAccounts(state),
+    accountGroups: selectAllAccountGroups(state),
+    categories: selectAllCategories(state),
+    templates: selectAllTemplates(state),
+    transactions: selectAllTransactions(state),
   };
 };
 
-const schema = z
-  .object({
-    accounts: z.array(accountSchema),
-    transactions: z.array(transactionSchema),
-    templates: z.array(templateSchema),
-    categories: z.object({
-      accounts: z.array(categorySchema),
-      transactions: z.array(categorySchema),
-    }),
-    currencies: z.array(currencySchema),
-    baseCurrencyCode: z.string(),
-  })
-  .required();
-
 export const checkBaseIntegrity = (data: Base) => {
-  const parsingResult = schema.safeParse(data);
+  const parsingResult = baseSchema.safeParse(data);
   if (!parsingResult.success) {
     return { error: parsingResult.error.message };
   }
@@ -61,10 +40,10 @@ export const checkBaseIntegrity = (data: Base) => {
   if (hasNonUniqueKeys(data.currencies, 'code')) {
     return { error: 'Currency codes are not unique' };
   }
-  if (hasNonUniqueKeys(data.categories.accounts, 'id')) {
+  if (hasNonUniqueKeys(data.accountGroups, 'id')) {
     return { error: 'Account category IDs are not unique' };
   }
-  if (hasNonUniqueKeys(data.categories.transactions, 'id')) {
+  if (hasNonUniqueKeys(data.categories, 'id')) {
     return { error: 'Transaction category IDs are not unique' };
   }
   if (hasNonUniqueKeys(data.accounts, 'id')) {
@@ -77,32 +56,32 @@ export const checkBaseIntegrity = (data: Base) => {
     return { error: 'Template IDs are not unique' };
   }
 
-  const categoryAccountIds = getKeys(data.categories.accounts, 'id');
-  const categoryTransactionIds = getKeys(data.categories.transactions, 'id');
+  const categoryAccountIds = getKeys(data.accountGroups, 'id');
+  const categoryTransactionIds = getKeys(data.categories, 'id');
   const accountIds = getKeys(data.accounts, 'id');
   const currencyCodes = getKeys(data.currencies, 'code');
 
-  if (!currencyCodes.has(data.baseCurrencyCode)) {
-    return { error: `Unknown base currency (${data.baseCurrencyCode})` };
+  if (!currencyCodes.has(data.mainCurrencyCode)) {
+    return { error: `Unknown main currency (${data.mainCurrencyCode})` };
   }
 
   const messages: string[] = [];
-  data.accounts.forEach(({ category_id: categoryId, currency_code: currencyCode }) => {
+  data.accounts.forEach(({ groupId, currencyCode }) => {
     if (!currencyCodes.has(currencyCode)) {
       messages.push(`There is no currency with code=${currencyCode}`);
     }
-    if (categoryId && !categoryAccountIds.has(categoryId)) {
-      messages.push(`There is no account category with id=${categoryId}`);
+    if (groupId && !categoryAccountIds.has(groupId)) {
+      messages.push(`There is no account category with id=${groupId}`);
     }
   });
 
-  [...data.transactions, ...data.templates].forEach(({ category_id: categoryId, operations }) => {
+  [...data.transactions, ...data.templates].forEach(({ categoryId, operations }) => {
     if (categoryId && !categoryTransactionIds.has(categoryId)) {
       messages.push(`There is no transaction category with id=${categoryId}`);
     }
     operations.forEach((operation) => {
-      if (!accountIds.has(operation.account_id)) {
-        messages.push(`There is no account with id=${operation.account_id}`);
+      if (operation.accountId && !accountIds.has(operation.accountId)) {
+        messages.push(`There is no account with id=${operation.accountId}`);
       }
     });
   });

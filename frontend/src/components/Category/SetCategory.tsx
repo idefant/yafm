@@ -3,7 +3,7 @@ import { FC, useId } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-import { Category, CategoryType } from '#types/categoryType';
+import { Category } from '#types/categoryType';
 import { Button } from '#ui/Button';
 import { Form } from '#ui/Form';
 import { Modal, UseModalReturn } from '#ui/Modal';
@@ -13,12 +13,10 @@ export type SetCategoryModalData =
   | {
       method: 'create';
       category?: undefined;
-      categoryType: CategoryType;
     }
   | {
       method: 'edit';
       category: Category;
-      categoryType: CategoryType;
     };
 
 interface SetCategoryProps {
@@ -27,7 +25,7 @@ interface SetCategoryProps {
 
 const formSchema = z.object({
   name: z.string().trim().nonempty(),
-  isArchive: z.boolean().nullish(),
+  isArchived: z.boolean().nullish(),
 });
 
 type FormOutput = z.infer<typeof formSchema>;
@@ -43,26 +41,14 @@ export const SetCategory: FC<SetCategoryProps> = ({ modal }) => {
 
     const categoryData = {
       name: values.name,
-      is_archive: values.isArchive || undefined,
+      isArchived: values.isArchived || undefined,
     };
 
-    if (modal.data.method === 'create') {
-      if (modal.data.categoryType === 'accounts') {
-        committer(actionCreator.createAccountCategory(categoryData)).sync();
-      }
-      if (modal.data.categoryType === 'transactions') {
-        committer(actionCreator.createTransactionCategory(categoryData)).sync();
-      }
-    } else {
-      if (modal.data.categoryType === 'accounts') {
-        committer(actionCreator.updateAccountCategory(modal.data.category.id, categoryData)).sync();
-      }
-      if (modal.data.categoryType === 'transactions') {
-        committer(
-          actionCreator.updateTransactionCategory(modal.data.category.id, categoryData),
-        ).sync();
-      }
-    }
+    committer(
+      modal.data.method === 'create'
+        ? actionCreator.createCategory(categoryData)
+        : actionCreator.updateCategory(modal.data.category.id, categoryData),
+    ).sync();
     modal.close();
   };
 
@@ -70,7 +56,7 @@ export const SetCategory: FC<SetCategoryProps> = ({ modal }) => {
     if (!modal.isOpen) return;
     reset({
       name: modal.data.category?.name || '',
-      isArchive: modal.data.category?.is_archive || false,
+      isArchived: modal.data.category?.isArchived || false,
     });
   };
 
@@ -87,7 +73,7 @@ export const SetCategory: FC<SetCategoryProps> = ({ modal }) => {
             <Form.Input label="Name" name="name" />
 
             {modal.data?.method === 'edit' && (
-              <Form.Checkbox name="isArchive">Archive</Form.Checkbox>
+              <Form.Checkbox name="isArchived">Archive</Form.Checkbox>
             )}
           </Form>
         </FormProvider>

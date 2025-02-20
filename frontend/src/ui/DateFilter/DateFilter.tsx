@@ -6,14 +6,14 @@ import { IconButton } from '#ui/IconButton';
 import { Select } from '#ui/Select';
 import { HStack, VStack } from '#ui/Stack';
 
-import { DateFilterResult } from './useDateFilter';
+import { DateFilterReturn } from './useDateFilter';
 
 interface DateFilterProps {
-  options: DateFilterResult;
+  options: DateFilterReturn;
 }
 
 export const DateFilter: FC<DateFilterProps> = ({ options }) => {
-  const { date, periodType, setDate, setPeriodType } = options;
+  const { period, setDate, setUnit } = options;
 
   const periodOptions = [
     { value: 'month', label: 'Month' },
@@ -25,8 +25,8 @@ export const DateFilter: FC<DateFilterProps> = ({ options }) => {
       <Select
         label="Period type"
         options={periodOptions}
-        value={periodOptions.find((option) => option.value === periodType)}
-        onChange={(newValue: any) => setPeriodType(newValue?.value)}
+        value={periodOptions.find((option) => option.value === period.unit)}
+        onChange={(newValue: any) => setUnit(newValue?.value)}
         margin="sm"
       />
 
@@ -35,17 +35,17 @@ export const DateFilter: FC<DateFilterProps> = ({ options }) => {
           variant="outlined"
           color="secondary"
           icon={ChevronLeftIcon}
-          onClick={() => setDate(date.subtract(1, periodType))}
+          onClick={() => setDate(period.startedAt.subtract(1, period.unit))}
         />
         <div>
-          {periodType === 'month' && `${date.format('MMM YYYY')}`}
-          {periodType === 'year' && date.year()}
+          {period.unit === 'month' && `${period.startedAt.format('MMM YYYY')}`}
+          {period.unit === 'year' && period.startedAt.year()}
         </div>
         <IconButton
           variant="outlined"
           color="secondary"
           icon={ChevronRightIcon}
-          onClick={() => setDate(date.add(1, periodType))}
+          onClick={() => setDate(period.startedAt.add(1, period.unit))}
         />
       </HStack>
     </VStack>

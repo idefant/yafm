@@ -1,4 +1,4 @@
-import { FC, useMemo } from 'react';
+import { FC } from 'react';
 
 import { useFetchRatesByPeriodQuery } from '#api/exratesApi';
 import { DashboardBalanceHistoryChart, DashboardCategoryChart } from '#components/Dashboard';
@@ -9,25 +9,10 @@ import { Grid } from '#ui/Grid';
 import { VStack } from '#ui/Stack';
 import { Title } from '#ui/Typography';
 
-const dateQuery = {
-  month: 'YYYY-MM',
-  year: 'YYYY',
-};
-
 export const Dashboard: FC = () => {
-  const filterData = useDateFilter();
-  const { date, periodType } = filterData;
-  const { data: rates } = useFetchRatesByPeriodQuery({
-    period: date.format(dateQuery[periodType]),
-  });
+  const dateFilter = useDateFilter();
 
-  const datePeriod = useMemo(
-    () => ({
-      start: filterData.date.startOf(filterData.periodType),
-      end: filterData.date.endOf(filterData.periodType),
-    }),
-    [filterData.date, filterData.periodType],
-  );
+  const { data: rates } = useFetchRatesByPeriodQuery({ period: dateFilter.period.formatted });
 
   return (
     <>
@@ -40,19 +25,19 @@ export const Dashboard: FC = () => {
               <Title level={4} gutterBottom>
                 Filter
               </Title>
-              <DateFilter options={filterData} />
+              <DateFilter options={dateFilter} />
             </Card.Content>
           </Card>
         </Grid.Item>
 
         <Grid.Item size={9}>
           <VStack gap={16}>
-            <DashboardBalanceHistoryChart filterData={filterData} rates={rates} />
+            <DashboardBalanceHistoryChart period={dateFilter.period} rates={rates} />
 
             <Grid gap={16}>
               <Grid.Item size={6}>
                 <DashboardCategoryChart
-                  period={datePeriod}
+                  period={dateFilter.period}
                   rates={rates}
                   transactionType="income"
                 />
@@ -60,7 +45,7 @@ export const Dashboard: FC = () => {
 
               <Grid.Item size={6}>
                 <DashboardCategoryChart
-                  period={datePeriod}
+                  period={dateFilter.period}
                   rates={rates}
                   transactionType="outcome"
                 />

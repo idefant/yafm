@@ -5,11 +5,11 @@ import { EmptyObject, Except } from 'type-fest';
 import { mainApiCommit } from '#api/mainApi';
 import { store } from '#store';
 import {
-  accountCategoriesReceived,
-  accountCategoryAdded,
-  accountCategoryDeleted,
-  accountCategoryUpdated,
-} from '#store/reducers/accountCategoriesSlice';
+  accountGroupsReceived,
+  accountGroupAdded,
+  accountGroupDeleted,
+  accountGroupUpdated,
+} from '#store/reducers/accountGroupsSlice';
 import {
   accountAdded,
   accountDeleted,
@@ -17,20 +17,26 @@ import {
   accountUpdated,
 } from '#store/reducers/accountsSlice';
 import {
+  categoriesReceived,
+  categoryAdded,
+  categoryDeleted,
+  categoryUpdated,
+} from '#store/reducers/categoriesSlice';
+import {
   currenciesReceived,
   currencyAdded,
   currencyDeleted,
   currencyUpdated,
   defaultCurrencies,
-  setBaseCurrency,
+  setMainCurrency,
   setDefaultCurrencies,
 } from '#store/reducers/currenciesSlice';
 import {
-  transactionCategoriesReceived,
-  transactionCategoryAdded,
-  transactionCategoryDeleted,
-  transactionCategoryUpdated,
-} from '#store/reducers/transactionCategoriesSlice';
+  templateAdded,
+  templateDeleted,
+  templatesReceived,
+  templateUpdated,
+} from '#store/reducers/templatesSlice';
 import {
   transactionAdded,
   transactionDeleted,
@@ -38,31 +44,27 @@ import {
   transactionUpdated,
 } from '#store/reducers/transactionsSlice';
 import {
-  transactionTemplateAdded,
-  transactionTemplateDeleted,
-  transactionTemplatesReceived,
-  transactionTemplateUpdated,
-} from '#store/reducers/transactionTemplatesSlice';
-import {
   selectAccountById,
-  selectAccountCategoryById,
+  selectAccountGroupById,
   selectCurrencyById,
   selectTransactionById,
-  selectTransactionCategoryById,
-  selectTransactionTemplateById,
+  selectCategoryById,
+  selectTemplateById,
 } from '#store/selectors';
-import { Account } from '#types/accountType';
+import { CreateAccountGroupData, UpdateAccountGroupData } from '#types/accountGroupType';
+import { CreateAccountData, UpdateAccountData } from '#types/accountType';
 import { Base } from '#types/baseType';
-import { Category } from '#types/categoryType';
-import { EncryptedData } from '#types/cipher';
+import { CreateCategoryData, UpdateCategoryData } from '#types/categoryType';
+import { EncryptedData } from '#types/cipherType';
 import {
   CommitActionDict,
   CommitWithTransforms,
   Transform,
   updatedBaseMethods,
 } from '#types/commitType';
-import { Currency } from '#types/currencyType';
-import { Transaction, TransactionTemplate } from '#types/transactionType';
+import { CreateCurrencyData, UpdateCurrencyData } from '#types/currencyType';
+import { CreateTemplateData, UpdateTemplateData } from '#types/templateType';
+import { CreateTransactionData, UpdateTransactionData } from '#types/transactionType';
 import { dmodal } from '#ui/Modal';
 import { crypt } from '#utils/crypt';
 import { getChanges } from '#utils/getChanges';
@@ -116,65 +118,65 @@ type CommitActionWithDispatch<
 } & additionalProps;
 
 export const actionCreator = {
-  // currency
-  setBasicCurrency: (currencyCode: string): CommitActionWithDispatch<'set_basic_currency'> => ({
-    dispatchAction: () => store.dispatch(setBaseCurrency(currencyCode)),
-    action: { method: 'set_basic_currency', data: { code: currencyCode } },
+  // === Currency ===
+  setMainCurrency: (code: string): CommitActionWithDispatch<'set_main_currency'> => ({
+    dispatchAction: () => store.dispatch(setMainCurrency(code)),
+    action: { method: 'set_main_currency', data: { code } },
   }),
-  createCurrency: (currency: Currency): CommitActionWithDispatch<'create_currency'> => ({
+  createCurrency: (currency: CreateCurrencyData): CommitActionWithDispatch<'create_currency'> => ({
     dispatchAction: () => store.dispatch(currencyAdded(currency)),
     action: { method: 'create_currency', data: currency },
   }),
   updateCurrency: (
-    id: string,
-    currency: Partial<Except<Currency, 'code'>>,
+    code: string,
+    currency: Except<UpdateCurrencyData, 'code'>,
   ): CommitActionWithDispatch<'update_currency'> | undefined => {
-    const oldValue = selectCurrencyById(store.getState(), id);
+    const oldValue = selectCurrencyById(store.getState(), code);
     if (!oldValue) return;
     const changes = getChanges(oldValue, currency, { onlyKeys: Object.keys(currency) });
     if (changes.isEmpty) return;
     return {
-      dispatchAction: () => store.dispatch(currencyUpdated({ id, changes: changes.value })),
-      action: { method: 'update_currency', data: { code: id, ...changes.value } },
+      dispatchAction: () => store.dispatch(currencyUpdated({ id: code, changes: changes.value })),
+      action: { method: 'update_currency', data: { code, ...changes.value } },
     };
   },
-  deleteCurrency: (id: string): CommitActionWithDispatch<'delete_currency'> => ({
-    dispatchAction: () => store.dispatch(currencyDeleted(id)),
-    action: { method: 'delete_currency', data: { code: id } },
+  deleteCurrency: (code: string): CommitActionWithDispatch<'delete_currency'> => ({
+    dispatchAction: () => store.dispatch(currencyDeleted(code)),
+    action: { method: 'delete_currency', data: { code } },
   }),
 
-  // account category
-  createAccountCategory: (
-    category: Except<Category, 'id'>,
-  ): CommitActionWithDispatch<'create_account_category', { id: string }> => {
+  // === Account Group ===
+  createAccountGroup: (
+    category: Except<CreateAccountGroupData, 'id'>,
+  ): CommitActionWithDispatch<'create_account_group', { id: string }> => {
     const id = nanoid();
     return {
-      dispatchAction: () => store.dispatch(accountCategoryAdded({ id, ...category })),
-      action: { method: 'create_account_category', data: { id, ...category } },
+      dispatchAction: () => store.dispatch(accountGroupAdded({ id, ...category })),
+      action: { method: 'create_account_group', data: { id, ...category } },
       id,
     };
   },
-  updateAccountCategory: (
+  updateAccountGroup: (
     id: string,
-    category: Partial<Except<Category, 'id'>>,
-  ): CommitActionWithDispatch<'update_account_category'> | undefined => {
-    const oldValue = selectAccountCategoryById(store.getState(), id);
+    category: Except<UpdateAccountGroupData, 'id'>,
+  ): CommitActionWithDispatch<'update_account_group'> | undefined => {
+    const oldValue = selectAccountGroupById(store.getState(), id);
     if (!oldValue) return;
     const changes = getChanges(oldValue, category, { onlyKeys: Object.keys(category) });
     if (changes.isEmpty) return;
     return {
-      dispatchAction: () => store.dispatch(accountCategoryUpdated({ id, changes: changes.value })),
-      action: { method: 'update_account_category', data: { id, ...changes.value } },
+      dispatchAction: () => store.dispatch(accountGroupUpdated({ id, changes: changes.value })),
+      action: { method: 'update_account_group', data: { id, ...changes.value } },
     };
   },
-  deleteAccountCategory: (id: string): CommitActionWithDispatch<'delete_account_category'> => ({
-    dispatchAction: () => store.dispatch(accountCategoryDeleted(id)),
-    action: { method: 'delete_account_category', data: { id } },
+  deleteAccountGroup: (id: string): CommitActionWithDispatch<'delete_account_group'> => ({
+    dispatchAction: () => store.dispatch(accountGroupDeleted(id)),
+    action: { method: 'delete_account_group', data: { id } },
   }),
 
-  // account
+  // === Account ===
   createAccount: (
-    account: Except<Account, 'id'>,
+    account: Except<CreateAccountData, 'id'>,
   ): CommitActionWithDispatch<'create_account', { id: string }> => {
     const id = nanoid();
     return {
@@ -185,7 +187,7 @@ export const actionCreator = {
   },
   updateAccount: (
     id: string,
-    account: Partial<Except<Account, 'id' | 'currency_code'>>,
+    account: Except<UpdateAccountData, 'id' | 'currencyCode'>,
   ): CommitActionWithDispatch<'update_account'> | undefined => {
     const oldValue = selectAccountById(store.getState(), id);
     if (!oldValue) return;
@@ -201,73 +203,67 @@ export const actionCreator = {
     action: { method: 'delete_account', data: { id } },
   }),
 
-  // transaction category
-  createTransactionCategory: (
-    category: Except<Category, 'id'>,
-  ): CommitActionWithDispatch<'create_transaction_category', { id: string }> => {
+  // === Category ===
+  createCategory: (
+    category: Except<CreateCategoryData, 'id'>,
+  ): CommitActionWithDispatch<'create_category', { id: string }> => {
     const id = nanoid();
     return {
-      dispatchAction: () => store.dispatch(transactionCategoryAdded({ id, ...category })),
-      action: { method: 'create_transaction_category', data: { id, ...category } },
+      dispatchAction: () => store.dispatch(categoryAdded({ id, ...category })),
+      action: { method: 'create_category', data: { id, ...category } },
       id,
     };
   },
-  updateTransactionCategory: (
+  updateCategory: (
     id: string,
-    category: Partial<Except<Category, 'id'>>,
-  ): CommitActionWithDispatch<'update_transaction_category'> | undefined => {
-    const oldValue = selectTransactionCategoryById(store.getState(), id);
+    category: Except<UpdateCategoryData, 'id'>,
+  ): CommitActionWithDispatch<'update_category'> | undefined => {
+    const oldValue = selectCategoryById(store.getState(), id);
     if (!oldValue) return;
     const changes = getChanges(oldValue, category, { onlyKeys: Object.keys(category) });
     if (changes.isEmpty) return;
     return {
-      dispatchAction: () =>
-        store.dispatch(transactionCategoryUpdated({ id, changes: changes.value })),
-      action: { method: 'update_transaction_category', data: { id, ...changes.value } },
+      dispatchAction: () => store.dispatch(categoryUpdated({ id, changes: changes.value })),
+      action: { method: 'update_category', data: { id, ...changes.value } },
     };
   },
-  deleteTransactionCategory: (
-    id: string,
-  ): CommitActionWithDispatch<'delete_transaction_category'> => ({
-    dispatchAction: () => store.dispatch(transactionCategoryDeleted(id)),
-    action: { method: 'delete_transaction_category', data: { id } },
+  deleteCategory: (id: string): CommitActionWithDispatch<'delete_category'> => ({
+    dispatchAction: () => store.dispatch(categoryDeleted(id)),
+    action: { method: 'delete_category', data: { id } },
   }),
 
-  // transaction template
-  createTransactionTemplate: (
-    template: Except<TransactionTemplate, 'id'>,
-  ): CommitActionWithDispatch<'create_transaction_template', { id: string }> => {
+  // === Template ===
+  createTemplate: (
+    template: Except<CreateTemplateData, 'id'>,
+  ): CommitActionWithDispatch<'create_template', { id: string }> => {
     const id = nanoid();
     return {
-      dispatchAction: () => store.dispatch(transactionTemplateAdded({ id, ...template })),
-      action: { method: 'create_transaction_template', data: { id, ...template } },
+      dispatchAction: () => store.dispatch(templateAdded({ id, ...template })),
+      action: { method: 'create_template', data: { id, ...template } },
       id,
     };
   },
-  updateTransactionTemplate: (
+  updateTemplate: (
     id: string,
-    template: Partial<Except<TransactionTemplate, 'id'>>,
-  ): CommitActionWithDispatch<'update_transaction_template'> | undefined => {
-    const oldValue = selectTransactionTemplateById(store.getState(), id);
+    template: Except<UpdateTemplateData, 'id'>,
+  ): CommitActionWithDispatch<'update_template'> | undefined => {
+    const oldValue = selectTemplateById(store.getState(), id);
     if (!oldValue) return;
     const changes = getChanges(oldValue, template, { onlyKeys: Object.keys(template) });
     if (changes.isEmpty) return;
     return {
-      dispatchAction: () =>
-        store.dispatch(transactionTemplateUpdated({ id, changes: changes.value })),
-      action: { method: 'update_transaction_template', data: { id, ...changes.value } },
+      dispatchAction: () => store.dispatch(templateUpdated({ id, changes: changes.value })),
+      action: { method: 'update_template', data: { id, ...changes.value } },
     };
   },
-  deleteTransactionTemplate: (
-    id: string,
-  ): CommitActionWithDispatch<'delete_transaction_template'> => ({
-    dispatchAction: () => store.dispatch(transactionTemplateDeleted(id)),
-    action: { method: 'delete_transaction_template', data: { id } },
+  deleteTemplate: (id: string): CommitActionWithDispatch<'delete_template'> => ({
+    dispatchAction: () => store.dispatch(templateDeleted(id)),
+    action: { method: 'delete_template', data: { id } },
   }),
 
-  // transaction
+  // === Transaction ===
   createTransaction: (
-    transaction: Except<Transaction, 'id'>,
+    transaction: Except<CreateTransactionData, 'id'>,
   ): CommitActionWithDispatch<'create_transaction', { id: string }> => {
     const id = nanoid();
     return {
@@ -278,7 +274,7 @@ export const actionCreator = {
   },
   updateTransaction: (
     id: string,
-    transaction: Partial<Except<Transaction, 'id'>>,
+    transaction: Except<UpdateTransactionData, 'id'>,
   ): CommitActionWithDispatch<'update_transaction'> | undefined => {
     const oldValue = selectTransactionById(store.getState(), id);
     if (!oldValue) return;
@@ -294,33 +290,31 @@ export const actionCreator = {
     action: { method: 'delete_transaction', data: { id } },
   }),
 
-  // base
+  // === Base ===
   initBase: (): CommitActionWithDispatch<'init_base'> => ({
     dispatchAction: () => store.dispatch(setDefaultCurrencies()),
     action: {
       method: 'init_base',
       data: {
-        accounts: [],
-        transactions: [],
-        templates: [],
-        categories: {
-          accounts: [],
-          transactions: [],
-        },
         currencies: defaultCurrencies,
-        baseCurrencyCode: '',
+        mainCurrencyCode: '',
+        accountGroups: [],
+        accounts: [],
+        categories: [],
+        templates: [],
+        transactions: [],
       },
     },
   }),
   importBase: (base: Base): CommitActionWithDispatch<'import_base'> => ({
     dispatchAction: () => {
       store.dispatch(currenciesReceived(base.currencies));
-      store.dispatch(setBaseCurrency(base.baseCurrencyCode));
+      store.dispatch(setMainCurrency(base.mainCurrencyCode));
+      store.dispatch(accountGroupsReceived(base.accountGroups));
       store.dispatch(accountsReceived(base.accounts));
-      store.dispatch(accountCategoriesReceived(base.categories.accounts));
+      store.dispatch(categoriesReceived(base.categories));
+      store.dispatch(templatesReceived(base.templates));
       store.dispatch(transactionsReceived(base.transactions));
-      store.dispatch(transactionCategoriesReceived(base.categories.transactions));
-      store.dispatch(transactionTemplatesReceived(base.templates));
     },
     action: { method: 'import_base', data: base },
   }),

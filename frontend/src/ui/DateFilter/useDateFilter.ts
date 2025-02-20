@@ -1,28 +1,26 @@
 import dayjs, { Dayjs } from 'dayjs';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
-import { Period } from '#types/periodType';
+import { getPeriod } from '#utils/getPeriod';
 
-export type DateFilterOptions = {
-  date: Dayjs;
-  periodType: Period;
+type PeriodType = 'year' | 'month';
+
+type DateFilterOptions = {
+  date?: Dayjs;
+  unit?: PeriodType;
 };
 
-export type DateFilterResult = DateFilterOptions & {
-  setDate: React.Dispatch<React.SetStateAction<Dayjs>>;
-  setPeriodType: React.Dispatch<React.SetStateAction<Period>>;
-};
-
-export const useDateFilter = (
-  defaultOptions: Partial<DateFilterOptions> = {},
-): DateFilterResult => {
+export const useDateFilter = (defaultOptions: DateFilterOptions = {}) => {
   const [date, setDate] = useState(defaultOptions.date ?? dayjs());
-  const [periodType, setPeriodType] = useState<Period>(defaultOptions.periodType ?? 'month');
+  const [unit, setUnit] = useState<PeriodType>(defaultOptions.unit ?? 'month');
+
+  const period = useMemo(() => getPeriod(date, unit), [date, unit]);
 
   return {
-    date,
     setDate,
-    periodType,
-    setPeriodType,
+    setUnit,
+    period,
   };
 };
+
+export type DateFilterReturn = ReturnType<typeof useDateFilter>;

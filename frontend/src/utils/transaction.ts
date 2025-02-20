@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js';
 
-import { OperationCombined, TransactionCombined, TransactionType } from '#types/transactionType';
+import { OperationExtended, TransactionExtended, TransactionType } from '#types/transactionType';
 
 import { groupBy } from './groupBy';
 
@@ -13,9 +13,9 @@ import { groupBy } from './groupBy';
  * - `outcome` - есть хотя бы одна валюта с отрицательной суммой, при нет ни одной валюты с положительной суммой суммой
  * - `exchange` - все остальные случаи
  */
-export const getTransactionType = (operations: OperationCombined[]): TransactionType => {
+export const getTransactionType = (operations: OperationExtended[]): TransactionType => {
   const currencies = Object.entries(
-    groupBy(operations, (operation) => operation.account.currency_code),
+    groupBy(operations, (operation) => operation.account.currencyCode),
   ).map(([currencyCode, operations]) => {
     const sum = BigNumber.sum(...operations.map((operation) => operation.sum));
 
@@ -41,7 +41,7 @@ export const getTransactionType = (operations: OperationCombined[]): Transaction
   return 'exchange';
 };
 
-export const getTransactionsGroupedByType = <T extends TransactionCombined>(transactions: T[]) => {
+export const getTransactionsGroupedByType = <T extends TransactionExtended>(transactions: T[]) => {
   const groupedTransactions: Record<TransactionType, T[]> = {
     income: [],
     outcome: [],

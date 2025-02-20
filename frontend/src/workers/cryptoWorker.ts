@@ -3,7 +3,7 @@
 import { AES, algo, enc, HmacSHA256, lib, PBKDF2 } from 'crypto-js';
 import { EmptyObject } from 'type-fest';
 
-import { EncryptedData } from '#types/cipher';
+import { EncryptedData } from '#types/cipherType';
 
 type Data = { password: string; salt: string; encryptionKey: lib.WordArray } | EmptyObject;
 

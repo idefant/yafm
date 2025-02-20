@@ -3,8 +3,8 @@ import BigNumber from 'bignumber.js';
 import { FC } from 'react';
 
 import { useAppSelector } from '#hooks/reduxHooks';
-import { selectAllTransactionTemplatesCombined } from '#store/selectors';
-import { TransactionTemplate, TransactionTemplateCombined } from '#types/transactionType';
+import { selectAllTemplatesExtended } from '#store/selectors';
+import { Template, TemplateExtended } from '#types/templateType';
 import { Modal } from '#ui/Modal';
 import { SumValueList } from '#ui/SumValueList';
 import { Table } from '#ui/Table';
@@ -13,10 +13,10 @@ interface ChooseTemplateProps {
   isOpen: boolean;
   close: () => void;
   // eslint-disable-next-line no-unused-vars
-  setTransaction: (template: TransactionTemplate) => void;
+  setTransaction: (template: Template) => void;
 }
 
-const columnHelper = createColumnHelper<TransactionTemplateCombined>();
+const columnHelper = createColumnHelper<TemplateExtended>();
 
 const columns = [
   columnHelper.accessor('name', {
@@ -36,10 +36,10 @@ const columns = [
     cell: (info) => (
       <SumValueList
         items={info.getValue().map(({ sum, account }) => ({
-          value: BigNumber(sum),
-          decimalPlacesNumber: account.currency.decimal_places_number,
-          currencyCode: account.currency_code,
-          description: account.name,
+          value: sum ? BigNumber(sum) : undefined,
+          decimalPlaces: account?.currency.decimalPlaces,
+          currencyCode: account?.currencyCode,
+          description: account?.name,
         }))}
       />
     ),
@@ -48,7 +48,7 @@ const columns = [
 ];
 
 export const ChooseTemplate: FC<ChooseTemplateProps> = ({ isOpen, close, setTransaction }) => {
-  const templates = useAppSelector(selectAllTransactionTemplatesCombined);
+  const templates = useAppSelector(selectAllTemplatesExtended);
 
   const table = useReactTable({
     data: templates,
@@ -57,7 +57,7 @@ export const ChooseTemplate: FC<ChooseTemplateProps> = ({ isOpen, close, setTran
     getCoreRowModel: getCoreRowModel(),
   });
 
-  const chooseTemplate = (template: TransactionTemplate) => {
+  const chooseTemplate = (template: Template) => {
     setTransaction(template);
     close();
   };

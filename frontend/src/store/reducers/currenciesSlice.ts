@@ -6,7 +6,7 @@ export const defaultCurrencies: Currency[] = [
   {
     code: 'RUB',
     name: 'Ruble',
-    decimal_places_number: 2,
+    decimalPlaces: 2,
     type: 'fiat',
     color: '#b56d00',
     symbol: '₽',
@@ -14,7 +14,7 @@ export const defaultCurrencies: Currency[] = [
   {
     code: 'USD',
     name: 'US Dollar',
-    decimal_places_number: 2,
+    decimalPlaces: 2,
     type: 'fiat',
     color: '#48a64c',
     symbol: '$',
@@ -22,7 +22,7 @@ export const defaultCurrencies: Currency[] = [
   {
     code: 'EUR',
     name: 'Euro',
-    decimal_places_number: 2,
+    decimalPlaces: 2,
     type: 'fiat',
     color: '#00349a',
     symbol: '€',
@@ -30,7 +30,7 @@ export const defaultCurrencies: Currency[] = [
   {
     code: 'BTC',
     name: 'Bitcoin',
-    decimal_places_number: 8,
+    decimalPlaces: 8,
     type: 'crypto',
     color: '#f7931a',
     symbol: '₿',
@@ -44,7 +44,7 @@ export const currenciesAdapter = createEntityAdapter<Currency>({
 
 export const currenciesSlice = createSlice({
   name: 'currencies',
-  initialState: currenciesAdapter.getInitialState({ baseCurrencyCode: 'USD' }),
+  initialState: currenciesAdapter.getInitialState({ mainCurrencyCode: 'USD' }),
   reducers: {
     currenciesReceived: currenciesAdapter.setAll,
     currenciesCleared: currenciesAdapter.removeAll,
@@ -53,10 +53,10 @@ export const currenciesSlice = createSlice({
     currencyDeleted: currenciesAdapter.removeOne,
     setDefaultCurrencies: (state) => {
       currenciesAdapter.setAll(state, defaultCurrencies);
-      state.baseCurrencyCode = 'USD';
+      state.mainCurrencyCode = 'USD';
     },
-    setBaseCurrency: (state, action: PayloadAction<string>) => {
-      state.baseCurrencyCode = action.payload;
+    setMainCurrency: (state, action: PayloadAction<string>) => {
+      state.mainCurrencyCode = action.payload;
     },
   },
 });
@@ -68,7 +68,7 @@ export const {
   currencyUpdated,
   currencyDeleted,
   setDefaultCurrencies,
-  setBaseCurrency,
+  setMainCurrency,
 } = currenciesSlice.actions;
 
 export default currenciesSlice.reducer;

@@ -5,22 +5,22 @@ import { exratesApi } from '#api/exratesApi';
 import { financeApi } from '#api/financeApi';
 import { mainApi } from '#api/mainApi';
 
-import accountCategoriesReducer from './reducers/accountCategoriesSlice';
+import accountGroupsReducer from './reducers/accountGroupsSlice';
 import accountsReducer from './reducers/accountsSlice';
 import appReducer from './reducers/appSlice';
+import categoriesReducer from './reducers/categoriesSlice';
 import currenciesReducer from './reducers/currenciesSlice';
-import transactionCategoriesReducer from './reducers/transactionCategoriesSlice';
+import templatesReducer from './reducers/templatesSlice';
 import transactionsReducer from './reducers/transactionsSlice';
-import transactionTemplatesReducer from './reducers/transactionTemplatesSlice';
 
 export const rootReducer = combineReducers({
   app: appReducer,
   currencies: currenciesReducer,
+  accountGroups: accountGroupsReducer,
   accounts: accountsReducer,
-  accountCategories: accountCategoriesReducer,
+  categories: categoriesReducer,
+  templates: templatesReducer,
   transactions: transactionsReducer,
-  transactionCategories: transactionCategoriesReducer,
-  transactionTemplates: transactionTemplatesReducer,
   [exratesApi.reducerPath]: exratesApi.reducer,
   [financeApi.reducerPath]: financeApi.reducer,
   [mainApi.reducerPath]: mainApi.reducer,

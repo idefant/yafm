@@ -1,6 +1,8 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { CSSProperties } from 'react';
 
+import { createArray } from '#utils/createArray';
+
 import { Grid } from './Grid';
 
 const meta = {
@@ -23,7 +25,7 @@ export const Size4: Story = {
   },
   render: (props) => (
     <Grid {...props}>
-      {[...new Array(6)].map((_, i) => (
+      {createArray(6).map((_, i) => (
         <Grid.Item size={4} key={i}>
           <div style={style}>size=4</div>
         </Grid.Item>
@@ -97,7 +99,7 @@ export const DifferentGaps: Story = {
   },
   render: (props) => (
     <Grid {...props}>
-      {[...new Array(6)].map((_, i) => (
+      {createArray(6).map((_, i) => (
         <Grid.Item size={4} key={i}>
           <div style={style}>size=4</div>
         </Grid.Item>
@@ -112,7 +114,7 @@ export const WithBreakpoints: Story = {
   },
   render: (props) => (
     <Grid {...props}>
-      {[...new Array(12)].map((_, i) => (
+      {createArray(12).map((_, i) => (
         <Grid.Item size={{ xs: 12, sm: 6, md: 4, lg: 3, xl: 2, xxl: 1 }} key={i}>
           <div style={style}>size=?</div>
         </Grid.Item>

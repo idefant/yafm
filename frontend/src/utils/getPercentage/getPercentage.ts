@@ -5,7 +5,7 @@ export const getPercentage = (
   totalValue: BigNumber | number | string,
   options?: { decimalPlaces?: number },
 ) => {
-  const decimalPlaces = options?.decimalPlaces || 2;
+  const decimalPlaces = options?.decimalPlaces || 0;
   const percentage = BigNumber(partValue).div(totalValue).multipliedBy(100).toFixed(decimalPlaces);
   return `${percentage}%`;
 };

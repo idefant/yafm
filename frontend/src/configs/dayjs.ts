@@ -6,3 +6,9 @@ export const configureDayjs = () => {
   dayjs.extend(customParseFormat);
   dayjs.extend(isBetween);
 };
+
+export const dayjsTemplate = {
+  date: 'YYYY-MM-DD',
+  month: 'YYYY-MM',
+  year: 'YYYY',
+};

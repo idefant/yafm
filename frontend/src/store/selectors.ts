@@ -1,20 +1,21 @@
 import { Dictionary, createSelector } from '@reduxjs/toolkit';
 import BigNumber from 'bignumber.js';
 
-import { AccountCombined } from '#types/accountType';
-import { TransactionCombined, TransactionTemplateCombined } from '#types/transactionType';
+import { AccountExtended } from '#types/accountType';
+import { TemplateExtended } from '#types/templateType';
+import { TransactionExtended } from '#types/transactionType';
 import { createKeysDict } from '#utils/createKeysDict';
 import { getEntities } from '#utils/getEntities';
 import { groupBy } from '#utils/groupBy';
 import { objMap } from '#utils/objMap';
 import { sum } from '#utils/sum';
 
-import { accountCategoriesAdapter } from './reducers/accountCategoriesSlice';
+import { accountGroupsAdapter } from './reducers/accountGroupsSlice';
 import { accountsAdapter } from './reducers/accountsSlice';
+import { categoriesAdapter } from './reducers/categoriesSlice';
 import { currenciesAdapter } from './reducers/currenciesSlice';
-import { transactionCategoriesAdapter } from './reducers/transactionCategoriesSlice';
+import { templatesAdapter } from './reducers/templatesSlice';
 import { transactionsAdapter } from './reducers/transactionsSlice';
-import { transactionTemplatesAdapter } from './reducers/transactionTemplatesSlice';
 import { RootState } from './store';
 
 export const selectArchiveMode = (state: RootState) => state.app.archiveMode;
@@ -23,18 +24,14 @@ export const selectArchiveMode = (state: RootState) => state.app.archiveMode;
 // ===== Entity Adapter =====
 // ''''''''''''''''''''''''''
 const currenciesSelectors = currenciesAdapter.getSelectors<RootState>((state) => state.currencies);
+const accountGroupsSelectors = accountGroupsAdapter.getSelectors<RootState>(
+  (state) => state.accountGroups,
+);
 const accountsSelectors = accountsAdapter.getSelectors<RootState>((state) => state.accounts);
-const accountCategoriesSelectors = accountCategoriesAdapter.getSelectors<RootState>(
-  (state) => state.accountCategories,
-);
-const transactionCategoriesSelectors = transactionCategoriesAdapter.getSelectors<RootState>(
-  (state) => state.transactionCategories,
-);
+const categoriesSelectors = categoriesAdapter.getSelectors<RootState>((state) => state.categories);
+const templatesSelectors = templatesAdapter.getSelectors<RootState>((state) => state.templates);
 const transactionsSelectors = transactionsAdapter.getSelectors<RootState>(
   (state) => state.transactions,
-);
-const transactionTemplatesSelectors = transactionTemplatesAdapter.getSelectors<RootState>(
-  (state) => state.transactionTemplates,
 );
 
 // ......................
@@ -46,124 +43,120 @@ export const selectCurrenciesIds = currenciesSelectors.selectIds;
 
 export const selectCurrencyById = currenciesSelectors.selectById;
 
-// ..............................
-// ===== Account Categories =====
-// ''''''''''''''''''''''''''''''
-export const selectAllAccountCategories = accountCategoriesSelectors.selectAll;
+// ..........................
+// ===== Account Groups =====
+// ''''''''''''''''''''''''''
+export const selectAllAccountGroups = accountGroupsSelectors.selectAll;
 
-export const selectVisibleAccountCategories = createSelector(
-  [accountCategoriesSelectors.selectAll, selectArchiveMode],
-  (categories, archiveMode) => categories.filter((category) => archiveMode || !category.is_archive),
+export const selectVisibleAccountGroups = createSelector(
+  [accountGroupsSelectors.selectAll, selectArchiveMode],
+  (groups, archiveMode) => groups.filter((group) => archiveMode || !group.isArchived),
 );
 
-export const selectAccountCategoryById = accountCategoriesSelectors.selectById;
+export const selectAccountGroupById = accountGroupsSelectors.selectById;
 
 // ....................
 // ===== Accounts =====
 // ''''''''''''''''''''
 export const selectAllAccounts = accountsSelectors.selectAll;
 
-export const selectAllAccountsCombined = createSelector(
-  [
-    selectAllAccounts,
-    accountCategoriesSelectors.selectEntities,
-    currenciesSelectors.selectEntities,
-  ],
-  (accounts, categoriesEntities, currenciesEntities) =>
+export const selectAllAccountsExtended = createSelector(
+  [selectAllAccounts, accountGroupsSelectors.selectEntities, currenciesSelectors.selectEntities],
+  (accounts, accountGroupsEntities, currenciesEntities) =>
     accounts.map((account) => ({
       ...account,
-      category: account.category_id ? categoriesEntities[account.category_id] : undefined,
-      currency: currenciesEntities[account.currency_code]!,
-    })) as AccountCombined[],
+      group: account.groupId ? accountGroupsEntities[account.groupId] : undefined,
+      currency: currenciesEntities[account.currencyCode]!,
+    })) as AccountExtended[],
 );
 
-export const selectAllAccountsCombinedEntities = createSelector(
-  [selectAllAccountsCombined],
-  (accounts) => getEntities(accounts, 'id'),
+export const selectAllAccountsExtendedEntities = createSelector(
+  [selectAllAccountsExtended],
+  (accounts) => getEntities(accounts, (account) => account.id),
 );
 
 export const selectVisibleAccounts = createSelector(
   [accountsSelectors.selectAll, selectArchiveMode],
-  (accounts, archiveMode) => accounts.filter((account) => archiveMode || !account.is_archive),
+  (accounts, archiveMode) => accounts.filter((account) => archiveMode || !account.isArchived),
 );
 
-export const selectVisibleAccountsCombined = createSelector(
+export const selectVisibleAccountsExtended = createSelector(
   [
     selectVisibleAccounts,
-    accountCategoriesSelectors.selectEntities,
+    accountGroupsSelectors.selectEntities,
     currenciesSelectors.selectEntities,
   ],
-  (accounts, categoriesEntities, currenciesEntities) =>
+  (accounts, accountGroupsEntities, currenciesEntities) =>
     accounts.map((account) => ({
       ...account,
-      category: account.category_id ? categoriesEntities[account.category_id] : undefined,
-      currency: currenciesEntities[account.currency_code]!,
-    })) as AccountCombined[],
+      group: account.groupId ? accountGroupsEntities[account.groupId] : undefined,
+      currency: currenciesEntities[account.currencyCode]!,
+    })) as AccountExtended[],
 );
 
 export const selectAccountById = accountsSelectors.selectById;
 
-// ..................................
-// ===== Transaction Categories =====
-// ''''''''''''''''''''''''''''''''''
-export const selectAllTransactionCategories = transactionCategoriesSelectors.selectAll;
+// ......................
+// ===== Categories =====
+// ''''''''''''''''''''''
+export const selectAllCategories = categoriesSelectors.selectAll;
 
-export const selectAllTransactionCategoriesEntities = transactionCategoriesSelectors.selectEntities;
+export const selectAllCategoriesEntities = categoriesSelectors.selectEntities;
 
-export const selectVisibleTransactionCategories = createSelector(
-  [transactionCategoriesSelectors.selectAll, selectArchiveMode],
-  (categories, archiveMode) => categories.filter((category) => archiveMode || !category.is_archive),
+export const selectVisibleCategories = createSelector(
+  [categoriesSelectors.selectAll, selectArchiveMode],
+  (categories, archiveMode) => categories.filter((category) => archiveMode || !category.isArchived),
 );
 
-export const selectTransactionCategoryById = transactionCategoriesSelectors.selectById;
+export const selectCategoryById = categoriesSelectors.selectById;
 
 // ........................
 // ===== Transactions =====
 // ''''''''''''''''''''''''
 export const selectAllTransactions = transactionsSelectors.selectAll;
 
-export const selectAllTransactionsCombined = createSelector(
+export const selectAllTransactionsExtended = createSelector(
   [
     transactionsSelectors.selectAll,
-    transactionCategoriesSelectors.selectEntities,
-    selectAllAccountsCombinedEntities,
+    categoriesSelectors.selectEntities,
+    selectAllAccountsExtendedEntities,
   ],
   (transactions, categoriesEntities, accountsEntities) =>
     transactions.map((transaction) => ({
       ...transaction,
-      category: transaction.category_id ? categoriesEntities[transaction.category_id] : undefined,
+      category: transaction.categoryId ? categoriesEntities[transaction.categoryId] : undefined,
       operations: transaction.operations.map((operation) => ({
         ...operation,
-        account: accountsEntities[operation.account_id]!,
+        account: accountsEntities[operation.accountId]!,
       })),
-    })) as TransactionCombined[],
+    })) as TransactionExtended[],
 );
 
 export const selectTransactionById = transactionsSelectors.selectById;
 
-// .................................
-// ===== Transaction Templates =====
-// '''''''''''''''''''''''''''''''''
-export const selectAllTransactionTemplates = transactionTemplatesSelectors.selectAll;
+// .....................
+// ===== Templates =====
+// '''''''''''''''''''''
+export const selectAllTemplates = templatesSelectors.selectAll;
 
-export const selectAllTransactionTemplatesCombined = createSelector(
+export const selectAllTemplatesExtended = createSelector(
   [
-    transactionTemplatesSelectors.selectAll,
-    transactionCategoriesSelectors.selectEntities,
-    selectAllAccountsCombinedEntities,
+    templatesSelectors.selectAll,
+    categoriesSelectors.selectEntities,
+    selectAllAccountsExtendedEntities,
   ],
   (templates, categoriesEntities, accountsEntities) =>
     templates.map((template) => ({
       ...template,
-      category: template.category_id ? categoriesEntities[template.category_id] : undefined,
+      category: template.categoryId ? categoriesEntities[template.categoryId] : undefined,
       operations: template.operations.map((operation) => ({
         ...operation,
-        account: accountsEntities[operation.account_id]!,
+        account: operation.accountId ? accountsEntities[operation.accountId] : undefined,
       })),
-    })) as TransactionTemplateCombined[],
+    })) as TemplateExtended[],
 );
 
-export const selectTransactionTemplateById = transactionTemplatesSelectors.selectById;
+export const selectTemplateById = templatesSelectors.selectById;
 
 // ....................
 // ===== Balances =====
@@ -174,7 +167,7 @@ export const selectAccountsBalanceDict = createSelector(
     const accountsBalanceDict = createKeysDict(accountsIds, BigNumber(0));
     transactions.forEach((transaction) => {
       transaction.operations.forEach((operation) => {
-        accountsBalanceDict[operation.account_id] = accountsBalanceDict[operation.account_id].plus(
+        accountsBalanceDict[operation.accountId] = accountsBalanceDict[operation.accountId].plus(
           operation.sum,
         );
       });
@@ -186,10 +179,10 @@ export const selectAccountsBalanceDict = createSelector(
 export const selectCurrenciesBalanceDict = createSelector(
   [selectAccountsBalanceDict, accountsSelectors.selectAll],
   (accountsBalanceDict, accounts) =>
-    objMap(groupBy(accounts, 'currency_code'), (currencyCode, accounts) => [
-      currencyCode,
-      sum(accounts.map((account) => accountsBalanceDict[account.id]!)),
-    ]),
+    objMap(
+      groupBy(accounts, (account) => account.currencyCode),
+      (accounts) => sum(accounts.map((account) => accountsBalanceDict[account.id]!)),
+    ),
 );
 
 // ...........................
@@ -201,8 +194,8 @@ export const selectAccountsLastActivityDict = createSelector(
     const accountsLastActivityDict = createKeysDict(accountsIds, undefined as number | undefined);
     transactions.forEach((transaction) => {
       transaction.operations.forEach((operation) => {
-        if ((accountsLastActivityDict[operation.account_id] || 0) < transaction.datetime) {
-          accountsLastActivityDict[operation.account_id] = transaction.datetime;
+        if ((accountsLastActivityDict[operation.accountId] || 0) < transaction.datetime) {
+          accountsLastActivityDict[operation.accountId] = transaction.datetime;
         }
       });
     });

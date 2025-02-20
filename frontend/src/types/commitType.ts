@@ -1,72 +1,61 @@
 import { SetOptional } from 'type-fest';
 
-import { Account } from './accountType';
+import {
+  CreateAccountGroupData,
+  UpdateAccountGroupData,
+  DeleteAccountGroupData,
+} from './accountGroupType';
+import { CreateAccountData, UpdateAccountData, DeleteAccountData } from './accountType';
 import { Base } from './baseType';
-import { Category } from './categoryType';
-import { Currency } from './currencyType';
-import { Transaction, TransactionTemplate } from './transactionType';
+import { CreateCategoryData, UpdateCategoryData, DeleteCategoryData } from './categoryType';
+import {
+  SetMainCurrencyData,
+  CreateCurrencyData,
+  UpdateCurrencyData,
+  DeleteCurrencyData,
+} from './currencyType';
+import { CreateTemplateData, UpdateTemplateData, DeleteTemplateData } from './templateType';
+import {
+  CreateTransactionData,
+  UpdateTransactionData,
+  DeleteTransactionData,
+} from './transactionType';
 
-type IsUndefined<T> = undefined extends T ? true : false;
-
-type IfUndefined<T, TypeIfUndefined = true, TypeIfNotUndefined = false> =
-  IsUndefined<T> extends true ? TypeIfUndefined : TypeIfNotUndefined;
-
-type SetNullableIfUndefined<T> = IfUndefined<T, T | null, T>;
-
-type OptionalToNull<T> = {
-  [K in keyof T]: SetNullableIfUndefined<T[K]>;
-};
 export type SetOptionalWithout<T, K extends keyof T> = SetOptional<T, Exclude<keyof T, K>>;
 
-type SetUpdatable<T, K extends keyof T = never> = SetOptionalWithout<OptionalToNull<T>, K>;
-
 export type CommitActionDict = {
-  // currency
-  set_basic_currency: {
-    code: string;
-  };
-  create_currency: Currency;
-  update_currency: SetUpdatable<Currency, 'code'>;
-  delete_currency: {
-    code: string;
-  };
+  // === Currency ===
+  set_main_currency: SetMainCurrencyData;
+  create_currency: CreateCurrencyData;
+  update_currency: UpdateCurrencyData;
+  delete_currency: DeleteCurrencyData;
 
-  // account category
-  create_account_category: Category;
-  update_account_category: SetUpdatable<Category, 'id'>;
-  delete_account_category: {
-    id: string;
-  };
+  // === Account Group ===
+  create_account_group: CreateAccountGroupData;
+  update_account_group: UpdateAccountGroupData;
+  delete_account_group: DeleteAccountGroupData;
 
-  // account
-  create_account: Account;
-  update_account: SetUpdatable<Account, 'id'>;
-  delete_account: {
-    id: string;
-  };
+  // === Account ===
+  create_account: CreateAccountData;
+  update_account: UpdateAccountData;
+  delete_account: DeleteAccountData;
 
-  // transaction category
-  create_transaction_category: Category;
-  update_transaction_category: SetUpdatable<Category, 'id'>;
-  delete_transaction_category: {
-    id: string;
-  };
+  // === Category ===
+  create_category: CreateCategoryData;
+  update_category: UpdateCategoryData;
+  delete_category: DeleteCategoryData;
 
-  // transaction template
-  create_transaction_template: TransactionTemplate;
-  update_transaction_template: SetUpdatable<TransactionTemplate, 'id'>;
-  delete_transaction_template: {
-    id: string;
-  };
+  // === Template ===
+  create_template: CreateTemplateData;
+  update_template: UpdateTemplateData;
+  delete_template: DeleteTemplateData;
 
-  // transaction
-  create_transaction: Transaction;
-  update_transaction: SetUpdatable<Transaction, 'id'>;
-  delete_transaction: {
-    id: string;
-  };
+  // === Transaction ===
+  create_transaction: CreateTransactionData;
+  update_transaction: UpdateTransactionData;
+  delete_transaction: DeleteTransactionData;
 
-  // base
+  // === Base ===
   init_base: Base;
   import_base: Base;
   change_password: Base;

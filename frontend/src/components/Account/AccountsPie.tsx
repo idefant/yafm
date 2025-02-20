@@ -15,7 +15,7 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 export const AccountsPie: FC = () => {
   const currencies = useAppSelector(selectCurrencies);
   const currenciesBalanceDict = useAppSelector(selectCurrenciesBalanceDict);
-  const { baseCurrencyCode } = useAppSelector((state) => state.currencies);
+  const { mainCurrencyCode } = useAppSelector((state) => state.currencies);
 
   const { data: prices } = useFetchLastRatesQuery({});
 
@@ -30,14 +30,14 @@ export const AccountsPie: FC = () => {
             currenciesBalanceDict[currency.code]!,
             currency.code,
             prices?.rates,
-          ).to(baseCurrencyCode).value,
+          ).to(mainCurrencyCode).value,
         }))
         .filter((currency) => !currency.baseBalance.isZero()),
-    [baseCurrencyCode, currencies, currenciesBalanceDict, prices?.rates],
+    [mainCurrencyCode, currencies, currenciesBalanceDict, prices?.rates],
   );
 
-  const currencyBalancesDict = getEntities(currenciesWithBalance, 'code');
-  const totalAmount = sum(currenciesWithBalance, 'baseBalance');
+  const currencyBalancesDict = getEntities(currenciesWithBalance, (currency) => currency.code);
+  const totalAmount = sum(currenciesWithBalance, (currency) => currency.baseBalance);
 
   const data: ChartData<'pie', any, string> = useMemo(
     () => ({
@@ -68,7 +68,7 @@ export const AccountsPie: FC = () => {
             callbacks: {
               label: (tooltipItem) => {
                 const { balance, baseBalance } = currencyBalancesDict[tooltipItem.label]!;
-                const percentage = getPercentage(baseBalance, totalAmount);
+                const percentage = getPercentage(baseBalance, totalAmount, { decimalPlaces: 1 });
                 const formattedBalance = money(balance).format();
                 return `${tooltipItem.label}: ${formattedBalance} - ${percentage}`;
               },

@@ -4,6 +4,7 @@ import { FC, useId } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { BaseFileData } from '#types/baseType';
 import { Button } from '#ui/Button';
 import { Card } from '#ui/Card';
 import { Form } from '#ui/Form';
@@ -29,15 +30,19 @@ export const SettingBackup: FC = () => {
 
     if (values.useEncryption) {
       const encryptedData = await crypt.encrypt(await Gzip.compress(JSON.stringify(data)));
-      exportJsonFile(
-        { created_at: dayjs().toISOString(), is_encrypted: true, data: encryptedData },
-        'backup-enc.json',
-      );
+      const fileData: BaseFileData = {
+        createdAt: dayjs().toISOString(),
+        isEncrypted: true,
+        data: encryptedData,
+      };
+      exportJsonFile(fileData, 'backup-enc.json');
     } else {
-      exportJsonFile(
-        { created_at: dayjs().toISOString(), is_encrypted: false, data },
-        'backup-decr.json',
-      );
+      const fileData: BaseFileData = {
+        createdAt: dayjs().toISOString(),
+        isEncrypted: false,
+        data,
+      };
+      exportJsonFile(fileData, 'backup-decr.json');
     }
   };
 

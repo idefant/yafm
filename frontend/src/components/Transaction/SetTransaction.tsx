@@ -8,14 +8,15 @@ import { z } from 'zod';
 import { ChooseTemplate } from '#components/Template';
 import { useAppSelector } from '#hooks/reduxHooks';
 import {
-  selectAllAccountsCombined,
-  selectAllAccountsCombinedEntities,
-  selectAllTransactionCategories,
+  selectAllAccountsExtended,
+  selectAllAccountsExtendedEntities,
+  selectAllCategories,
 } from '#store/selectors';
 import MinusIcon from '#svg/minus.svg?react';
 import PlusIcon from '#svg/plus.svg?react';
 import TrashIcon from '#svg/trash.svg?react';
-import { Transaction, TransactionTemplate } from '#types/transactionType';
+import { Template } from '#types/templateType';
+import { Transaction } from '#types/transactionType';
 import { Button } from '#ui/Button';
 import CalendarButton from '#ui/CalendarButton';
 import { Form } from '#ui/Form';
@@ -25,7 +26,6 @@ import { Modal, useModal, UseModalReturn } from '#ui/Modal';
 import { HStack, VStack } from '#ui/Stack';
 import { Title } from '#ui/Typography';
 import { actionCreator, committer } from '#utils/committer';
-import { compareObjByStr } from '#utils/string';
 
 export type SetTransactionModalData =
   | { method: 'create'; transaction?: undefined }
@@ -55,9 +55,9 @@ type FormOutput = z.infer<typeof formSchema>;
 export const SetTransaction: FC<SetTransactionProps> = ({ modal }) => {
   const formId = useId();
 
-  const accounts = useAppSelector(selectAllAccountsCombined);
-  const accountsEntities = useAppSelector(selectAllAccountsCombinedEntities);
-  const categories = useAppSelector(selectAllTransactionCategories);
+  const accounts = useAppSelector(selectAllAccountsExtended);
+  const accountsEntities = useAppSelector(selectAllAccountsExtendedEntities);
+  const categories = useAppSelector(selectAllCategories);
 
   const methods = useForm<FormOutput>({ resolver: zodResolver(formSchema) });
   const { control, handleSubmit, reset, setValue } = methods;
@@ -68,13 +68,16 @@ export const SetTransaction: FC<SetTransactionProps> = ({ modal }) => {
 
   const operationsWatcher = useWatch({ control, name: 'operations' });
 
-  const accountOptions = accounts
-    .sort((a, b) => compareObjByStr(a, b, (e) => e.name))
-    .map((account) => ({ value: account.id, label: account.name, is_archive: account.is_archive }));
+  const accountOptions = accounts.map((account) => ({
+    value: account.id,
+    label: account.name,
+    isArchived: account.isArchived,
+  }));
 
-  const categoryOptions = [...categories]
-    .sort((a, b) => compareObjByStr(a, b, (e) => e.name))
-    .map((category) => ({ value: category.id, label: category.name }));
+  const categoryOptions = [...categories].map((category) => ({
+    value: category.id,
+    label: category.name,
+  }));
 
   const [date, setDate] = useState(dayjs());
   const templateModal = useModal();
@@ -86,9 +89,9 @@ export const SetTransaction: FC<SetTransactionProps> = ({ modal }) => {
       datetime: +date,
       name: values.name || undefined,
       description: values.description || undefined,
-      category_id: values.categoryId || undefined,
+      categoryId: values.categoryId || undefined,
       operations: values.operations.map((operation) => ({
-        account_id: operation.accountId as string,
+        accountId: operation.accountId as string,
         sum: BigNumber(operation.sum)
           .multipliedBy(operation.isPositive ? 1 : -1)
           .toString(),
@@ -103,29 +106,27 @@ export const SetTransaction: FC<SetTransactionProps> = ({ modal }) => {
     modal.close();
   };
 
-  const getTemplateData = (template: TransactionTemplate) => {
-    const operations = template.operations
-      .slice()
-      .sort((a, b) => BigNumber(b.sum).minus(a.sum).toNumber())
-      .map((operation) => ({
-        accountId: operation.account_id,
-        sum: BigNumber(operation.sum).abs().toString(),
-        isPositive: BigNumber(operation.sum).isPositive(),
-      }));
+  const getTemplateData = (template: Template) => {
+    const operations = template.operations.map((operation) => ({
+      accountId: operation.accountId,
+      sum: BigNumber(operation.sum ?? 0)
+        .abs()
+        .toString(),
+      isPositive: BigNumber(operation.sum ?? 0).isPositive(),
+    }));
 
     return {
       name: template.name || '',
       description: template.description || '',
-      categoryId: template.category_id || '',
+      categoryId: template.categoryId || '',
       operations,
     };
   };
 
   const initialOperations = modal.data?.transaction?.operations
-    .slice()
     .sort((a, b) => BigNumber(b.sum).minus(a.sum).toNumber())
     .map((operation) => ({
-      accountId: operation.account_id,
+      accountId: operation.accountId,
       sum: BigNumber(operation.sum).abs().toString(),
       isPositive: BigNumber(operation.sum).isPositive(),
     }));
@@ -138,7 +139,7 @@ export const SetTransaction: FC<SetTransactionProps> = ({ modal }) => {
       name: modal.data.transaction?.name || '',
       description: modal.data.transaction?.description || '',
       operations: initialOperations || defaultOperations,
-      categoryId: modal.data.transaction?.category_id || '',
+      categoryId: modal.data.transaction?.categoryId || '',
     });
     setDate(dayjs(modal.data.method === 'edit' ? modal.data.transaction.datetime : undefined));
   };
@@ -197,7 +198,7 @@ export const SetTransaction: FC<SetTransactionProps> = ({ modal }) => {
                           name={`operations.${i}.accountId`}
                           margin="none"
                           filterOption={(option, inputValue) => {
-                            if ((option.data as any).is_archive) return false;
+                            if (option.data.isArchived) return false;
                             return option.label.toLowerCase().includes(inputValue.toLowerCase());
                           }}
                         />
@@ -206,7 +207,7 @@ export const SetTransaction: FC<SetTransactionProps> = ({ modal }) => {
                         <Form.Number
                           label={i === 0 ? 'Amount' : undefined}
                           name={`operations.${i}.sum`}
-                          decimalScale={currency?.decimal_places_number}
+                          decimalScale={currency?.decimalPlaces}
                           allowNegative={false}
                           suffix={currency?.code}
                           margin="none"

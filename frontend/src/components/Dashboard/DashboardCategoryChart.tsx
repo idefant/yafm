@@ -1,18 +1,19 @@
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import BigNumber from 'bignumber.js';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
-import dayjs, { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 import { FC, useMemo } from 'react';
 import { Pie } from 'react-chartjs-2';
 import { SetRequired } from 'type-fest';
 import { useBoolean } from 'usehooks-ts';
 
+import { dayjsTemplate } from '#configs/dayjs';
 import colors from '#data/color';
 import { useAppSelector } from '#hooks/reduxHooks';
-import { selectAllTransactionsCombined, selectCurrencyById } from '#store/selectors';
+import { selectAllTransactionsExtended, selectCurrencyById } from '#store/selectors';
 import { Category } from '#types/categoryType';
 import { components } from '#types/exrates-api-schema';
-import { TransactionCombined, TransactionType } from '#types/transactionType';
+import { TransactionExtended, TransactionType } from '#types/transactionType';
 import { Button } from '#ui/Button';
 import { Card } from '#ui/Card';
 import { HStack, VStack } from '#ui/Stack';
@@ -20,6 +21,7 @@ import { SumValue } from '#ui/SumValue';
 import { Table } from '#ui/Table';
 import { Title, Text } from '#ui/Typography';
 import { getPercentage } from '#utils/getPercentage';
+import { Period } from '#utils/getPeriod';
 import { groupBy } from '#utils/groupBy';
 import money from '#utils/money';
 import { getTransactionsGroupedByType } from '#utils/transaction';
@@ -27,14 +29,14 @@ import { getTransactionsGroupedByType } from '#utils/transaction';
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 interface DashboardCategoryChartProps {
-  period: { start: Dayjs; end: Dayjs };
+  period: Period;
   rates?: components['schemas']['DateRates'];
   transactionType: TransactionType;
 }
 
 const columnHelper = createColumnHelper<
   SetRequired<Partial<Category>, 'id'> & {
-    transactions: TransactionCombined[];
+    transactions: TransactionExtended[];
     baseSum: BigNumber;
   }
 >();
@@ -44,18 +46,15 @@ export const DashboardCategoryChart: FC<DashboardCategoryChartProps> = ({
   rates,
   transactionType,
 }) => {
-  const transactions = useAppSelector(selectAllTransactionsCombined);
-  const { baseCurrencyCode } = useAppSelector((state) => state.currencies);
-  const baseCurrency = useAppSelector((state) => selectCurrencyById(state, baseCurrencyCode));
+  const transactions = useAppSelector(selectAllTransactionsExtended);
+  const { mainCurrencyCode } = useAppSelector((state) => state.currencies);
+  const mainCurrency = useAppSelector((state) => selectCurrencyById(state, mainCurrencyCode));
 
   const isTableShown = useBoolean();
 
   const filteredTransactions = useMemo(
-    () =>
-      transactions.filter((transaction) =>
-        dayjs(transaction.datetime).isBetween(period.start, period.end, 'second', '[]'),
-      ),
-    [period.end, period.start, transactions],
+    () => transactions.filter((transaction) => period.includes(transaction.datetime)),
+    [period, transactions],
   );
 
   const transactionsGroupedByType = useMemo(
@@ -65,17 +64,22 @@ export const DashboardCategoryChart: FC<DashboardCategoryChartProps> = ({
 
   const categoriesWithSum = useMemo(
     () =>
-      Object.entries(groupBy(transactionsGroupedByType[transactionType], 'category_id'))
+      Object.entries(
+        groupBy(
+          transactionsGroupedByType[transactionType],
+          (transaction) => transaction.categoryId,
+        ),
+      )
         .map(([categoryId, transactions]) => {
           const baseSum = money.sum(
             transactions.flatMap((transaction) =>
               transaction.operations.map((operation) => ({
                 value: operation.sum,
-                currency: operation.account.currency_code,
-                rates: rates?.[dayjs(transaction.datetime).format('YYYY-MM-DD')],
+                currencyCode: operation.account.currencyCode,
+                rates: rates?.[dayjs(transaction.datetime).format(dayjsTemplate.date)],
               })),
             ),
-            baseCurrencyCode,
+            mainCurrencyCode,
           ).value;
 
           return {
@@ -86,7 +90,7 @@ export const DashboardCategoryChart: FC<DashboardCategoryChartProps> = ({
           };
         })
         .sort((a, b) => b.baseSum.abs().minus(a.baseSum.abs()).toNumber()),
-    [baseCurrencyCode, rates, transactionType, transactionsGroupedByType],
+    [mainCurrencyCode, rates, transactionType, transactionsGroupedByType],
   );
 
   const totalSum = useMemo(
@@ -108,8 +112,8 @@ export const DashboardCategoryChart: FC<DashboardCategoryChartProps> = ({
         cell: (info) => (
           <SumValue
             value={info.getValue()}
-            decimalPlacesNumber={baseCurrency?.decimal_places_number || 0}
-            currencyCode={baseCurrencyCode}
+            decimalPlaces={mainCurrency?.decimalPlaces}
+            currencyCode={mainCurrencyCode}
             size="sm"
           />
         ),
@@ -118,7 +122,7 @@ export const DashboardCategoryChart: FC<DashboardCategoryChartProps> = ({
         },
       }),
     ],
-    [baseCurrency?.decimal_places_number, baseCurrencyCode],
+    [mainCurrency?.decimalPlaces, mainCurrencyCode],
   );
 
   const table = useReactTable({
@@ -148,8 +152,8 @@ export const DashboardCategoryChart: FC<DashboardCategoryChartProps> = ({
             <Text size="lg">Сумма:</Text>
             <SumValue
               value={totalSum}
-              currencyCode={baseCurrencyCode}
-              decimalPlacesNumber={baseCurrency?.decimal_places_number || 0}
+              currencyCode={mainCurrencyCode}
+              decimalPlaces={mainCurrency?.decimalPlaces}
               size="lg"
             />
           </HStack>
@@ -171,8 +175,8 @@ export const DashboardCategoryChart: FC<DashboardCategoryChartProps> = ({
                   callbacks: {
                     label: (tooltipItem) => {
                       const { parsed, formattedValue, label } = tooltipItem;
-                      const percentage = getPercentage(parsed, totalSum);
-                      return `${label}: ${formattedValue} ${baseCurrencyCode} - ${percentage}`;
+                      const percentage = getPercentage(parsed, totalSum, { decimalPlaces: 1 });
+                      return `${label}: ${formattedValue} ${mainCurrencyCode} - ${percentage}`;
                     },
                   },
                 },

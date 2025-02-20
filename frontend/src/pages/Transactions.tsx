@@ -14,18 +14,19 @@ import { Except } from 'type-fest';
 import { useFetchRatesByPeriodQuery } from '#api/exratesApi';
 import { HeaderInfo } from '#components/Header';
 import { SetTransaction, SetTransactionModalData } from '#components/Transaction';
+import { dayjsTemplate } from '#configs/dayjs';
 import { useAppSelector } from '#hooks/reduxHooks';
 import {
-  selectAllTransactionsCombined,
+  selectAllTransactionsExtended,
   selectCurrencyById,
   selectVisibleAccounts,
-  selectVisibleTransactionCategories,
+  selectVisibleCategories,
 } from '#store/selectors';
 import CopyIcon from '#svg/copy.svg?react';
 import PencilIcon from '#svg/pencil.svg?react';
 import PlusIcon from '#svg/plus.svg?react';
 import TrashIcon from '#svg/trash.svg?react';
-import { OperationCombined, TransactionCombined } from '#types/transactionType';
+import { OperationExtended, TransactionExtended } from '#types/transactionType';
 import { Button } from '#ui/Button';
 import { Card } from '#ui/Card';
 import { DateFilter, useDateFilter } from '#ui/DateFilter';
@@ -39,11 +40,10 @@ import { Table } from '#ui/Table';
 import { Text, Title } from '#ui/Typography';
 import { actionCreator, committer } from '#utils/committer';
 import money from '#utils/money';
-import { compareObjByStr } from '#utils/string';
 
-type TransactionWithBaseSum = Except<TransactionCombined, 'operations'> & {
+type TransactionWithBaseSum = Except<TransactionExtended, 'operations'> & {
   baseSum: BigNumber;
-  operations: (OperationCombined & { baseSum: BigNumber })[];
+  operations: (OperationExtended & { baseSum: BigNumber })[];
 };
 
 const columnHelper = createColumnHelper<TransactionWithBaseSum>();
@@ -73,8 +73,8 @@ const columns = [
       <SumValueList
         items={info.getValue().map(({ sum, account }) => ({
           value: BigNumber(sum),
-          decimalPlacesNumber: account.currency.decimal_places_number,
-          currencyCode: account.currency_code,
+          decimalPlaces: account.currency.decimalPlaces,
+          currencyCode: account.currencyCode,
           description: account.name,
         }))}
       />
@@ -86,11 +86,11 @@ const columns = [
 const grouping = ['datetime'];
 
 export const Transactions: FC = () => {
-  const { baseCurrencyCode } = useAppSelector((state) => state.currencies);
-  const baseCurrency = useAppSelector((state) => selectCurrencyById(state, baseCurrencyCode));
-  const categories = useAppSelector(selectVisibleTransactionCategories);
+  const { mainCurrencyCode } = useAppSelector((state) => state.currencies);
+  const mainCurrency = useAppSelector((state) => selectCurrencyById(state, mainCurrencyCode));
+  const categories = useAppSelector(selectVisibleCategories);
   const accounts = useAppSelector(selectVisibleAccounts);
-  const transactions = useAppSelector(selectAllTransactionsCombined);
+  const transactions = useAppSelector(selectAllTransactionsExtended);
 
   const [selectedCategories, setSelectedCategories] = useState<SelectOption[]>([]);
   const selectedCategoryIds = useMemo(
@@ -98,9 +98,10 @@ export const Transactions: FC = () => {
     [selectedCategories],
   );
 
-  const categoryOptions = categories
-    .sort((a, b) => compareObjByStr(a, b, (e) => e.name))
-    .map((category) => ({ value: category.id, label: category.name }));
+  const categoryOptions = categories.map((category) => ({
+    value: category.id,
+    label: category.name,
+  }));
 
   const [selectedAccounts, setSelectedAccounts] = useState<SelectOption[]>([]);
   const selectedAccountsIds = useMemo(
@@ -108,16 +109,13 @@ export const Transactions: FC = () => {
     [selectedAccounts],
   );
 
-  const accountOptions = accounts
-    .sort((a, b) => compareObjByStr(a, b, (e) => e.name))
-    .map((category) => ({ value: category.id, label: category.name }));
+  const accountOptions = accounts.map((category) => ({ value: category.id, label: category.name }));
 
   const transactionModal = useModal<SetTransactionModalData>();
-  const filterData = useDateFilter();
-  const { date, periodType } = filterData;
+  const dateFilter = useDateFilter();
 
   const { data: prices } = useFetchRatesByPeriodQuery({
-    period: filterData.date.format(filterData.periodType === 'year' ? 'YYYY' : 'YYYY-MM'),
+    period: dateFilter.period.formatted,
   });
 
   const transactionsWithBaseSum = useMemo(
@@ -125,9 +123,9 @@ export const Transactions: FC = () => {
       transactions.map((transaction) => {
         const operations = transaction.operations.map((operation) => ({
           ...operation,
-          baseSum: money(operation.sum, operation.account.currency_code).to(
-            baseCurrencyCode,
-            prices?.[dayjs(transaction.datetime).format('YYYY-MM-DD')],
+          baseSum: money(operation.sum, operation.account.currencyCode).to(
+            mainCurrencyCode,
+            prices?.[dayjs(transaction.datetime).format(dayjsTemplate.date)],
           ).value,
         }));
 
@@ -137,33 +135,30 @@ export const Transactions: FC = () => {
           baseSum: BigNumber.sum(...operations.map((operation) => operation.baseSum)),
         };
       }),
-    [baseCurrencyCode, prices, transactions],
+    [mainCurrencyCode, prices, transactions],
   );
 
   const filteredTransactions = useMemo(
     () =>
       transactionsWithBaseSum
-        .sort((a, b) => a.datetime - b.datetime)
-        .toReversed()
         .filter((transaction) => {
-          const datetime = dayjs(transaction.datetime);
-          if (datetime.isBefore(date, periodType) || datetime.isAfter(date, periodType))
-            return false;
+          if (!dateFilter.period.includes(transaction.datetime)) return false;
           if (selectedCategoryIds.size > 0) {
-            if (!transaction.category_id || !selectedCategoryIds.has(transaction.category_id))
+            if (!transaction.categoryId || !selectedCategoryIds.has(transaction.categoryId))
               return false;
           }
           if (selectedAccountsIds.size > 0) {
             if (
               !transaction.operations.some((operation) =>
-                selectedAccountsIds.has(operation.account_id),
+                selectedAccountsIds.has(operation.accountId),
               )
             )
               return false;
           }
           return true;
-        }),
-    [date, periodType, selectedAccountsIds, selectedCategoryIds, transactionsWithBaseSum],
+        })
+        .toReversed(),
+    [dateFilter.period, selectedAccountsIds, selectedCategoryIds, transactionsWithBaseSum],
   );
 
   const table = useReactTable({
@@ -180,7 +175,7 @@ export const Transactions: FC = () => {
     getExpandedRowModel: getExpandedRowModel(),
   });
 
-  const confirmDelete = useCallback(async (transaction: TransactionCombined) => {
+  const confirmDelete = useCallback(async (transaction: TransactionExtended) => {
     const modalResult = await dmodal.error({
       title: 'Delete transaction',
       content: `Transaction name: ${transaction.name || '-'}`,
@@ -203,8 +198,8 @@ export const Transactions: FC = () => {
           </Text>
           <SumValue
             value={sum}
-            currencyCode={baseCurrencyCode}
-            decimalPlacesNumber={baseCurrency?.decimal_places_number || 2}
+            currencyCode={mainCurrencyCode}
+            decimalPlaces={mainCurrency?.decimalPlaces}
             color="secondary"
             size="sm"
             weight="bold"
@@ -212,7 +207,7 @@ export const Transactions: FC = () => {
         </HStack>
       );
     },
-    [baseCurrency?.decimal_places_number, baseCurrencyCode],
+    [mainCurrency?.decimalPlaces, mainCurrencyCode],
   );
 
   const getRowContextMenu = useCallback(
@@ -266,7 +261,7 @@ export const Transactions: FC = () => {
                 Filter
               </Title>
 
-              <DateFilter options={filterData} />
+              <DateFilter options={dateFilter} />
 
               <Select
                 label="Category"

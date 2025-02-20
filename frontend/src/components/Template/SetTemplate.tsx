@@ -6,14 +6,14 @@ import { z } from 'zod';
 
 import { useAppSelector } from '#hooks/reduxHooks';
 import {
-  selectAllAccountsCombined,
-  selectAllAccountsCombinedEntities,
-  selectAllTransactionCategories,
+  selectAllAccountsExtended,
+  selectAllAccountsExtendedEntities,
+  selectAllCategories,
 } from '#store/selectors';
 import MinusIcon from '#svg/minus.svg?react';
 import PlusIcon from '#svg/plus.svg?react';
 import TrashIcon from '#svg/trash.svg?react';
-import { TransactionTemplate } from '#types/transactionType';
+import { Template } from '#types/templateType';
 import { Button } from '#ui/Button';
 import { Form } from '#ui/Form';
 import { Grid } from '#ui/Grid';
@@ -21,11 +21,10 @@ import { IconButton } from '#ui/IconButton';
 import { Modal, UseModalReturn } from '#ui/Modal';
 import { HStack, VStack } from '#ui/Stack';
 import { actionCreator, committer } from '#utils/committer';
-import { compareObjByStr } from '#utils/string';
 
 export type SetTemplateModalData =
   | { method: 'create'; template?: undefined }
-  | { method: 'edit'; template: TransactionTemplate };
+  | { method: 'edit'; template: Template };
 
 interface SetTemplateProps {
   modal: UseModalReturn<SetTemplateModalData>;
@@ -38,8 +37,8 @@ const formSchema = z.object({
     .array(
       z.object({
         isPositive: z.boolean(),
-        accountId: z.string().nonempty(),
-        sum: z.string(),
+        accountId: z.string().nonempty().optional(),
+        sum: z.string().optional(),
       }),
     )
     .nonempty(),
@@ -53,9 +52,9 @@ const defaultOperations = [{ accountId: '', sum: undefined, isPositive: false }]
 export const SetTemplate: FC<SetTemplateProps> = ({ modal }) => {
   const formId = useId();
 
-  const accounts = useAppSelector(selectAllAccountsCombined);
-  const accountsEntities = useAppSelector(selectAllAccountsCombinedEntities);
-  const categories = useAppSelector(selectAllTransactionCategories);
+  const accounts = useAppSelector(selectAllAccountsExtended);
+  const accountsEntities = useAppSelector(selectAllAccountsExtendedEntities);
+  const categories = useAppSelector(selectAllCategories);
 
   const methods = useForm<FormOutput>({ resolver: zodResolver(formSchema) });
   const { control, handleSubmit, reset, setValue } = methods;
@@ -66,13 +65,16 @@ export const SetTemplate: FC<SetTemplateProps> = ({ modal }) => {
 
   const operationsWatcher = useWatch({ control, name: 'operations' });
 
-  const accountOptions = accounts
-    .sort((a, b) => compareObjByStr(a, b, (e) => e.name))
-    .map((account) => ({ value: account.id, label: account.name, is_archive: account.is_archive }));
+  const accountOptions = accounts.map((account) => ({
+    value: account.id,
+    label: account.name,
+    isArchived: account.isArchived,
+  }));
 
-  const categoryOptions = categories
-    .sort((a, b) => compareObjByStr(a, b, (e) => e.name))
-    .map((category) => ({ value: category.id, label: category.name }));
+  const categoryOptions = categories.map((category) => ({
+    value: category.id,
+    label: category.name,
+  }));
 
   const onSubmit = async (values: FormOutput) => {
     if (!modal.isOpen) return;
@@ -80,31 +82,30 @@ export const SetTemplate: FC<SetTemplateProps> = ({ modal }) => {
     const templateData = {
       name: values.name || undefined,
       description: values.description || undefined,
-      category_id: values.categoryId || undefined,
+      categoryId: values.categoryId || undefined,
       operations: values.operations.map((operation) => ({
-        account_id: operation.accountId as string,
-        sum: BigNumber(operation.sum)
-          .multipliedBy(operation.isPositive ? 1 : -1)
-          .toString(),
+        accountId: operation.accountId || undefined,
+        sum: operation.sum
+          ? BigNumber(operation.sum)
+              .multipliedBy(operation.isPositive ? 1 : -1)
+              .toString()
+          : undefined,
       })),
     };
 
     committer(
       modal.data.method === 'create'
-        ? actionCreator.createTransactionTemplate(templateData)
-        : actionCreator.updateTransactionTemplate(modal.data.template.id, templateData),
+        ? actionCreator.createTemplate(templateData)
+        : actionCreator.updateTemplate(modal.data.template.id, templateData),
     ).sync();
     modal.close();
   };
 
-  const initialOperations = modal.data?.template?.operations
-    .slice()
-    .sort((a, b) => BigNumber(b.sum).minus(a.sum).toNumber())
-    .map((operation) => ({
-      accountId: operation.account_id,
-      sum: BigNumber(operation.sum).abs().toString(),
-      isPositive: BigNumber(operation.sum).isPositive(),
-    }));
+  const initialOperations = modal.data?.template?.operations.map((operation) => ({
+    accountId: operation?.accountId,
+    sum: operation.sum ? BigNumber(operation.sum).abs().toString() : '',
+    isPositive: operation.sum ? BigNumber(operation.sum).isPositive() : false,
+  }));
 
   const onOpening = () => {
     if (!modal.isOpen) return;
@@ -112,7 +113,7 @@ export const SetTemplate: FC<SetTemplateProps> = ({ modal }) => {
       name: modal.data.template?.name || '',
       description: modal.data.template?.description || '',
       operations: initialOperations || defaultOperations,
-      categoryId: modal.data.template?.category_id || null,
+      categoryId: modal.data.template?.categoryId || null,
     });
   };
 
@@ -164,7 +165,7 @@ export const SetTemplate: FC<SetTemplateProps> = ({ modal }) => {
                           name={`operations.${i}.accountId`}
                           margin="none"
                           filterOption={(option, inputValue) => {
-                            if ((option.data as any).is_archive) return false;
+                            if (option.data.isArchived) return false;
                             return option.label.toLowerCase().includes(inputValue.toLowerCase());
                           }}
                         />
@@ -173,7 +174,7 @@ export const SetTemplate: FC<SetTemplateProps> = ({ modal }) => {
                         <Form.Number
                           label={i === 0 ? 'Amount' : undefined}
                           name={`operations.${i}.sum`}
-                          decimalScale={currency?.decimal_places_number}
+                          decimalScale={currency?.decimalPlaces}
                           allowNegative={false}
                           suffix={currency?.code}
                           margin="none"

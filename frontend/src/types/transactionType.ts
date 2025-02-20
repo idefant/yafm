@@ -1,34 +1,43 @@
-import { AccountCombined } from './accountType';
+import { Except, Simplify } from 'type-fest';
+import { z } from 'zod';
+
+import {
+  createTransactionSchema,
+  deleteTransactionSchema,
+  transactionSchema,
+  updateTransactionSchema,
+} from '#schema/transactionSchema';
+
+import { AccountExtended } from './accountType';
 import { Category } from './categoryType';
 
 export type TransactionType = 'income' | 'outcome' | 'exchange';
 
-export type Operation = {
-  account_id: string;
-  sum: string;
-};
+export type Transaction = z.infer<typeof transactionSchema>;
+export type CreateTransactionData = z.infer<typeof createTransactionSchema>;
+export type UpdateTransactionData = z.infer<typeof updateTransactionSchema>;
+export type DeleteTransactionData = z.infer<typeof deleteTransactionSchema>;
 
-export type OperationCombined = Operation & {
-  account: AccountCombined;
-};
+type Operation = Transaction['operations'][number];
 
-type TransactionBase = {
-  id: string;
-  name?: string;
-  description?: string;
-  datetime: number;
-  category_id?: string;
-};
+export type OperationExtended = Simplify<
+  Operation & {
+    account: AccountExtended;
+  }
+>;
 
-export type Transaction = TransactionBase & {
-  operations: Operation[];
-};
-
-export type TransactionCombined = TransactionBase & {
-  operations: OperationCombined[];
-  category?: Category;
-};
-
-export type TransactionTemplate = Omit<Transaction, 'datetime'>;
-
-export type TransactionTemplateCombined = Omit<TransactionCombined, 'datetime'>;
+export type TransactionExtended = Simplify<
+  Except<Transaction, 'operations' | 'categoryId'> & {
+    operations: OperationExtended[];
+  }
+> &
+  (
+    | {
+        categoryId: Transaction['categoryId'];
+        category: Category;
+      }
+    | {
+        categoryId?: undefined;
+        category?: undefined;
+      }
+  );

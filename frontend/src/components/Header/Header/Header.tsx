@@ -3,13 +3,13 @@ import { useNavigate } from 'react-router-dom';
 
 import { appRoutes } from '#data/routes';
 import { useAppSelector, useAppDispatch } from '#hooks/reduxHooks';
-import { accountCategoriesCleared } from '#store/reducers/accountCategoriesSlice';
+import { accountGroupsCleared } from '#store/reducers/accountGroupsSlice';
 import { accountsCleared } from '#store/reducers/accountsSlice';
 import { lockBase, setArchiveMode } from '#store/reducers/appSlice';
+import { categoriesCleared } from '#store/reducers/categoriesSlice';
 import { currenciesCleared } from '#store/reducers/currenciesSlice';
-import { transactionCategoriesCleared } from '#store/reducers/transactionCategoriesSlice';
+import { templatesCleared } from '#store/reducers/templatesSlice';
 import { transactionsCleared } from '#store/reducers/transactionsSlice';
-import { transactionTemplatesCleared } from '#store/reducers/transactionTemplatesSlice';
 import { Button } from '#ui/Button';
 import { HStack } from '#ui/Stack';
 
@@ -24,10 +24,10 @@ export const Header: FC = () => {
   const lock = () => {
     dispatch(currenciesCleared());
     dispatch(accountsCleared());
-    dispatch(accountCategoriesCleared());
+    dispatch(accountGroupsCleared());
     dispatch(transactionsCleared());
-    dispatch(transactionCategoriesCleared());
-    dispatch(transactionTemplatesCleared());
+    dispatch(categoriesCleared());
+    dispatch(templatesCleared());
     dispatch(lockBase());
     navigate(appRoutes.decrypt);
   };
