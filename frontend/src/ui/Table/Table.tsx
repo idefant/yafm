@@ -13,8 +13,9 @@ export interface TableProps<T> {
   table: TableType<T>;
   fullWidth?: boolean;
   renderGroupCell?: (row: Row<T>) => ReactNode;
-  rowContextMenu?: (row: Row<T>) => { items: ContextMenuItem[] } | undefined;
+  rowContextMenu?: (row: Row<T>) => { items: ContextMenuItem[] } | void;
   rowOnClick?: (row: Row<T>) => void;
+  groupContextMenu?: (row: Row<T>) => { items: ContextMenuItem[] } | void;
   size?: 'sm' | 'md';
   headTextSize?: TextSize;
   groupTextSize?: TextSize;
@@ -29,6 +30,7 @@ export const Table = <T,>({
   renderGroupCell,
   rowContextMenu,
   rowOnClick,
+  groupContextMenu,
   size = 'md',
   headTextSize = 'lg',
   groupTextSize = size,
@@ -80,9 +82,17 @@ export const Table = <T,>({
               }
               return '-';
             })();
-            if (!groupingValue) return;
+
+            const contextMenu = groupContextMenu?.(row);
+
             return (
-              <tr className={cls.groupRow} key={row.id}>
+              <tr
+                className={cls.groupRow}
+                key={row.id}
+                ref={(el) => {
+                  refs.current[row.id] = el;
+                }}
+              >
                 <td
                   colSpan={row.getVisibleCells().length}
                   className={classNames(cls.cell, cls.groupCell)}
@@ -94,6 +104,10 @@ export const Table = <T,>({
                     {groupingValue}
                   </HStack>
                 </td>
+
+                {contextMenu instanceof Object && (
+                  <ContextMenu {...contextMenu} getElement={() => refs.current[row.id]} />
+                )}
               </tr>
             );
           }
@@ -135,7 +149,7 @@ export const Table = <T,>({
                 );
               })}
 
-              {contextMenu && (
+              {contextMenu instanceof Object && (
                 <ContextMenu {...contextMenu} getElement={() => refs.current[row.id]} />
               )}
             </tr>

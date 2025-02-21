@@ -212,6 +212,7 @@ export const Transactions: FC = () => {
 
   const getRowContextMenu = useCallback(
     (row: Row<TransactionWithBaseSum>) => ({
+      label: row.original.name || row.original.category?.name,
       items: [
         {
           key: 'edit',

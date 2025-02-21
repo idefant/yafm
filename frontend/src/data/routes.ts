@@ -9,6 +9,7 @@ export const appRoutes = {
   // Base
   dashboard: '/dashboard',
   accounts: '/accounts',
+  accountGroups: '/accounts/groups',
   accountDetails: '/accounts/:accountId',
   transactions: '/transactions',
   templates: '/templates',

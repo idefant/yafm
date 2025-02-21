@@ -4,7 +4,7 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { useAppSelector } from '#hooks/reduxHooks';
-import { selectCurrencies, selectVisibleAccountGroups } from '#store/selectors';
+import { selectAllAccountGroups, selectCurrencies } from '#store/selectors';
 import { Account } from '#types/accountType';
 import { Button } from '#ui/Button';
 import { Form } from '#ui/Form';
@@ -23,7 +23,12 @@ interface SetAccountProps {
 const formSchema = z.object({
   name: z.string().trim().nonempty(),
   currencyCode: z.string().nonempty(),
-  groupId: z.string().nullish(),
+  group: z
+    .object({
+      id: z.string().optional(),
+      isCreated: z.boolean().optional(),
+    })
+    .optional(),
   isArchived: z.boolean().optional(),
 });
 
@@ -33,24 +38,39 @@ export const SetAccount: FC<SetAccountProps> = ({ modal }) => {
   const formId = useId();
 
   const currencies = useAppSelector(selectCurrencies);
-  const groups = useAppSelector(selectVisibleAccountGroups);
+  const groups = useAppSelector(selectAllAccountGroups);
 
   const methods = useForm<FormOutput>({ resolver: zodResolver(formSchema) });
   const { handleSubmit, reset } = methods;
 
   const onSubmit = async (values: FormOutput) => {
     if (!modal.isOpen) return;
+    const commit = committer();
+
+    const groupId = (() => {
+      if (values.group?.isCreated) {
+        const actionCreateAccountGroup = actionCreator.createAccountGroup({
+          name: values.group.id!,
+        });
+        commit.add(actionCreateAccountGroup);
+        return actionCreateAccountGroup.id;
+      }
+      return values.group?.id;
+    })();
+
     const accountData = {
       name: values.name,
-      groupId: values.groupId || undefined,
+      groupId: groupId || undefined,
       isArchived: values.isArchived || undefined,
     };
 
-    committer(
+    commit.add(
       modal.data.method === 'create'
         ? actionCreator.createAccount({ currencyCode: values.currencyCode, ...accountData })
         : actionCreator.updateAccount(modal.data.account.id, accountData),
-    ).sync();
+    );
+    commit.sync();
+
     modal.close();
   };
 
@@ -68,7 +88,10 @@ export const SetAccount: FC<SetAccountProps> = ({ modal }) => {
     reset({
       name: modal.data.account?.name || '',
       currencyCode: modal.data.account?.currencyCode || '',
-      groupId: modal.data.account?.groupId || null,
+      group: {
+        id: modal.data.account?.groupId || '',
+        isCreated: false,
+      },
       isArchived: modal.data.account?.isArchived || false,
     });
   };
@@ -93,12 +116,13 @@ export const SetAccount: FC<SetAccountProps> = ({ modal }) => {
               />
             )}
 
-            <Form.Select
+            <Form.SelectCreatable
               label="Group"
               placeholder="Choose group..."
               options={groupOptions}
               isClearable
-              name="groupId"
+              nameId="group.id"
+              nameIsCreated="group.isCreated"
             />
 
             {modal.data?.method === 'edit' && (

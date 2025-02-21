@@ -76,6 +76,7 @@ export const Templates: FC = () => {
 
   const getRowContextMenu = useCallback(
     (row: Row<TemplateExtended>) => ({
+      label: row.original.name || row.original.category?.name,
       items: [
         {
           key: 'edit',

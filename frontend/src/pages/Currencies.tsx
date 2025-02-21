@@ -143,6 +143,7 @@ export const Currencies: FC = () => {
 
   const getRowContextMenu = useCallback(
     (row: Row<Currency>) => ({
+      label: row.original.name,
       items: [
         {
           key: 'edit',

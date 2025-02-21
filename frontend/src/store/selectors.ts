@@ -48,11 +48,6 @@ export const selectCurrencyById = currenciesSelectors.selectById;
 // ''''''''''''''''''''''''''
 export const selectAllAccountGroups = accountGroupsSelectors.selectAll;
 
-export const selectVisibleAccountGroups = createSelector(
-  [accountGroupsSelectors.selectAll, selectArchiveMode],
-  (groups, archiveMode) => groups.filter((group) => archiveMode || !group.isArchived),
-);
-
 export const selectAccountGroupById = accountGroupsSelectors.selectById;
 
 // ....................

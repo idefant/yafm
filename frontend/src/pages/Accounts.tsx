@@ -13,7 +13,13 @@ import { FC, useCallback, useMemo } from 'react';
 import { useFetchLastRatesQuery } from '#api/exratesApi';
 import { SetAccount, SetAccountModalData } from '#components/Account';
 import { AccountsPie } from '#components/Account/AccountsPie';
+import {
+  confirmAccountGroupDeletion,
+  SetAccountGroupModal,
+  SetAccountGroupModalData,
+} from '#components/AccountGroup';
 import { HeaderInfo } from '#components/Header';
+import { appRoutes } from '#data/routes';
 import { useAppSelector } from '#hooks/reduxHooks';
 import {
   selectAccountsBalanceDict,
@@ -24,6 +30,7 @@ import {
   selectVisibleAccountsExtended,
 } from '#store/selectors';
 import ArchiveIcon from '#svg/archive.svg?react';
+import ListIcon from '#svg/list.svg?react';
 import PencilIcon from '#svg/pencil.svg?react';
 import PlusIcon from '#svg/plus.svg?react';
 import TrashIcon from '#svg/trash.svg?react';
@@ -61,6 +68,7 @@ export const Accounts: FC = () => {
   const { data: prices } = useFetchLastRatesQuery({});
 
   const accountModal = useModal<SetAccountModalData>();
+  const groupModal = useModal<SetAccountGroupModalData>();
 
   const accountsWithBalance: AccountWithBalance[] = useMemo(
     () =>
@@ -191,6 +199,7 @@ export const Accounts: FC = () => {
 
   const getRowContextMenu = useCallback(
     (row: Row<AccountWithBalance>) => ({
+      label: row.original.name,
       items: [
         {
           key: 'edit',
@@ -216,19 +225,50 @@ export const Accounts: FC = () => {
     [accountModal, confirmDelete],
   );
 
+  const getGroupContextMenu = useCallback(
+    (row: Row<AccountWithBalance>) => {
+      const { group } = row.original;
+      if (!group) return;
+
+      return {
+        label: group.name,
+        items: [
+          {
+            key: 'edit',
+            label: 'Edit',
+            icon: PencilIcon,
+            onClick: () => groupModal.open({ method: 'edit', group }),
+          },
+          {
+            key: 'delete',
+            label: 'Delete',
+            icon: TrashIcon,
+            onClick: () => confirmAccountGroupDeletion(group),
+          },
+        ],
+      };
+    },
+    [groupModal],
+  );
+
   return (
     <>
       <HeaderInfo
         title="Accounts"
         endAddition={
-          <Button
-            color="success"
-            size="sm"
-            startIcon={<PlusIcon />}
-            onClick={() => accountModal.open({ method: 'create' })}
-          >
-            Create
-          </Button>
+          <HStack gap={16}>
+            <Button
+              color="success"
+              size="sm"
+              startIcon={<PlusIcon />}
+              onClick={() => accountModal.open({ method: 'create' })}
+            >
+              Create
+            </Button>
+            <Button size="sm" startIcon={<ListIcon />} to={appRoutes.accountGroups}>
+              Groups
+            </Button>
+          </HStack>
         }
         endAdditionGap={24}
       />
@@ -246,6 +286,7 @@ export const Accounts: FC = () => {
                 fullWidth
                 renderGroupCell={renderGroupCell}
                 rowContextMenu={getRowContextMenu}
+                groupContextMenu={getGroupContextMenu}
                 rowOnClick={(row) => accountModal.open({ method: 'edit', account: row.original })}
               />
             </Card.Content>
@@ -271,6 +312,7 @@ export const Accounts: FC = () => {
       </Grid>
 
       <SetAccount modal={accountModal} />
+      <SetAccountGroupModal modal={groupModal} />
     </>
   );
 };

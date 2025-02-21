@@ -4,7 +4,6 @@ export const accountGroupSchema = z.object({
   id: z.string(),
   name: z.string(),
   description: z.string().optional(),
-  isArchived: z.boolean().optional(),
 });
 
 export const createAccountGroupSchema = accountGroupSchema;

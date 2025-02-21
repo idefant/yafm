@@ -4,6 +4,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { useIsAuthorizedQuery } from '#api/mainApi';
 import { appRoutes } from '#data/routes';
 import { useAppSelector } from '#hooks/reduxHooks';
+import { AccountGroups } from '#pages/AccountGroups';
 import { Accounts } from '#pages/Accounts';
 import { Categories } from '#pages/Categories';
 import { Currencies } from '#pages/Currencies';
@@ -70,6 +71,7 @@ const App: FC = () => {
         <Route path={appRoutes.dashboard} element={<Dashboard />} />
         <Route path={appRoutes.transactions} element={<Transactions />} />
         <Route path={appRoutes.accounts} element={<Accounts />} />
+        <Route path={appRoutes.accountGroups} element={<AccountGroups />} />
         <Route path={appRoutes.settings} element={<Setting />} />
         <Route path={appRoutes.templates} element={<Templates />} />
         <Route path={appRoutes.categories} element={<Categories />} />

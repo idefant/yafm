@@ -40,12 +40,7 @@ export const Categories: FC = () => {
   const categoryModal = useModal<SetCategoryModalData>();
 
   const checkCategoryIsUsed = useCallback(
-    (id: string) => {
-      const isFound = [...transactions, ...templates].some(({ categoryId }) => categoryId === id);
-      if (isFound) return true;
-
-      return false;
-    },
+    (id: string) => [...transactions, ...templates].some(({ categoryId }) => categoryId === id),
     [templates, transactions],
   );
 
@@ -83,6 +78,7 @@ export const Categories: FC = () => {
 
   const getRowContextMenu = useCallback(
     (row: Row<Category>) => ({
+      label: row.original.name,
       items: [
         {
           key: 'edit',
