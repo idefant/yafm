@@ -65,3 +65,21 @@ export const WithIcons: Story = {
     </div>
   ),
 };
+
+export const WithLabel: Story = {
+  args: {
+    label: 'Label',
+    items: [
+      { key: 'update', label: 'Edit', onClick: () => alert('You have clicked "Edit"') },
+      { key: 'copy', label: 'Copy', onClick: () => alert('You have clicked "Copy"') },
+      { key: 'delete', label: 'Delete', onClick: () => alert('You have clicked "Delete"') },
+    ],
+    getElement: () => document.getElementById('contextMenuArea_withLabel'),
+  },
+  render: (props) => (
+    <div style={{ background: 'gray', padding: '60px 40px' }} id="contextMenuArea_withLabel">
+      Right-click
+      <ContextMenu {...props} />
+    </div>
+  ),
+};

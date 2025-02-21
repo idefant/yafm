@@ -9,5 +9,5 @@
   position: sticky;
   top: 0;
   box-shadow: var(--paper-shadow);
-  z-index: 1;
+  z-index: var(--z-header);
 }

@@ -59,4 +59,10 @@
 
   // header
   --header-height: 64px;
+
+  // z-index
+  --z-header: 1;
+  --z-sidebar: 1;
+  --z-popup: 3;
+  --z-context-menu: 2;
 }

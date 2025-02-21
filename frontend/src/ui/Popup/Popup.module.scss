@@ -12,7 +12,7 @@ $popup-opened-translate: 0;
   position: fixed;
   inset: 0;
   overflow: auto;
-  z-index: 999;
+  z-index: var(--z-popup);
   background-color: var(--backdrop-bg);
   backdrop-filter: blur(3px);
 }

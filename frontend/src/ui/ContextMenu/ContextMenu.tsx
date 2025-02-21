@@ -23,6 +23,8 @@ import {
   useState,
 } from 'react';
 
+import { Text } from '#ui/Typography';
+
 import cls from './ContextMenu.module.scss';
 
 export type ContextMenuItem = ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -32,11 +34,13 @@ export type ContextMenuItem = ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 interface ContextMenuProps {
+  label?: string;
   items: ContextMenuItem[];
   getElement?: () => HTMLElement | null;
 }
 
 export const ContextMenu: FC<ContextMenuProps> = ({
+  label,
   items,
   getElement = () => document.documentElement,
 }) => {
@@ -108,17 +112,9 @@ export const ContextMenu: FC<ContextMenuProps> = ({
       }, 300);
     }
 
-    function onMouseUp() {
-      if (allowMouseUpCloseRef.current) {
-        setIsOpen(false);
-      }
-    }
-
     getElement()?.addEventListener('contextmenu', onContextMenu);
-    document.addEventListener('mouseup', onMouseUp);
     return () => {
       getElement()?.removeEventListener('contextmenu', onContextMenu);
-      document.removeEventListener('mouseup', onMouseUp);
       clearTimeout(timeout);
     };
   }, [getElement, refs]);
@@ -126,14 +122,23 @@ export const ContextMenu: FC<ContextMenuProps> = ({
   return (
     <FloatingPortal>
       {isOpen && (
-        <FloatingOverlay>
+        <FloatingOverlay className={cls.overlay}>
           <FloatingFocusManager context={context} initialFocus={refs.floating}>
             <div
               className={cls.ContextMenu}
               ref={refs.setFloating}
               style={floatingStyles}
               {...getFloatingProps()}
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+              }}
             >
+              {label && (
+                <Text color="secondary" block title={label} className={cls.label}>
+                  {label}
+                </Text>
+              )}
               {items.map(({ label, key, icon: Icon, ...itemProps }, index) => (
                 <button
                   className={cls.item}

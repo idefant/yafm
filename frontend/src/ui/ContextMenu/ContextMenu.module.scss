@@ -4,6 +4,18 @@
   padding: 4px;
   border-radius: 8px;
   box-shadow: var(--paper-shadow);
+  max-width: 200px;
+}
+
+.overlay {
+  z-index: var(--z-context-menu);
+}
+
+.label {
+  padding: 6px 10px 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .item {
