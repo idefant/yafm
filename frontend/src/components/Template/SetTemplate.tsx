@@ -14,6 +14,7 @@ import MinusIcon from '#svg/minus.svg?react';
 import PlusIcon from '#svg/plus.svg?react';
 import TrashIcon from '#svg/trash.svg?react';
 import { Template } from '#types/templateType';
+import { Transaction } from '#types/transactionType';
 import { Button } from '#ui/Button';
 import { Form } from '#ui/Form';
 import { Grid } from '#ui/Grid';
@@ -23,8 +24,9 @@ import { HStack, VStack } from '#ui/Stack';
 import { actionCreator, committer } from '#utils/committer';
 
 export type SetTemplateModalData =
-  | { method: 'create'; template?: undefined }
-  | { method: 'edit'; template: Template };
+  | { method: 'create'; template?: undefined; transaction?: undefined }
+  | { method: 'createFromTransaction'; template?: undefined; transaction: Transaction }
+  | { method: 'edit'; template: Template; transaction?: undefined };
 
 interface SetTemplateProps {
   modal: UseModalReturn<SetTemplateModalData>;
@@ -111,29 +113,32 @@ export const SetTemplate: FC<SetTemplateProps> = ({ modal }) => {
     };
 
     commit.add(
-      modal.data.method === 'create'
-        ? actionCreator.createTemplate(templateData)
-        : actionCreator.updateTemplate(modal.data.template.id, templateData),
+      modal.data.method === 'edit'
+        ? actionCreator.updateTemplate(modal.data.template.id, templateData)
+        : actionCreator.createTemplate(templateData),
     );
     commit.sync();
 
     modal.close();
   };
 
-  const initialOperations = modal.data?.template?.operations.map((operation) => ({
-    accountId: operation?.accountId,
-    sum: operation.sum ? BigNumber(operation.sum).abs().toString() : '',
-    isPositive: operation.sum ? BigNumber(operation.sum).isPositive() : false,
-  }));
-
   const onOpening = () => {
     if (!modal.isOpen) return;
+
+    const initialData = modal.data.transaction || modal.data.template;
+
+    const initialOperations = initialData?.operations.map((operation) => ({
+      accountId: operation?.accountId,
+      sum: operation.sum ? BigNumber(operation.sum).abs().toString() : '',
+      isPositive: operation.sum ? BigNumber(operation.sum).isPositive() : false,
+    }));
+
     reset({
-      name: modal.data.template?.name || '',
-      description: modal.data.template?.description || '',
+      name: initialData?.name || '',
+      description: initialData?.description || '',
       operations: initialOperations || defaultOperations,
       category: {
-        id: modal.data.template?.categoryId || '',
+        id: initialData?.categoryId || '',
         isCreated: false,
       },
     });
@@ -141,7 +146,7 @@ export const SetTemplate: FC<SetTemplateProps> = ({ modal }) => {
 
   return (
     <Modal
-      title={modal.data?.method === 'create' ? 'Create Template' : 'Edit Template'}
+      title={modal.data?.method === 'edit' ? 'Edit Template' : 'Create Template'}
       isOpen={modal.isOpen}
       close={modal.close}
       onOpening={onOpening}

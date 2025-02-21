@@ -13,6 +13,7 @@ import { Except } from 'type-fest';
 
 import { useFetchRatesByPeriodQuery } from '#api/exratesApi';
 import { HeaderInfo } from '#components/Header';
+import { SetTemplate, SetTemplateModalData } from '#components/Template';
 import { SetTransaction, SetTransactionModalData } from '#components/Transaction';
 import { dayjsTemplate } from '#configs/dayjs';
 import { useAppSelector } from '#hooks/reduxHooks';
@@ -22,6 +23,7 @@ import {
   selectVisibleAccounts,
   selectVisibleCategories,
 } from '#store/selectors';
+import CopyPlusIcon from '#svg/copy-plus.svg?react';
 import CopyIcon from '#svg/copy.svg?react';
 import PencilIcon from '#svg/pencil.svg?react';
 import PlusIcon from '#svg/plus.svg?react';
@@ -112,6 +114,8 @@ export const Transactions: FC = () => {
   const accountOptions = accounts.map((category) => ({ value: category.id, label: category.name }));
 
   const transactionModal = useModal<SetTransactionModalData>();
+  const templateModal = useModal<SetTemplateModalData>();
+
   const dateFilter = useDateFilter();
 
   const { data: prices } = useFetchRatesByPeriodQuery({
@@ -227,6 +231,13 @@ export const Transactions: FC = () => {
           onClick: () => transactionModal.open({ transaction: row.original, method: 'copy' }),
         },
         {
+          key: 'createTemplate',
+          label: 'Create template',
+          icon: CopyPlusIcon,
+          onClick: () =>
+            templateModal.open({ method: 'createFromTransaction', transaction: row.original }),
+        },
+        {
           key: 'delete',
           label: 'Delete',
           icon: TrashIcon,
@@ -234,7 +245,7 @@ export const Transactions: FC = () => {
         },
       ],
     }),
-    [confirmDelete, transactionModal],
+    [confirmDelete, templateModal, transactionModal],
   );
 
   return (
@@ -309,6 +320,7 @@ export const Transactions: FC = () => {
       </Grid>
 
       <SetTransaction modal={transactionModal} />
+      <SetTemplate modal={templateModal} />
     </>
   );
 };
