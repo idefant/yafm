@@ -41,6 +41,11 @@
     --button-hovered-bg: var(--disabled-button-color-darker);
     --button-hovered-border: var(--disabled-button-color);
   }
+
+  &.text {
+    --button-color: var(--disabled-button-color);
+    --button-hovered-bg: var(--disabled-button-color-darker);
+  }
 }
 
 :not(.disabled) {
@@ -59,6 +64,11 @@
       --button-hovered-bg: var(--primary-button-color-transparent);
       --button-hovered-border: var(--primary-button-color);
     }
+
+    &.text {
+      --button-color: var(--primary-button-color);
+      --button-hovered-bg: var(--primary-button-color-transparent);
+    }
   }
 
   &.secondary {
@@ -75,6 +85,33 @@
       --button-border-color: var(--secondary-button-color-darker);
       --button-hovered-bg: var(--secondary-button-color-transparent);
       --button-hovered-border: var(--secondary-button-color);
+    }
+
+    &.text {
+      --button-color: var(--secondary-button-color);
+      --button-hovered-bg: var(--secondary-button-color-transparent);
+    }
+  }
+
+  &.default {
+    --button-focused-box-shadow: var(--default-button-focused-box-shadow);
+
+    &.contained {
+      --button-color: var(--inverted-primary-color);
+      --button-bg: var(--default-button-color);
+      --button-hovered-bg: var(--default-button-color-hovered);
+    }
+
+    &.outlined {
+      --button-color: var(--default-button-color);
+      --button-border-color: var(--default-button-color-darker);
+      --button-hovered-bg: var(--default-button-color-transparent);
+      --button-hovered-border: var(--default-button-color);
+    }
+
+    &.text {
+      --button-color: var(--default-button-color);
+      --button-hovered-bg: var(--default-button-color-transparent);
     }
   }
 
@@ -93,6 +130,11 @@
       --button-hovered-bg: var(--success-button-color-transparent);
       --button-hovered-border: var(--success-button-color);
     }
+
+    &.text {
+      --button-color: var(--success-button-color);
+      --button-hovered-bg: var(--success-button-color-transparent);
+    }
   }
 
   &.danger {
@@ -109,6 +151,11 @@
       --button-border-color: var(--danger-button-color-darker);
       --button-hovered-bg: var(--danger-button-color-transparent);
       --button-hovered-border: var(--danger-button-color);
+    }
+
+    &.text {
+      --button-color: var(--danger-button-color);
+      --button-hovered-bg: var(--danger-button-color-transparent);
     }
   }
 }

@@ -49,6 +49,13 @@ export const ContainedSecondary: Story = {
   },
 };
 
+export const ContainedDefault: Story = {
+  args: {
+    variant: 'contained',
+    color: 'default',
+  },
+};
+
 export const ContainedSuccess: Story = {
   args: {
     variant: 'contained',
@@ -85,6 +92,13 @@ export const OutlinedSecondary: Story = {
   },
 };
 
+export const OutlinedDefault: Story = {
+  args: {
+    variant: 'outlined',
+    color: 'default',
+  },
+};
+
 export const OutlinedSuccess: Story = {
   args: {
     variant: 'outlined',
@@ -102,6 +116,49 @@ export const OutlinedDanger: Story = {
 export const OutlinedDisabled: Story = {
   args: {
     variant: 'outlined',
+    color: 'primary',
+    disabled: true,
+  },
+};
+
+export const TextPrimary: Story = {
+  args: {
+    variant: 'text',
+    color: 'primary',
+  },
+};
+
+export const TextSecondary: Story = {
+  args: {
+    variant: 'text',
+    color: 'secondary',
+  },
+};
+
+export const TextDefault: Story = {
+  args: {
+    variant: 'text',
+    color: 'default',
+  },
+};
+
+export const TextSuccess: Story = {
+  args: {
+    variant: 'text',
+    color: 'success',
+  },
+};
+
+export const TextDanger: Story = {
+  args: {
+    variant: 'text',
+    color: 'danger',
+  },
+};
+
+export const TextDisabled: Story = {
+  args: {
+    variant: 'text',
     color: 'primary',
     disabled: true,
   },

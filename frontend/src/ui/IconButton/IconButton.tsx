@@ -1,21 +1,20 @@
 import classNames from 'classnames';
 import { FunctionComponent } from 'react';
-import { Except } from 'type-fest';
 
 import { ButtonBase, ButtonBaseProps } from '#ui/ButtonBase';
 
 import cls from './IconButton.module.scss';
 import { IconButtonSize } from './iconButtonType';
 
-type IconButtonProps<T extends string | undefined = undefined> = Except<
-  ButtonBaseProps<T>,
-  'children'
-> & {
-  /** Размер кнопки */
-  size?: IconButtonSize;
-  /** Иконка */
-  icon: FunctionComponent<React.SVGProps<SVGSVGElement>>;
-};
+type IconButtonProps<T extends string | undefined = undefined> =
+  ButtonBaseProps<T> extends { children: any }
+    ? never
+    : ButtonBaseProps<T> & {
+        /** Размер кнопки */
+        size?: IconButtonSize;
+        /** Иконка */
+        icon: FunctionComponent<React.SVGProps<SVGSVGElement>>;
+      };
 
 export const IconButton = <T extends string | undefined = undefined>({
   size = 'md',
