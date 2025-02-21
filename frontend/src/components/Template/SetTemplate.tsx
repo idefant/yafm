@@ -32,7 +32,12 @@ interface SetTemplateProps {
 
 const formSchema = z.object({
   name: z.string().trim(),
-  categoryId: z.string().nullish(),
+  category: z
+    .object({
+      id: z.string().optional(),
+      isCreated: z.boolean().optional(),
+    })
+    .optional(),
   operations: z
     .array(
       z.object({
@@ -78,11 +83,23 @@ export const SetTemplate: FC<SetTemplateProps> = ({ modal }) => {
 
   const onSubmit = async (values: FormOutput) => {
     if (!modal.isOpen) return;
+    const commit = committer();
+
+    const categoryId = (() => {
+      if (values.category?.isCreated) {
+        const actionCreateCategory = actionCreator.createCategory({
+          name: values.category.id!,
+        });
+        commit.add(actionCreateCategory);
+        return actionCreateCategory.id;
+      }
+      return values.category?.id;
+    })();
 
     const templateData = {
       name: values.name || undefined,
       description: values.description || undefined,
-      categoryId: values.categoryId || undefined,
+      categoryId: categoryId || undefined,
       operations: values.operations.map((operation) => ({
         accountId: operation.accountId || undefined,
         sum: operation.sum
@@ -93,11 +110,13 @@ export const SetTemplate: FC<SetTemplateProps> = ({ modal }) => {
       })),
     };
 
-    committer(
+    commit.add(
       modal.data.method === 'create'
         ? actionCreator.createTemplate(templateData)
         : actionCreator.updateTemplate(modal.data.template.id, templateData),
-    ).sync();
+    );
+    commit.sync();
+
     modal.close();
   };
 
@@ -113,7 +132,10 @@ export const SetTemplate: FC<SetTemplateProps> = ({ modal }) => {
       name: modal.data.template?.name || '',
       description: modal.data.template?.description || '',
       operations: initialOperations || defaultOperations,
-      categoryId: modal.data.template?.categoryId || null,
+      category: {
+        id: modal.data.template?.categoryId || '',
+        isCreated: false,
+      },
     });
   };
 
@@ -129,12 +151,13 @@ export const SetTemplate: FC<SetTemplateProps> = ({ modal }) => {
           <Modal.Content>
             <Form.Input label="Name" name="name" />
 
-            <Form.Select
+            <Form.SelectCreatable
               label="Category"
               placeholder="Choose category..."
               options={categoryOptions}
               isClearable
-              name="categoryId"
+              nameId="category.id"
+              nameIsCreated="category.isCreated"
             />
 
             <VStack gap={24}>

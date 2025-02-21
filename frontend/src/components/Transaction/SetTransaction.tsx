@@ -37,7 +37,12 @@ interface SetTransactionProps {
 
 const formSchema = z.object({
   name: z.string().trim(),
-  categoryId: z.string().nullish(),
+  category: z
+    .object({
+      id: z.string().optional(),
+      isCreated: z.boolean().optional(),
+    })
+    .optional(),
   operations: z
     .array(
       z.object({
@@ -84,12 +89,24 @@ export const SetTransaction: FC<SetTransactionProps> = ({ modal }) => {
 
   const onSubmit = async (values: FormOutput) => {
     if (!modal.isOpen) return;
+    const commit = committer();
+
+    const categoryId = (() => {
+      if (values.category?.isCreated) {
+        const actionCreateCategory = actionCreator.createCategory({
+          name: values.category.id!,
+        });
+        commit.add(actionCreateCategory);
+        return actionCreateCategory.id;
+      }
+      return values.category?.id;
+    })();
 
     const transactionData = {
       datetime: +date,
       name: values.name || undefined,
       description: values.description || undefined,
-      categoryId: values.categoryId || undefined,
+      categoryId: categoryId || undefined,
       operations: values.operations.map((operation) => ({
         accountId: operation.accountId as string,
         sum: BigNumber(operation.sum)
@@ -98,11 +115,13 @@ export const SetTransaction: FC<SetTransactionProps> = ({ modal }) => {
       })),
     };
 
-    committer(
+    commit.add(
       modal.data.method === 'create'
         ? actionCreator.createTransaction(transactionData)
         : actionCreator.updateTransaction(modal.data.transaction.id, transactionData),
-    ).sync();
+    );
+    commit.sync();
+
     modal.close();
   };
 
@@ -139,7 +158,10 @@ export const SetTransaction: FC<SetTransactionProps> = ({ modal }) => {
       name: modal.data.transaction?.name || '',
       description: modal.data.transaction?.description || '',
       operations: initialOperations || defaultOperations,
-      categoryId: modal.data.transaction?.categoryId || '',
+      category: {
+        id: modal.data.transaction?.categoryId || '',
+        isCreated: false,
+      },
     });
     setDate(dayjs(modal.data.method === 'edit' ? modal.data.transaction.datetime : undefined));
   };
@@ -162,12 +184,13 @@ export const SetTransaction: FC<SetTransactionProps> = ({ modal }) => {
 
             <Form.Input label="Name" name="name" />
 
-            <Form.Select
+            <Form.SelectCreatable
               label="Category"
               placeholder="Choose category..."
               options={categoryOptions}
               isClearable
-              name="categoryId"
+              nameId="category.id"
+              nameIsCreated="category.isCreated"
             />
 
             <VStack gap={24}>
