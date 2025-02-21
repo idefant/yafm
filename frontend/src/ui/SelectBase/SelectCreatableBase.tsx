@@ -1,38 +1,39 @@
 import { ForwardedRef, forwardRef, useMemo } from 'react';
-import ReactSelect, { GroupBase, Props } from 'react-select';
+import { GroupBase } from 'react-select';
 import ReactSelectType from 'react-select/base';
+import CreatableSelect, { CreatableProps } from 'react-select/creatable';
 
 import { SelectBaseSize } from './selectBaseType';
 import { getStyles } from './style';
 
-export interface SelectBaseProps<
+export interface SelectCreatableBaseProps<
   Option = unknown,
   IsMulti extends boolean = boolean,
   Group extends GroupBase<Option> = GroupBase<Option>,
-> extends Props<Option, IsMulti, Group> {
+> extends CreatableProps<Option, IsMulti, Group> {
   size?: SelectBaseSize;
   error?: string | boolean;
 }
 
 /* eslint-disable no-unused-vars */
-type SelectBaseType = <
+type SelectCreatableBaseType = <
   Option = unknown,
   IsMulti extends boolean = boolean,
   Group extends GroupBase<Option> = GroupBase<Option>,
 >(
-  props: SelectBaseProps<Option, IsMulti, Group> & {
+  props: SelectCreatableBaseProps<Option, IsMulti, Group> & {
     ref?: ForwardedRef<ReactSelectType<Option, IsMulti, Group>>;
   },
 ) => JSX.Element;
 /* eslint-enable no-unused-vars */
 
-export const SelectBase = forwardRef(
+export const SelectCreatableBase = forwardRef(
   <
     Option = unknown,
     IsMulti extends boolean = boolean,
     Group extends GroupBase<Option> = GroupBase<Option>,
   >(
-    { size = 'md', error, className, ...props }: SelectBaseProps<Option, IsMulti, Group>,
+    { size = 'md', error, className, ...props }: SelectCreatableBaseProps<Option, IsMulti, Group>,
     ref: ForwardedRef<ReactSelectType<Option, IsMulti, Group>>,
   ) => {
     const hasError = typeof error === 'string' || !!error;
@@ -43,7 +44,7 @@ export const SelectBase = forwardRef(
     );
 
     return (
-      <ReactSelect
+      <CreatableSelect
         placeholder=""
         className={className}
         components={{
@@ -55,4 +56,4 @@ export const SelectBase = forwardRef(
       />
     );
   },
-) as SelectBaseType;
+) as SelectCreatableBaseType;

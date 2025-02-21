@@ -32,19 +32,22 @@ export const FormSelect = <
 
   const error: FieldError | undefined = getProp(errors, name);
 
-  const findOption = useCallback((options: any, value: string): any => {
-    if (!options) return null;
-    for (const option of options) {
-      if (!option.options) {
-        if (option.value === value) return option;
+  const getSelectedOption = useCallback(
+    (options: any): any => {
+      if (!options) return null;
+      for (const option of options) {
+        if (!option.options) {
+          if (option.value === selectedValue) return option;
+        }
+        const foundOption = getSelectedOption(option.options);
+        if (foundOption) return foundOption;
       }
-      const foundOption = findOption(option.options, value);
-      if (foundOption) return foundOption;
-    }
-    return null;
-  }, []);
+      return null;
+    },
+    [selectedValue],
+  );
 
-  const selectedOption = findOption(options, selectedValue);
+  const selectedOption = getSelectedOption(options);
 
   return (
     <Select

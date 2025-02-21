@@ -1,6 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react';
 
 import { Select } from './Select';
+import { SelectCreatable } from './SelectCreatable';
 
 const meta = {
   title: 'UI/Select',
@@ -154,4 +155,9 @@ export const WithGroups: Story = {
       },
     },
   },
+};
+
+export const Creatable: Story = {
+  render: (props) => <SelectCreatable {...props} />,
+  args: {},
 };

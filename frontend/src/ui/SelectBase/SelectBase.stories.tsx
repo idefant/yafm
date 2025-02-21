@@ -1,6 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react';
 
 import { SelectBase } from './SelectBase';
+import { SelectCreatableBase } from './SelectCreatableBase';
 
 const meta = {
   title: 'UI/SelectBase',
@@ -129,4 +130,9 @@ export const WithGroups: Story = {
       },
     },
   },
+};
+
+export const Creatable: Story = {
+  render: (props) => <SelectCreatableBase {...props} />,
+  args: {},
 };
