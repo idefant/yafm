@@ -55,3 +55,6 @@ export const Select = forwardRef(
     );
   },
 ) as SelectType;
+
+export const defaultFilterOption = (option: any, inputValue: string) =>
+  option.label?.toLowerCase().includes(inputValue.toLowerCase());

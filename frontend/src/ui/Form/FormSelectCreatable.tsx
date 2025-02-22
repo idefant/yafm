@@ -40,7 +40,7 @@ export const FormSelectCreatable = <
   const getSelectedOption = useCallback(
     (options?: any): any => {
       if (isCreated) {
-        return { input: selectedValue, label: selectedValue };
+        return { value: selectedValue, label: selectedValue };
       }
       if (!options) return null;
       for (const option of options) {

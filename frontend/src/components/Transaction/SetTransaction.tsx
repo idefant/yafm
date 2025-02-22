@@ -23,6 +23,7 @@ import { Form } from '#ui/Form';
 import { Grid } from '#ui/Grid';
 import { IconButton } from '#ui/IconButton';
 import { Modal, useModal, UseModalReturn } from '#ui/Modal';
+import { defaultFilterOption } from '#ui/Select';
 import { HStack, VStack } from '#ui/Stack';
 import { Title } from '#ui/Typography';
 import { actionCreator, committer } from '#utils/committer';
@@ -77,12 +78,13 @@ export const SetTransaction: FC<SetTransactionProps> = ({ modal }) => {
   const accountOptions = accounts.map((account) => ({
     value: account.id,
     label: account.name,
-    isArchived: account.isArchived,
+    hidden: account.isArchived,
   }));
 
-  const categoryOptions = [...categories].map((category) => ({
+  const categoryOptions = categories.map((category) => ({
     value: category.id,
     label: category.name,
+    hidden: category.isArchived,
   }));
 
   const [date, setDate] = useState(dayjs());
@@ -198,6 +200,9 @@ export const SetTransaction: FC<SetTransactionProps> = ({ modal }) => {
               isClearable
               nameId="category.id"
               nameIsCreated="category.isCreated"
+              filterOption={(option, inputValue) =>
+                option.data.hidden ? false : defaultFilterOption(option, inputValue)
+              }
             />
 
             <VStack gap={24}>
@@ -227,10 +232,9 @@ export const SetTransaction: FC<SetTransactionProps> = ({ modal }) => {
                           options={accountOptions}
                           name={`operations.${i}.accountId`}
                           margin="none"
-                          filterOption={(option, inputValue) => {
-                            if (option.data.isArchived) return false;
-                            return option.label.toLowerCase().includes(inputValue.toLowerCase());
-                          }}
+                          filterOption={(option, inputValue) =>
+                            option.data.hidden ? false : defaultFilterOption(option, inputValue)
+                          }
                         />
                       </Grid.Item>
                       <Grid.Item size={6}>
