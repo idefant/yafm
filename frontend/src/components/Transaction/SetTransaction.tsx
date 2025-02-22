@@ -28,8 +28,9 @@ import { Title } from '#ui/Typography';
 import { actionCreator, committer } from '#utils/committer';
 
 export type SetTransactionModalData =
-  | { method: 'create'; transaction?: undefined }
-  | { method: 'edit' | 'copy'; transaction: Transaction };
+  | { method: 'create'; transaction?: undefined; template?: undefined }
+  | { method: 'createUsingTemplate'; transaction?: undefined; template: Template }
+  | { method: 'edit' | 'copy'; transaction: Transaction; template?: undefined };
 
 interface SetTransactionProps {
   modal: UseModalReturn<SetTransactionModalData>;
@@ -116,7 +117,7 @@ export const SetTransaction: FC<SetTransactionProps> = ({ modal }) => {
     };
 
     commit.add(
-      modal.data.method === 'create'
+      modal.data.method === 'create' || modal.data.method === 'createUsingTemplate'
         ? actionCreator.createTransaction(transactionData)
         : actionCreator.updateTransaction(modal.data.transaction.id, transactionData),
     );
@@ -142,24 +143,28 @@ export const SetTransaction: FC<SetTransactionProps> = ({ modal }) => {
     };
   };
 
-  const initialOperations = modal.data?.transaction?.operations
-    .sort((a, b) => BigNumber(b.sum).minus(a.sum).toNumber())
-    .map((operation) => ({
-      accountId: operation.accountId,
-      sum: BigNumber(operation.sum).abs().toString(),
-      isPositive: BigNumber(operation.sum).isPositive(),
-    }));
-
   const defaultOperations = [{ accountId: '', sum: undefined, isPositive: false }];
 
   const onOpening = () => {
     if (!modal.isOpen) return;
+
+    const initialData = modal.data.template || modal.data.transaction;
+
+    const initialOperations = (
+      modal.data.transaction?.operations.sort((a, b) => BigNumber(b.sum).minus(a.sum).toNumber()) ||
+      modal.data.template?.operations
+    )?.map((operation) => ({
+      accountId: operation.accountId,
+      sum: operation.sum ? BigNumber(operation.sum).abs().toString() : '',
+      isPositive: operation.sum ? BigNumber(operation.sum).isPositive() : false,
+    }));
+
     reset({
-      name: modal.data.transaction?.name || '',
-      description: modal.data.transaction?.description || '',
+      name: initialData?.name || '',
+      description: initialData?.description || '',
       operations: initialOperations || defaultOperations,
       category: {
-        id: modal.data.transaction?.categoryId || '',
+        id: initialData?.categoryId || '',
         isCreated: false,
       },
     });
@@ -173,7 +178,9 @@ export const SetTransaction: FC<SetTransactionProps> = ({ modal }) => {
           <Form onSubmit={handleSubmit(onSubmit)} id={formId}>
             <HStack align="center" gap={16}>
               <Title level={4}>
-                {modal.data?.method === 'create' ? 'Create Transaction' : 'Edit Transaction'}
+                {modal.data?.method === 'create' || modal.data?.method === 'createUsingTemplate'
+                  ? 'Create Transaction'
+                  : 'Edit Transaction'}
               </Title>
               {modal.data?.method === 'create' && (
                 <Button size="sm" onClick={templateModal.open}>

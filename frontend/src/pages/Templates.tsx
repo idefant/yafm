@@ -4,10 +4,12 @@ import { FC, useCallback } from 'react';
 
 import { HeaderInfo } from '#components/Header';
 import { SetTemplate, SetTemplateModalData } from '#components/Template';
+import { SetTransaction, SetTransactionModalData } from '#components/Transaction';
 import { useAppSelector } from '#hooks/reduxHooks';
 import { selectAllTemplatesExtended } from '#store/selectors';
 import PencilIcon from '#svg/pencil.svg?react';
 import PlusIcon from '#svg/plus.svg?react';
+import SwapIcon from '#svg/swap.svg?react';
 import TrashIcon from '#svg/trash.svg?react';
 import { TemplateExtended } from '#types/templateType';
 import { Button } from '#ui/Button';
@@ -53,6 +55,7 @@ export const Templates: FC = () => {
   const templates = useAppSelector(selectAllTemplatesExtended);
 
   const templateModal = useModal<SetTemplateModalData>();
+  const transactionModal = useModal<SetTransactionModalData>();
 
   const table = useReactTable({
     data: templates,
@@ -85,6 +88,13 @@ export const Templates: FC = () => {
           onClick: () => templateModal.open({ method: 'edit', template: row.original }),
         },
         {
+          key: 'use',
+          label: 'Use template',
+          icon: SwapIcon,
+          onClick: () =>
+            transactionModal.open({ method: 'createUsingTemplate', template: row.original }),
+        },
+        {
           key: 'delete',
           label: 'Delete',
           icon: TrashIcon,
@@ -92,7 +102,7 @@ export const Templates: FC = () => {
         },
       ],
     }),
-    [confirmDelete, templateModal],
+    [confirmDelete, templateModal, transactionModal],
   );
 
   return (
@@ -128,6 +138,7 @@ export const Templates: FC = () => {
       </Card>
 
       <SetTemplate modal={templateModal} />
+      <SetTransaction modal={transactionModal} />
     </>
   );
 };
