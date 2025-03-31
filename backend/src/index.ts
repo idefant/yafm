@@ -1,6 +1,7 @@
 import path from 'path';
 
 import dotenv from 'dotenv';
+import dotenvExpand from 'dotenv-expand';
 import express, { Router } from 'express';
 import { auth } from 'express-openid-connect';
 
@@ -10,7 +11,7 @@ import authRouter from '#routes/authRouter';
 import commitRouter from '#routes/commitRouter';
 import swaggerDocs from '#utils/swagger';
 
-dotenv.config({ path: '../.env' });
+dotenvExpand.expand(dotenv.config({ path: '../.env' }));
 
 const app = express();
 const port = Number(process.env.BACKEND_PORT) || 8080;
