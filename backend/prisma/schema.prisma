@@ -3,13 +3,13 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model Commit {
   id             String   @id @default(uuid())
-  cipher         String   @db.LongText
+  cipher         String   @db.Text
   iv             String
   hmac           String
   salt           String   @db.Text

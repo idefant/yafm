@@ -1,6 +1,7 @@
 services:
   yafm:
     image: yafm:${TAG}
+    container_name: yafm
     build:
       context: ./
       args:
@@ -14,3 +15,14 @@ services:
     stdin_open: true
     tty: true
     restart: always
+
+  yafm_postgres:
+    image: postgres:16.8-alpine3.20
+    container_name: yafm_postgres
+    volumes:
+      - ./db_data:/var/lib/postgresql/data
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
