@@ -2,6 +2,9 @@ version: "3"
 
 output: prefixed
 
+dotenv:
+  - .env
+
 tasks:
   # Базовые задачи
   install:
@@ -38,6 +41,20 @@ tasks:
     desc: Установка зависимостей для бэкенда
     dir: ./backend
     cmd: npm install
+
+  gen-db:
+    desc: Генерация базы данных
+    dir: ./backend
+    cmds:
+      - npm run db:gen
+      - npm run db:push -- --accept-data-loss
+
+  reset-db:
+    desc: Сброс базы данных
+    dir: ./backend
+    cmds:
+      - npm run db:gen
+      - npm run db:push -- --force-reset
 
   dev-backend:
     desc: Запуск бэкенда в режиме разработки
