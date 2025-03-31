@@ -3,6 +3,7 @@ import { nanoid } from 'nanoid';
 import { EmptyObject, Except } from 'type-fest';
 
 import { mainApiCommit } from '#api/mainApi';
+import Cryptor from '#modules/Cryptor';
 import { store } from '#store';
 import {
   accountGroupsReceived,
@@ -56,58 +57,13 @@ import { CreateAccountData, UpdateAccountData } from '#types/accountType';
 import { Base } from '#types/baseType';
 import { CreateCategoryData, UpdateCategoryData } from '#types/categoryType';
 import { EncryptedData } from '#types/cipherType';
-import {
-  CommitActionDict,
-  CommitWithTransforms,
-  Transform,
-  updatedBaseMethods,
-} from '#types/commitType';
+import { CommitActionDict } from '#types/commitType';
 import { CreateCurrencyData, UpdateCurrencyData } from '#types/currencyType';
 import { CreateTemplateData, UpdateTemplateData } from '#types/templateType';
 import { CreateTransactionData, UpdateTransactionData } from '#types/transactionType';
 import { dmodal } from '#ui/Modal';
-import { crypt } from '#utils/crypt';
 import { getChanges } from '#utils/getChanges';
-import Gzip from '#utils/gzip';
 import { getSyncData } from '#utils/sync';
-
-const runTransforms = async (
-  action: CommitActionWithDispatch['action'],
-  transforms: Transform[],
-) => {
-  const newActionData = await transforms.reduce(async (acc, transform) => {
-    const transformDict = {
-      gzip: () => Gzip.compress(JSON.stringify(acc)),
-    };
-
-    if (!(transform in transformDict)) {
-      throw new Error('Unknown transform method');
-    }
-    return transformDict[transform]();
-  }, action.data as any);
-
-  return { ...action, data: newActionData, transforms };
-};
-
-export type CommitActionWithTransforms = CommitActionWithDispatch['action'] & {
-  transforms?: Transform[];
-  data: any;
-};
-
-const runBackTransforms = async (action: CommitActionWithTransforms) => {
-  if (!action.transforms) return action;
-
-  return action.transforms.toReversed().reduce((acc, transform) => {
-    const transformDict = {
-      gzip: async () => JSON.parse(await Gzip.decompress(acc)),
-    };
-
-    if (!(transform in transformDict)) {
-      throw new Error('Unknown transform method');
-    }
-    return transformDict[transform]();
-  }, action.data);
-};
 
 type CommitActionWithDispatch<
   T extends keyof CommitActionDict = keyof CommitActionDict,
@@ -348,38 +304,25 @@ class Committer {
     if (this.actions.length === 0) {
       throw new Error('Список действий пуст');
     }
+
+    this.actions.forEach(({ dispatchAction }) => dispatchAction?.());
+
     const commitData = {
-      actions: await Promise.all(
-        this.actions.map(async ({ action, dispatchAction }) => {
-          dispatchAction?.();
-          return updatedBaseMethods.some((method) => method === action.method)
-            ? runTransforms(action, ['gzip'])
-            : action;
-        }),
-      ),
+      actions: this.actions,
       createdAt: this.date,
     };
 
-    return crypt.encrypt(JSON.stringify(commitData));
+    return Cryptor.encrypt(commitData);
   }
 
   static async decrypt(encryptedData: EncryptedData) {
-    const plaintext = await crypt.decrypt(encryptedData);
-    if (!plaintext) return;
+    const decryptedDataResult = await Cryptor.decrypt(encryptedData);
+    if (decryptedDataResult.error) return;
 
-    const commitData: CommitWithTransforms = JSON.parse(plaintext);
+    const decryptedData = decryptedDataResult.data;
+    // XXX: Необходимо провалидировать данные
 
-    const transformedActions = await Promise.all(
-      commitData.actions.map(async (action) =>
-        action.transforms
-          ? { method: action.method, data: await runBackTransforms(action) }
-          : action,
-      ),
-    );
-
-    return new Committer(...transformedActions.map((action) => ({ action }))).setDate(
-      commitData.createdAt,
-    );
+    return new Committer(...decryptedData.actions).setDate(decryptedData.createdAt);
   }
 
   async sync() {

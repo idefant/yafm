@@ -63,8 +63,6 @@ export type CommitActionDict = {
 
 export const updatedBaseMethods = ['init_base', 'import_base', 'change_password'] as const;
 
-export type Transform = 'gzip';
-
 export type CommitAction = {
   [K in keyof CommitActionDict]: {
     method: K;
@@ -72,14 +70,7 @@ export type CommitAction = {
   };
 }[keyof CommitActionDict];
 
-export type CommitActionWithTransforms = CommitAction & { transforms?: Transform[]; data: any };
-
 export type Commit = {
   actions: CommitAction[];
-  createdAt: Date;
-};
-
-export type CommitWithTransforms = {
-  actions: CommitActionWithTransforms[];
   createdAt: Date;
 };

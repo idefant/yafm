@@ -7,6 +7,7 @@ import { z } from 'zod';
 
 import { appRoutes } from '#data/routes';
 import { useAppDispatch } from '#hooks/reduxHooks';
+import Cryptor from '#modules/Cryptor';
 import { baseFileSchema } from '#schema/baseSchema';
 import { unlockBase } from '#store/reducers/appSlice';
 import ChevronLeftIcon from '#svg/chevron-left.svg?react';
@@ -19,9 +20,7 @@ import { dmodal } from '#ui/Modal';
 import { HStack } from '#ui/Stack';
 import { Title, Text } from '#ui/Typography';
 import { actionCreator, committer } from '#utils/committer';
-import { crypt } from '#utils/crypt';
 import { readFileContent } from '#utils/file';
-import Gzip from '#utils/gzip';
 import { checkBaseIntegrity } from '#utils/sync';
 
 const formSchema = z.object({
@@ -44,14 +43,13 @@ export const Upload: FC = () => {
     if (!fileData) return;
     if (!fileData.isEncrypted) return fileData.data;
 
-    const plaintext = await crypt.decrypt(fileData.data, password);
-    if (!plaintext) {
+    const decryptedDataResult = await Cryptor.decrypt(fileData.data, password);
+    if (decryptedDataResult.error) {
       setAlertText('Wrong password');
       reset({ password: '' });
       return;
     }
-
-    return JSON.parse(await Gzip.decompress(plaintext));
+    return decryptedDataResult.data;
   };
 
   const onSubmit = async (values: FormOutput) => {
@@ -59,7 +57,7 @@ export const Upload: FC = () => {
     const data = await getPlainData(values.password);
     if (!data) return;
 
-    await crypt.setSecret({ password: values.password });
+    await Cryptor.setSecret({ password: values.password });
 
     const validatedStatus = checkBaseIntegrity(data);
     if (validatedStatus) {

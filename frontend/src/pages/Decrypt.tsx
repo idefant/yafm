@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { useFetchCommitsQuery } from '#api/mainApi';
 import { appRoutes } from '#data/routes';
 import { useAppDispatch } from '#hooks/reduxHooks';
+import Cryptor from '#modules/Cryptor';
 import { accountGroupsReceived } from '#store/reducers/accountGroupsSlice';
 import { accountsReceived } from '#store/reducers/accountsSlice';
 import { unlockBase } from '#store/reducers/appSlice';
@@ -23,7 +24,6 @@ import { HStack } from '#ui/Stack';
 import { Title } from '#ui/Typography';
 import { actionCreator, committer } from '#utils/committer';
 import { compileBase } from '#utils/compileBase';
-import { crypt } from '#utils/crypt';
 
 const formSchema = z.object({
   password: z.string().nonempty(),
@@ -50,7 +50,7 @@ export const Decrypt: FC = () => {
   const onSubmit = async (values: FormOutput) => {
     setAlertText(undefined);
     if (isNew) {
-      await crypt.setSecret({ password: values.password });
+      await Cryptor.setSecret({ password: values.password });
 
       await committer(actionCreator.initBase()).sync();
       dispatch(unlockBase());
@@ -59,7 +59,7 @@ export const Decrypt: FC = () => {
 
     const decryptedCommits: Commit[] = [];
 
-    await crypt.setSecret({ password: values.password, salt: commits[0].salt });
+    await Cryptor.setSecret({ password: values.password, salt: commits[0].salt });
 
     for await (const commit of commits.toReversed()) {
       const decryptedCommit = await committer.decrypt(commit);

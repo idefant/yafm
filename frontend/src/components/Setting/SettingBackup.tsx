@@ -4,14 +4,13 @@ import { FC, useId } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import Cryptor from '#modules/Cryptor';
 import { BaseFileData } from '#types/baseType';
 import { Button } from '#ui/Button';
 import { Card } from '#ui/Card';
 import { Form } from '#ui/Form';
 import { Title } from '#ui/Typography';
-import { crypt } from '#utils/crypt';
 import { exportJsonFile } from '#utils/file';
-import Gzip from '#utils/gzip';
 import { getSyncData } from '#utils/sync';
 
 const formSchema = z.object({
@@ -29,7 +28,7 @@ export const SettingBackup: FC = () => {
     const data = getSyncData();
 
     if (values.useEncryption) {
-      const encryptedData = await crypt.encrypt(await Gzip.compress(JSON.stringify(data)));
+      const encryptedData = await Cryptor.encrypt(data);
       const fileData: BaseFileData = {
         createdAt: dayjs().toISOString(),
         isEncrypted: true,

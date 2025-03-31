@@ -3,6 +3,7 @@ import { FC, useId, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import Cryptor from '#modules/Cryptor';
 import { passwordSchema } from '#schema/commonSchema';
 import { Alert, AlertColor } from '#ui/Alert';
 import { Button } from '#ui/Button';
@@ -10,7 +11,6 @@ import { Card } from '#ui/Card';
 import { Form } from '#ui/Form';
 import { Title } from '#ui/Typography';
 import { actionCreator, committer } from '#utils/committer';
-import { crypt } from '#utils/crypt';
 
 const formSchema = z
   .object({
@@ -35,14 +35,14 @@ export const SettingChangePassword: FC = () => {
   const onSubmit = async (values: FormOutput) => {
     setAlert(undefined);
 
-    const isCorrectOldPassword = await crypt.checkPassword(values.oldPassword);
+    const isCorrectOldPassword = await Cryptor.checkPassword(values.oldPassword);
     if (!isCorrectOldPassword) {
       setAlert({ color: 'danger', text: 'Wrong old password' });
       reset({ oldPassword: '' });
       return;
     }
 
-    await crypt.setSecret({ password: values.newPassword });
+    await Cryptor.setSecret({ password: values.newPassword });
     await committer(actionCreator.changePassword()).sync();
     setAlert({ color: 'success', text: 'Password changed successfully' });
     setTimeout(() => {

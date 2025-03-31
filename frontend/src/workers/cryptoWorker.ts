@@ -25,7 +25,7 @@ const pass2key = (pass: string | lib.WordArray, salt: lib.WordArray) =>
 const getHmac = (data: lib.WordArray, pass: lib.WordArray) =>
   HmacSHA256(enc.Hex.stringify(data), pass).toString();
 
-const crypt = {
+const cryptoWorker = {
   setSecret(data: { password: string; salt?: string }) {
     if (data.salt) {
       const encryptionKey = pass2key(data.password, enc.Hex.parse(data.salt));
@@ -79,13 +79,13 @@ const crypt = {
   },
 };
 
-export type Crypt = typeof crypt;
+export type CryptoWorker = typeof cryptoWorker;
 
 type CryptAction = {
-  [K in keyof Crypt]: { method: K; data: Parameters<Crypt[K]>; requestId: string };
-}[keyof Crypt];
+  [K in keyof CryptoWorker]: { method: K; data: Parameters<CryptoWorker[K]>; requestId: string };
+}[keyof CryptoWorker];
 
 self.onmessage = (e: MessageEvent<CryptAction>) => {
-  const res = (crypt[e.data.method] as any)(...e.data.data);
+  const res = (cryptoWorker[e.data.method] as any)(...e.data.data);
   self.postMessage({ data: res, requestId: e.data.requestId });
 };
