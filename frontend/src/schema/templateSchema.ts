@@ -2,13 +2,13 @@ import { z } from 'zod';
 
 export const templateSchema = z.object({
   id: z.string(),
-  name: z.string().optional(),
-  description: z.string().optional(),
-  categoryId: z.string().optional(),
+  name: z.string().nullish(),
+  description: z.string().nullish(),
+  categoryId: z.string().nullish(),
   operations: z.array(
     z.object({
-      accountId: z.string().optional(),
-      sum: z.string().optional(),
+      accountId: z.string().nullish(),
+      sum: z.string().nullish(),
     }),
   ),
 });

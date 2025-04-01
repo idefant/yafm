@@ -9,7 +9,7 @@ export const currencySchema = z.object({
   type: z.enum(currencyTypes),
   color: z.string(),
   symbol: z.string(),
-  description: z.string().optional(),
+  description: z.string().nullish(),
 });
 
 export const createCurrencySchema = currencySchema;

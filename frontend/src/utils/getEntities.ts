@@ -1,25 +1,10 @@
 import { Dictionary } from '@reduxjs/toolkit';
 
-import { getProp } from './getProp';
-
-type EntriesKey = string | number;
-
-/* eslint-disable no-unused-vars */
-type GetEntries = {
-  <T, K extends EntriesKey>(arr: T[], keyPath: string): Dictionary<T>;
-  <T, K extends EntriesKey>(arr: T[], getKey: (value: T) => K): Dictionary<T>;
-};
-
-export const getEntities: GetEntries = <T, K extends EntriesKey>(
+export const getEntities = <T, K extends string | number, TStrict extends boolean = false>(
+  /* eslint-disable no-unused-vars */
   arr: T[],
-  pathOrGetGroupName: string | ((value: T) => K),
+  getGroupName: (value: T) => K,
+  options?: { strict?: TStrict },
   /* eslint-enable no-unused-vars */
-) =>
-  Object.fromEntries(
-    arr.map((item) => [
-      typeof pathOrGetGroupName === 'string'
-        ? getProp(item, pathOrGetGroupName)
-        : pathOrGetGroupName(item),
-      item,
-    ]),
-  );
+): TStrict extends true ? Record<string, T> : Dictionary<T> =>
+  Object.fromEntries(arr.map((item) => [getGroupName(item), item]));

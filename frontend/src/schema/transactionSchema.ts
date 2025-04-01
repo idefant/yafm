@@ -2,10 +2,10 @@ import { z } from 'zod';
 
 export const transactionSchema = z.object({
   id: z.string(),
-  name: z.string().optional(),
-  description: z.string().optional(),
+  name: z.string().nullish(),
+  description: z.string().nullish(),
   datetime: z.number().int().nonnegative(),
-  categoryId: z.string().optional(),
+  categoryId: z.string().nullish(),
   operations: z
     .array(
       z.object({

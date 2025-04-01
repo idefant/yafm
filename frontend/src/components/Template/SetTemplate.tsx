@@ -45,7 +45,7 @@ const formSchema = z.object({
     .array(
       z.object({
         isPositive: z.boolean(),
-        accountId: z.string().nonempty().optional(),
+        accountId: z.string().nonempty().nullish(),
         sum: z.string().optional(),
       }),
     )

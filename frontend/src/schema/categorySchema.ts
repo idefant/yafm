@@ -3,8 +3,8 @@ import { z } from 'zod';
 export const categorySchema = z.object({
   id: z.string(),
   name: z.string(),
-  description: z.string().optional(),
-  isArchived: z.boolean().optional(),
+  description: z.string().nullish(),
+  isArchived: z.boolean().nullish(),
 });
 
 export const createCategorySchema = categorySchema;

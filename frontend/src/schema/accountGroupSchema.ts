@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const accountGroupSchema = z.object({
   id: z.string(),
   name: z.string(),
-  description: z.string().optional(),
+  description: z.string().nullish(),
 });
 
 export const createAccountGroupSchema = accountGroupSchema;

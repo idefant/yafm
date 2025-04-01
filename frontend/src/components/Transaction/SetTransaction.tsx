@@ -130,7 +130,7 @@ export const SetTransaction: FC<SetTransactionProps> = ({ modal }) => {
 
   const getTemplateData = (template: Template) => {
     const operations = template.operations.map((operation) => ({
-      accountId: operation.accountId,
+      accountId: operation.accountId || '',
       sum: BigNumber(operation.sum ?? 0)
         .abs()
         .toString(),
@@ -156,7 +156,7 @@ export const SetTransaction: FC<SetTransactionProps> = ({ modal }) => {
       modal.data.transaction?.operations.sort((a, b) => BigNumber(b.sum).minus(a.sum).toNumber()) ||
       modal.data.template?.operations
     )?.map((operation) => ({
-      accountId: operation.accountId,
+      accountId: operation.accountId || '',
       sum: operation.sum ? BigNumber(operation.sum).abs().toString() : '',
       isPositive: operation.sum ? BigNumber(operation.sum).isPositive() : false,
     }));
