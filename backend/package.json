@@ -10,7 +10,8 @@
     "lint": "eslint -c .eslintrc.json --ext .js,.ts .",
     "lint:fix": "npm run lint -- --fix",
     "db:gen": "prisma generate",
-    "db:push": "prisma db push"
+    "db:push": "prisma db push",
+    "prepare": "cd .. && husky backend/.husky"
   },
   "dependencies": {
     "@prisma/client": "^4.14.1",
@@ -33,6 +34,8 @@
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-import-resolver-typescript": "^3.5.1",
     "eslint-plugin-import": "^2.26.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.0",
     "prisma": "^4.14.1",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",

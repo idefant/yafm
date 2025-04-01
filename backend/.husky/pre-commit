@@ -1,2 +1,2 @@
-cd frontend
+cd backend
 npx lint-staged
