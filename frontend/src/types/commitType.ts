@@ -13,5 +13,5 @@ export const updatedBaseMethods = ['init_base', 'import_base', 'change_password'
 
 export type Commit = {
   actions: CommitAction[];
-  createdAt: Date;
+  createdAt: number;
 };

@@ -1,5 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import dayjs from 'dayjs';
 import { FC, useId } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -30,14 +29,14 @@ export const SettingBackup: FC = () => {
     if (values.useEncryption) {
       const encryptedData = await Cryptor.encrypt(data);
       const fileData: BaseFileData = {
-        createdAt: dayjs().toISOString(),
+        createdAt: Date.now(),
         isEncrypted: true,
         data: encryptedData,
       };
       exportJsonFile(fileData, 'backup-enc.json');
     } else {
       const fileData: BaseFileData = {
-        createdAt: dayjs().toISOString(),
+        createdAt: Date.now(),
         isEncrypted: false,
         data,
       };

@@ -18,7 +18,7 @@ export const baseSchema = z.object({
 });
 
 export const baseFileSchema = z.object({
-  createdAt: z.string().datetime(),
+  createdAt: z.number().int().nonnegative(),
   isEncrypted: z.boolean(),
   data: z.any(),
 });

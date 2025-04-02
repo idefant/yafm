@@ -4,6 +4,7 @@ import { EmptyObject, Except } from 'type-fest';
 
 import { mainApiCommit } from '#api/mainApi';
 import Cryptor from '#modules/Cryptor';
+import { commitSchema } from '#schema/commitSchema';
 import { store } from '#store';
 import {
   accountGroupsReceived,
@@ -282,21 +283,21 @@ export const actionCreator = {
 class Committer {
   actions: CommitActionWithDispatch[];
 
-  date: Date;
+  date: number;
 
   constructor(...actions: (CommitActionWithDispatch | undefined)[]) {
     this.actions = actions.filter((action): action is CommitActionWithDispatch => !!action);
-    this.date = new Date();
+    this.date = Date.now();
   }
 
   add(...actions: (CommitActionWithDispatch | undefined)[]) {
     this.actions.push(...actions.filter((action): action is CommitActionWithDispatch => !!action));
-    this.date = new Date();
+    this.date = Date.now();
     return this;
   }
 
   setDate(date: Date | string) {
-    this.date = dayjs(date).toDate();
+    this.date = +dayjs(date);
     return this;
   }
 
@@ -308,8 +309,9 @@ class Committer {
     this.actions.forEach(({ dispatchAction }) => dispatchAction?.());
 
     const commitData = {
-      actions: this.actions,
+      actions: this.actions.map(({ action }) => action),
       createdAt: this.date,
+      nonce: nanoid(),
     };
 
     return Cryptor.encrypt(commitData);
@@ -320,9 +322,12 @@ class Committer {
     if (decryptedDataResult.error) return;
 
     const decryptedData = decryptedDataResult.data;
-    // XXX: Необходимо провалидировать данные
+    const transformedCommitParsingResult = commitSchema.safeParse(decryptedData);
+    if (transformedCommitParsingResult.error) return;
 
-    return new Committer(...decryptedData.actions).setDate(decryptedData.createdAt);
+    return new Committer(
+      ...transformedCommitParsingResult.data.actions.map((action) => ({ action })),
+    ).setDate(decryptedData.createdAt);
   }
 
   async sync() {

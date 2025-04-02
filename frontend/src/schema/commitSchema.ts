@@ -21,18 +21,6 @@ import {
   deleteTransactionSchema,
 } from './transactionSchema';
 
-export const transformedCommitSchema = z.object({
-  createdAt: z.number().int().nonnegative(),
-  nonce: z.string(),
-  actions: z.array(
-    z.object({
-      method: z.string(),
-      data: z.object({}).or(z.string()),
-      transforms: z.array(z.string()).optional(),
-    }),
-  ),
-});
-
 export const commitActionSchema = z.union([
   // === Currency ===
   z.object({
@@ -136,3 +124,9 @@ export const commitActionSchema = z.union([
     data: baseSchema,
   }),
 ]);
+
+export const commitSchema = z.object({
+  createdAt: z.number().int().nonnegative(),
+  nonce: z.string(),
+  actions: z.array(commitActionSchema),
+});
