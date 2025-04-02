@@ -1,17 +1,14 @@
 services:
   yafm:
-    image: yafm:${TAG}
+    image: yafm:${TAG:-latest}
     container_name: yafm
     build:
-      context: ./
-      args:
-        VITE_EXRATES_API: ${VITE_EXRATES_API}
-        VITE_ACCOUNT_URL: ${VITE_ACCOUNT_URL}
-        DATABASE_URL: ${DATABASE_URL}
+      context: ../
+      dockerfile: docker/Dockerfile
     ports:
       - "5173:8080"
     env_file:
-      - .env
+      - ../.env
     stdin_open: true
     tty: true
     restart: always

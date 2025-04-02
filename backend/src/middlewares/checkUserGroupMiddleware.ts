@@ -9,7 +9,7 @@ export const checkUserGroup = (req: Request, res: Response, next: NextFunction) 
       throw new HttpException();
     }
 
-    const groupUser = process.env.GROUP_USER;
+    const groupUser = process.env.OIDC_GROUP_USER;
     const claims = req.oidc.idTokenClaims as IdTokenClaims;
 
     if (groupUser) {

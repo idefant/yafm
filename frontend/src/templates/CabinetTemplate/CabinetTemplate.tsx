@@ -2,6 +2,7 @@ import { FC } from 'react';
 import { Outlet } from 'react-router-dom';
 
 import { useFetchProfileInfoQuery } from '#api/mainApi';
+import { env } from '#data/env';
 import { appRoutes } from '#data/routes';
 import { Button } from '#ui/Button';
 import { HStack, VStack } from '#ui/Stack';
@@ -9,7 +10,7 @@ import { HStack, VStack } from '#ui/Stack';
 export const CabinetTemplate: FC = () => {
   const { data: profile } = useFetchProfileInfoQuery(undefined);
 
-  const accountUrl = import.meta.env.VITE_ACCOUNT_URL;
+  const accountUrl = env.OIDC_ACCOUNT_URL;
 
   return (
     <HStack gap={32}>

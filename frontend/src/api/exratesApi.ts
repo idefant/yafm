@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
+import { env } from '#data/env';
 import { ApiProps, ApiResult } from '#types/apiType';
 import { paths } from '#types/exrates-api-schema';
 
@@ -18,7 +19,7 @@ type FetchRatesByPeriodResult = ApiResult<FetchRatesByPeriod>;
 export const exratesApi = createApi({
   reducerPath: 'api/exrates',
   baseQuery: fetchBaseQuery({
-    baseUrl: import.meta.env.VITE_EXRATES_API,
+    baseUrl: env.EXRATES_API_URL,
   }),
   endpoints: (builder) => ({
     fetchCurrencies: builder.query<FetchCurrenciesResult, FetchCurrenciesProps>({

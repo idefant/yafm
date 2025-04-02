@@ -10,7 +10,7 @@ class AuthController {
     next: NextFunction,
   ) {
     try {
-      const groupUser = process.env.GROUP_USER;
+      const groupUser = process.env.OIDC_GROUP_USER;
       const isAuth = req.oidc.isAuthenticated();
 
       if (!isAuth) {

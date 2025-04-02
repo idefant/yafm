@@ -4,20 +4,20 @@ YAFM - Yet Another Finance Manager
 
 ## Переменные среды
 
-|     | Параметр           | Описание                                 | Значение по умолчанию |
-| --- | ------------------ | ---------------------------------------- | --------------------- |
-| ❗   | VITE_EXRATES_API   | Адрес сервиса ExRates                    |                       |
-|     | VITE_ACCOUNT_URL   | Ссылка на профиль пользователя в IdP     | (скрыто)              |
-| ❗   | DATABASE_URL       | Connection URL для БД MySQL              |                       |
-| ❗   | ISSUER_BASE_URL    | Корневой адрес провайдера OpenID Connect |                       |
-| ❗   | CLIENT_ID          | Client ID приложения                     |                       |
-| ❗   | CLIENT_SECRET      | Client Secret приложения                 |                       |
-| ❗   | BASE_URL           | Корневой адрес приложения                |                       |
-| ❗   | SECRET             | Секрет для шифрования cookie             |                       |
-|     | GROUP_USER         | Разрешенная группа пользователей         | (разрешены любые)     |
-| 🚧   | VITE_FRONTEND_PORT | Порт фронтенда                           | 5173                  |
-| 🚧   | BACKEND_PORT       | Порт бэкенда                             | 8080                  |
-| 🚧   | VITE_API           | Адрес бэкенда                            | http://localhost:8080 |
+|     | Параметр             | Описание                                 | Значение по умолчанию |
+| --- | -------------------- | ---------------------------------------- | --------------------- |
+| ❗   | BASE_URL             | Корневой адрес приложения                |                       |
+| ❗   | EXRATES_API_URL      | Адрес сервиса ExRates                    |                       |
+| ❗   | DATABASE_URL         | Connection URL для БД MySQL              |                       |
+| ❗   | OIDC_ISSUER_BASE_URL | Корневой адрес провайдера OpenID Connect |                       |
+| ❗   | OIDC_CLIENT_ID       | Client ID приложения                     |                       |
+| ❗   | OIDC_CLIENT_SECRET   | Client Secret приложения                 |                       |
+| ❗   | OIDC_COOKIE_SECRET   | Секрет для шифрования cookie             |                       |
+|     | OIDC_ACCOUNT_URL     | Ссылка на профиль пользователя в IdP     | (скрыто)              |
+|     | OIDC_GROUP_USER      | Разрешенная группа пользователей         | (разрешены любые)     |
+| 🚧   | VITE_FRONTEND_PORT   | Порт фронтенда                           | 5173                  |
+| 🚧   | BACKEND_PORT         | Порт бэкенда                             | 8080                  |
+| 🚧   | VITE_API             | Адрес бэкенда                            | http://localhost:8080 |
 
 Обозначения:
 - ❗ - обязательные
@@ -38,3 +38,9 @@ YAFM - Yet Another Finance Manager
 3. Установите зависимости командой `task install`
 4. Сгенерируйте базу данных командой `task gen-db`. Также существующую БД можно сбросить командой `task reset-db`
 5. Запустите проект в dev-режиме командой `task dev`
+
+## Сборка образа
+
+```sh
+docker compose -f docker/docker-compose.yml up -d --build
+```
