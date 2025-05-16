@@ -1,6 +1,6 @@
 # YAFM
 
-YAFM - Yet Another Finance Manager
+YAFM (Yet Another Finance Manager) - финансовый менеджер в браузере с e2e-шифрованием (AES)
 
 ## Переменные среды
 
