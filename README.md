@@ -4,20 +4,20 @@ YAFM - Yet Another Finance Manager
 
 ## Переменные среды
 
-|     | Параметр             | Описание                                 | Значение по умолчанию |
-| --- | -------------------- | ---------------------------------------- | --------------------- |
-| ❗   | BASE_URL             | Корневой адрес приложения                |                       |
-| ❗   | EXRATES_API_URL      | Адрес сервиса ExRates                    |                       |
-| ❗   | DATABASE_URL         | Connection URL для БД MySQL              |                       |
-| ❗   | OIDC_ISSUER_BASE_URL | Корневой адрес провайдера OpenID Connect |                       |
-| ❗   | OIDC_CLIENT_ID       | Client ID приложения                     |                       |
-| ❗   | OIDC_CLIENT_SECRET   | Client Secret приложения                 |                       |
-| ❗   | OIDC_COOKIE_SECRET   | Секрет для шифрования cookie             |                       |
-|     | OIDC_ACCOUNT_URL     | Ссылка на профиль пользователя в IdP     | (скрыто)              |
-|     | OIDC_GROUP_USER      | Разрешенная группа пользователей         | (разрешены любые)     |
-| 🚧   | VITE_FRONTEND_PORT   | Порт фронтенда                           | 5173                  |
-| 🚧   | BACKEND_PORT         | Порт бэкенда                             | 8080                  |
-| 🚧   | VITE_API             | Адрес бэкенда                            | http://localhost:8080 |
+|     | Параметр             | Описание                                                        | Значение по умолчанию |
+| --- | -------------------- | --------------------------------------------------------------- | --------------------- |
+| ❗   | BASE_URL             | Корневой адрес приложения                                       |                       |
+| ❗   | EXRATES_API_URL      | Адрес сервиса [ExRates](https://github.com/idefant/exrates-api) |                       |
+| ❗   | DATABASE_URL         | Connection URL для БД MySQL                                     |                       |
+| ❗   | OIDC_ISSUER_BASE_URL | Корневой адрес провайдера OpenID Connect                        |                       |
+| ❗   | OIDC_CLIENT_ID       | Client ID приложения                                            |                       |
+| ❗   | OIDC_CLIENT_SECRET   | Client Secret приложения                                        |                       |
+| ❗   | OIDC_COOKIE_SECRET   | Секрет для шифрования cookie                                    |                       |
+|     | OIDC_ACCOUNT_URL     | Ссылка на профиль пользователя в IdP                            | (скрыто)              |
+|     | OIDC_GROUP_USER      | Разрешенная группа пользователей                                | (разрешены любые)     |
+| 🚧   | VITE_FRONTEND_PORT   | Порт фронтенда                                                  | 5173                  |
+| 🚧   | BACKEND_PORT         | Порт бэкенда                                                    | 8080                  |
+| 🚧   | VITE_API             | Адрес бэкенда                                                   | http://localhost:8080 |
 
 Обозначения:
 - ❗ - обязательные
@@ -42,5 +42,6 @@ YAFM - Yet Another Finance Manager
 ## Сборка образа
 
 ```sh
-docker compose -f docker/docker-compose.yml up -d --build
+# Собрать и поднять образ из исходного кода
+docker compose up -d --build
 ```
