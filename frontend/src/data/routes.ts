@@ -16,6 +16,7 @@ export const appRoutes = {
   categories: '/categories',
   currencies: '/currencies',
   settings: '/settings',
+  commits: '/commits',
 
   // Other
   forbidden: '/forbidden',

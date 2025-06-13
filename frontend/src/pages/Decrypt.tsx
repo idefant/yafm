@@ -12,6 +12,7 @@ import { accountGroupsReceived } from '#store/reducers/accountGroupsSlice';
 import { accountsReceived } from '#store/reducers/accountsSlice';
 import { unlockBase } from '#store/reducers/appSlice';
 import { categoriesReceived } from '#store/reducers/categoriesSlice';
+import { setCommits } from '#store/reducers/commitsSlice';
 import { currenciesReceived, setMainCurrency } from '#store/reducers/currenciesSlice';
 import { templatesReceived } from '#store/reducers/templatesSlice';
 import { transactionsReceived } from '#store/reducers/transactionsSlice';
@@ -107,6 +108,15 @@ export const Decrypt: FC = () => {
     dispatch(categoriesReceived(base.categories));
     dispatch(templatesReceived(base.templates));
     dispatch(transactionsReceived(base.transactions));
+    dispatch(
+      setCommits(
+        decryptedCommits.map((commit) => ({
+          createdAt: commit.createdAt,
+          actions: commit.actions,
+          nonce: '',
+        })),
+      ),
+    );
 
     navigate(appRoutes.dashboard);
   };

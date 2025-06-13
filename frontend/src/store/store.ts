@@ -9,12 +9,14 @@ import accountGroupsReducer from './reducers/accountGroupsSlice';
 import accountsReducer from './reducers/accountsSlice';
 import appReducer from './reducers/appSlice';
 import categoriesReducer from './reducers/categoriesSlice';
+import commitReducer from './reducers/commitsSlice';
 import currenciesReducer from './reducers/currenciesSlice';
 import templatesReducer from './reducers/templatesSlice';
 import transactionsReducer from './reducers/transactionsSlice';
 
 export const rootReducer = combineReducers({
   app: appReducer,
+  commits: commitReducer,
   currencies: currenciesReducer,
   accountGroups: accountGroupsReducer,
   accounts: accountsReducer,

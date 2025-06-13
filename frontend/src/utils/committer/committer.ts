@@ -24,6 +24,7 @@ import {
   categoryDeleted,
   categoryUpdated,
 } from '#store/reducers/categoriesSlice';
+import { addCommit } from '#store/reducers/commitsSlice';
 import {
   currenciesReceived,
   currencyAdded,
@@ -313,6 +314,8 @@ class Committer {
       createdAt: this.date,
       nonce: nanoid(),
     };
+
+    store.dispatch(addCommit(commitData as any));
 
     return Cryptor.encrypt(commitData);
   }

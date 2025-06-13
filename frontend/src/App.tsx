@@ -7,6 +7,7 @@ import { useAppSelector } from '#hooks/reduxHooks';
 import { AccountGroups } from '#pages/AccountGroups';
 import { Accounts } from '#pages/Accounts';
 import { Categories } from '#pages/Categories';
+import { Commits } from '#pages/Commits';
 import { Currencies } from '#pages/Currencies';
 import { Dashboard } from '#pages/Dashboard';
 import { Decrypt } from '#pages/Decrypt';
@@ -76,6 +77,7 @@ const App: FC = () => {
         <Route path={appRoutes.templates} element={<Templates />} />
         <Route path={appRoutes.categories} element={<Categories />} />
         <Route path={appRoutes.currencies} element={<Currencies />} />
+        <Route path={appRoutes.commits} element={<Commits />} />
         <Route path={appRoutes.notFound} element={<Navigate to={appRoutes.dashboard} />} />
       </Route>
     );

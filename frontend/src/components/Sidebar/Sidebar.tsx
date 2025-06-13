@@ -22,6 +22,7 @@ const navItems: { label: string; link: string; icon: FunctionComponent }[] = [
   { label: 'Categories', link: appRoutes.categories, icon: TagIcon },
   { label: 'Currencies', link: appRoutes.currencies, icon: DollarIcon },
   { label: 'Settings', link: appRoutes.settings, icon: SettingsIcon },
+  { label: 'Commits', link: appRoutes.commits, icon: SettingsIcon },
 ];
 
 export const Sidebar: FC = () => (

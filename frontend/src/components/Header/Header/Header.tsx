@@ -7,6 +7,7 @@ import { accountGroupsCleared } from '#store/reducers/accountGroupsSlice';
 import { accountsCleared } from '#store/reducers/accountsSlice';
 import { lockBase, setArchiveMode } from '#store/reducers/appSlice';
 import { categoriesCleared } from '#store/reducers/categoriesSlice';
+import { clearCommits } from '#store/reducers/commitsSlice';
 import { currenciesCleared } from '#store/reducers/currenciesSlice';
 import { templatesCleared } from '#store/reducers/templatesSlice';
 import { transactionsCleared } from '#store/reducers/transactionsSlice';
@@ -28,6 +29,7 @@ export const Header: FC = () => {
     dispatch(transactionsCleared());
     dispatch(categoriesCleared());
     dispatch(templatesCleared());
+    dispatch(clearCommits());
     dispatch(lockBase());
     navigate(appRoutes.decrypt);
   };
