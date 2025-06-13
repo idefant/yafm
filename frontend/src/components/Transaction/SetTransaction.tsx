@@ -119,9 +119,9 @@ export const SetTransaction: FC<SetTransactionProps> = ({ modal }) => {
     };
 
     commit.add(
-      modal.data.method === 'create' || modal.data.method === 'createUsingTemplate'
-        ? actionCreator.createTransaction(transactionData)
-        : actionCreator.updateTransaction(modal.data.transaction.id, transactionData),
+      modal.data.method === 'edit'
+        ? actionCreator.updateTransaction(modal.data.transaction.id, transactionData)
+        : actionCreator.createTransaction(transactionData),
     );
     commit.sync();
 
@@ -180,9 +180,7 @@ export const SetTransaction: FC<SetTransactionProps> = ({ modal }) => {
           <Form onSubmit={handleSubmit(onSubmit)} id={formId}>
             <HStack align="center" gap={16}>
               <Title level={4}>
-                {modal.data?.method === 'create' || modal.data?.method === 'createUsingTemplate'
-                  ? 'Create Transaction'
-                  : 'Edit Transaction'}
+                {modal.data?.method === 'edit' ? 'Edit Transaction' : 'Create Transaction'}
               </Title>
               {modal.data?.method === 'create' && (
                 <Button size="sm" onClick={templateModal.open}>
